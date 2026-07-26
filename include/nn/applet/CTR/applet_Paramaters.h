@@ -1,7 +1,7 @@
 #pragma once
 
-#include "nn/Handle.h"
-#include "nn/fnd/fnd_TimeSpan.h"
+#include <nn/Handle.h>
+#include <nn/fnd/fnd_TimeSpan.h>
 
 namespace nn{
 namespace applet{

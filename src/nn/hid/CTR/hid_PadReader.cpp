@@ -1,8 +1,6 @@
 // Filename: hid_PadReader.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/hid/CTR/hid_PadReader.h>
 #include <nn/hid/CTR/hid_ExtraPad.h>
@@ -85,16 +83,20 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
     }
 }
 
-void PadReader::SetNormalizeStickScaleSettings(f32 scale, s16 threshold){
-    return this->mStickClamper.SetNormalizeStickScaleSettings(scale,threshold);
-}
-
 void PadReader::SetStickClamp(short min, short max){
     return this->mStickClamper.SetStickClamp(min,max);
 }
 
 f32 PadReader::NormalizeStick(short pos){
     return this->mStickClamper.NormalizeStick(pos);
+}
+
+void PadReader::NormalizeStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y){
+    //return this->mStickClamper.NormalizeStickWithScale(normalized_x, normalized_y, x, y);
+}
+
+void PadReader::SetNormalizeStickScaleSettings(f32 scale, s16 threshold){
+    return this->mStickClamper.SetNormalizeStickScaleSettings(scale,threshold);
 }
 
 }

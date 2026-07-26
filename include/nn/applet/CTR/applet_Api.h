@@ -36,7 +36,7 @@ namespace detail{
     Result StartLibraryApplet(AppletId id, const u8* pParam=NULL, size_t paramSize=0, Handle handle=NN_APPLET_HANDLE_NONE);
 
     Result PrepareToCloseApplication(bool isCancelPreload = false);
-    Result CloseApplication(u8 *pParam,size_t paramSize,nn::Handle handle);
+    Result CloseApplication(u8 *pParam,size_t paramSize,nn::Handle handle = HANDLE_NONE);
 
     Result CallUtility(u32 utilityId, u8* pInParam, size_t inParamSize, u8* outParam, size_t outParamSize, s32* readSize);
 

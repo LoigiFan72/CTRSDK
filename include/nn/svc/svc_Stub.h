@@ -25,7 +25,8 @@ namespace svc{
     Result ConnectToPort(nn::Handle*, const char*);
     Result DuplicateHandle(nn::Handle*);
     Result GetProcessId(uint*, nn::Handle);
-    Result GetResourceLimit(nn::Handle*);
+    Result GetResourceLimit(nn::Handle*, Handle);
+    Result GetResourceLimitCurrentValues(s64 values[], nn::Handle resourceLimit, const nn::os::LimitableResource names[], s32 umNames);
     s64 GetSystemTick();
     Result GetThreadId(uint*,nn::Handle);
     Result WaitSynchronizationN(int*, const nn::Handle*, int,bool,long long);

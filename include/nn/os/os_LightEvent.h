@@ -5,7 +5,7 @@
 namespace nn{
 namespace os{
 
-class LightEvent : private nn::util::NonCopyable<LightEvent>{
+class LightEvent : private nn::util::ADLFireWall::NonCopyable<LightEvent>{
 private:
     nn::os::WaitableCounter mCounter;
     nn::os::SimpleLock mLock;

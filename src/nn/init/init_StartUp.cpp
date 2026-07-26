@@ -1,7 +1,8 @@
 // Filename: init_StartUp.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
+#include <nn/init.h>
 #include <nn/os/os_Initialize.h>
 #include <nn/os/CTR/os_ErrorHandler.h>
 #include <nn/ndm/ndm_Setup.h>
@@ -9,17 +10,16 @@
 
 #define NN_SYSTEM_DEFAULT_HEAP_SIZE     0x00800000
 
-typedef void (*nninitStaticInitFunc)(void);
 extern "C" nninitStaticInitFunc Image$$STATIC_INIT$$RO$$Base[];
 extern "C" nninitStaticInitFunc Image$$STATIC_INIT$$RO$$Limit[];
 
 extern "C"{
 
-void nninitStartUpDefault(); // init_Default.cpp 
-void nninitSetupDefault(); // init_Default.cpp
-
 __weak void nninitSystem(){
-   nn::os::Initialize();
+    nn::os::Initialize();
+#ifdef NN_HAS_MMU
+    nn::srv::Initialize();
+#endif
 }
 
 __weak void nninitSetupDameons(){
@@ -27,9 +27,7 @@ __weak void nninitSetupDameons(){
 }
 
 void nninitCallStaticInitializers(){
-    for(nninitStaticInitFunc* f = Image$$STATIC_INIT$$RO$$Base;
-         f < Image$$STATIC_INIT$$RO$$Limit;
-         ++f ){
+    for(nninitStaticInitFunc* f = Image$$STATIC_INIT$$RO$$Base; f < Image$$STATIC_INIT$$RO$$Limit; ++f){
         (*f)();
     }
 }

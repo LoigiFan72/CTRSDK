@@ -2,9 +2,9 @@
 
 namespace nn{
 namespace os{
-    void Initialize(void); // 100 tech ez
+    void Initialize(void);
 
 }
 }
 
-void nnosInitialize();
+extern "C" void nnosInitialize();

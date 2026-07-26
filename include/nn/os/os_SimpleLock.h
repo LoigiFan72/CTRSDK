@@ -7,7 +7,7 @@
 namespace nn{ 
 namespace os{
     
-class SimpleLock : private nn::util::NonCopyable<SimpleLock>{
+class SimpleLock : private nn::util::ADLFireWall::NonCopyable<SimpleLock>{
 private:
     WaitableCounter mCounter;
 public:

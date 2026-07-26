@@ -1,8 +1,6 @@
 // Filename: hid_AnalogStickClamper.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/hid/CTR/hid_AnalogStickClamper.h>
 #include <nn/hidlow/hidlow_Utils.h>
@@ -30,19 +28,19 @@ AnalogStickClamper::AnalogStickClamper() :
 }
 
 void AnalogStickClamper::SetStickClampFree(s16 min, s16 max){
-    if(this->mStickClampMode == STICK_CLAMP_MODE_CIRCLE){
-        this->mMinOfStickClampCircle = min;
-        this->mMaxOfStickClampCircle = max;
+    if(mStickClampMode == STICK_CLAMP_MODE_CIRCLE){
+        mMinOfStickClampCircle = min;
+        mMaxOfStickClampCircle = max;
     }
 
-    else if(this->mStickClampMode == STICK_CLAMP_MODE_CROSS){
-        this->mMinOfStickClampCross = min;
-        this->mMaxOfStickClampCross = max;
+    else if(mStickClampMode == STICK_CLAMP_MODE_CROSS){
+        mMinOfStickClampCross = min;
+        mMaxOfStickClampCross = max;
     }
 
     else{
-        this->mMaxOfStickClampMinimum = max;
-        this->mMinOfStickClampMinimum = min;
+        mMaxOfStickClampMinimum = max;
+        mMinOfStickClampMinimum = min;
     }
 }
 
@@ -67,20 +65,20 @@ void AnalogStickClamper::ClampCore(short* pOutX, short* pOutY, s32 x, s32 y){
 }
 
 void AnalogStickClamper::ClampValueOfClamp() {
-  if (this->mMinOfStickClampCircle < 40)
-    this->mMinOfStickClampCircle = 40;
+  if (mMinOfStickClampCircle < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
+    mMinOfStickClampCircle = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
     
-  if (this->mMinOfStickClampCross < 36)
-    this->mMinOfStickClampCross = 36;
+  if (mMinOfStickClampCross < MIN_OF_STICK_CLAMP_MODE_CROSS)
+    mMinOfStickClampCross = MIN_OF_STICK_CLAMP_MODE_CROSS;
     
-  if (this->mMaxOfStickClampCircle > 145)
-    this->mMaxOfStickClampCircle = 145;
+  if (mMaxOfStickClampCircle > LIMIT_OF_STICK_CLAMP_MAX)
+    mMaxOfStickClampCircle = LIMIT_OF_STICK_CLAMP_MAX;
     
-  if (this->mMaxOfStickClampCross > 145)
-    this->mMaxOfStickClampCross = 145;
+  if (mMaxOfStickClampCross > LIMIT_OF_STICK_CLAMP_MAX)
+    mMaxOfStickClampCross = LIMIT_OF_STICK_CLAMP_MAX;
     
-  if (this->mMaxOfStickClampMinimum > 145)
-    this->mMaxOfStickClampMinimum = 145;
+  if (mMaxOfStickClampMinimum > LIMIT_OF_STICK_CLAMP_MAX)
+    mMaxOfStickClampMinimum = LIMIT_OF_STICK_CLAMP_MAX;
 }
 
 f32 AnalogStickClamper::NormalizeStick(s16 x){
@@ -97,7 +95,7 @@ f32 AnalogStickClamper::NormalizeStick(s16 x){
         break;
 
     case STICK_CLAMP_MODE_MINIMUM:
-        threshold = 0x69;
+        threshold = LIMIT_OF_STICK_CLAMP_MAX - MIN_OF_STICK_CLAMP_MODE_CIRCLE;
         break;
     }
 
@@ -113,23 +111,29 @@ f32 AnalogStickClamper::NormalizeStick(s16 x){
 void AnalogStickClamper::SetStickClamp(short min, short max) {
     NN_TASSERT_(0 <= min);
     NN_TASSERT_(min < max);
-    if (max > LIMIT_OF_STICK_CLAMP_MAX) max = LIMIT_OF_STICK_CLAMP_MAX;
-
-    if (this->mStickClampMode == STICK_CLAMP_MODE_CIRCLE) {
-        if (min < MIN_OF_STICK_CLAMP_MODE_CIRCLE) min = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
-        this->mMinOfStickClampCircle = min;
-        this->mMaxOfStickClampCircle = max;
-        return;
-    }
     
-    if (this->mStickClampMode != STICK_CLAMP_MODE_CROSS) {
-        this->mMaxOfStickClampMinimum = max;
-        return;
+    if (LIMIT_OF_STICK_CLAMP_MAX < max){
+        max = LIMIT_OF_STICK_CLAMP_MAX;
     }
 
-    if (min < MIN_OF_STICK_CLAMP_MODE_CIRCLE) min = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
-    this->mMinOfStickClampCross = min;
-    this->mMaxOfStickClampCross = max;
+    if (mStickClampMode == STICK_CLAMP_MODE_CIRCLE){
+        if (min < MIN_OF_STICK_CLAMP_MODE_CIRCLE){
+            min = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
+        }
+        mMinOfStickClampCircle = min;
+        mMaxOfStickClampCircle = max;
+    
+    }
+    else if (mStickClampMode == STICK_CLAMP_MODE_CROSS){
+        if (min < MIN_OF_STICK_CLAMP_MODE_CROSS){
+            min = MIN_OF_STICK_CLAMP_MODE_CROSS;
+        }
+        mMinOfStickClampCross = min;
+        mMaxOfStickClampCross = max;
+    }
+    else{
+        mMaxOfStickClampMinimum = max;
+    }
 }
 
 }

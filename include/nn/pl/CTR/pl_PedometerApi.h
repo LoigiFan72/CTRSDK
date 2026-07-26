@@ -16,7 +16,7 @@ namespace detail{
         NUM_OF_IPC_PORTS
     } IPCPortType;
 
-} // detail
+}
 
 void GetStepHistory(ushort* pStepCounts, s32 numHours, nn::fnd::DateTime start);
 

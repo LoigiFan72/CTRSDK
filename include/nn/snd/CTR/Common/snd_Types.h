@@ -1,7 +1,6 @@
 #pragma once
 
-#include "nn/snd/CTR/Common/snd_Bcwav.h"
-
+#include <nn/snd/CTR/Common/snd_Bcwav.h>
 #include <string.h>
 
 namespace nn {
@@ -150,3 +149,11 @@ enum SyncMode{
 } // namespace CTR
 } // namespace snd
 } // namespace nn
+
+typedef enum nnsndChannelIndex{
+    NN_SND_CHANNEL_INDEX_FRONT_LEFT,
+    NN_SND_CHANNEL_INDEX_FRONT_RIGHT,
+    NN_SND_CHANNEL_INDEX_REAR_LEFT,
+    NN_SND_CHANNEL_INDEX_REAR_RIGHT,
+    NN_SND_CHANNEL_INDEX_NUM
+} nnsndChannelIndex;

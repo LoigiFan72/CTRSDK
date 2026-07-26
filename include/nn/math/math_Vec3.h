@@ -165,7 +165,7 @@ inline VEC3* VEC3NormalizeC_FAST(VEC3* pOut, const VEC3* p){
 }
 
 inline VEC3* VEC3Normalize(VEC3* pOut, const VEC3* p){
-    #ifdef NN_DEBUG // Unoptimized check.
+    #ifdef NN_BUILD_DEBUG // Unoptimized check.
         return ARMv6::VEC3NormalizeC(pOut, p);
     #else  
         return ARMv6::VEC3NormalizeC_FAST(pOut, p);

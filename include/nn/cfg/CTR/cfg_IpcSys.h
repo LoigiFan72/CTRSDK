@@ -1,4 +1,6 @@
-#include "nn/Handle.h"
+#pragma once
+
+#include <nn/Handle.h>
 
 namespace nn{
 namespace cfg{

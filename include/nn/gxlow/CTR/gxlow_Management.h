@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/gxlow/gxlow_GpuClient.h"
+#include <nn/gxlow/CTR/gxlow_GpuClient.h>
 
 typedef enum nngxlowInterrupt {
     NN_GXLOW_INTERRUPT_GPU_PSC_0=0,
@@ -15,29 +15,6 @@ typedef enum nngxlowInterrupt {
 
 typedef uptr (*nngxlowFuncPtr)(void);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void nngxlowInitialize();
-bool nngxlowIsFirstInitialization();
-
-void nngxlowFinalize();
-
-s32 nngxlowGetNumSpeculativeRequests();
-
-nngxlowFuncPtr nngxlowRegisterInterruptHandler(nngxlowFuncPtr interruptHandler,nngxlowInterrupt type);
-
-void nngxlowLock();
-void nngxlowUnlock();
-
-void nngxlowYieldThread();
-
-
-
-#ifdef __cplusplus
-}
-#endif
 namespace nn{
 namespace gxlow{
 namespace CTR{
@@ -70,8 +47,10 @@ namespace detail{
     bool IsFatalErrMode();
 
     Gpu* GetGpuIpc();
-inline bool IsContinousMemory(uptr addr){ return addr >= 0x14000000 && addr < 0x1C000000 ;}
-inline bool IsVram(uptr addr){ return addr >= 0x1F000000 && addr <= 0x1F5FFFFF; }
+
+    inline bool IsDeviceMemory(uptr addr){ }
+    inline bool IsContinousMemory(uptr addr){ return addr >= 0x14000000 && addr < 0x1C000000 ;}
+    inline bool IsVram(uptr addr){ return addr >= 0x1F000000 && addr <= 0x1F5FFFFF; }
 }
 }
 }

@@ -3,6 +3,7 @@
 // Project: Horizon Decompilation
 
 #include <nn/os/os_AddressSpaceManager.h>
+#include <nn/os/os_MemoryBlock.h>
 #include <nn/os/os_CriticalSection.h>
 #include <nn/fnd/fnd_Intrusive.h>
 #include <nn/dbg/dbg_Break.h>
@@ -12,10 +13,10 @@ namespace nn{
 namespace os{
 
 void AddressSpaceManager::Initialize(uptr begin, size_t size){
-    if (this->mSpaceBegin == 0 && this->mSpaceEnd == 0){
+    if (mSpaceBegin == 0 && mSpaceEnd == 0){
         this->mLock.Initialize();
-        this->mSpaceBegin = begin;
-        this->mSpaceEnd = begin + size;
+        mSpaceBegin = begin;
+        mSpaceEnd = begin + size;
     }
 }
 

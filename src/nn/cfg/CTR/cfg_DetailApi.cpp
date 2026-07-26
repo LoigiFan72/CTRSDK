@@ -1,6 +1,6 @@
 // Filename: cfg_DetailApi.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/cfg/CTR/cfg_DetailApi.h>
 #include <nn/cfg/CTR/cfg_IpcUser.h>

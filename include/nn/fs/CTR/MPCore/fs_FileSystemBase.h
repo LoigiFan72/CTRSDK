@@ -6,14 +6,14 @@
 
 namespace nn{
 namespace fs{
-    Result MountSaveData(char* pArchiveName = "data:");
+    Result MountSaveData(const char* pArchiveName = "data:");
 
     Result FormatSaveData(size_t pMaxFiles, size_t pMaxDirectories, bool pIsDuplicated);
     Result CommitSaveData(const char* archiveName = "data:");
 
-    Result MountRom(char *pArchiveName,size_t pMaxFile,size_t pMaxDirectory,void *pWorkingMemory, size_t pWorkingMemorySize,bool pUseCache);
+    Result MountRom(const char *pArchiveName,size_t pMaxFile,size_t pMaxDirectory,void *pWorkingMemory, size_t pWorkingMemorySize,bool pUseCache);
     Result MountRom(size_t pMaxFile, size_t pMaxDirectory, void* pWorkingMemory, size_t pWorkingMemorySize, bool pUseCache);
-    Result Unmount(char* pArchiveName = "data:");
+    Result Unmount(const char* pArchiveName = "data:");
 
     Result MountSdmc(const char* archiveName = "sdmc:");
 

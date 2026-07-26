@@ -25,7 +25,7 @@ public:
 public:
     void Initialize();
     DspFxManagerImpl* Finalize();
-    static DspFxManager* GetInstance();
+    static DspFxManager& GetInstance();
     bool Detach(DspEffectType type,AuxBusId id);
     bool Attach(DspEffectType,AuxBusId);
     s32 GetDspCycles();
@@ -40,9 +40,6 @@ public:
             return 0;
         }
     }
-
-    static DspFxManager* sInstance;
-
 };
 
 class DspFxManagerImpl{
@@ -54,11 +51,9 @@ public:
     void Initialize();
     DspFxManagerImpl* Finalize();
     void ForceUpdateParams();
-    static DspFxManagerImpl* GetInstance();
+    static DspFxManagerImpl& GetInstance();
     bool SetDspDelayEffect(AuxBusId id, DspFxDelayParams* param);
     bool SetDspReverbEffect(AuxBusId id, DspFxReverbParams* param);
-
-    static DspFxManagerImpl* sInstance;
 };
 }
 }

@@ -1,6 +1,6 @@
 // Filename: srv_Manager.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/srv/srv_Manager.h>
 

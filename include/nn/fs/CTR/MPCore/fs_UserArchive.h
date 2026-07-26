@@ -29,7 +29,7 @@ public:
     virtual void DetachFileHandle() { } // 0x28
 
     virtual void Close() = 0; // 0x2C
-    virtual ~IFile() {} // 0x28
+    virtual ~IFile() {} // 0x30
 };
 
 class IDirectory{

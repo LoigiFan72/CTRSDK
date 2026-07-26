@@ -17,8 +17,7 @@ namespace ro {
         FIX_LEVEL_MAX_BITS = (1u << 31)
     };
 
-    struct SizeInfo
-    {
+    struct SizeInfo{
         uptr    mFix0End;
         uptr    mFix1End;
         uptr    mFix2End;

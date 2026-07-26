@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/Result.h"
+#include <nn/Result.h>
 
 namespace nn {
 namespace applet {
@@ -18,17 +18,20 @@ enum ResultDescription{
     DESCRIPTION_APPLET_VERSION_MUST_LAUNCH_DIRECTLY = 9 
 };
 
-NN_DEFINE_RESULT_CONST
-    (ResultBusy,
+NN_DEFINE_RESULT_CONST(
+    ResultBusy,
        Result::LEVEL_STATUS, Result::SUMMARY_INVALID_STATE, Result::MODULE_NN_APPLET,  Result::DESCRIPTION_BUSY);
-NN_DEFINE_RESULT_CONST
-    (ResultNoData,
+
+NN_DEFINE_RESULT_CONST(
+    ResultNoData,
         Result::LEVEL_STATUS, Result::SUMMARY_INVALID_STATE, Result::MODULE_NN_APPLET,  Result::DESCRIPTION_NO_DATA);
-NN_DEFINE_RESULT_CONST
-    (ResultNotEmpty,
-        Result::LEVEL_STATUS, Result::SUMMARY_INVALID_STATE, Result::MODULE_NN_APPLET,  DESCRIPTION_APPLET_PARAMETER_BUFFER_NOT_EMPTY );
-NN_DEFINE_RESULT_CONST
-    (ResultTransitionBusy,
+
+NN_DEFINE_RESULT_CONST(
+    ResultNotEmpty,
+        Result::LEVEL_STATUS, Result::SUMMARY_INVALID_STATE, Result::MODULE_NN_APPLET,  DESCRIPTION_APPLET_PARAMETER_BUFFER_NOT_EMPTY);
+
+NN_DEFINE_RESULT_CONST(
+    ResultTransitionBusy,
         Result::LEVEL_USAGE, Result::SUMMARY_INVALID_STATE, Result::MODULE_NN_APPLET,  DESCRIPTION_APPLET_TRANSITION_BUSY);
 }
 }

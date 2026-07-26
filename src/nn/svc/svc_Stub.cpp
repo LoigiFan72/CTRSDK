@@ -1,6 +1,6 @@
 // Filename: svc_Stub.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/svc/svc_Stub.h>
 
@@ -158,12 +158,17 @@ namespace svc{
     }
 
     // GetResourceLimit - Fetches limit
-    __asm Result GetResourceLimit(nn::Handle*){
+    __asm Result GetResourceLimit(nn::Handle*, Handle){
         str r0,[sp,#4]
         swi 0x38
         ldr r2,[sp,#0]
         str r1,[r2,#0]
         add sp,sp,#4
+        bx lr
+    }
+
+    __asm Result GetResourceLimitCurrentValues(s64 values[], nn::Handle resourceLimit, const nn::os::LimitableResource names[], s32 umNames){
+        swi 0x3a
         bx lr
     }
 
@@ -226,12 +231,12 @@ namespace svc{
         bx lr
     }
 
-//#ifdef NN_DEBUG
+
     __asm Result OutputDebugString(const char* text, s32 length){
         swi 0x3d
         bx lr
     }
-//#endif
+
     __asm Result ClearEvent(nn::Handle){
         swi 0x19
         bx lr

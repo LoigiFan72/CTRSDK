@@ -1,6 +1,6 @@
-// Filename: nstd_String.c
+// Filename: [ARMv6] nstd_String.c
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/nstd/ARMv6/nstd_String.h>
 

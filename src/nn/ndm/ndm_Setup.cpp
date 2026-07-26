@@ -1,14 +1,13 @@
 // Filename: ndm_Setup.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
-#include <nn/ndm/ndm_Setup.h>
-#include <nn/ndm/ndm_UserControl.h>
-#include <nn/ndm/ndm_Interface.h>
+#include <nn/ndm.h>
 #include <nn/applet/CTR/applet_Info.h>
-#include <nn/applet/CTR/applet_Api.h>
+#include <nn/applet/CTR/applet_API.h>
 
 #include <nn/dbg/dbg_DebugString.h>
+
 namespace nn{
 namespace ndm{
 

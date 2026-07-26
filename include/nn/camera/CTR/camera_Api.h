@@ -11,11 +11,6 @@ namespace detail{
     Result ArriveApplication();
     Result LeaveApplication();
 
-namespace{
-    extern u8 isInitialized;
-    extern u8 leaveApplication;
-
-}
 }
 }
 }

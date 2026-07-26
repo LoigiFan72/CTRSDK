@@ -1,6 +1,6 @@
 // Filename: os_SpinWait.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/os/ARM/os_SpinWait.h>
 

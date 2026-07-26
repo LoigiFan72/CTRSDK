@@ -1,150 +1,120 @@
+// Filename: hid_IpcClient.cpp
+//
+// Project: Horizon
+
 #include <nn/hid/CTR/hid_IpcClient.h>
+#include <nn/os/ipc/os_Message.h>
+#include <nn/svc.h>
 
 namespace nn{
 namespace hid{
 namespace CTR{
 namespace detail{
-namespace Ipc{
 
-nn::Handle sSession;
+nn::Handle Ipc::sSession;
 
-__asm Result EnableAccelerometer(){
-    PUSH            {R4,LR}
-    MRC             p15, 0, R4,c13,c0, 3
-    MOV             R0, #0x110000
-    STR             R0, [R4,#0x80]!
-    LDR             R0, =__cpp(&sSession)
-    LDR             R0, [R0]
-    SVC             0x32 ; '2'
-    AND             R1, R0, #0x80000000
-    CMP             R1, #0
-    LDRGE           R0, [R4,#4]
-    POP             {R4,PC}
+Result Ipc::GetIPCHandles(Handle* pSharedMemoryHandle, Handle* pPadEvent, Handle* pTouchPanelEvent, Handle* pAccelerometerEvent, Handle* pGyroscopeLowEvent, Handle* pDebugPadEvent){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0xA, 0, 0, 0);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    *pSharedMemoryHandle = ipcMsg.GetHandle(3);
+    *pPadEvent = ipcMsg.GetHandle(4);
+    *pTouchPanelEvent = ipcMsg.GetHandle(5);
+    *pAccelerometerEvent = ipcMsg.GetHandle(6);
+    *pGyroscopeLowEvent = ipcMsg.GetHandle(7);
+    *pDebugPadEvent = ipcMsg.GetHandle(8);
+
+    return ipcMsg.GetRaw<Result>(1);
 }
 
-__asm Result DisableAccelerometer(){
-    PUSH            {R4,LR}
-    MRC             p15, 0, R4,c13,c0, 3
-    MOV             R0, #0x120000
-    STR             R0, [R4,#0x80]!
-    LDR             R0, =__cpp(&sSession)
-    LDR             R0, [R0]
-    SVC             0x32 ; '2'
-    AND             R1, R0, #0x80000000
-    CMP             R1, #0
-    LDRGE           R0, [R4,#4]
-    POP             {R4,PC}
+Result Ipc::EnableAccelerometer(){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0x11, 0, 0, 0);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
 }
 
-__asm Result EnableGyroscopeLow(){
-    PUSH            {R4,LR}
-    MRC             p15, 0, R4,c13,c0, 3
-    MOV             R0, #0x130000
-    STR             R0, [R4,#0x80]!
-    LDR             R0, =__cpp(&sSession)
-    LDR             R0, [R0]
-    SVC             0x32 ; '2'
-    AND             R1, R0, #0x80000000
-    CMP             R1, #0
-    LDRGE           R0, [R4,#4]
-    POP             {R4,PC}
+Result Ipc::DisableAccelerometer(){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0x12, 0, 0, 0);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
 }
 
-__asm Result DisableGyroscopeLow(){
-    PUSH            {R4,LR}
-    MRC             p15, 0, R4,c13,c0, 3
-    MOV             R0, #0x140000
-    STR             R0, [R4,#0x80]!
-    LDR             R0, =__cpp(&sSession)
-    LDR             R0, [R0]
-    SVC             0x32 ; '2'
-    AND             R1, R0, #0x80000000
-    CMP             R1, #0
-    LDRGE           R0, [R4,#4]
-    POP             {R4,PC}
+Result Ipc::EnableGyroscopeLow(){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0x13, 0, 0, 0);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
 }
 
-__asm Result GetGyroscopeLowCalibrateParam(GyroscopeLowCalibrateParam *){
-    PUSH            {R4-R6,LR}
-    MOV             R5, R0
-    MRC             p15, 0, R4,c13,c0, 3
-    MOV             R0, #0x160000
-    STR             R0, [R4,#0x80]!
-    LDR             R0, =__cpp(&sSession)
-    LDR             R0, [R0]
-    SVC             0x32 ; '2'
-    ANDS            R1, R0, #0x80000000
-    BMI             locret_4620E8
-    LDR             R1, [R4,#8]
-    STR             R1, [R5]
-    LDR             R1, [R4,#0xC]
-    STR             R1, [R5,#4]
-    LDR             R1, [R4,#0x10]
-    STR             R1, [R5,#8]
-    LDR             R1, [R4,#0x14]
-    STR             R1, [R5,#0xC]
-    LDRH            R0, [R4,#0x18]
-    STRH            R0, [R5,#0x10]
-    LDR             R0, [R4,#4]
+Result Ipc::DisableGyroscopeLow(){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0x14, 0, 0, 0);
 
-locret_4620E8
-    POP             {R4-R6,PC}
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
 }
 
-__asm Result GetGyroscopeLowRawToDpsCoefficient(){
-    PUSH            {R4-R6,LR}
-    MOV             R5, R0
-    MRC             p15, 0, R4,c13,c0, 3
-    MOV             R0, #0x150000
-    STR             R0, [R4,#0x80]!
-    LDR             R0, =__cpp(&sSession)
-    LDR             R0, [R0]
-    SVC             0x32 ; '2'
-    ANDS            R1, R0, #0x80000000
-    BMI             locret_462124
-    VLDR            S0, [R4,#8]
-    VSTR            S0, [R5]
-    LDR             R0, [R4,#4]
+Result Ipc::GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0x15, 0, 0, 0);
 
-locret_462124
-    POP             {R4-R6,PC}
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    *pCoefficient = ipcMsg.GetRaw<f32>(2);
+
+    return ipcMsg.GetRaw<Result>(1);
 }
 
-__asm Result GetIPCHandles(Handle *pSharedMemoryHandle,Handle *pPadEvent,Handle *pTouchPanelEvent,Handle *pAccelerometerEvent,Handle *pGyroscopeLowEvent,Handle *pDebugPadEvent){
-    PUSH            {R4-R10,LR}
-    MOV             R5, R0
-    ADD             R0, SP, #0x20
-    MOV             R6, R1
-    LDM             R0, {R9,R10}
-    MOV             R7, R2
-    MOV             R8, R3
-    MRC             p15, 0, R4,c13,c0, 3
-    MOV             R0, #0xA0000
-    STR             R0, [R4,#0x80]!
-    LDR             R0, =__cpp(&sSession)
-    LDR             R0, [R0]
-    SVC             0x32 ; '2'
-    ANDS            R1, R0, #0x80000000
-    BMI             locret_10E8A8
-    LDR             R0, [R4,#0xC]
-    STR             R0, [R5]
-    LDR             R0, [R4,#0x10]
-    STR             R0, [R6]
-    LDR             R0, [R4,#0x14]
-    STR             R0, [R7]
-    LDR             R0, [R4,#0x18]
-    STR             R0, [R8]
-    LDR             R0, [R4,#0x1C]
-    STR             R0, [R9]
-    LDR             R0, [R4,#0x20]
-    STR             R0, [R10]
-    LDR             R0, [R4,#4]
+Result Ipc::GetGyroscopeLowCalibrateParam( nn::hid::CTR::GyroscopeLowCalibrateParam* param ){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0x16, 0, 0, 0);
 
-locret_10E8A8
-    POP             {R4-R10,PC}
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    *param = ipcMsg.GetRaw<nn::hid::CTR::GyroscopeLowCalibrateParam>(2);
+
+    return ipcMsg.GetRaw<Result>(1);
 }
 
-}
 }
 }
 }

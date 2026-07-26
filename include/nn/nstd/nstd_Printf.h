@@ -12,7 +12,7 @@ s32 TSNPrintf (char* dst, size_t len, const char* fmt, ...);
 s32 TSPrintf (char* dst, const char* fmt, ...);
 
 s32 TVSNWPrintf (wchar_t* dst, size_t len, const wchar_t* fmt, va_list vlist);
-s32 TSWNPrintf(wchar_t *dst, size_t len, const wchar_t *fmt, ...);
+s32 TSNWPrintf(wchar_t *dst, size_t len, const wchar_t *fmt, ...);
 s32 TSWPrintf (wchar_t* dst, const wchar_t* fmt, ...);
 
 } // namespace nstd

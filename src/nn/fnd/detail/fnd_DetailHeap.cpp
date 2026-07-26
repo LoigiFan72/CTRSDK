@@ -1,3 +1,7 @@
+
+
+
+#include <stdlib.h>
 #include <nn/fnd/detail/fnd_DetailHeap.h>
 #include <nn/fnd/detail/fnd_DetailList.h>
 #include <nn/fnd/detail/fnd_DetailCommon.h>
@@ -5,6 +9,8 @@
 #include <nn/fnd/detail/fnd_DetailHeapImpl.h>
 
 #define MBLOCK_FREE_SIGNATURE   0x00004652 
+
+#define MAX_ALIGNMENT           128
 
 #define MIN_FREE_BLOCK_SIZE 4
 

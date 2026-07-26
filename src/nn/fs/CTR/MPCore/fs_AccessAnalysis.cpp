@@ -1,7 +1,8 @@
 // Filename: [MPCORE] fs_AccessAnalysis.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
+#include <string>
 #include <nn/fs/CTR/MPCore/fs_AccessAnalysis.h>
 #include <nn/os.h>
 #include <nn/dbg.h>
@@ -11,7 +12,7 @@ namespace nn{
 namespace fs{
 namespace analysis{
 
-#ifdef NN_DEBUG
+#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
 
 bool sAnalysisLog = false;
 nn::os::CriticalSection sAnalysisLogLock = nn::os::CriticalSection(nn::WithInitialize());

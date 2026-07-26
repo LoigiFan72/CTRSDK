@@ -1,8 +1,6 @@
 // Filename: math_Aritmetic.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/math/math_Arithmetic.h>
 #include <cstdlib>
@@ -314,7 +312,39 @@ namespace{
         { 0.691192146f, 0.001955035f },     // Log(1.99609375)
         { 0.693147181f, 0.001951220f },     // Log(2.00000000)
     };
+}
 
+u32 CntBit1(u32 x){
+    x = x - ((x >> 1) & 0x55555555);
+    x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+    x = (x + (x >> 4)) & 0x0f0f0f0f;
+    x = x + (x >> 8);
+    x = x + (x >> 16);
+    return x & 0x0000003f;
+}
+
+u32 CntBit1(const u32* first, const u32* last){
+    const u32 n = u32(last - first);
+
+    u32 i, j, lim;
+    unsigned int s = 0;
+    unsigned int ss, x;
+
+    for (i = 0; i < n; i += 31){
+        lim = (n < i + 31) ? n : (i + 31);
+        ss = 0;
+        for (j = i; j < lim; ++j){
+            x = *(first + j);
+            x -= ((x >> 1) & 0x55555555);
+            x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+            x = (x + (x >> 4)) & 0x0f0f0f0f;
+            ss += x;
+        }
+        x = (ss & 0x00ff00ff) + ((ss >> 8) & 0x00ff00ff);
+        x = (x & 0x0000ffff) + (x >> 16);
+        s += x;
+    }
+    return s;
 }
 
 }

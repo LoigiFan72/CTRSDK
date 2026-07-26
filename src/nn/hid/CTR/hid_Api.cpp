@@ -1,8 +1,6 @@
 // Filename: hid_Api.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/hid/CTR/hid_Api.h>
 #include <nn/hid/CTR/hid_IpcClient.h>
@@ -13,9 +11,10 @@
 namespace nn{
 namespace hid{
 namespace CTR{
-namespace{
-    bool isInitialized;
-}
+
+HidDevices sDevices;
+bool isInitialized;
+
 
 HidDevices::~HidDevices(){ }
 
@@ -42,7 +41,7 @@ Result HidDevices::Initialize(const char* portName){
         
     this->mSharedMemoryBlock.AttachAndMap(hSharedMemory,0x2b0,true);
     uptr instanceAddress = this->mSharedMemoryBlock.GetAddress();
-    NN_TASSERT_(instanceAddress)
+    NN_TASSERT_(instanceAddress);
 
     hidlow::CTR::LifoRingCollector* ring;
     this->pad.SetResource(reinterpret_cast<uptr>(ring->GetPadLifoRingAddress()));
@@ -91,18 +90,16 @@ void HidDevices::Finalize(){
     }
 }
 
-static HidDevices sDevices;
-
 void Finalize(){
     sDevices.Finalize();
 }
 
 Result Initialize(){
-    sDevices.Initialize(CTR::PORT_NAME_USER);
+    return sDevices.Initialize(PORT_NAME_USER);
 }
 
 Result InitializeSpecialPrivilage(){
-    sDevices.Initialize(CTR::PORT_NAME_SPVR);
+    return sDevices.Initialize(PORT_NAME_SPVR);
 }
 
 Pad& GetPad(){
@@ -125,7 +122,7 @@ TouchPanel& GetTouchPanel(){
 
 Accelerometer& GetAccelerometer(){
     NN_TASSERT_(isInitialized);
-
+    
     return sDevices.accelerometer;
 }
 

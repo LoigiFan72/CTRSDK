@@ -1,6 +1,6 @@
 // Filename: camera_Camera.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/camera/CTR/camera_Camera.h>
 

@@ -1,5 +1,10 @@
+// Filename: crypto_ShaBlock512BitContext.cpp
+//
+// Project: Horizon
+
 #include <nn/crypto/crypto_ShaBlock512BitContext.h>
 #include <nn/nstd/ARMv6/nstd_String.h>
+#include <cstring>
 
 extern "C" void nnnstdMemCpy(void* pOut, const void* scrp, size_t size);
 namespace nn{

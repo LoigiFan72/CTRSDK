@@ -14,7 +14,7 @@ namespace nn {
 namespace hid {
 namespace CTR {
 
-class DebugPadReader : private nn::util::NonCopyable<DebugPadReader>{
+class DebugPadReader : private nn::util::ADLFireWall::NonCopyable<DebugPadReader>{
 public:
     typedef enum{
         STICK_CLAMP_MODE_CIRCLE_WITH_PLAY = 0,

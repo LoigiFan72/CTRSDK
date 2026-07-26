@@ -2,6 +2,7 @@
 
 #include <nn/os/os_Types.h>
 #include <nn/os/os_ErrorHandlerSelect.h>
+#include <nn/util/util_NonCopyable.h>
 #include <nn/svc.h>
 #include <nn/Assert.h>
 
@@ -13,7 +14,6 @@ namespace svc {
     Result WaitSynchronizationN(int*, const nn::Handle*, int,bool,long long);
 }
 }*/
-
 
 namespace nn{
 namespace os{
@@ -68,6 +68,9 @@ inline nn::Result WaitObject::WaitOneImpl(s64 nanoSecondsTimeout){
     Handle handle = GetHandle();
     return nn::svc::WaitSynchronizationN(&dummy, &handle, 1, false, nanoSecondsTimeout);
 }
-inline void WaitObject::WaitOne(){ NN_OS_ERROR_IF_FAILED(WaitOneImpl(WAIT_INFINITE)); }
+inline void WaitObject::WaitOne(){ 
+    NN_OS_ERROR_IF_FAILED(WaitOneImpl(WAIT_INFINITE)); 
+}
+
 }
 }

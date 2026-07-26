@@ -18,8 +18,10 @@ bool   MTX34IsIdentity(const MTX34* p);
 
 class MTX34{
 public:
-    float matrix[3][4];
-    f32 a[12];
+    union{
+        float matrix[3][4];
+        f32 a[12];
+    };
 
     typedef MTX34 self_type;
     typedef f32   value_type;
@@ -186,7 +188,7 @@ inline t name(){
 */
 
 inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV){
-    #ifdef NN_DEBUG // Unoptimized check.
+    #ifdef NN_BUILD_DEBUG // Unoptimized check.
         return ARMv6::VEC3TransformC(pOut,pM,pV);
     #else
         return ARMv6::VEC3TransformAsm(pOut, pM, pV);
@@ -194,7 +196,7 @@ inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* _
 }
 
 inline MTX34* MTX34Mult(MTX34* pOut, const MTX34* p1, const MTX34* p2){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultC(pOut,p1,p2);
     #else
         return ARMv6::MTX34MultAsm(pOut,p1,p2);
@@ -206,7 +208,7 @@ inline MTX34* MTX34Mult(MTX34* pOut, const MTX34 p1, const MTX34 p2){
 }
 
 inline u32 MTX34Inverse(MTX34* pOut, const MTX34* p){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34InverseC(pOut,p);
     #else
         return ARMv6::MTX34InverseAsm(pOut,p);
@@ -214,7 +216,7 @@ inline u32 MTX34Inverse(MTX34* pOut, const MTX34* p){
 }
 
 inline u32 MTX34InvTranspose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34InvTransposeC(pOut,pM);
     #else
         return ARMv6::MTX34InvTransposeAsm(pOut,pM);
@@ -224,7 +226,7 @@ inline u32 MTX34InvTranspose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
 inline u32 MTX34Inverse(MTX34* pOut, const MTX34& m) { return MTX34Inverse(pOut, &m); }
 
 inline MTX34* MTX34MultScale(MTX34* pOut, const MTX34* pM, const VEC3* pS){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultScaleC(pOut, pM, pS);
     #else
         return ARMv6::MTX34MultScaleAsm(pOut, pM, pS);
@@ -234,7 +236,7 @@ inline MTX34* MTX34MultScale(MTX34* pOut, const MTX34* pM, const VEC3* pS){
 inline MTX34* MTX34MultScale(MTX34* pOut, const MTX34& m, const VEC3& vS) { return MTX34MultScale(pOut, &m, &vS); }
 
 inline MTX34* MTX34MultTranslate(MTX34* pOut, const VEC3* pT, const MTX34* pM){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultTranslateC(pOut, pT, pM);
     #else
         return ARMv6::MTX34MultTranslateAsm(pOut, pT, pM);
@@ -242,7 +244,7 @@ inline MTX34* MTX34MultTranslate(MTX34* pOut, const VEC3* pT, const MTX34* pM){
 }
 
 inline MTX34* MTX34MultTranslate(MTX34* pOut, const MTX34* pM, const VEC3* pT){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultTranslateC(pOut, pM, pT);
     #else
         return ARMv6::MTX34MultTranslateAsm(pOut, pM, pT);
@@ -250,7 +252,7 @@ inline MTX34* MTX34MultTranslate(MTX34* pOut, const MTX34* pM, const VEC3* pT){
 }
 
 inline MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pM){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34ToMTX33C(pOut, pM);
     #else
         return ARMv6::MTX34ToMTX33Asm(pOut, pM);
@@ -258,7 +260,7 @@ inline MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pM){
 }
 
 inline MTX34* MTX34Transpose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34TransposeC(pOut,pM);
     #else
         return ARMv6::MTX34TransposeAsm(pOut,pM);
@@ -266,7 +268,7 @@ inline MTX34* MTX34Transpose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
 }
 
 inline MTX34* MTX34LookAt(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34LookAtC(pOut, pCamPos, pCamUp, pTarget);
     #else
         return ARMv6::MTX34LookAtC_FAST(pOut, pCamPos, pCamUp, pTarget);
@@ -274,7 +276,7 @@ inline MTX34* MTX34LookAt(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, 
 }
 
 inline MTX34* MTX34RotXYZRad(MTX34* pOut, f32 fRadX, f32 fRadY, f32 fRadZ){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34RotXYZFIdxC(pOut, fRadX, fRadY, fRadZ);
     #else
         return ARMv6::MTX34RotXYZFIdxC_FAST(pOut, fRadX, fRadY, fRadZ);
@@ -282,9 +284,9 @@ inline MTX34* MTX34RotXYZRad(MTX34* pOut, f32 fRadX, f32 fRadY, f32 fRadZ){
 }
 
 inline MTX34* MTX34Scale(MTX34* pOut, const VEC3* pS){
-    #ifdef NN_DEBUG
+    #if defined(NN_BUILD_DEBUG)
         return ARMv6::MTX34ScaleC(pOut,pS);
-    #elif NN_DEVELOPER
+    #elif defined(NN_BUILD_DEVELOPMENT)
         return ARMv6::MTX34ScaleC_FAST(pOut,pS);
     #else
         return ARMv6::MTX34ScaleAsm(pOut,pS);
@@ -292,7 +294,7 @@ inline MTX34* MTX34Scale(MTX34* pOut, const VEC3* pS){
 }
 
 inline MTX34* QUATToMTX34(MTX34* pOut, const QUAT* pQ){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::QUATToMTX34C(pOut,pQ);
     #else
         return ARMv6::QUATToMTX34C_FAST(pOut,pQ);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "nn/os/os_Event.h"
-#include "nn/util/util_SizedEnum.h"
+#include <nn/os/os_Event.h>
+#include <nn/util/util_SizedEnum.h>
 
 namespace nn{
 namespace gxlow{
@@ -71,8 +71,8 @@ enum CmdReqId{
     REQ_ID_DMA,
     REQ_ID_3D_CMD,
     REQ_ID_MEM_FILL,
-    REQ_ID_DISP_COPY = 3,
-    REQ_ID_DISP_COPY_2 = 4,
+    REQ_ID_DISP_COPY,
+    REQ_ID_DISP_COPY_2,
     REQ_ID_CACHE_FLUSH
 };
 

@@ -15,8 +15,10 @@ struct ITouchPanelStatus{
 
 class TouchPanelLifoRing : public hidlow::LifoRing{
 public:
+    const int TOUCHPANEL_LIFORING_BUFFER_NUM = 8;
+
     ITouchPanelStatus mRaw;
-    ITouchPanelStatus mBuffers[8];
+    ITouchPanelStatus mBuffers[TOUCHPANEL_LIFORING_BUFFER_NUM];
 
     void ReadData(hid::CTR::TouchPanelStatus *status,s32 bufferNum,s32 *pReadCount,s64 *pTick,s32 *pIndex);
 };

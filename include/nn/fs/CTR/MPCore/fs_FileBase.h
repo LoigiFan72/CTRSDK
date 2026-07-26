@@ -20,6 +20,15 @@ private:
     }
 public:
     FileBaseImpl() : mP(0) {}
+
+    void Finalize(){
+        if(this->GetPtr()){
+            NN_TPANIC_IF_FALSE_(!this->IsNotFlushed());
+            UserFileSystem::CloseFile(GetPtr());
+            mP = 0;
+        }
+    }
+    
     ~FileBaseImpl(){ this->Finalize(); }
         
     Result TryGetSize(s64* pOut) const {
@@ -27,7 +36,7 @@ public:
     }
         
     Result TryFlush(){
-        DoneFlush();
+        this->DoneFlush();
         return UserFileSystem::TryFlush(GetPtr());
     }
 
@@ -48,14 +57,6 @@ public:
     }
 
     Result TrySetSize(s64 size) { return UserFileSystem::TrySetFileSize(GetPtr(), size); }
-
-    void Finalize(){
-        if(this->GetPtr()){
-            NN_TPANIC_IF_FALSE_(!this->IsNotFlushed());
-            UserFileSystem::CloseFile(GetPtr());
-            mP = 0;
-        }
-    }
     
     void NeedFlush() { mP = reinterpret_cast<void*>(reinterpret_cast<uptr>(mP) | 0x1); }
     bool IsNotFlushed() { return (reinterpret_cast<uptr>(mP) & 0x1) != 0; }

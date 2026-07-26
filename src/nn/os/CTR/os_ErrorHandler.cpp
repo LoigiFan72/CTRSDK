@@ -1,6 +1,6 @@
 // Filename: os_ErrorHandler.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/os/CTR/os_ErrorHandler.h>
 #include <nn/os/CTR/os_Environment.h>

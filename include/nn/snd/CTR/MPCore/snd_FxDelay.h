@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/types.h"
+#include <nn/snd/CTR/Common/snd_Types.h>
 
 namespace nn{
 namespace snd{
@@ -15,7 +15,7 @@ public:
         bool mIsEnableSurround;
         Param(): mDelayTime(250), mFeedbackGain(0.4f), mDamping(0.5f),mIsEnableSurround(false){}
     };
-    void UpdateBuffer( AuxBusData* data );
+    void UpdateBuffer(AuxBusData* data);
     const Param& GetParam() const{
         return mParam;
     }

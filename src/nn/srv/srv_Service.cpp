@@ -1,6 +1,6 @@
 // Filename: srv_Service.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/srv/srv_Service.h>
 #include <nn/os/ipc/os_Message.h>

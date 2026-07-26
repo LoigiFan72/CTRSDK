@@ -1,6 +1,6 @@
 // Filename: fs_UserFileSystem.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/fs/CTR/MPCore/fs_UserFileSystem.h>
 #include <nn/fs/CTR/MPCore/fs_RomFsArchive.impl.h>
@@ -519,7 +519,7 @@ namespace{
 }
 
 Result MountSaveData(const char* archive) {
-    CTR::MPCore::detail::IArchive* p;
+    IArchive* p;
     Result result;
 
     if (gSaveDataArchive != 0) {
@@ -566,7 +566,7 @@ Result CommitSaveData(const char* path){
     NN_FS_ANALYSIS_LOG_RETURN(GetFileServer().ControlArchive(archiveHandle, 0, &dummy1, 1, &dummy2, 1),"API=CommitSaveData,Path=%s", path);
 }
 
-Result MountRom(char *archiveName,size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+Result MountRom(const char *archiveName,size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
     NN_FS_ANALYSIS_LOG_INIT_TICK();
     IArchive* p;
     NN_ERR_THROW_FATAL_ALL(OpenRom(&p, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache));

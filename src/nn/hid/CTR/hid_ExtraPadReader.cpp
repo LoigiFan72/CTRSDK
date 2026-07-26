@@ -1,8 +1,6 @@
 // Filename: hid_ExtraPadReader.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/hid/CTR/hid_ExtraPadReader.h>
 #include <nn/hidlow/CTR/hidlow_ExtraPadLifoRing.h>
@@ -122,25 +120,22 @@ void ExtraPadReader::Read(ExtraPadStatus* pBufs, s32* pReadLen, s32 bufLen){
         *pReadLen = padLen;
     }
 }
-}
-}
+
+f32 ExtraPadReader::NormalizeStick(s16 x){
+    return this->mStickClamper.NormalizeStick(x);
 }
 
-/* hidlow ExtraPad */
+void ExtraPadReader::NormalizeStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y){
+    //return this->mStickClamper.NormalizeStickWithScale(normalized_x,normalized_y,x,y);
+}
 
-namespace nn{
-namespace hidlow{
-namespace CTR{
+void ExtraPadReader::SetNormalizeStickScaleSettings(f32 scale, s16 threshold){
+    this->mStickClamper.SetNormalizeStickScaleSettings(scale,threshold);
+    this->mPadReader.SetNormalizeStickScaleSettings(scale,threshold);
+}
 
-IExtraPadStatus::IExtraPadStatus(){
-    this->hold = 0;
-    this->trigger = 0;
-    this->release = 0;
-    this->voltage = 0;
-    this->isConnected = 0;
-    this->stick.x = 0;
-    this->stick.y = 0;
-    this->extraStick.x = 0;
+void ExtraPadReader::GetNormalizeStickScaleSettings(f32* scale, s16* threshold) const{
+    return this->mStickClamper.GetNormalizeStickScaleSettings(scale,threshold);
 }
 
 }

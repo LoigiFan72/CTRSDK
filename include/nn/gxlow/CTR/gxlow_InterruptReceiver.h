@@ -1,72 +1,12 @@
 #pragma once
 
-#include "nn/gxlow/gxlow_Management.h"
-#include "nn/gxlow/gxlow_CmdReqQueue.h"
-#include "nn/os/os_SharedMemory.h"
-#include "nn/os/os_Thread.h"
-#include "nn/os/os_CriticalSection.h"
-#include "nn/os/os_LightEvent.h"
-#include "nn/os/os_Event.h"
-
-namespace nn{
-namespace drivers{
-namespace gxlow{
-namespace CTR{
-class InterruptTable{
-public:
-    os::CriticalSection mHandlerLock;
-    int pad;
-    nngxlowFuncPtr mInterruptHandlerTable[7];
-public:
-    InterruptTable(){ }
-    void LockTable(){
-        this->mHandlerLock.Enter();
-    }
-    void UnlockTable(){
-        this->mHandlerLock.Leave();
-    }
-
-    nngxlowFuncPtr RegisterInterruptHandler(nngxlowFuncPtr interruptHandler, nngxlowInterrupt interruptType){
-        nngxlowFuncPtr gxptr;
-        uint type = interruptType;
-        if(type < NN_GXLOW_NUM_INTERRUPTS){
-            this->LockTable();
-            gxptr = this->mInterruptHandlerTable[type];
-            this->mInterruptHandlerTable[type] = interruptHandler;
-            this->UnlockTable();
-        }
-        else{
-            NN_TASSERTMSG_(!gxptr, "Invalid interrupt type %d.\n");
-        }
-        return gxptr;
-    }
-
-    void InitializeTable(){
-        this->mHandlerLock.Initialize();
-        this->LockTable();
-        for(int i = 0; i < 7; i++){
-            this->mInterruptHandlerTable[i] = 0;
-        }
-    }
-
-    void FinalizeTable(){
-        for(int i = 0; i < 7; i++){
-            this->mInterruptHandlerTable[i] = 0;
-        }
-        this->UnlockTable();
-        this->mHandlerLock.Finalize();
-    }
-};
-}
-}
-}
-}
+#include <nn/drivers/gxlow/CTR/gxlow_InterruptTable.h>
 
 namespace nn{
 namespace gxlow{
 namespace CTR{
 namespace detail{
-    class SharedWorkMem : public os::SharedMemoryBlock{
+    class SharedWorkMem : public SharedMemoryBlock{
     public:
         void Initialize(Handle hSharedMemory){
             this->AttachAndMap(hSharedMemory,0x1000,false);

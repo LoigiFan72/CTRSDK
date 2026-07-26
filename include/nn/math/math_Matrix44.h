@@ -20,8 +20,10 @@ inline MTX44* MTX44Copy(MTX44* pOut, const MTX44& m) { return MTX44Copy( pOut, &
 
 class MTX44{
 public:
-    float matrix[4][4];
-    f32 a[16];
+    union{
+        float matrix[4][4];
+        f32 a[16];
+    };
 
     operator f32*() { return this->a; }
     operator const f32*() const { return this->a; }
@@ -259,7 +261,7 @@ MTX44* MTX44CopyC(MTX44* pOut, const MTX44* p);
 }
 
 inline u32 MTX44Inverse(MTX44* pOut, const MTX44* p){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         ARMv6::MTX44InverseC(pOut,p);
     #else
         ARMv6::MTX44InverseC_FAST(pOut,p);
@@ -267,7 +269,7 @@ inline u32 MTX44Inverse(MTX44* pOut, const MTX44* p){
 }
 
 inline MTX44* MTX44Copy(MTX44* pOut, const MTX44* p){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         ARMv6::MTX44CopyC(pOut,p);
     #else
         ARMv6::MTX44CopyAsm(pOut,p);
@@ -275,7 +277,7 @@ inline MTX44* MTX44Copy(MTX44* pOut, const MTX44* p){
 }
 
 inline MTX44* MTX44FrustumPivot(MTX44* pOut, f32 l, f32 r, f32 b, f32 t, f32 n, f32 f, PivotDirection pivot = PIVOT_NONE){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
 
     #else
         ARMv6::MTX44FrustumC_FAST(pOut, l, r, b, t, n, f);
@@ -284,7 +286,7 @@ inline MTX44* MTX44FrustumPivot(MTX44* pOut, f32 l, f32 r, f32 b, f32 t, f32 n, 
 }
 
 inline MTX44* MTX44PerspectivePivotRad(MTX44* pOut, f32 fovy, f32 aspect, f32 n, f32 f, PivotDirection pivot = PIVOT_NONE){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
 
     #else
         ARMv6::MTX44PerspectivePivotRadC_FAST(pOut, fovy, aspect, n, f);

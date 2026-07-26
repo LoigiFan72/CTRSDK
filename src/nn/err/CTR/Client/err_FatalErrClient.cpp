@@ -1,3 +1,7 @@
+// Filename: err_FatalErrClient.cpp
+//
+// Project: Horizon
+
 #include <nn/err/CTR/err_Api.h>
 #include <nn/os/ipc/os_Message.h>
 #include <nn/svc.h>

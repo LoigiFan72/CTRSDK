@@ -1,3 +1,7 @@
+// Filename: dbg_Break.cpp
+//
+// Project: Horizon
+
 #include <nn/dbg/dbg_Break.h>
 #include <nn/dbg/dbg_DebugString.h>
 #include <nn/svc.h>
@@ -17,17 +21,19 @@ namespace{
     }
 }
 
+//#endif
 
 namespace{
-static nn::dbg::BreakHandler s_pBreakHandler = NULL;
+
+static nn::dbg::BreakHandler spBreakHandler = NULL;
 
 /* nn::dbg::Break Call Handlers */
 
 void CallBreakHandler(nn::dbg::BreakReason reason, Result* pResult, const char* filename, int lineno, const char* fmt, std::va_list args){
-    nn::dbg::BreakHandler pBreakHandler = s_pBreakHandler;
+    nn::dbg::BreakHandler pBreakHandler = spBreakHandler;
 
     if (pBreakHandler != NULL){
-        s_pBreakHandler = NULL;
+        spBreakHandler = NULL;
         pBreakHandler(reason, pResult, filename, lineno, fmt, args);
     }
 }
@@ -49,7 +55,6 @@ void CallBreakHandler(nn::dbg::BreakReason reason){
 }
 namespace nn{
 namespace dbg{
-nn::dbg::BreakHandler s_pBreakHandler = 0;
 
 /* dbg::Break */
 
@@ -72,12 +77,17 @@ Result NotifyDllLoadedToDebugger(const void* pDllInfo, size_t size){
     return nn::svc::Break(BREAK_REASON_UNLOAD_RO, pDllInfo, size);
 }
 
+Result NotifyDllUnloadingToDebugger(const void* pDllInfo, size_t size){
+    return nn::svc::Break(BREAK_REASON_UNLOAD_RO, pDllInfo, size);
 }
 
+}
 }
 }
 
 extern "C" {
+
+//#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
 
 void nndbgBreakWithMessage_ (nndbgBreakReason reason, const char* filename, int lineno, const char* fmt, ...){
     va_list arg;

@@ -1,6 +1,6 @@
 // Filename: cfg_ApiPrivate.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/cfg/CTR/cfg_DebugParam.h>
 #include <nn/cfg/CTR/cfg_Api.h>

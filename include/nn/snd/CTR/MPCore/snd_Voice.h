@@ -1,34 +1,16 @@
 #pragma once
 
-#include "nn/Result.h"
-#include "nn/Assert.h"
-#include "nn/snd/CTR/Common/snd_Types.h"
-#include "nn/snd/CTR/MPCore/snd_PrivateDefinition.h"
-#include "nn/util/util_SizedEnum.h"
-#include "nn/os/os_CriticalSection.h"
+#include <nn/Result.h>
+#include <nn/Assert.h>
+#include <nn/math.h>
+#include <nn/snd/CTR/MPCore/snd_PrivateDefinition.h>
+#include <nn/os/os_CriticalSection.h>
 
-#include "string.h"
+#include <string.h>
 
 namespace nn {
-namespace math {
-    inline float max(float a, float b){
-        if(a < b == (a) || (b))
-            b = a;
-        return b;
-    }
-    inline u32 CntBit1(u32 x){
-        uint uVar1;
-        
-        uVar1 = x - (x >> 1 & 0x55555555);
-        uVar1 = (uVar1 & 0x33333333) + (uVar1 >> 2 & 0x33333333);
-        uVar1 = uVar1 + (uVar1 >> 4) & 0xf0f0f0f;
-        uVar1 = uVar1 + (uVar1 >> 8);
-        return uVar1 + (uVar1 >> 0x10) & 0x3f;
-    }
-}
 namespace snd {
 namespace CTR {
-
 
 enum VoiceDropMode {
     VOICE_DROP_MODE_DEFAULT   = 0,
@@ -36,9 +18,6 @@ enum VoiceDropMode {
 };
 
 typedef void (*VoiceDropCallbackFunc)(class Voice*, uptr userArg);
-
-
-
 
 class VoiceImpl;
 
@@ -117,8 +96,8 @@ public:
     f32 mSampleRateRatio;
     u32 mDspCycles;
     WaveBuffer* mpWaveBuffer;
-    s32 mSentBufferCount;
-    s32 mNextBufferIndex;
+    s16 mSentBufferCount;
+    s16 mNextBufferIndex;
     MixParam mMixParam;
     f32 mVolume;
     bit16 mModifiedParamFlag;
@@ -140,7 +119,8 @@ public:
     void SendWaveBuffer();
     void SetChannelCount(s32 channelCount){ // inline in cpp
         NN_TASSERT_(channelCount == 1 || channelCount == 2); 
-        this->mSampleInfo &= 0xfffc | channelCount & 3; }
+        this->mSampleInfo &= 0xfffc | channelCount & 3; 
+    }
     void SetFilterType(FilterType type){ this->mFilterType = type; this->mModifiedParamFlag |= 4; }
     void SetInterpolationType(InterpolationType type); // inline in cpp 
     void SetMixParam(const MixParam& mixParam); // inline in cpp
@@ -156,7 +136,7 @@ public:
     void Stop();
     void UpdateInterpolationType(); // inline cpp
     void UpdateParams();
-    void UpdateStatus();
+    void UpdateStatus(const void * ptr);
     void UpdateWaveBufferList();
     void UpdateWaveBufferStatus(ushort currentBufferId, ushort lastBufferId);
 };
@@ -181,7 +161,7 @@ public:
     void ForceUpdateParams();
     void FreeVoice(Voice* pVoice);
     Voice* GetAvaliableVoice();
-    static VoiceManager* GetInstance();
+    static VoiceManager& GetInstance();
     void Initialize();
     void InsertVoiceToPriorityList(Voice* pVoice, s32 priority);
     bool IsAllocated(Voice* pVoice){ return (1 << (pVoice->GetId() & 0xff) & this->mUsedVoiceBits) != 0; }
@@ -191,7 +171,7 @@ public:
     void SetPriority(Voice* pVoice, s32 priority);
     void SetVoiceDropMode(VoiceDropMode mode);
     void UpdateParams();
-    void UpdateStatus(s32 id, DspsndChannelPlayVars* pVars);
+    void UpdateStatus(s32 id, const DspsndChannelPlayVars* pVars);
     void UpdateWaveBufferList();
     VoiceManager();
     ~VoiceManager(){ }
@@ -206,8 +186,8 @@ namespace internal{
     extern VoiceManager sVoiceManager;
 }
 
-inline VoiceManager* VoiceManager::GetInstance(){
-    return &internal::sVoiceManager;
+inline VoiceManager& VoiceManager::GetInstance(){
+    return internal::sVoiceManager;
 }
 
 } // namespace CTR

@@ -2,6 +2,14 @@
 
 #include <nn/types.h>
 
-extern "C"{
-    void nninitStartUpDefault(void);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void nninitStartUpDefault(void);
+void nninitSetupDefault(void);
+bool nninitIsStartUpDefaultUsing(void);
+
+#ifdef __cplusplus
 }
+#endif

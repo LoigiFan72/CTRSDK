@@ -1,6 +1,6 @@
 // Filename: cfg_Api.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/cfg/CTR/cfg_Api.h>
 #include <nn/cfg/CTR/cfg_DetailApi.h>
@@ -16,7 +16,7 @@ namespace cfg {
 namespace CTR {
 
 void Initialize(){
-    Result res; res = detail::Initialize();
+    Result res = detail::Initialize();
     NN_ERR_THROW_FATAL_ALL(res);
 }
 
@@ -30,7 +30,7 @@ void GetBirthday(Birthday* pBirthday){
     result = detail::GetConfig(&birthdayCfgData, sizeof(Birthday), 0xa0001);
     NN_ERR_THROW_FATAL_ALL(result);
     pBirthday->month = birthdayCfgData.month;
-    pBirthday->day   = birthdayCfgData.day;
+    pBirthday->day = birthdayCfgData.day;
 }
 
 CfgLanguageCode GetLanguage(){

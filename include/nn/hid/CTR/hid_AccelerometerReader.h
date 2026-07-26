@@ -21,7 +21,7 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class AccelerometerReader : private nn::util::NonCopyable<AccelerometerReader>{
+class AccelerometerReader : private nn::util::ADLFireWall::NonCopyable<AccelerometerReader>{
 protected:
     Accelerometer& mAccelerometer;
     short mPlay;

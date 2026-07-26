@@ -9,7 +9,7 @@ namespace crypto{
 
 class Sha1Context : public ShaBlock512BitContext{
 public:
-    static const size_t HASH_SIZE  = (160/8);
+    static const size_t HASH_SIZE  = (160/8); // 64 bits
     
 private:
     u32     mH[5];

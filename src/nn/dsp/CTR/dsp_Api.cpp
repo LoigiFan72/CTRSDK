@@ -1,3 +1,7 @@
+// Filename: dsp_Api.cpp
+//
+// Project: Horizon
+
 #include <nn/dsp/CTR/MPCore/dsp_Api.h>
 #include <nn/dsp/CTR/dsp_Result.h>
 #include <nn/srv/srv_API.h>
@@ -6,37 +10,34 @@
 
 #include <string.h>
 
-u8 DSPSND_BEGIN[0xc234];
+extern const u8 DSPSND_BEGIN[]={0}; // place the holder
+
+const int CALLBACK_NUM = 8;
 
 namespace nn{
 namespace dsp{
 namespace CTR{
 namespace{
+    static DSP* spDspSession;
+    u8 sDspSessionObject[sizeof(nn::dsp::CTR::DSP)];
+    static Handle sDspSessionHandle;
     static bool sIsSleepAcceptedCallbackCalled;
     static bool sIsComponentLoaded;
     static bool sIsSleeping;
-    static ushort sRegisteredProgMask;
-    static ushort sRegisteredDataMask;
-    static DSP* spDspSession;
     static int sDspEventUsedFlag;
-    static DSP sDspSessionObject;
-    static Handle sDspSessionHandle;
+
+    void (*sSleepCallback[CALLBACK_NUM])(void);
+    void (*sWakeUpCallback[CALLBACK_NUM])(void);
+    void (*sFinalizeCallback[CALLBACK_NUM])(void);
     static const u8* sRegisteredComponent;
     static size_t sRegisteredComponentSize;
-}
-namespace{
+    static ushort sRegisteredProgMask;
+    static ushort sRegisteredDataMask;
+
     static applet::CTR::SysSleepAcceptedCallbackInfo sSleepAcceptedCallbackInfo;
 }
 
-
-namespace{
-void (*sSleepCallback[8])(void);
-void (*sWakeUpCallback[8])(void);
-void (*sFinalizeCallback[8])(void);
-}
-
-
-/*Result Initialize(){
+Result Initialize(){
     if (spDspSession != NULL)
         return ResultSuccess();
 
@@ -44,25 +45,25 @@ void (*sFinalizeCallback[8])(void);
 
     NN_UTIL_RETURN_IF_FAILED(InitializeIpc(&sDspSessionHandle));
 
-        s_pDspSession = reinterpret_cast<DSP*>(sDspSessionObject);
+    spDspSession = reinterpret_cast<DSP*>(sDspSessionObject);
 
-        * s_pDspSession = DSP(sDspSessionHandle);
+    *spDspSession = DSP(sDspSessionHandle);
 
     for (int i = 0; i < CALLBACK_NUM; i++){
         sSleepCallback[i] = sWakeUpCallback[i] = sFinalizeCallback[i] = NULL;
     }
 
-    sIsComponentLoaded       = false;
-    sRegisteredComponent     = NULL;
+    sIsComponentLoaded = false;
+    sRegisteredComponent = NULL;
     sRegisteredComponentSize = 0;
-    sRegisteredProgMask      = 0;
-    sRegisteredDataMask      = 0;
-    sIsSleeping              = false;
+    sRegisteredProgMask = 0;
+    sRegisteredDataMask = 0;
+    sIsSleeping = false;
 
-    sSleepAcceptedCallbackInfo.applet::CTR::SysSleepAcceptedCallbackInfo::Register();
+    sSleepAcceptedCallbackInfo.Register();
 
     return ResultSuccess();
-}*/
+}
 
 void Finalize(){
     if (spDspSession){
@@ -70,7 +71,7 @@ void Finalize(){
             NN_TPANIC_("Interrupt events are still registered.");
         }
 
-        for (int i = 0; i < 8; i++){
+        for (int i = 0; i < CALLBACK_NUM; i++){
             if (sSleepCallback[i] != NULL){
                 NN_TPANIC_("Callbacks are still registered.");
             }
@@ -168,7 +169,7 @@ Result ReadPipeIfPossible(int port, void* buffer, u16 length, u16* pLengthRead){
         res = spDspSession->ReadPipeIfPossible(port, 0, (u8 *)buffer, length, pLengthRead);
     }
     else{
-        *pLengthRead = 0;
+        *pLengthRead = NULL;
     }
     return res;
 }
@@ -196,7 +197,7 @@ bool IsComponentLoaded(){
 
 bool Sleep(){
     if (IsComponentLoaded() && sIsSleeping == false){
-        for (int i = 0; i < 8; i++){
+        for (int i = 0; i < CALLBACK_NUM; i++){
             if (sSleepCallback[i]) sSleepCallback[i]();
         }
         UnloadComponentCore();
@@ -213,7 +214,7 @@ void WakeUp(){
     if(sIsSleeping){
         NN_TASSERT_(sRegisteredComponent != NULL);
         NN_ERR_THROW_FATAL(LoadComponentCore(sRegisteredComponent,sRegisteredComponentSize,sRegisteredProgMask,sRegisteredDataMask));
-        for (int i = 0; i < 8; i++){
+        for (int i = 0; i < CALLBACK_NUM; i++){
             if (sWakeUpCallback[i]) sWakeUpCallback[i]();
         }
         sIsSleeping = false;
@@ -221,12 +222,13 @@ void WakeUp(){
 }
 
 void Awake(){
-    if(sIsSleepAcceptedCallbackCalled) WakeUp();
+    if(sIsSleepAcceptedCallbackCalled) 
+        WakeUp();
 }
 
 void OrderToWaitForFinalize(){
     if(sIsSleeping){
-        for(int i = 0; i < 8; i++){
+        for(int i = 0; i < CALLBACK_NUM; i++){
             if (sFinalizeCallback[i]) sFinalizeCallback[i]();
         }
         sIsSleeping = false;
@@ -234,7 +236,7 @@ void OrderToWaitForFinalize(){
 }
 
 bool RegisterSleepWakeUpCallback(void (*sleepCallback)(),void (*wakeUpCallback)(),void (*finalizeCallback)()){
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < CALLBACK_NUM; i++){
         if (sSleepCallback[i] == NULL){
             NN_TASSERT_(sWakeUpCallback[i] == NULL);
             NN_TASSERT_(sFinalizeCallback[i] == NULL);
@@ -247,7 +249,7 @@ bool RegisterSleepWakeUpCallback(void (*sleepCallback)(),void (*wakeUpCallback)(
 }
 
 bool ClearSleepWakeUpCallback(void (*sleepCallback)(),void (*wakeUpCallback)(),void (*finalizeCallback)()){
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < CALLBACK_NUM; i++){
         if (sSleepCallback[i] == sleepCallback){
             NN_TASSERT_(sWakeUpCallback[i] == wakeUpCallback);
             NN_TASSERT_(sFinalizeCallback[i] == finalizeCallback);

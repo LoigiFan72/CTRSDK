@@ -1,6 +1,6 @@
 // Filename: applet_InitialParameters.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/applet/CTR/applet_InitialParamaters.h>
 

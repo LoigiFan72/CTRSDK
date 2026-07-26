@@ -1,8 +1,8 @@
 #pragma once
 
-#include "nn/types.h"
+#include <nn/types.h>
 #include <nn/snd/CTR/Common/snd_Types.h>
-#include "nn/snd/CTR/Common/snd_Const.h"
+#include <nn/snd/CTR/Common/snd_Const.h>
 
 namespace nn{
 namespace snd{

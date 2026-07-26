@@ -5,9 +5,11 @@
 namespace nn { 
 namespace ro { 
 namespace detail {
-    void NotifyDllLoadedToDebugger(const Module* pModule);
-    void NotifyDllUnloadingToDebugger(const Module* pModule);
-    void EnableDebugNotification(bool enable);
+
+void NotifyDllLoadedToDebugger(const Module* pModule);
+void NotifyDllUnloadingToDebugger(const Module* pModule);
+void EnableDebugNotification(bool enable);
+
 }
 }
 }

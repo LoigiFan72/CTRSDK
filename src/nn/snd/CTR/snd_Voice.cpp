@@ -1,4 +1,5 @@
 #include <nn/snd/CTR/MPCore/snd_Voice.h>
+#include <cstring>
 
 namespace nn {
 namespace snd {
@@ -25,7 +26,7 @@ void Voice::SetSampleFormat(SampleFormat format){
 
 void Voice::SetState(State state){
     NN_TASSERT_(state == STATE_PLAY || state == STATE_STOP || state == STATE_PAUSE);
-    memcpy(&this->mState, &state, 1);
+    ::std::memcpy(&this->mState, &state, 1);
     if(state == STATE_STOP){
         this->mpImpl->ReleaseWaveBuffer();
     }
@@ -33,7 +34,7 @@ void Voice::SetState(State state){
 }
 
 void Voice::SetVolume(f32 volume){
-    this->mVolume = volume;
+    mVolume = volume;
     this->mpImpl->SetVolume(volume);
 }
 

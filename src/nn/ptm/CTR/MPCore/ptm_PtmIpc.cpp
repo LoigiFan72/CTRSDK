@@ -1,6 +1,6 @@
 // Filename: ptm_PtmIpc.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/ptm/CTR/detail/ptm_PtmIpc.h>
 

@@ -25,10 +25,10 @@ struct ExceptionInfo{
 };
 
 enum ExceptionType{
-    TYPE_PABT = 0,
-    TYPE_DABT = 1,
-    TYPE_UNDEF = 2,
-    TYPE_VFP = 3,
+    TYPE_PABT,
+    TYPE_DABT,
+    TYPE_UNDEF,
+    TYPE_VFP,
     TYPE_MAX_BIT = 80,
 };
 

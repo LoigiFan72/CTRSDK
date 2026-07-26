@@ -17,3 +17,11 @@ void Initialize(){
 
 }
 }
+
+extern "C" {
+
+void nnosInitialize(){
+    nn::os::Initialize();
+}
+
+}

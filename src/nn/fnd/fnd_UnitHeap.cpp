@@ -26,7 +26,7 @@ void UnitHeapBase::Initialize(size_t unit, uptr addr, size_t size, s32 alignment
         reinterpret_cast<Node*>(addr2)->next = freeNode;
         freeNode = reinterpret_cast<Node*>(addr2);
     }
-    NN_TASSERT_(reinterpret_cast<uptr>(freeNode) == m_Addr || freeNode == 0);
+    NN_TASSERT_(reinterpret_cast<uptr>(freeNode) == mAddr || freeNode == 0);
     this->mFreeNode = freeNode;
 }
 

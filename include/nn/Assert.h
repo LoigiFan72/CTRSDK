@@ -16,7 +16,7 @@
 #define NN_FILE_NAME            __MODULE__
 #define NN_FUNCTION             __PRETTY_FUNCTION__
 
-#ifdef NN_DEBUG
+#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
 
 /* POINTER */
 
@@ -75,19 +75,20 @@
     (void) ((exp) || (nndbgBreakWithResultMessage_(NN_DBG_BREAK_REASON_PANIC, (nnResult)(result), NN_FILE_NAME, __LINE__, __VA_ARGS__), 0))
 
 #define NN_ASSERT_(exp)                     NN_ASSERTMSG_(exp, "%s")
-#define NN_ASSERT_WITH_RESULT(exp, result) NN_ASSERTMSG_WITH_RESULT_((exp), (result), "%s", #exp)
+#define NN_ASSERT_WITH_RESULT(exp, result)  NN_ASSERTMSG_WITH_RESULT_((exp), (result), "%s", #exp)
 #define NN_RESULT_ASSERT_(exp)              NN_ASSERTMSG_WITH_RESULT_((exp).IsSuccess(), (exp), "\"%s\" is Failure.", #exp)
 #define NN_NULL_ASSERT_(exp)                NN_ASSERTMSG_((exp) != NULL, "%s must not be NULL", #exp)
 
 #define NN_PANIC_(...)                      nndbgBreakWithMessage_(NN_DBG_BREAK_REASON_PANIC, NN_FILE_NAME, __LINE__, __VA_ARGS__)
-#define NN_PANIC_WITH_RESULT_(result, ...)  nndbgBreakWithResultTMessage_(NN_DBG_BREAK_REASON_PANIC, (nnResult)(result), NN_FILE_NAME, __LINE__, __VA_ARGS__)
+#define NN_POINTER_ASSERT(p)                NN_ASSERTMSG_(NN_IS_VALID_POINTER(p), "%s(=0x%08X) is invalid pointer", #p, (p))
+#define NN_PANIC_WITH_RESULT(result, ...)   nndbgBreakWithResultTMessage_(NN_DBG_BREAK_REASON_PANIC, (nnResult)(result), NN_FILE_NAME, __LINE__, __VA_ARGS__)
 
-#define NN_PANIC_IF_FAILED_(result)                    \
+#define NN_PANIC_IF_FAILED(result)                    \
     do {                                                \
         ::nn::Result nn_result_try_result = (result);   \
         if (nn_result_try_result.IsFailure())           \
         {                                               \
-            NN_PANIC_WITH_RESULT_(nn_result_try_result, "\"%s\" is Failure.", #result); \
+            NN_PANIC_WITH_RESULT(nn_result_try_result, "\"%s\" is Failure.", #result); \
         }                                               \
     } while (0)
 

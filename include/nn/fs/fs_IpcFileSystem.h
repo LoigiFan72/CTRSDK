@@ -34,6 +34,7 @@ namespace ipc{
         Result CloseArchive(bit64 archiveHandle);
 
         Result IsSdmcDetected(bool* pOut);
+        Result IsSdmcWritable(bool* pOut);
 
         Result SetArchivePriority(bit64 archiveHandle, s32 priority);
         Result GetArchivePriority(s32* pOut, bit64 archiveHandle);

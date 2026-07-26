@@ -1,8 +1,7 @@
 #pragma once
 
-#include "nn/types.h"
-#include "nn/snd/CTR/MPCore/snd_DspFxReverb.h"
-#include "nn/snd/CTR/MPCore/snd_DspFxDelay.h"
+#include <nn/snd/CTR/MPCore/snd_DspFxReverb.h>
+#include <nn/snd/CTR/MPCore/snd_DspFxDelay.h>
 
 namespace nn{
 namespace snd{

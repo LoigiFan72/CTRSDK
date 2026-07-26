@@ -1,6 +1,6 @@
 // Filename: nstd_Printf.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/nstd/nstd_Printf.h>
 #include <string>

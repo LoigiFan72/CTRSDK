@@ -1,6 +1,6 @@
 // Filename: pl_PedometerApi.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/pl/CTR/pl_PedometerApi.h>
 #include <nn/ptm/CTR/detail/ptm_PtmIpc.h>

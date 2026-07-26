@@ -1,6 +1,6 @@
 // Filename: ndm_Interface.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/ndm/ndm_Interface.h>
 #include <nn/os/ipc/os_Message.h>
@@ -11,7 +11,7 @@ namespace ndm{
 namespace CTR{
 namespace detail{
 
-nn::Handle Interface::sSession = 0;
+Handle Interface::sSession;
 
 Result Interface::OverrideDefaultDaemons(bit32 mask){
     MessageBuffer ipcMsg(GetMessageBuffer());
@@ -19,12 +19,12 @@ Result Interface::OverrideDefaultDaemons(bit32 mask){
     ipcMsg.SetRaw(1, mask);
 
 
-    nn::Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(sSession);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
 
-    return ipcMsg.GetRaw<nn::Result>(1);
+    return ipcMsg.GetRaw<Result>(1);
 }
 
 Result Interface::SuspendDaemons(bit32 mask){
@@ -33,12 +33,12 @@ Result Interface::SuspendDaemons(bit32 mask){
     ipcMsg.SetRaw(1, mask);
 
 
-    nn::Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(sSession);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
 
-    return ipcMsg.GetRaw<nn::Result>(1);
+    return ipcMsg.GetRaw<Result>(1);
 }
 
 }

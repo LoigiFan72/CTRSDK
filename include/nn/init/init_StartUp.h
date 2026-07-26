@@ -1,6 +1,19 @@
 #pragma once
 
+#ifdef __cplusplus
 extern "C" {
-    void nnMain(void);
-    void nninitStartUp(void);
+#endif
+
+void nnMain();
+void nninitStartUp();
+
+typedef void (*nninitStaticInitFunc)();
+
+void nninitCallStaticInitializers();
+void nninitSetup();
+void nninitSetupDaemons();
+void nninitSystem();
+
+#ifdef __cplusplus
 }   // extern "C"
+#endif

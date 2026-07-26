@@ -91,6 +91,7 @@ public:
     };
 
     void StartUsingAutoStack(void (*f)(), size_t stackSize, s32 priority = DEFAULT_THREAD_PRIORITY, s32 coreNo = CORE_NO_USE_PROCESS_VALUE);
+    
     template <typename T, typename U>
     void StartUsingAutoStack(void (*f)(T), U param, size_t stackSize, s32 priority = DEFAULT_THREAD_PRIORITY, s32 coreNo = CORE_NO_USE_PROCESS_VALUE);
 
@@ -115,6 +116,12 @@ public:
 
     template <typename Stack>
     void Start(void (*f)(), Stack& stack, s32 priority = DEFAULT_THREAD_PRIORITY, s32 coreNo = CORE_NO_USE_PROCESS_VALUE);
+
+    template <typename T, typename U, typename Stack>
+    nn::Result TryStart(void (*f)(T), U param, Stack& stack, s32 priority = DEFAULT_THREAD_PRIORITY, s32 coreNo = CORE_NO_USE_PROCESS_VALUE);
+
+    template <typename T, typename Stack>
+    nn::Result TryStart(void (*f)(T*), T& param, Stack& stack, s32 priority = DEFAULT_THREAD_PRIORITY, s32 coreNo = CORE_NO_USE_PROCESS_VALUE);
 };
 
 /* Thread::FunctionInfo */

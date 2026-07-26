@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLES2/gl2.h>
+#include <GLES2/gl2CTR.h>
 
 #ifdef __cplusplus
 extern "C" {

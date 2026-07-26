@@ -1,10 +1,8 @@
 // Filename: snd_DspFxManager.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
-#include "nn/snd/CTR/MPCore/snd_DspFxManager.h"
+#include <nn/snd/CTR/MPCore/snd_DspFxManager.h>
 #include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 
 namespace nn {
@@ -24,17 +22,18 @@ void DspFxManager::Initialize() {
     this->mIsAttached[1][1] = false;
     this->mIsEnabled[1][1] = false;
     this->mChannelNum[1][1] = 0;
-    DspFxManagerImpl::GetInstance()->Initialize();
+    DspFxManagerImpl::GetInstance().Initialize();
 }
 
 
 
 DspFxManagerImpl* DspFxManager::Finalize(){
-    return DspFxManagerImpl::GetInstance()->Finalize();
+    return DspFxManagerImpl::GetInstance().Finalize();
 }
 
-DspFxManager* DspFxManager::GetInstance() {
-    return sInstance;
+DspFxManager& DspFxManager::GetInstance() {
+    static DspFxManager instance;
+    return instance;
 }
 
 bool DspFxManagerImpl::SetDspReverbEffect(AuxBusId id, DspFxReverbParams* param) {
@@ -59,7 +58,8 @@ bool DspFxManager::Attach(DspEffectType type,AuxBusId id){
 
 s32 DspFxManager::GetDspCycles() {
     int cycle = 0;
-    for(int i = 0; i < 2; ++i){
+
+    for(int i = 0; i < AUX_BUS_NUM; ++i){
         int newNum = cycle + 10000 * this->GetChannelNum(DSP_EFFECT_TYPE_DELAY,(AuxBusId)i);
         cycle = newNum + 40000 * this->GetChannelNum(DSP_EFFECT_TYPE_REVERB,(AuxBusId)i);
     }

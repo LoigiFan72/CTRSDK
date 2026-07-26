@@ -13,7 +13,7 @@ void ClampStickMinimum(s16 *pOutX,s16 *pOutY,s32 x,s32 y,s32 min,s32 max);
 
 void GatherStartAndSelect(hid::CTR::ExtraPadStatus* pButton);
 void GatherStartAndSelect(hid::CTR::PadStatus* pButton);
-void GatherStartAndSelect(bit32 *hold,bit32 *trigger,bit32 *release);
+void GatherStartAndSelect(bit32& hold,bit32& trigger,bit32& release);
 
 }
 }

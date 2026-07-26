@@ -1,7 +1,7 @@
 #pragma once
 
 #include "nn/applet/CTR/applet_Paramaters.h"
-// all 100%
+
 namespace nn { 
 namespace applet {
 namespace CTR {

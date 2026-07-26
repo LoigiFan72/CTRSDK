@@ -1,7 +1,7 @@
 #pragma once
 
 #include <nn/Result.h>
-#include <nn/assert.h>
+#include <nn/Assert.h>
 
 #define NN_UTIL_RETURN_IF_FAILED_BASE(result, s1, s2, s3, s4, s5) \
     do \

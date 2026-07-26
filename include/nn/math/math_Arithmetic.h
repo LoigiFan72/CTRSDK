@@ -8,6 +8,9 @@
 namespace nn { 
 namespace math {
 
+u32 CntBit1(u32 x);
+u32 CntBit1(const u32* first, const u32* last);
+
 inline f32 Max(f32 a, f32 b ){ if(a < b) b = a; return b; }
 /* Inlines */
 

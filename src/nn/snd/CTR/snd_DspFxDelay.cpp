@@ -1,6 +1,6 @@
 // Filename: snd_DspFxDelay.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/dsp.h>
 #include <nn/snd.h>
@@ -148,7 +148,7 @@ bool DspFxDelay::SetParam(const DspFxDelay::Param& param){
     ::std::memset(reinterpret_cast<void*>(mBuffer), 0, mBufferSize);
     dsp::CTR::FlushDataCache(mBuffer, mBufferSize);
 
-    return DspFxManager::GetInstance()->SetDspDelayEffect(mAuxBusId, &params);
+    return DspFxManager::GetInstance().SetDspDelayEffect(mAuxBusId, &params);
 }*/
 
 

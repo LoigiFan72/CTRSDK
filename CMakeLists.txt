@@ -28,20 +28,24 @@ function(nn_library TARGET_NAME MODULE_DIR)
     )
 
     target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:
-        --apcs=//interwork --cpu=MPCore --fpmode=fast --cpp --arm
-        --signed_chars --multibyte-chars -DNN_PROCESSOR_ARM11MPCORE -DNN_BUILD_RELEASE
-        -O3 -Otime --data-reorder --split_sections --force_new_nothrow
-        --no_debug_macros --remove_unneeded_entities
+        --multibyte-chars --signed_chars --cpu=MPCore
+        --dollar --littleend --wchar --wchar16
+        --apcs=//interwork --data-reorder --split_sections
+        --debug_info=line_inlining_extensions --force_new_nothrow --fpmode=fast --no_exceptions --rtti --rtti_data --remarks --no_vfe --no_allow_fpreg_for_nonfpdata
         --diag_suppress=3017,940,997,177,541,1,1134,550,83,427,2525,117,284,174,111,1441,161
-        --debug_info=line_inlining_extensions --dollar
-        --no_rtti --no_allow_fpreg_for_nonfpdata
+        --cpp --arm -O3 -Otime
+        -DNN_PROCESSOR_ARM11MPCORE -DNN_BUILD_RELEASE
         >
     )
 
     target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:C>:
-        --apcs=//interwork --cpu=MPCore --fpmode=fast --c99 --arm
-        --signed_chars --multibyte-chars -O3
-        -Otime --data-reorder --split_sections --no_allow_fpreg_for_nonfpdata
+        --multibyte-chars --signed_chars --cpu=MPCore
+        --dollar --littleend --wchar --wchar16
+        --apcs=//interwork --data-reorder --split_sections
+        --debug_info=line_inlining_extensions --force_new_nothrow --fpmode=fast --no_exceptions --rtti --rtti_data --remarks --no_vfe --no_allow_fpreg_for_nonfpdata
+        --diag_suppress=3017,940,997,177,541,1,1134,550,83,427,2525,117,284,174,111,1441,161,826
+        --c99 --arm -O3 -Otime
+        -DNN_PROCESSOR_ARM11MPCORE -DNN_BUILD_RELEASE
         >
     )
 
@@ -59,6 +63,7 @@ nn_library(nn_camera  ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/camera)
 nn_library(nn_cfg     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/cfg)
 nn_library(nn_crt0    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/crt0)
 nn_library(nn_crypto  ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/crypto)
+nn_library(nn_cx      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/cx)
 nn_library(nn_dbg     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/dbg)
 nn_library(nn_dbm     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/dbm)
 nn_library(nn_dev     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/dev)
@@ -68,6 +73,7 @@ nn_library(nn_fnd     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/fnd)
 nn_library(nn_font    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/font)
 nn_library(nn_fs      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/fs)
 nn_library(nn_fslow   ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/fslow)
+nn_library(nn_gr      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/gr)
 nn_library(nn_gx      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/gx)
 #nn_library(nn_gxlow   ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/gxlow)
 nn_library(nn_hid     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/hid)
@@ -109,6 +115,7 @@ target_link_libraries(CTRSDK INTERFACE
     nn_cfg
     nn_crt0
     nn_crypto
+    nn_cx
     nn_dbg
     nn_dbm
     nn_dev

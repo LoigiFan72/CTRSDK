@@ -1,7 +1,7 @@
 #pragma once
 
-#include "nn/applet/CTR/applet_Paramaters.h"
-#include "nn/os/os_Mutex.h"
+#include <nn/applet/CTR/applet_Paramaters.h>
+#include <nn/os/os_Mutex.h>
 
 namespace nn{
 namespace applet{

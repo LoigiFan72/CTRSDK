@@ -1,6 +1,6 @@
 // Filename: hidlow_AccelerometerLifoRing.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/hidlow/CTR/hidlow_AccelerometerLifoRing.h>
 #include <nn/math.h>
@@ -21,7 +21,7 @@ void AccelerometerLifoRing::ReadData(hid::CTR::AccelerometerStatus *pBuffers,s32
 
     const s32 maxRead = nn::math::Min(bufferNum, ACCELEROMETER_LIFORING_BUFFER_NUM - 1);
 
-    while (true){
+    for(;;){
         const s32 orgWritePointer = mWritePointer;
         s32 writePointer = orgWritePointer;
         const s64 tickWriteZero = mTickWriteZero;

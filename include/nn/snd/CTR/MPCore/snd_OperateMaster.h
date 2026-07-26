@@ -1,11 +1,9 @@
 #pragma once
 
-#include "nn/types.h"
-#include "nn/snd/CTR/MPCore/snd_PrivateDefinition.h"
-#include "nn/os/os_Event.h"
-#include "nn/os/os_CriticalSection.h"
-
-using namespace nn::os;
+#include <nn/os.h>
+#include <nn/snd/CTR/MPCore/snd_PrivateDefinition.h>
+#include <nn/snd/CTR/Common/snd_Const.h>
+#include <cstring>
 
 namespace nn {
 namespace snd {
@@ -17,22 +15,30 @@ namespace internal{
 
 typedef ushort DSPWord;
 class Dspsnd{
+private:
+
+enum COM_PAGE{
+    COM_PAGE_0 = 0,
+    COM_PAGE_1 = 1,
+    COM_PAGE_NUM = 2
+};
+
 public:
     Event mEventInterrupt;
     Event mEventSemaphore;
     CriticalSection mCriticalSection;
     OutputCapture* mpOutputCapture;
     u8 mSaveData[4224];
-    ushort* mpDirectIdOnShare[2];
-    DspsndMasterDirect* mpMasterDirectOnShare[2];
-    DspsndMasterStatus* mpMasterStatusOnShare[2];
-    DspsndChannelDirect* mpChannelDirectOnShare[2][24];
-    DspsndChannelStatus* mpChannelStatusOnShare[2][24];
-    DspsndChannelOption* mpChannelOptionOnShare[2][24];
-    s32* mpAuxBusOnShare[2][2];
-    short* mpMixBusOnShare[2];
-    ushort* mpCompressorTableOnShare[2];
-    DspsndDspCycles* mpDspCyclesOnShare[2];
+    ushort* mpDirectIdOnShare[COM_PAGE_NUM];
+    DspsndMasterDirect* mpMasterDirectOnShare[COM_PAGE_NUM];
+    DspsndMasterStatus* mpMasterStatusOnShare[COM_PAGE_NUM];
+    DspsndChannelDirect* mpChannelDirectOnShare[COM_PAGE_NUM][NN_SND_VOICE_NUM];
+    DspsndChannelStatus* mpChannelStatusOnShare[COM_PAGE_NUM][NN_SND_VOICE_NUM];
+    DspsndChannelOption* mpChannelOptionOnShare[COM_PAGE_NUM][NN_SND_VOICE_NUM];
+    s32* mpAuxBusOnShare[COM_PAGE_NUM][AUX_BUS_NUM];
+    short* mpMixBusOnShare[COM_PAGE_NUM];
+    ushort* mpCompressorTableOnShare[COM_PAGE_NUM];
+    DspsndDspCycles* mpDspCyclesOnShare[COM_PAGE_NUM];
     bool mIsInitialized;
     u8 mProcessCount;
     ushort mDirectId;
@@ -40,11 +46,11 @@ public:
     ushort mWritePage;
     s32 mDspCyclesLimit;
     DspsndDspCycles mDspCycles;
-    short* mpSpacialCoeffsOnShare[2];
-    short* mpDirectionCoeffsSpOnShare[2];
-    short* mpDirectionCoeffsHpOnShare[2];
-    s32* mpSurroundlirCoeffsSpOnShare[2];
-    s32* mpSurroundlirCoeffsHpOnShare[2];
+    short* mpSpacialCoeffsOnShare[COM_PAGE_NUM];
+    short* mpDirectionCoeffsSpOnShare[COM_PAGE_NUM];
+    short* mpDirectionCoeffsHpOnShare[COM_PAGE_NUM];
+    s32* mpSurroundIirCoeffsSpOnShare[COM_PAGE_NUM];
+    s32* mpSurroundIirCoeffsHpOnShare[COM_PAGE_NUM];
     bool mIsAuxCallbackInSendParameterEnabled;
 public:
     Dspsnd(){ }
@@ -91,7 +97,7 @@ public:
 
     bool ChangeState(u8 ch_no, bool state);
     bool ChangePlayState(u8 ch_no, bool state);
-    s32* GetAusBusAddr(AuxBusId id){ return this->mpAuxBusOnShare[this->mReadPage][id]; }
+    s32* GetAuxBusAddr(AuxBusId id){ return this->mpAuxBusOnShare[this->mReadPage][id]; }
     DspsndChannelDirect* GetChannelDirectAddr(u8 ch){ u32 page = this->getCurrentPage(); return this->mpChannelDirectOnShare[page][ch]; }
     DspsndChannelOption* GetChannelOptionAddr(u8 ch){ return this->mpChannelOptionOnShare[this->mWritePage][ch]; }
     DspsndChannelStatus* GetChannelStatusAddr(u8 ch){ return this->mpChannelStatusOnShare[this->mReadPage][ch]; }
@@ -99,7 +105,7 @@ public:
     ushort* GetDirectIdAddrOnShared(int page){ this->mpDirectIdOnShare[page]; }
     DspsndDspCycles* GetDspCyclesAddr(){ return this->mpDspCyclesOnShare[this->mReadPage]; }
     s32 GetDspCyclesFrame(){ return this->mDspCycles.ch0.frame; }
-    static Dspsnd* GetInstance(){ return &internal::sDspsnd; }
+    static Dspsnd& GetInstance(){ return internal::sDspsnd; }
     DspsndMasterDirect* GetMasterDirectAddr(){ return this->mpMasterDirectOnShare[this->mWritePage]; }
     DspsndMasterStatus* GetMasterStatusAddr(){ return this->mpMasterStatusOnShare[this->mReadPage]; }
     short* GetMixBusAddr(){ return this->mpMixBusOnShare[this->mReadPage]; }

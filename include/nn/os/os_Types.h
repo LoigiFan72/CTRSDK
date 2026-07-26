@@ -65,7 +65,7 @@ const s64 WAIT_INFINITE = NN_OS_WAIT_INFINITE;
         LIMITABLE_RESOURCE_MAX_EVENT = 3,
         LIMITABLE_RESOURCE_MAX_MUTEX = 4,
         LIMITABLE_RESOURCE_MAX_SEMAPHORE = 5,
-        LIMITABLE_RESOURCE_MAX_TIMER = 6, // NOT USED HERE
+        LIMITABLE_RESOURCE_MAX_TIMER = 6,
         LIMITABLE_RESOURCE_MAX_SHAREDMEMORY = 7,
         LIMITABLE_RESOURCE_MAX_ADDRESSARBITER = 8,
         LIMITABLE_RESOURCE_MAX_CPUTIME = 9,
@@ -109,6 +109,25 @@ const s64 WAIT_INFINITE = NN_OS_WAIT_INFINITE;
 
         MEMORY_PERMISSION_DONT_CARE     = (1u << 28),
         MEMORY_PERMISSION_MAX_BITS      = (1u << 31)
+    };
+
+    enum MemoryOperation{
+        MEMORY_OPERATION_FREE           = (1 << 0),
+        MEMORY_OPERATION_RESERVE        = (2 << 0),
+        MEMORY_OPERATION_COMMIT         = (3 << 0),
+        MEMORY_OPERATION_MAP            = (4 << 0),
+        MEMORY_OPERATION_UNMAP          = (5 << 0),
+        MEMORY_OPERATION_PROTECT        = (6 << 0),
+
+        MEMORY_OPERATION_REGION_APP     = (1 << 8),
+        MEMORY_OPERATION_REGION_SYSTEM  = (2 << 8),
+        MEMORY_OPERATION_REGION_BASE    = (3 << 8),
+
+        MEMORY_OPERATION_MASK           = (0xFFu <<  0),
+        MEMORY_OPERATION_REGION_MASK    = (0xFu  <<  8),
+        MEMORY_OPERATION_FLAG_LINEAR    = (0x1u  << 16),
+
+        MEMORY_OPERATION_MAX_BITS       = (1u << 31)
     };
 
     struct MemoryInfo{

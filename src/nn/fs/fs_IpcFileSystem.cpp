@@ -1,3 +1,7 @@
+// Filename: fs_IpcFileSystem.cpp
+//
+// Project: Horizon
+
 #include <nn/fs/fs_IpcFileSystem.h>
 #include <nn/err/CTR/err_Api.h>
 #include <nn/fs/fs_Api.h>
@@ -310,6 +314,21 @@ Result FileSystem::CloseArchive(bit64 archiveHandle){
 Result FileSystem::IsSdmcDetected( bool* pOut ){
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x817, 0, 0, 0);
+
+
+    Result ipcResult = SendSyncRequest(this->mSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    *pOut = ipcMsg.GetRaw<bool>(2);
+
+    return ipcMsg.GetRaw<Result>(1);
+}
+
+Result FileSystem::IsSdmcWritable( bool* pOut ){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0x818, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(this->mSession);

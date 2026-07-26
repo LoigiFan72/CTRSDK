@@ -9,7 +9,7 @@ inline void DataSynchronizationBarrier(){
 }
 
 inline void DataMemoryBarrier(){
-    __asm("mcr   p15, 0, 0, c7, c10, 5");
+    __asm("mcr p15, 0, 0, c7, c10, 5");
 }
 
 }

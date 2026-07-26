@@ -1,6 +1,6 @@
 // Filename: cfg_Default.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/cfg/CTR/detail/cfg_Default.h>
 

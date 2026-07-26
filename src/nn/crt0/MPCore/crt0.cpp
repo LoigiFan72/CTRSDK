@@ -1,43 +1,39 @@
 // Filename: [MPCORE] crt0.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/svc.h>
 #include <nn/init/init_Default.h>
 #include <nn/init/init_StartUp.h>
+#include <nn/init.h>
 #include <nn/module.h>
 #include <nn/version.h>
 #include <nn/util/detail/util_Symbol.h>
 #include <rt_locale.h>
 #include <rt_sys.h>
 
-extern "C" __weak void __cpp_initialize__aeabi_(void);
-
 namespace{
-#if defined(NN_DEBUG)
-    NN_MAKE_MODULE_SDK(sDebugIndicator, "DEBUG");
+#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
+    NN_MAKE_MODULE(sDebugIndicator,  "NINTENDO", "DEBUG");
 #endif
-    NN_MAKE_MODULE_SDK(sSdkVersion, NN_CURRENT_SDK_VERSION);
-    NN_MAKE_MODULE_SDK(sFirmwareVersion, NN_CURRENT_FIRMWARE_VERSION);
+    NN_MAKE_MODULE(sSdkVersion,      "NINTENDO", NN_CURRENT_SDK_VERSION);
+    NN_MAKE_MODULE(sFirmwareVersion, "NINTENDO", NN_CURRENT_FIRMWARE_VERSION);
 }
 
 extern "C"{
-    void nninitRegion(); // native
-    void nninitLocale(); // native
-    void nninitSystem(); // init_Startup.cpp
-    void nninitStartUp(); // init_Startup.cpp
+    void nninitRegion();
+    void nninitLocale();
 
-    u32* __rt_locale(void); // ARMCC
-    void _fp_init(void); // ARMCC
+    __weak void __cpp_initialize__aeabi_(void);
+    bit32* __rt_locale(void);
+    void _fp_init(void);
 
-    void nninitCallStaticInitializers(); // init_Startup.cpp
-    void nninitSetup(); // init_Startup.cpp
-
-    extern u8 Image$$ZI$$ZI$$Limit[]; // ARMCC
-    extern u8 Image$$ZI$$ZI$$Base[]; // ARMCC
+    extern u8 Image$$ZI$$ZI$$Limit[];
+    extern u8 Image$$ZI$$ZI$$Base[];
 
 #pragma arm
-__asm void __ctr_start(){
+asm void __ctr_start(){
+    PRESERVE8
     bl __cpp(nninitRegion) // Region
     bl __cpp(nninitLocale) // Locale
     bl __cpp(nninitSystem) // System
@@ -50,7 +46,7 @@ __asm void __ctr_start(){
 }
 
 void nninitLocale(){
-#if defined(NN_DEBUG)
+#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
     NN_REFER_MODULE(sDebugIndicator);
 #endif
     NN_REFER_MODULE(sSdkVersion);
@@ -65,10 +61,10 @@ __asm void nninitRegion(){
     ldr     r0,=__cpp(Image$$ZI$$ZI$$Base)
     ldr     r1,=__cpp(Image$$ZI$$ZI$$Limit)
     mov     r2,#0x0
-region_loop
+loop
     cmp     r0,r1
     strcc   r2,[r0],#4
-    bcc     region_loop
+    bcc     loop
     bx      lr
 };
 

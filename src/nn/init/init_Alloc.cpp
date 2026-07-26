@@ -1,6 +1,6 @@
 // Filename: init_Alloc.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/init/init_Alloc.h>
 #include <nn/fnd/fnd_ExpHeap.h>

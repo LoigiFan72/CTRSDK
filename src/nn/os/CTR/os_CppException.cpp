@@ -1,6 +1,6 @@
 // Filename: os_CppException.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <cstdlib>
 #include <exception>

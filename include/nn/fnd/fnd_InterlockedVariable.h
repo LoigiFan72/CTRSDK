@@ -103,9 +103,24 @@ private:
     volatile T m_v;
 
 public:
-    InterlockedVariable () : m_v () {}
+    InterlockedVariable (): 
+        m_v () 
+    {}
+    InterlockedVariable(T v): 
+        m_v(v)
+    {}
 
-    operator T () const { return m_v; }
+    operator T() const{
+        typename StorageSelecter<T>::Type x = reinterpret_cast<const volatile typename StorageSelecter<T>::Type&>(m_v);
+        return reinterpret_cast<T&>(x);
+    }
+
+    T operator ->(){
+        typename StorageSelecter<T>::Type x = reinterpret_cast<const volatile typename StorageSelecter<T>::Type&>(m_v);
+        return reinterpret_cast<T&>(x);
+    }
+
+    T Read() const { return *this; }
 
     template <typename U>
     void operator= (U value){

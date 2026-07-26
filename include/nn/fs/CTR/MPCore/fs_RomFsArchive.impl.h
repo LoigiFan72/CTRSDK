@@ -45,7 +45,7 @@ private:
 
         Result ReadBytes(s64 offset, void* buffer, size_t size){
             NN_TASSERT_(buffer != NULL);
-            NN_TASSERT_(m_Size > 0);
+            NN_TASSERT_(this->mSize > 0);
             NN_TASSERT_(offset + size <= this->mSize);
             if (mBuffer){
                 std::memcpy(buffer, this->mBuffer + static_cast<u32>(offset), size);

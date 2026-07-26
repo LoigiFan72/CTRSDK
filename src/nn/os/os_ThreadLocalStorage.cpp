@@ -1,6 +1,6 @@
 // Filename: os_ThreadLocal.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/os/os_ThreadLocalStorage.h>
 #include <nn/os/CTR/os_ThreadLocalRegion.h>

@@ -1,8 +1,6 @@
 // Filename: snd_DspFxManagerImpl.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/snd/CTR/MPCore/snd_DspFxManager.h>
 #include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
@@ -21,7 +19,7 @@ namespace{
 void DspFxManagerImpl::Initialize() {
     DspFxReverbParams params;
 
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < AUX_BUS_NUM; i++){
         params.combFrames[1] = 0;
         params.combFrames[0] = 1;
         this->SetDspDelayEffect((AuxBusId)i,(DspFxDelayParams*)&params);
@@ -34,69 +32,76 @@ void DspFxManagerImpl::Initialize() {
 DspFxManagerImpl* DspFxManagerImpl::Finalize(){ }
 
 void DspFxManagerImpl::ForceUpdateParams() {
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < AUX_BUS_NUM; i++){
         AuxBusId busId = (AuxBusId)i;
-        this->mDspFxDelayParams[busId].ctrl= 0xffff;
-        internal::sDspsnd.SetDspDelayEffect(busId, &this->mDspFxDelayParams[busId]);
-        this->mDspFxReverbParams[busId].ctrl = 0xffff;
-        internal::sDspsnd.SetDspReverbEffect(busId, &this->mDspFxReverbParams[busId]);
+        mDspFxDelayParams[busId].ctrl= 0xffff;
+        Dspsnd::GetInstance().SetDspDelayEffect(busId, &this->mDspFxDelayParams[busId]);
+        mDspFxReverbParams[busId].ctrl = 0xffff;
+        Dspsnd::GetInstance().SetDspReverbEffect(busId, &this->mDspFxReverbParams[busId]);
     }
 }
 
-DspFxManagerImpl* DspFxManagerImpl::GetInstance() {
-    return sInstance;
+DspFxManagerImpl& DspFxManagerImpl::GetInstance() {
+    static DspFxManagerImpl instance;
+    return instance;
 }
 
 bool DspFxManagerImpl::SetDspDelayEffect(AuxBusId id, DspFxDelayParams* param) {
     if((param->ctrl & CTRL_ENABLE) != 0){
-        this->mDspFxDelayParams[id].enable = param->enable;
+        mDspFxDelayParams[id].enable = param->enable;
     }
     if((param->ctrl & CTRL_COEFS) != 0){
-        this->mDspFxDelayParams[id].channels = param->channels;
-        this->mDspFxDelayParams[id].delayFrames = param->delayFrames;
-        this->mDspFxDelayParams[id].delayFeedbackGain = param->delayFeedbackGain;
-        for(int i = 0; i < 2; i += 1){
-            this->mDspFxDelayParams[id].aLpfCoefs[i] = param->aLpfCoefs[i];
+        mDspFxDelayParams[id].channels = param->channels;
+        mDspFxDelayParams[id].delayFrames = param->delayFrames;
+        mDspFxDelayParams[id].delayFeedbackGain = param->delayFeedbackGain;
+
+        for(int i = 0; i < AUX_BUS_NUM; i += 1){
+            mDspFxDelayParams[id].aLpfCoefs[i] = param->aLpfCoefs[i];
         }
+
     }
     if((param->ctrl & CTRL_ADDRESSES) != 0){
-        this->mDspFxDelayParams[id].delayBufferAddress = param->delayBufferAddress;
+        mDspFxDelayParams[id].delayBufferAddress = param->delayBufferAddress;
     }
-    return Dspsnd::GetInstance()->SetDspDelayEffect(id,param);
+    return Dspsnd::GetInstance().SetDspDelayEffect(id,param);
 }
 
 bool DspFxManagerImpl::SetDspReverbEffect(AuxBusId id, DspFxReverbParams* param) {
     if((param->ctrl & CTRL_ENABLE) != 0){
         this->mDspFxReverbParams[id].enable = param->enable;
     }
-    if((param->ctrl & 4) != 0){
-        this->mDspFxReverbParams[id].channels = param->channels;
-        this->mDspFxReverbParams[id].earlyDelayFrames = param->earlyDelayFrames;
-        this->mDspFxReverbParams[id].preDelayFrames = param->preDelayFrames;
-        for(int i = 0; i < 2; i++){
-            this->mDspFxReverbParams[id].combFrames[i] = param->combFrames[i];
+    if((param->ctrl & CTRL_COEFS) != 0){
+        mDspFxReverbParams[id].channels = param->channels;
+        mDspFxReverbParams[id].earlyDelayFrames = param->earlyDelayFrames;
+        mDspFxReverbParams[id].preDelayFrames = param->preDelayFrames;
+
+        for(int i = 0; i < AUX_BUS_NUM; i++){
+            mDspFxReverbParams[id].combFrames[i] = param->combFrames[i];
         }
-        this->mDspFxReverbParams[id].allPassFrames = param->allPassFrames;
-        this->mDspFxReverbParams[id].earlyGain = param->earlyGain;
-        this->mDspFxReverbParams[id].fusedGain = param->fusedGain;
-        this->mDspFxReverbParams[id].allPassCoef = param->allPassCoef;
-        for(int coefi = 0; coefi < 2; coefi++){
-            this->mDspFxReverbParams[id].aCombCoefs[coefi] = param->aCombCoefs[coefi];
+
+        mDspFxReverbParams[id].allPassFrames = param->allPassFrames;
+        mDspFxReverbParams[id].earlyGain = param->earlyGain;
+        mDspFxReverbParams[id].fusedGain = param->fusedGain;
+        mDspFxReverbParams[id].allPassCoef = param->allPassCoef;
+
+        for(int coefi = 0; coefi < AUX_BUS_NUM; coefi++){
+            mDspFxReverbParams[id].aCombCoefs[coefi] = param->aCombCoefs[coefi];
         }
-        for(int lpfco = 0; lpfco < 2; lpfco++){
-            this->mDspFxReverbParams[id].aLpfCoefs[lpfco] = param->aLpfCoefs[lpfco];
+
+        for(int lpfco = 0; lpfco < AUX_BUS_NUM; lpfco++){
+            mDspFxReverbParams[id].aLpfCoefs[lpfco] = param->aLpfCoefs[lpfco];
         }
     }
     if((param->ctrl & CTRL_ADDRESSES) != 0){
-        this->mDspFxReverbParams[id].earlyDelayBufferAddress = param->earlyDelayBufferAddress;
-        this->mDspFxReverbParams[id].preDelayBufferAddress = param->preDelayBufferAddress;
-        this->mDspFxReverbParams[id].combBufferAddress[0] = param->combBufferAddress[0];
-        this->mDspFxReverbParams[id].combBufferAddress[1] = param->combBufferAddress[1];
-        this->mDspFxReverbParams[id].allPassBufferAddress = param->allPassBufferAddress;
+        mDspFxReverbParams[id].earlyDelayBufferAddress = param->earlyDelayBufferAddress;
+        mDspFxReverbParams[id].preDelayBufferAddress = param->preDelayBufferAddress;
+        mDspFxReverbParams[id].combBufferAddress[0] = param->combBufferAddress[0];
+        mDspFxReverbParams[id].combBufferAddress[1] = param->combBufferAddress[1];
+        mDspFxReverbParams[id].allPassBufferAddress = param->allPassBufferAddress;
     }
-    Dspsnd::GetInstance()->SetDspReverbEffect(id,param);
+    Dspsnd::GetInstance().SetDspReverbEffect(id,param);
 }
 
-} // namespace CTR
-} // namespace snd
-} // namespace nn
+}
+}
+}

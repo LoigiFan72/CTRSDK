@@ -1,8 +1,9 @@
 #pragma once
 
+#include <nn/assert.h>
 #include <nn/os/CTR/os_ErrorHandler.h>
 
-#ifdef NN_DEBUG
+#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
     #define NN_OS_ERROR_IF_FAILED(result)           \
         do                                          \
         {                                           \

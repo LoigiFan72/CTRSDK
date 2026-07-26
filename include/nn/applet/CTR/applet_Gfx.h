@@ -1,7 +1,7 @@
 #pragma once
 
 #include <nn/applet/CTR/applet_Ipc.h>
-#include <nn/applet/CTR/applet_Api.h>
+#include <nn/applet/CTR/applet_API.h>
 #include <nn/applet/CTR/applet_Paramaters.h>
 
 namespace nn{

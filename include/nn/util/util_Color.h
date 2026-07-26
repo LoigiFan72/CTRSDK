@@ -101,6 +101,11 @@ public:
         return old;
     }
 
+    SelfType& operator =(Color8 color){
+        this->Set(static_cast<s32>(color.r),static_cast<s32>(color.g),static_cast<s32>(color.b),static_cast<s32>(color.a) );
+        return *this;
+    }
+
     void Set(s32 red, s32 green, s32 blue, s32 alpha = ALPHA_OPACITY) {
         r = u8(red); g = u8(green); b = u8(blue); a = u8(alpha);
     }

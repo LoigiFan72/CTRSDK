@@ -1,6 +1,6 @@
 // Filename: applet_ClientThread.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/applet/CTR/applet_ClientThread.h>
 #include <nn/applet/CTR/applet_Connect.h>

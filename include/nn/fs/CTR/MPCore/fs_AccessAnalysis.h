@@ -1,22 +1,25 @@
 #pragma once
 
+#include <cstdio>
+#include <nn/Result.h>
+#include <nn/os/os_CriticalSection.h>
+
 namespace nn{
 namespace fs{
 namespace analysis{
-#ifdef NN_DEBUG
 
-#include <cstdio>
-#include <nn/os/os_CriticalSection.h>
+#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
 
 bool IsAnalysisLogEnabled();
 void FsAnalysisLog(nn::Result result, nn::os::Tick tickStart, const char* fmt, ...);
 
 #define NN_FS_ANALYSIS_LOG(fmt, ...)                                                             \
-    if (nn::fs::analysis::IsAnalysisLogEnabled())                                             \{                                                                                         \
+    if (nn::fs::analysis::IsAnalysisLogEnabled())                                             \
+    {                                                                                         \
         nn::os::Tick tickLogStart;                                                            \
         tickLogStart = nn::os::Tick::GetSystemCurrent();                                      \
         nn::fs::analysis::FsAnalysisLog(nn::ResultSuccess(), tickLogStart, fmt, __VA_ARGS__); \
-    }
+    }                                                                                         \
 
 #define NN_FS_ANALYSIS_LOG_RETURN(result, fmt, ...)                                         \
     do                                                                                   \

@@ -1,28 +1,15 @@
 #pragma once
 
-#include "nn/snd/CTR/MPCore/snd_OperateMaster.h"
-#include "nn/snd/CTR/Common/snd_Types.h"
-#include "nn/snd/CTR/MPCore/snd_FxDelay.h"
-#include "nn/snd/CTR/MPCore/snd_FxReverb.h"
-#include "nn/util/util_SizedEnum.h"
+#include <nn/snd/CTR/MPCore/snd_FxDelay.h>
+#include <nn/snd/CTR/MPCore/snd_FxReverb.h>
+#include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
+#include <nn/os.h>
+#include <nn/math.h>
+#include <nn/util.h>
+
+#include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 
 namespace nn{
-namespace math{
-    inline int max(int a, int b){
-        if(b <= a){
-            b = a;
-        }
-        return b;
-    }
-    inline int min(int a, int b){
-        if(a <= b){
-            b = a;
-        }
-        return b;
-    }
-}
-
-
 namespace snd{
 namespace CTR{
 
@@ -49,7 +36,7 @@ public:
     f32 mRearRadio;
     s32 mDroppedFrameCount;
     FxSet mFxSet[2];
-    os::CriticalSection mFxCriticalSection;
+    CriticalSection mFxCriticalSection;
 
     MasterManager(){ }
     ~MasterManager(){ }
@@ -65,15 +52,15 @@ public:
     void UpdateDroppedSoundFrameCount();
     void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos);
     void SetIsHeadsetConnected(bool flag);
-    static MasterManager* GetInstance();
+    static MasterManager& GetInstance();
 };
 
 class MasterManagerImpl{
 public:
     bool mInitialized;
-    util::SizedEnum1<ClippingMode> mClippingMode;
-    util::SizedEnum1<OutputMode> mOutputMode;
-    util::SizedEnum1<SyncMode> mSyncMode;
+    SizedEnum1<ClippingMode> mClippingMode;
+    SizedEnum1<OutputMode> mOutputMode;
+    SizedEnum1<SyncMode> mSyncMode;
     f32 mMasterVolume;
     f32 mSystemMasterVolume;
     f32 mAuxVolume[2];
@@ -81,13 +68,13 @@ public:
     uptr mAuxUserData[2];
     bool mAuxFrontBypass[2];
     bool mIsHeadsetConnected;
-    util::SizedEnum1<SurroundSpeakerPosition> mSpeakerPosition;
+    SizedEnum1<SurroundSpeakerPosition> mSpeakerPosition;
     u16 mSurroundDepth;
     u16 mRearRatio;
     s32 mDroppedFrameCount;
     bool mFxEnabled[2];
     u16 mOutputBufferCount;
-    os::CriticalSection mCriticalSection;
+    CriticalSection mCriticalSection;
 public:
 
     MasterManagerImpl() : mInitialized(0){ }
@@ -99,7 +86,7 @@ public:
     void Initialize();
     void InitializeParam();
     void RegisterAuxCallback(AuxBusId busId, AuxCallback callback, uptr userData);
-    bool SetAuxFrontBypass(AuxBusId busId, bool flag){ this->mAuxFrontBypass[busId] = flag; return internal::sDspsnd.SetAuxFrontBypass(busId, flag); }
+    bool SetAuxFrontBypass(AuxBusId busId, bool flag){ this->mAuxFrontBypass[busId] = flag; return Dspsnd::GetInstance().SetAuxFrontBypass(busId, flag); }
     void SetAuxReturnVolume(AuxBusId busId, f32 fVolume);
     bool SetClippingMode(ClippingMode mode);
     void SetIsHeadphoneConnected(bool flag){ internal::sDspsnd.SetIsHeadsetConnected(flag); }
@@ -112,7 +99,7 @@ public:
     void SetSystemMasterVolume(f32 volume);
     void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos);
     void SetIsHeadsetConnected(bool flag);
-    static MasterManagerImpl* GetInstance();
+    static MasterManagerImpl& GetInstance();
 };
 
 namespace internal{
@@ -120,13 +107,14 @@ namespace internal{
     extern CTR::MasterManagerImpl sMasterManagerImpl;
 }
 
-inline MasterManager* MasterManager::GetInstance(){
-    return &internal::sMasterManager;
+inline MasterManager& MasterManager::GetInstance(){
+    return internal::sMasterManager;
 }
 
-inline MasterManagerImpl* MasterManagerImpl::GetInstance(){
-    return &internal::sMasterManagerImpl;
+inline MasterManagerImpl& MasterManagerImpl::GetInstance(){
+    return internal::sMasterManagerImpl;
 }
+
 }
 }
 }

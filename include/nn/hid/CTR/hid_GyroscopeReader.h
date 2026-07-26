@@ -34,7 +34,7 @@ struct GyroscopeLowCalibrateParam{
     GyroscopeLowCalibrateAxisParam z;
 };
 
-class GyroscopeReader : private nn::util::NonCopyable<GyroscopeReader>{
+class GyroscopeReader : private nn::util::ADLFireWall::NonCopyable<GyroscopeReader>{
 protected:
     static const s32 GYROSCOPE_LOCAL_BUFFER_SIZE = 32;
 
@@ -85,12 +85,15 @@ public:
     void Read(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLen);
     bool ReadLatest(GyroscopeStatus* pBuf);
 
+    void Reset();
+
     void EnableZeroDrift(); 
     void EnableAccRevise();
     void EnableZeroPlay();
 
     void DisableAccRevise();
     void DisableZeroDrift();
+    
     void DisableZeroPlay();
 
     void CalculateDirection();

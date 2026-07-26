@@ -1,6 +1,6 @@
 // Filename: cfg_ApiInit.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/cfg/CTR/cfg_ApiInit.h>
 #include <nn/cfg/CTR/cfg_DetailApi.h>

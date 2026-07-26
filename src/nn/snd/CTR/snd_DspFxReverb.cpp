@@ -1,8 +1,6 @@
 // Filename: snd_DspFxReverb.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon Decompilation
 
 #include <nn/snd/CTR/MPCore/snd_DspFxReverb.h>
 #include <nn/snd/CTR/MPCore/snd_DspFxManager.h>
@@ -69,7 +67,7 @@ bool DspFxReverb::Attach(AuxBusId id) {
     if (!mIsInitialized || mAuxBusId != AUX_BUS_NULL || (id != AUX_BUS_A && id != AUX_BUS_B))
         return false;
 
-    if (!DspFxManager::GetInstance()->Attach(DspFxManager::DSP_EFFECT_TYPE_REVERB, id))
+    if (!DspFxManager::GetInstance().Attach(DspFxManager::DSP_EFFECT_TYPE_REVERB, id))
         return false;
 
     mAuxBusId = id;
@@ -82,7 +80,7 @@ void DspFxReverb::Detach() {
         return;
     }
     this->Disable();
-    DspFxManager::GetInstance()->Detach(DspFxManager::DSP_EFFECT_TYPE_REVERB, this->mAuxBusId);
+    DspFxManager::GetInstance().Detach(DspFxManager::DSP_EFFECT_TYPE_REVERB, this->mAuxBusId);
     mAuxBusId = AUX_BUS_NULL;
 }
 
@@ -98,12 +96,12 @@ bool DspFxReverb::Enable(bool enable) {
     params.enable = enable;
     params.ctrl = 1;
 
-    bool ret = DspFxManager::GetInstance()->SetDspReverbEffect(this->mAuxBusId, &params);
+    bool ret = DspFxManager::GetInstance().SetDspReverbEffect(this->mAuxBusId, &params);
 
     if (ret || enable == false)
         mIsEnabled = enable;
     if (mIsEnabled == false)
-        mProcessCount = Dspsnd::GetInstance()->mProcessCount;
+        mProcessCount = Dspsnd::GetInstance().mProcessCount;
     return ret;
 }
 

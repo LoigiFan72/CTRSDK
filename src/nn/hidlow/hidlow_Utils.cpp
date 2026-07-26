@@ -1,12 +1,13 @@
 // Filename: hidlow_Utils.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <math.h>
 #include <nn/assert.h>
-#include <nn/types.h>
+#include <nn/math.h>
 #include <nn/Result.h>
 #include <nn/hidlow/hidlow_Utils.h>
+#include <nn/hid/CTR/hid_AnalogStickClamper.h>
 
 namespace nn{
 namespace hidlow{
@@ -129,44 +130,116 @@ f32 ClampStickCrossFloat(f32 *pOutX,f32 *pOutY,s32 x,s32 y,s32 min,s32 max){
     return length;
 }
 
-void ClampStickMinimum(s16 *pOutX,s16 *pOutY,s32 x,s32 y,s32 min,s32 max){
-    
+void ClampStickMinimum(s16* pOutX, s16* pOutY, s32 x, s32 y, s32 min, s32 max){
+	NN_UNUSED_VAR(min);
+	f32 cross_x, cross_y;
+	f32 len_cross_2;
+	f32 len_circle_2;
+    f32 len_min;
+	f32 len_min_2;
+	f32 len_out_max_2;
+	f32 len_input;
+	f32 len_input_2;
+	f32 A,B;
+	f32 max_value;
+
+	len_input_2 = x*x + y*y;
+
+	if (len_input_2 == 0.0f){
+		*pOutX = 0;
+		*pOutY = 0;
+		return;
+	}
+
+	if (x * x > y * y){
+		if (x < 0){
+			cross_x = -nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CROSS;
+			cross_y = cross_x * y / x;
+		}
+		else{
+			cross_x = nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CROSS;
+			cross_y = cross_x * y / x;
+		}
+	}
+	else{
+		if (y < 0){
+			cross_y = -nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CROSS;
+			cross_x = cross_y * x / y;
+		}
+		else{
+			cross_y = nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CROSS;
+			cross_x = cross_y * x / y;
+		}
+	}
+
+	len_cross_2 = cross_x * cross_x + cross_y * cross_y;
+
+	len_circle_2 = (f32)nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CIRCLE * nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CIRCLE;
+
+    len_min_2 = (len_cross_2 < len_circle_2)? len_cross_2	: len_circle_2;
+
+    if (len_input_2 < len_min_2){
+		*pOutX = 0;
+		*pOutY = 0;
+		return;
+	}
+
+    len_out_max_2 = max * max;
+    len_min = nn::math::FSqrt(len_min_2);
+
+	len_input = nn::math::FSqrt(len_input_2);
+
+    A = len_input - len_min;
+
+    B = max - len_min;
+
+    max_value = max - nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CIRCLE;
+
+    if (len_input_2 >= len_out_max_2){
+        *pOutX = x * max_value / len_input;
+        *pOutY = y * max_value / len_input;
+    }
+
+    else{
+        *pOutX = x * max_value * A / (B * len_input);
+        *pOutY = y * max_value * A / (B * len_input);
+    }
 }
 
 
 void GatherStartAndSelect(hid::CTR::PadStatus* pButton){
-    GatherStartAndSelect(&pButton->hold,&pButton->trigger,&pButton->release);
+    GatherStartAndSelect(pButton->hold,pButton->trigger,pButton->release);
 }
 
 void GatherStartAndSelect(hid::CTR::ExtraPadStatus* pButton){
-    GatherStartAndSelect(&pButton->hold,&pButton->trigger,&pButton->release);
+    GatherStartAndSelect(pButton->hold,pButton->trigger,pButton->release);
 }
 
-void GatherStartAndSelect(bit32 *hold,bit32 *trigger,bit32 *release){
+void GatherStartAndSelect(bit32& hold,bit32& trigger,bit32& release){
     uint adjust;
     bit32 current;
 
-    adjust = *trigger;
-    if((((~adjust & 0xC) == 0) || (((adjust & 4) != 0 && ((*hold & 8) == 0)))) || (((adjust & 8) != 0 && ((*hold & 4) == 0)))){
+    adjust = trigger;
+    if((((~adjust & 0xC) == 0) || (((adjust & 4) != 0 && ((hold & 8) == 0)))) || (((adjust & 8) != 0 && ((hold & 4) == 0)))){
         current = adjust | 8;
     } 
     else{
         current = adjust & 0xfffffff7;
     }
-    *trigger = current;
-    adjust = *release;
-    if((((~adjust & 0xC) == 0) || (((adjust & 4) != 0 && ((*hold & 8) == 0)))) || (((adjust & 8) != 0 && ((*hold & 4) == 0)))){
+    trigger = current;
+    adjust = release;
+    if((((~adjust & 0xC) == 0) || (((adjust & 4) != 0 && ((hold & 8) == 0)))) || (((adjust & 8) != 0 && ((hold & 4) == 0)))){
         current = adjust | 8;
     } 
     else{
         current = adjust & 0xfffffff7;
     }
-    *release = current;
-    if((*hold & 4) != 0){
-        *hold = *hold & 0xfffffffb | 8;
+    release = current;
+    if((hold & 4) != 0){
+        hold = hold & 0xfffffffb | 8;
     }
-    *trigger = *trigger & 0xfffffffb;
-    *release = *release & 0xfffffffb;
+    trigger &= 0xfffffffb;
+    release &= 0xfffffffb;
     return;
 }
 

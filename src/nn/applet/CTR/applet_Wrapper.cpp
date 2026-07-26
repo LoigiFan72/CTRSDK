@@ -1,6 +1,6 @@
 // Filename: applet_Wrapper.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/applet.h>
 #include <nn/err.h>
@@ -17,7 +17,7 @@
 #include <nn/applet/CTR/applet_Gfx.h>
 #include <nn/applet/CTR/applet_ClientThread.h>
 #include <nn/applet/CTR/applet_Paramaters.h>
-#include <nn/gxlow/gxlow_SystemUse.h>
+#include <nn/gxlow/CTR/gxlow_SystemUse.h>
 
 namespace nn{
 namespace applet{

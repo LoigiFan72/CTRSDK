@@ -1,3 +1,7 @@
+// Filename: err_Api.cpp
+//
+// Project: Horizon
+
 #include <nn/err/CTR/err_Api.h>
 #include <nn/dbg/dbg_Break.h>
 #include <nn/dbg/dbg_DebugString.h>
@@ -12,6 +16,7 @@ namespace nn{
 namespace err{
 namespace CTR{
 namespace{
+    
 static FatalErrInfo sFatalErrInfo;
 Handle sFatalErrSession = INVALID_HANDLE_VALUE;
 os::CriticalSection sLock = nn::WithInitialize();
@@ -37,7 +42,7 @@ void FinalizeFatalErrSession(){
 
 void Throw(err::CTR::FatalErrInfo& info){
     Result res;
-    while(true){
+    while(1){
         os::CriticalSection::ScopedLock lock(sLock);
         res = InitializeFatalErrSession();
         if(res.IsSuccess()){

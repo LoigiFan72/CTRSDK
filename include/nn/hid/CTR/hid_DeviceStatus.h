@@ -67,6 +67,16 @@ namespace CTR {
     public: 
         Direction(){ }
         explicit Direction(const nn::math::VEC3& vecx,const nn::math::VEC3& vecy,const nn::math::VEC3& vecz):x(vecx),y(vecy),z(vecz){}
+        Direction(const nn::math::MTX33 &mtx33)//:
+            //x(mtx33.v[0]),y(mtx33.v[1]),z(mtx33.v[2])
+        {}
+
+        nn::math::MTX33 ToMTX33(){
+            return nn::math::MTX33(
+                x.x, x.y, x.z,
+                y.x, y.y, y.z,
+                z.x, z.y, z.z);
+        }
     };
 
     typedef struct{

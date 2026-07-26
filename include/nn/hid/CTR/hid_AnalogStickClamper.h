@@ -72,7 +72,7 @@ inline void AnalogStickClamper::GetStickClamp(s16* pMin, s16* pMax) const{
     }
 }
 
-inline AnalogStickClamper::ClampMode AnalogStickClamper::GetStickClampMode( ) const{
+inline AnalogStickClamper::ClampMode AnalogStickClamper::GetStickClampMode() const{
     return mStickClampMode;
 }
 

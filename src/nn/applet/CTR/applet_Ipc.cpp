@@ -1,6 +1,6 @@
 // Filename: applet_Ipc.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/applet/CTR/applet_Ipc.h>
 #include <nn/os/ipc/os_Message.h>
@@ -11,7 +11,7 @@ namespace applet{
 namespace CTR{
 namespace detail{
 
-nn::Handle APPLET::sSession = INVALID_HANDLE_VALUE;
+nn::Handle APPLET::sSession;
 
 Result APPLET::AppletUtility(u32 id,u8 *pInParam,size_t inParamSize,u8 *pOutParam,size_t outParamSize,s32 *pReadLen){
     MessageBuffer ipcMsg(GetMessageBuffer());

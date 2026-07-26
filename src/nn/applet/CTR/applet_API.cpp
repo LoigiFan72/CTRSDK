@@ -1,6 +1,6 @@
 // Filename: applet_API.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/applet.h>
 #include <nn/fs.h>
@@ -11,11 +11,11 @@
 #include <nn/applet/CTR/applet_InitialParamaters.h>
 #include <nn/applet/CTR/applet_Ipc.h>
 #include <nn/camera/CTR/camera_API.h>
-#include <nn/srv/srv_Api.h>
+#include <nn/srv.h>
 #include <nn/os/os_Thread.h>
 #include <nn/err/CTR/err_Api.h>
-#include <nn/gxlow/gxlow_SystemUse.h>
-#include <nn/gxlow/gxlow_Management.h>
+#include <nn/gxlow/CTR/gxlow_SystemUse.h>
+#include <nn/gxlow/CTR/gxlow_Management.h>
 #include <nn/dsp/CTR/MPCore/dsp_Api.h>
 
 #include <nn/dbg/dbg_DebugString.h>
@@ -23,7 +23,7 @@
 #include <nn/gx/CTR/gx_CTR.h>
 
 namespace{
-    class ExitHandler : public nn::srv::NotificationHandler{
+    class ExitHandler : public NotificationHandler{
     public:
         virtual void HandleNotification(bit32 message){
             NN_TLOG_("**** Exit handle id=%x \n", GetId());

@@ -1,6 +1,6 @@
 // Filename: cfg_IpcSys.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/cfg/CTR/cfg_IpcSys.h>
 #include <nn/os/ipc/os_Message.h>
@@ -10,7 +10,7 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 
-nn::Handle IpcSys::sSession = INVALID_HANDLE_VALUE;
+nn::Handle IpcSys::sSession;
 
 }
 }

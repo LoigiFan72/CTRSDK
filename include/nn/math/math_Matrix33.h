@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/types.h"
+#include <nn/types.h>
 
 #pragma push
 #pragma Otime
@@ -17,7 +17,10 @@ inline MTX33* MTX33Copy(MTX33* pOut, const MTX33* p);
 
 class MTX33{
 public:
-    float matrix[3][3];
+    union{
+        f32 matrix[3][3];
+        f32 a[9];
+    };
 public:
     MTX33() {}
     explicit MTX33(const f32* p) { MTX33Copy(this, reinterpret_cast<const MTX33*>(p)); }
@@ -48,7 +51,7 @@ VEC3* VEC3TransformC(VEC3* pOut, const MTX33* pM, const VEC3* pV);
 }
 
 inline VEC3* VEC3Transform(VEC3* pOut, const MTX33* __restrict pM, const VEC3* __restrict pV){
-    #ifdef NN_DEBUG // Unoptimized check.
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::VEC3TransformC(pOut,pM,pV);
     #else
         return ARMv6::VEC3TransformAsm(pOut, pM, pV);
@@ -56,7 +59,7 @@ inline VEC3* VEC3Transform(VEC3* pOut, const MTX33* __restrict pM, const VEC3* _
 }
 
 inline MTX33* MTX33Copy(MTX33* pOut, const MTX33* p){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX33CopyC(pOut,p);
     #else
         return ARMv6::MTX33CopyAsm(pOut,p);
@@ -65,7 +68,7 @@ inline MTX33* MTX33Copy(MTX33* pOut, const MTX33* p){
 
 template<typename TMatrix>
 inline TMatrix* MTX33Mult(TMatrix* pOut, const TMatrix* p1, const TMatrix* p2){
-    #ifdef NN_DEBUG
+    #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX33MultC(pOut,p1,p2);
     #else
         return ARMv6::MTX33MultAsm(pOut,p1,p2);

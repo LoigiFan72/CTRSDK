@@ -57,6 +57,11 @@ public:
         SetPointer(mP, offset, p);
     }
 
+    void SetPXIOut(s32 offset, s32 index, const void* p, size_t size){
+        mP[offset] = size << 8 | (index & 0x0fU) << 4 | 4;
+        mP[offset + 1] = reinterpret_cast<bit32>(p);
+    }
+
     void SetPXIIn(s32 offset, s32 index, const void* p, size_t size){
         mP[offset] = size << 8 | (index & 0xfU) << 4 | 6;
         mP[offset + 1] = reinterpret_cast<bit32>(p);

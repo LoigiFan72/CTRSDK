@@ -1,8 +1,6 @@
 // Filename: math_Triangular.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/math/math_Triangular.h>
 
@@ -371,8 +369,7 @@ f32 CosFIdx(f32 fidx){
     f32 r;
 
     fidx = FAbs(fidx);
-    while( fidx >= 65536.0f )
-    {
+    while(fidx >= 65536.0f){
         fidx -= 65536.0f;
     }
 
@@ -381,6 +378,30 @@ f32 CosFIdx(f32 fidx){
     idx &= 0xff;
 
     return internal::gSinCosTbl[idx].cos_val + r * internal::gSinCosTbl[idx].cos_delta;
+}
+
+void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx){
+    NN_FLOAT_TASSERT_(fidx);
+
+    u16 idx;
+    f32 abs_fidx;
+    f32 r;
+    f32 sVal, cVal;
+
+    abs_fidx = FAbs(fidx);
+    while(abs_fidx >= 65536.0f){
+        abs_fidx -= 65536.0f;
+    }
+
+    idx = F32ToU16(abs_fidx);
+    r = abs_fidx - U16ToF32(idx);
+    idx &= 0xff;
+
+    sVal = internal::gSinCosTbl[idx].sin_val + r * internal::gSinCosTbl[idx].sin_delta;
+    cVal = internal::gSinCosTbl[idx].cos_val + r * internal::gSinCosTbl[idx].cos_delta;
+
+    *pSin = (fidx < 0.0f) ? -sVal : sVal;
+    *pCos = cVal;
 }
 
 f32 AtanFIdx(f32 x){

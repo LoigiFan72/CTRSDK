@@ -12,6 +12,7 @@ inline void memcpy16(void* pDst, void* pSrc, size_t n){
         *(ushort*)((ushort*)pDst + i * 2) = *(ushort*)((ushort*)pSrc + i * 2);
     }
 }
+
 }
 }
 }

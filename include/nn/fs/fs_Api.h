@@ -13,6 +13,7 @@ namespace detail{
 void Initialize();
 void InitializeLoader(); // Isn't anywhere, custom bit
 bool IsSdmcInserted();
+bool IsSdmcWritable();
 Result GetPriortity(int out);
 
 }

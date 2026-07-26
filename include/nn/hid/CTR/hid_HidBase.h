@@ -2,7 +2,6 @@
 
 #include <nn/Handle.h>
 #include <nn/Result.h>
-#include <nn/types.h>
 #include <nn/fnd/fnd_Timespan.h>
 #include <nn/os/os_Synchronization.h>
 #include <nn/os/os_Event.h>
@@ -11,9 +10,11 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class HidBase : public nn::os::EventBase{
+class HidBase : public os::EventBase{
 protected:
-    HidBase() : nn::os::EventBase() {}
+    HidBase(): 
+        os::EventBase() 
+    {}
     ~HidBase() {}
 public:
     uptr mResourcePtr;

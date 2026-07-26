@@ -1,6 +1,6 @@
 // Filename: hidlow_PadLifoRing.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/hidlow/CTR/hidlow_PadLifoRing.h>
 #include <nn/math/math_Utility.h>
@@ -21,7 +21,7 @@ void PadLifoRing::ReadData(hid::CTR::PadStatus* pBuffers, s32 bufferNum,s32* pRe
 
     const s32 maxRead = nn::math::Min(bufferNum, PAD_LIFORING_BUFFER_NUM - 1);
 
-    while (true){
+    for(;;){
         const s32 orgWritePointer = mWritePointer;
         s32 writePointer = orgWritePointer;
         const s64 tickWriteZero = mTickWriteZero;
@@ -82,6 +82,7 @@ void PadLifoRing::ReadData(hid::CTR::PadStatus* pBuffers, s32 bufferNum,s32* pRe
             if (false || (checkWritePointer != orgWritePointer) || (checkTickWriteZero != tickWriteZero) || (checkOldTickWriteZero != oldTickWriteZero)|| false){
                 continue;
             }
+
         }
 
         *pReadCount = readCount;

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "nn/types.h"
-#include "nn/applet/CTR/applet_Paramaters.h"
-#include "nn/os/os_Event.h"
+#include <nn/applet/CTR/applet_Paramaters.h>
+#include <nn/os/os_Event.h>
 
 namespace nn { 
 namespace applet {

@@ -1,3 +1,7 @@
+// Filename: dbg_DebugString.cpp
+//
+// Project: Horizon
+
 #include <nn/dbg/dbg_DebugString.h>
 
 #include <nn/nstd/nstd_Printf.h>
@@ -9,9 +13,13 @@
 #include <cstdarg>
 #include <cstring>
 
-#define NN_DBG_PRINTF_BUFFER_LENGTH     256
+//#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
+
+#define NN_DBG_PRINTF_BUFFER_LENGTH  256
 #define NN_DBG_TPRINTF_BUFFER_LENGTH 128
-NN_MAKE_MODULE_SDK(sUsePutDebugString, "DebugPrint");
+
+NN_MAKE_MODULE(sUsePutDebugString, "NINTENDO", "DebugPrint");
+
 namespace nn{
 namespace dbg{
 namespace detail{
@@ -82,3 +90,5 @@ extern "C"{
         va_end(vlist);
     }
 }
+
+//#endif

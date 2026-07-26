@@ -1,8 +1,6 @@
 // Filename: mic_Api.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/mic/CTR/mic_Api.h>
 
@@ -10,6 +8,7 @@ namespace nn{
 namespace mic{
 namespace CTR{
 namespace detail{
+    
 Result InitializeBase(){
     // TODO
 }

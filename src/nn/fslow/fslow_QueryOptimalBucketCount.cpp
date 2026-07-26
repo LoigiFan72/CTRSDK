@@ -1,8 +1,6 @@
 // Filename: fslow_QueryOptimalBucketCount.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/fslow/fslow_QueryOptimalBucketCount.h>
 

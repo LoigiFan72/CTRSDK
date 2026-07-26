@@ -1,44 +1,18 @@
 #pragma once
 
-#include "nn/Result.h"
-
-enum nndbgBreakReason{
-    NN_DBG_BREAK_REASON_PANIC = 0,
-    NN_DBG_BREAK_REASON_ASSERT = 1,
-    NN_DBG_BREAK_REASON_USER = 2,
-    NN_DBG_BREAK_REASON_MAX_BIT = 1073741824,
-};
-
-namespace nn{
-namespace dbg{
-    enum BreakReason{
-        BREAK_REASON_PANIC = 0,
-        BREAK_REASON_ASSERT = 1,
-        BREAK_REASON_USER = 2,
-        BREAK_REASON_LOAD_RO = 3,
-        BREAK_REASON_UNLOAD_RO = 4,
-        BREAK_REASON_MAX_BIT = 0x80000000,
-    };
-
-    Result Break(BreakReason reason);
-    void Panic();
-
-    typedef void (*BreakHandler)(BreakReason reason, Result* pResult, const char* filename, int lineno, const char* fmt, std::va_list args);
-namespace detail{
-    Result NotifyDllLoadedToDebugger(const void* pDllInfo, size_t size);
-
-}
-}
-}
+#include <nn/Result.h>
+#include <nn/dbg/dbg_Enum.h>
 
 /* Panic() and Break() */
 
 /* Use these! */
+#ifdef __cplusplus
 extern "C"{
+#endif
 
 Result nndbgBreak(nn::dbg::BreakReason reason);
 
-void nndbgPanic(void);
+void nndbgPanic();
 
 
 void nndbgBreakWithMessage_ (nndbgBreakReason reason, const char* filename, int lineno, const char* fmt, ...);
@@ -47,4 +21,33 @@ void nndbgBreakWithTMessage_(nndbgBreakReason reason, const char* filename, int 
 void nndbgBreakWithResultMessage_ (nndbgBreakReason reason, nnResult result, const char* filename, int lineno, const char* fmt, ...);
 void nndbgBreakWithResultTMessage_(nndbgBreakReason reason, nnResult result, const char* filename, int lineno, const char* fmt, ...);
 
+#ifdef __cplusplus
 }
+#endif
+
+namespace nn{
+namespace dbg{
+
+    typedef void (*BreakHandler)(BreakReason reason, Result* pResult, const char* filename, int lineno, const char* fmt, std::va_list args);
+
+    Result Break(BreakReason reason);
+    void Panic();
+
+namespace detail{
+namespace CTR{
+
+struct DllInfo{
+    uptr pathAddress;
+    s32  pathLength;
+    uptr erAddress;
+    uptr rwAddress;
+};
+
+} // namespace CTR
+
+Result NotifyDllLoadedToDebugger(const void* pDllInfo, size_t size);
+Result NotifyDllUnloadingToDebugger(const void* pDllInfo, size_t size);
+
+} // namespace detail
+} // namespace dbg
+} // namespace nn

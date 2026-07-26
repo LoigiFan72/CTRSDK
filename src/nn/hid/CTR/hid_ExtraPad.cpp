@@ -1,8 +1,6 @@
 // Filename: hid_ExtraPad.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/hid/CTR/hid_ExtraPad.h>
 #include <nn/ir/CTR/ir_CepdApi.h>

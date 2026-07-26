@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/applet/CTR/applet_Paramaters.h"
+#include <nn/applet/CTR/applet_Paramaters.h>
 
 namespace nn{
 namespace applet{ 

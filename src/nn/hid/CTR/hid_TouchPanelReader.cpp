@@ -1,8 +1,6 @@
 // Filename: hid_TouchPanelReader.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/hid/CTR/hid_TouchPanelReader.h>
 #include <nn/hidlow/CTR/hidlow_TouchPanelLifoRing.h>

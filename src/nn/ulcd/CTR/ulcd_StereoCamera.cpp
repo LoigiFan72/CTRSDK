@@ -1,8 +1,6 @@
 // Filename: ucld_StereoCamera.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/ulcd/CTR/ulcd_StereoCamera.h>
 #include <nn/cfg/CTR/cfg_Api.h>

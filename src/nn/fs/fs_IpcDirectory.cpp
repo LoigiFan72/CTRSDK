@@ -1,3 +1,7 @@
+// Filename: fs_IpcDirectory.cpp
+//
+// Project: Horizon Decompilation
+
 #include <nn/fs/fs_IpcDirectory.h>
 
 #include <nn/os/ipc/os_Message.h>

@@ -1,3 +1,7 @@
+// Filename: crypto_Sha1.cpp
+//
+// Project: Horizon
+
 #include <nn/crypto/crypto_Sha1.h>
 #include <nn/Assert.h>
 

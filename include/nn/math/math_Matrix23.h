@@ -10,7 +10,9 @@ namespace math{
 
 class MTX23{
 public:
-    float matrix[2][3];
+    union{
+        float matrix[2][3];
+    };
 public:
 };
 

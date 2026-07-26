@@ -13,9 +13,9 @@ enum{
 };
 
 #define NN_FONT_COMMAND_TEX_WRAP_FILTER( magFilter, minFilter )             \
-      ( (magFilter) << 1 | (minFilter) << 2 | ( 0/*isETC1*/ ? 2 : 0 ) << 4  \
-    | 0/*wrapT*/ << 8 | 0/*wrapS*/ << 12                                    \
-    | 0/*minFilter2*/ << 24 )
+      ( (magFilter) << 1 | (minFilter) << 2 | ( 0? 2 : 0 ) << 4             \
+    | 0<< 8 | 0 << 12                                                       \
+    | 0 << 24 )
 
 }
 
@@ -214,7 +214,7 @@ const CharWidths& ResFontBase::GetCharWidthsFromIndex(GlyphIndex index) const{
 
     while (pWidth != NULL){
         if (pWidth->indexBegin <= index && index <= pWidth->indexEnd){
-            return GetCharWidthsFromIndex(pWidth, index);
+            return this->GetCharWidthsFromIndex(pWidth, index);
         }
 
         pWidth = pWidth->pNext;
@@ -259,10 +259,7 @@ void ResFontBase::SetGlyphMember(Glyph* glyph,GlyphIndex index,const FontTexture
 void ResFontBase::EnableLinearFilter(bool atSmall,bool atLarge){
     const int magFilter = atLarge ? CMD_TEX_LINEAR: CMD_TEX_NEAREST;
     const int minFilter = atSmall ? CMD_TEX_LINEAR: CMD_TEX_NEAREST;
-    mWrapFilter = 
-        NN_FONT_COMMAND_TEX_WRAP_FILTER(
-            magFilter,
-            minFilter);
+    mWrapFilter = NN_FONT_COMMAND_TEX_WRAP_FILTER(magFilter,minFilter);
 
     if(!this->IsManaging(NULL)){
         this->DeleteTextureNames();

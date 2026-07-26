@@ -1,9 +1,9 @@
 // Filename: init_Default.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/svc.h>
-#include <nn/init/init_Alloc.h>
+#include <nn/init.h>
 #include <nn/os/os_Memory.h>
 #include <nn/util/util_Result.h>
 #include <nn/srv/srv_API.h>
@@ -18,8 +18,6 @@ namespace{
     bool sUsingStartUpDefault = false;
     ExitHandler sExitHandler;
 }
-
-
 
 extern "C" {
     
@@ -37,6 +35,10 @@ void nninitStartUpDefault(){
     nn::init::InitializeAllocator(8 * 1024 * 1024);
 
     sUsingStartUpDefault = true;
+}
+
+bool nninitIsStartUpDefaultUsing(){
+    return sUsingStartUpDefault;
 }
 
 void nninitSetupDefault(){

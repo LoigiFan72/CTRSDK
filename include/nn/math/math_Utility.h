@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/types.h"
+#include <nn/types.h>
 
 namespace nn { 
 namespace math {
@@ -34,7 +34,20 @@ inline T RoundUp(T x, u32 base){
     return static_cast<T>( (x + (base - 1)) & ~(base - 1) );
 }
 
+template <typename T>
+inline T RoundDown(T x, u32 base){
+    return static_cast<T>(x & ~(base - 1));
+}
 
+template <>
+inline void* RoundDown(void* x, u32 base){
+    return reinterpret_cast<void*>( RoundDown(reinterpret_cast<uptr>(x), base) );
+}
+
+template <>
+inline const void* RoundDown(const void* x, u32 base){
+    return reinterpret_cast<const void*>( RoundDown(reinterpret_cast<uptr>(x), base) );
+}
 
 }
 }

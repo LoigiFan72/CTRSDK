@@ -58,6 +58,8 @@ namespace CTR {
                 this->mCallback(this->mParamater);
         }
 
+        int GetPriority() const{ return mPriority; }
+
         void SetNext(SysSleepAcceptedCallbackInfo* p){ this->mNext = p;  return; }
         void SetPrev(SysSleepAcceptedCallbackInfo* p){ this->mPrev = p;  return; }
         SysSleepAcceptedCallbackInfo* GetNext(){ return this->mNext; }

@@ -1,8 +1,6 @@
 // Filename: math_Matrix.cpp
 //
-// Project: Horizon 4_2_5 Decompilation
-//
-// Remade by user Luigifan27
+// Project: Horizon
 
 #include <nn/math/math_Matrix34.h>
 

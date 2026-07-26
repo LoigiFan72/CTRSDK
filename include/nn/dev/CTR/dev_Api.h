@@ -21,10 +21,10 @@ namespace CTR{
 
     void Initialize();
     void Finalize();
-    Result ReadHostIO(void *pData,s32 numSectors,SectorSize sectorSize,bit8 *pCommand);
-    Result ReadHostIO2(void *pData,s32 sectorOffset,s32 numSectors,SectorSize sectorSize);
-    Result WriteHostIO(void *pData,s32 numSectors,SectorSize sectorSize,bit8 *pCommand);
-    Result WriteHostIO2(void *pData,s32 sectorOffset,s32 numSectors,SectorSize sectorSize);
+    Result ReadHostIO(void *pData,s32 numSectors,SectorSize sectorSize,const bit8 pCommand[]);
+    Result ReadHostIO2(const void* pData,s32 sectorOffset,s32 numSectors,SectorSize sectorSize);
+    Result WriteHostIO(void *pData,s32 numSectors,SectorSize sectorSize,const bit8 pCommand[]);
+    Result WriteHostIO2(const void* pData,s32 sectorOffset,s32 numSectors,SectorSize sectorSize);
 }
 }
 }

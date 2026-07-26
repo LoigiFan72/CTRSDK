@@ -103,5 +103,5 @@ void SimpleLock::Unlock(){
     }
 }
 
-} // os
-} // nn
+}
+}

@@ -1,6 +1,6 @@
 // Filename: ptm_Api.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/ptm/CTR/ptm_Api.h>
 #include <nn/ptm/CTR/detail/ptm_PtmIpc.h>
@@ -14,8 +14,9 @@ namespace CTR{
 
 
 Result Initialize(){
-    if(!detail::PtmIpc::sSession.IsValid())
+    if(!detail::PtmIpc::sSession.IsValid()){
         NN_UTIL_RETURN_IF_FAILED(srv::GetServiceHandle(&detail::PtmIpc::sSession, PORT_NAME_PTM_USER));
+    }
     return ResultSuccess();
 }
 

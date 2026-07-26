@@ -70,7 +70,7 @@ Result FileBase::TrySetPosition(s64 position){
     if (position >= mSize){
         s64 size;
         NN_UTIL_RETURN_IF_FAILED(TryGetSize(&size));
-        NN_TASSERT_(size == m_Size);
+        NN_TASSERT_(size == this->mSize);
         if (position > size){
             return ResultInvalidPosition();
         }

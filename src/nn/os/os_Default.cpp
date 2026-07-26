@@ -1,6 +1,6 @@
 // Filename: os_Default.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/Result.h>
 #include <nn/os/os_Default.h>

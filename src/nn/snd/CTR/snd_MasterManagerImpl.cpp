@@ -1,5 +1,6 @@
 #include <nn/snd/CTR/MPCore/snd_MasterManager.h>
-#include <nn/dsp/CTR/MPCore/dsp_Api.h>
+#include <nn/dsp.h>
+#include <nn/math/math_Utility.h>
 #include <nn/Assert.h>
 
 namespace nn {
@@ -10,25 +11,30 @@ namespace internal{
 }
 // flagged
 void MasterManagerImpl::AuxUserCallback(AuxBusId busId, uptr data){
-    NN_TASSERT_((busId != AUX_BUS_A) && (busId != AUX_BUS_B));
-    AuxBusData auxBusData;
-    if(this->mInitialized){
-        os::CriticalSection::ScopedLock lock(this->mCriticalSection);
-        if(this->mAuxCallback[busId] != 0){
-            auxBusData.frontRight = (s32*)data + 0x280;
-            auxBusData.rearLeft = (s32*)data + 0x500;
-            auxBusData.rearRight = (s32*)data + 0x780;
-            auxBusData.frontLeft = (s32*)data;
-            (*this->mAuxCallback[busId])(&auxBusData,0xa0,this->mAuxUserData[busId]);
-        }
-        return;
+    NN_TASSERT_( busId == AUX_BUS_A || busId == AUX_BUS_B );
+
+    if (!mInitialized){
+        return ;
+    }
+    os::CriticalSection::ScopedLock lock(this->mCriticalSection);
+
+    if (mAuxCallback[busId]){
+        s32 * pData = reinterpret_cast<s32*>(data);
+        AuxBusData auxBusData ={
+            pData,
+            pData + NN_SND_SAMPLES_PER_FRAME,
+            pData + NN_SND_SAMPLES_PER_FRAME * 2,
+            pData + NN_SND_SAMPLES_PER_FRAME * 3
+        };
+
+        mAuxCallback[busId]( &auxBusData, NN_SND_SAMPLES_PER_FRAME, mAuxUserData[busId] );
     }
 }
 
 void MasterManagerImpl::Finalize(){
-    if(this->mInitialized){
+    if(mInitialized){
         this->mCriticalSection.Finalize();
-        this->mInitialized = false;
+        mInitialized = false;
     }
 }
 
@@ -39,41 +45,41 @@ void MasterManagerImpl::ForceUpdateParams(){
     ClippingMode clippingmode;
     SurroundSpeakerPosition pos;
     SyncMode syncmode;
-    internal::sDspsnd.SetMasterVolume(this->mMasterVolume * this->mSystemMasterVolume);
-    for(int i = 0; i < 2; i++){
-        internal::sDspsnd.SetAuxReturnVolume(id,this->mAuxVolume[id]);
-        if((!this->mAuxCallback[id]) && (!this->mFxEnabled[id])){
+    Dspsnd::GetInstance().SetMasterVolume(this->mMasterVolume * this->mSystemMasterVolume);
+    for(int i = 0; i < AUX_BUS_NUM; i++){
+        Dspsnd::GetInstance().SetAuxReturnVolume(id,this->mAuxVolume[id]);
+        if((!mAuxCallback[id]) && (!mFxEnabled[id])){
             flag = false;
         }
         else{
             flag = true;
         }
-        internal::sDspsnd.EnableAuxBus(id,flag);
-        internal::sDspsnd.SetAuxFrontBypass(id,this->mAuxFrontBypass[id]);
+        Dspsnd::GetInstance().EnableAuxBus(id,flag);
+        Dspsnd::GetInstance().SetAuxFrontBypass(id,this->mAuxFrontBypass[id]);
     }
-    outmode = this->mOutputMode;
-    internal::sDspsnd.SetSoundOutputMode(outmode);
+    outmode = mOutputMode;
+    Dspsnd::GetInstance().SetSoundOutputMode(outmode);
 
-    clippingmode = this->mClippingMode;
-    internal::sDspsnd.SetClippingMode(clippingmode);
+    clippingmode = mClippingMode;
+    Dspsnd::GetInstance().SetClippingMode(clippingmode);
 
-    internal::sDspsnd.SetSurroundDepth(this->mSurroundDepth);
+    Dspsnd::GetInstance().SetSurroundDepth(this->mSurroundDepth);
 
-    pos = this->mSpeakerPosition;
-    internal::sDspsnd.SetSurroundSpeakerPosition(pos);
+    pos = mSpeakerPosition;
+    Dspsnd::GetInstance().SetSurroundSpeakerPosition(pos);
 
-    internal::sDspsnd.SetRearRatio(this->mRearRatio);
-    internal::sDspsnd.SetOutputBufferCount(this->mOutputBufferCount);
+    Dspsnd::GetInstance().SetRearRatio(this->mRearRatio);
+    Dspsnd::GetInstance().SetOutputBufferCount(this->mOutputBufferCount);
     this->mDroppedFrameCount = 0;
 
     syncmode = this->mSyncMode;
-    internal::sDspsnd.SetSyncMode(syncmode);
+    Dspsnd::GetInstance().SetSyncMode(syncmode);
 }
 
 void MasterManagerImpl::Initialize(){
-    if(!this->mInitialized){
+    if(!mInitialized){
         this->mCriticalSection.Initialize();
-        this->mInitialized = true;
+        mInitialized = true;
     }
 }
 
@@ -89,14 +95,17 @@ void MasterManagerImpl::InitializeParam(){
     this->SetRearRatio(1.0);
     this->SetSurroundDepth(1.0);
     this->SetClippingMode(CLIPPING_MODE_SOFT);
-    for(int i = 0; i < 2; i++)
+
+    for(int i = 0; i < AUX_BUS_NUM; i++){
         this->mFxEnabled[i] = false;
+    }
+
     this->SetOutputBufferCount(2);
     this->SetSyncMode(SYNC_MODE_STRICT);
 }
 
 void MasterManagerImpl::SetIsHeadsetConnected(bool flag){
-    Dspsnd::GetInstance()->SetIsHeadsetConnected(flag);
+    Dspsnd::GetInstance().SetIsHeadsetConnected(flag);
 }
 
 void MasterManagerImpl::RegisterAuxCallback(AuxBusId busId, AuxCallback callback, uptr userData){
@@ -105,33 +114,33 @@ void MasterManagerImpl::RegisterAuxCallback(AuxBusId busId, AuxCallback callback
     this->mAuxCallback[busId] = callback;
     this->mAuxUserData[busId] = userData;
     if(!callback){
-        internal::sDspsnd.EnableAuxBus(busId,this->mFxEnabled[busId]);
+        Dspsnd::GetInstance().EnableAuxBus(busId,this->mFxEnabled[busId]);
     }
     else{
-        internal::sDspsnd.EnableAuxBus(busId,true);
+        Dspsnd::GetInstance().EnableAuxBus(busId,true);
     }
 }
 
 void MasterManagerImpl::SetAuxReturnVolume(AuxBusId busId, f32 fVolume){
     NN_TASSERT_(busId == AUX_BUS_A || busId == AUX_BUS_B);
-    if(this->mInitialized){
-        this->mAuxVolume[busId] = fVolume;
-        internal::sDspsnd.SetAuxReturnVolume(busId,fVolume);
+    if(mInitialized){
+        mAuxVolume[busId] = fVolume;
+        Dspsnd::GetInstance().SetAuxReturnVolume(busId,fVolume);
     }
 }
 
 void MasterManagerImpl::SetSurroundSpeakerPosition(SurroundSpeakerPosition pos){
     if(pos < 2){
-        this->mSpeakerPosition = pos;
-        internal::sDspsnd.SetSurroundSpeakerPosition(pos);
+        mSpeakerPosition = pos;
+        Dspsnd::GetInstance().SetSurroundSpeakerPosition(pos);
     }
 }
 
 bool MasterManagerImpl::SetClippingMode(ClippingMode mode){
     if(dsp::CTR::IsComponentLoaded()){
         NN_TASSERT_(mode == CLIPPING_MODE_NORMAL || mode == CLIPPING_MODE_SOFT);
-        memcpy(&this->mClippingMode,&mode,1);
-        internal::sDspsnd.SetClippingMode(mode);
+        this->mClippingMode = mode;
+        Dspsnd::GetInstance().SetClippingMode(mode);
     }
     else{
         return false;
@@ -139,33 +148,33 @@ bool MasterManagerImpl::SetClippingMode(ClippingMode mode){
 }
 
 void MasterManagerImpl::SetMasterVolume(f32 fVolume){
-    if(this->mInitialized){
-        this->mMasterVolume = fVolume;
-        internal::sDspsnd.SetMasterVolume(this->mMasterVolume * this->mSystemMasterVolume);
+    if(mInitialized){
+        mMasterVolume = fVolume;
+        Dspsnd::GetInstance().SetMasterVolume(this->mMasterVolume * this->mSystemMasterVolume);
     }
 }
 
 void MasterManagerImpl::SetOutputBufferCount(s32 outputBufferCount){
-    int newCnt = math::max(outputBufferCount,2);
-    newCnt = math::min(newCnt, 3);
-    this->mOutputBufferCount = newCnt;
-    internal::sDspsnd.SetOutputBufferCount(newCnt);
+    s32 newCnt = math::Max(outputBufferCount,2);
+    newCnt = math::Min(newCnt, 3);
+    mOutputBufferCount = newCnt;
+    Dspsnd::GetInstance().SetOutputBufferCount(newCnt);
 }
 
 bool MasterManagerImpl::SetRearRatio(f32 ratio){
-    this->mRearRatio = ((0.0 < ratio * 32768.0) * (ratio * 32768.0));
-    return internal::sDspsnd.SetRearRatio(this->mRearRatio);
+    mRearRatio = ((0.0 < ratio * 32768.0) * (ratio * 32768.0));
+    return Dspsnd::GetInstance().SetRearRatio(this->mRearRatio);
 }
 
 bool MasterManagerImpl::SetSoundOutputMode(OutputMode mode){
-    if(dsp::CTR::IsComponentLoaded()){
-        NN_TASSERT_(mode == OUTPUT_MODE_MONO || mode == OUTPUT_MODE_STEREO || mode == OUTPUT_MODE_3DSURROUND);
-        memcpy(&this->mOutputMode, &mode, 1);
-        internal::sDspsnd.SetSoundOutputMode(mode);
-    }
-    else{
+    if (dsp::CTR::IsComponentLoaded() == false){
         return false;
     }
+
+    NN_TASSERT_(mode == OUTPUT_MODE_MONO || mode == OUTPUT_MODE_STEREO || mode == OUTPUT_MODE_3DSURROUND);
+
+    mOutputMode = mode;
+    return Dspsnd::GetInstance().SetSoundOutputMode(mode);
 }
 
 bool MasterManagerImpl::SetSurroundDepth(f32 depth){
@@ -178,14 +187,14 @@ bool MasterManagerImpl::SetSurroundDepth(f32 depth){
 }
 
 void MasterManagerImpl::SetSyncMode(SyncMode mode){
-    memcpy(&this->mSyncMode, &mode, 1);
-    return internal::sDspsnd.SetSyncMode(mode);
+    this->mSyncMode = mode;
+    Dspsnd::GetInstance().SetSyncMode(mode);
 }
 
 void MasterManagerImpl::SetSystemMasterVolume(f32 volume){
-    if(this->mInitialized){
-        this->mSystemMasterVolume = volume;
-        internal::sDspsnd.SetMasterVolume(this->mMasterVolume * this->mSystemMasterVolume);
+    if(mInitialized){
+        mSystemMasterVolume = volume;
+        Dspsnd::GetInstance().SetMasterVolume(this->mMasterVolume * this->mSystemMasterVolume);
     }
 }
 

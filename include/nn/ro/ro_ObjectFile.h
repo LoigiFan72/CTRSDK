@@ -11,6 +11,7 @@
 #pragma once
 
 #include <nn/ro/ro_Offset.h>
+#include <cstring>
 #include <nn/Assert.h>
 #include <nn/util/util_FlagsEnum.h>
 #include <nn/util/util_SizedEnum.h>
@@ -23,6 +24,12 @@ template <typename FirstType, int FirstSize, typename SecondType, int SecondSize
 class PairInWord{
 private:
     uptr    mValue;
+public:
+    FirstType GetFirst() const      { return static_cast<FirstType>(GetBits<0, FirstSize>()); }
+    SecondType GetSecond() const    { return static_cast<SecondType>(GetBits<FirstSize, SecondSize>()); }
+private:
+    template<int Offset, int Size>
+    uptr GetBits() const{ return (mValue << (sizeof(uptr) * 8 - (Offset + Size))) >> (sizeof(uptr) * 8 - Size); }
 };
 
 template <class T>
@@ -126,7 +133,7 @@ struct StaticRelocationTableEntry{
 };
 
 struct SymbolImportTableEntry{
-    OffsetPointer<const char*> symbol;
+    OffsetPointer<char> symbol;
     OffsetPointer<ExternalRelocationTableEntry> relocationBegin;
 };
 
@@ -141,7 +148,7 @@ struct OffsetImportTableEntry{
 };
 
 struct SymbolExportTableEntry{
-    OffsetPointer<const char*> symbol;
+    OffsetPointer<char> symbol;
     SectionAndOffset sectionAndOffset;
 };
 
@@ -155,7 +162,7 @@ struct OffsetExportTableEntry{
 };
 
 struct ObjectInfo{
-    OffsetPointer<const char*> name;
+    OffsetPointer<char> name;
     OffsetPointer<IndexImportTableEntry> indexImportTable;
     s32 numIndexImports;
     OffsetPointer<OffsetImportTableEntry> offsetImportTable;
@@ -192,7 +199,7 @@ public:
     HashSet ModuleHash;
     bit32 signature; // "CRO0" / "CRR0"
 
-    OffsetPointer<const char*> moduleName;
+    OffsetPointer<char> moduleName;
     ModuleHeaderListNode node;
 
     size_t size;
@@ -211,7 +218,7 @@ public:
     OffsetPointer<bit8> heapBinary;
     size_t heapBinarySize;
 
-    OffsetPointer<const char*> baseStringTable;
+    OffsetPointer<char> baseStringTable;
     size_t baseStringTableSize;
 
     OffsetPointer<SectionInfo>                  sectionInfo;
@@ -223,7 +230,7 @@ public:
     OffsetPointer<IndexExportTableEntry> indexExportTable;
     s32 numIndexExports;
 
-    OffsetPointer<const char*> exportStringTable;
+    OffsetPointer<char> exportStringTable;
     size_t exportStringTableSize;
         
     OffsetPointer<PatriciaNode> symbolExportDictionary;
@@ -244,7 +251,7 @@ public:
     OffsetPointer<OffsetImportTableEntry> offsetImportTable;
     s32 numOffsetImports;
 
-    OffsetPointer<const char*> importStringTable;
+    OffsetPointer<char> importStringTable;
     size_t importStringTableSize;
 
     OffsetPointer<OffsetExportTableEntry> offsetExportTable;
@@ -278,7 +285,7 @@ struct ListCert{
 };
 
 struct DebugInfoBody{
-    OffsetPointer<const char*> pathOffset;
+    OffsetPointer<wchar_t> pathOffset;
     size_t pathLength;
 };
 

@@ -1,9 +1,10 @@
 // Filename: camera_Api.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/camera/CTR/camera_Api.h>
 #include <nn/camera/CTR/camera_Camera.h>
+#include <nn/camera/CTR/camera_Result.h>
 
 namespace nn{
 namespace camera{
@@ -11,15 +12,20 @@ namespace CTR{
 namespace detail{
 namespace{
     u8 isInitialized;
-    u8 leaveApplication;
+    u8 leaveApplicationCamera;
 
 }
 
 Result ArriveApplication(){
-    Result ipc;
-    if((detail::isInitialized != 0) && (ipc = Camera::Activate(detail::leaveApplication), ipc.mResult == 0xC9405001)){
-        Camera::SetSleepCamera(detail::leaveApplication);
+    if(!isInitialized){
+        return ResultSuccess();
     }
+
+    Result result = detail::Camera::Activate(leaveApplicationCamera);
+    if (result == ResultIsSleeping()){
+        result = detail::Camera::SetSleepCamera(leaveApplicationCamera);
+    }
+    return result;
 }
 
 Result LeaveApplication(){
@@ -36,7 +42,7 @@ Result LeaveApplication(){
     if (result.IsFailure())
         return result;
 
-    leaveApplication = activatedCamera | sleepCamera;
+    leaveApplicationCamera = activatedCamera | sleepCamera;
 
     result = Camera::SetSleepCamera(0);
     if (result.IsSuccess())

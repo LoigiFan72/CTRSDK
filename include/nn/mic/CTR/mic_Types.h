@@ -1,3 +1,5 @@
+#pragma once
+
 namespace nn {
 namespace mic {
 namespace CTR {

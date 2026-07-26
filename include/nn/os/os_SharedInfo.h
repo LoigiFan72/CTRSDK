@@ -41,6 +41,15 @@ struct ReadOnlySharedInfo{
     ProgramId firstMainProgram;
     bit32 coreVersion;
     bit8 deviceEnv;
+    bit8 bootEnv;
+    bit8 previousMode;
+    s8 rev1;
+    u32 revision;
+    s32 rev2;
+    bit32 kParamAck[4];
+    bit32 kParamCurrent[4];
+    bit32 kParamValues[8];
+    bit8 firstVersionReserve;
 };
 
 inline ReadOnlySharedInfo& GetReadOnlySharedInfo(){ return *(ReadOnlySharedInfo*)NN_OS_ADDR_READONLY_SHARED_PAGE; }

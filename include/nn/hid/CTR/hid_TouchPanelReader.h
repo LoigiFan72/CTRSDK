@@ -12,7 +12,7 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class TouchPanelReader : private nn::util::NonCopyable<TouchPanelReader>{
+class TouchPanelReader : private nn::util::ADLFireWall::NonCopyable<TouchPanelReader>{
 protected:
     TouchPanel& mTouchPanel;
     s32 mIndexOfRead;

@@ -1,6 +1,6 @@
 // Filename: dbm_RomPathTool.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/dbm/dbm_RomPathTool.h>
 #include <nn/Assert.h>
@@ -121,7 +121,7 @@ bool PathParser::IsParseFinished() const{
 }
 
 bool RomPathTool::PathParser::IsDirectoryPath() const{
-    NN_NULL_TASSERT_(m_pNextPath);
+    NN_NULL_TASSERT_(mpNextPath);
     if ((mpNextPath[0] == NULL) && (mpNextPath[-1] == 0x2F)){
         return true;
     }

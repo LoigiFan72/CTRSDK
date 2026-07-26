@@ -3,10 +3,10 @@
 namespace nn{
 namespace fnd{
     enum Description{
-        DESCRIPTION_INVALID_NODE                        = 1,        //
-        DESCRIPTION_ALREADY_LISTED                      = 2,        //
-        DESCRIPTION_OUT_OF_RANGE                        = 3,        //
-        DESCRIPTION_OBSOLETE_RESULT                     = 1023      //
+        DESCRIPTION_INVALID_NODE                        = 1,
+        DESCRIPTION_ALREADY_LISTED                      = 2,
+        DESCRIPTION_OUT_OF_RANGE                        = 3,
+        DESCRIPTION_OBSOLETE_RESULT                     = 1023
     };
 
     NN_DEFINE_RESULT_FUNC_LM(MakePermanentResult, Result::LEVEL_PERMANENT, Result::MODULE_NN_FND);

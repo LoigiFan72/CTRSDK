@@ -1,6 +1,6 @@
 // Filename: cfg_IpcUser.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/cfg/CTR/cfg_IpcUser.h>
 #include <nn/os/ipc/os_Message.h>
@@ -11,7 +11,7 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 
-Handle IpcUser::sSession = INVALID_HANDLE_VALUE;
+Handle IpcUser::sSession;
 
 Result IpcUser::GetConfig(void* pData, size_t size, bit32 key){
     MessageBuffer ipcMsg(GetMessageBuffer());

@@ -7,13 +7,13 @@
 
 namespace nn{
 namespace ro{
-    void Initialize(uint,uint);
+    Result Initialize(void* pRs,uint rsSize);
     Result Finalize();
-    void* RegisterList(void* pRr, size_t pSize);
-    void* FindModule(const char* pModule);
+    RegistrationList* RegisterList(void* pRr, size_t rrSize);
+    Module* FindModule(const char* pName);
     uint GetAddress(const char* pAddress);
-    void GetSizeInfo(nn::ro::SizeInfo* pSizeInfo,void* pBuffer);
-    void* LoadModule(nn::ro::Module* pOffset, int, void*, uint, bool, nn::ro::FixLevel pLevel, const nn::ro::RegistrationList* pRegistList);
+    void GetSizeInfo(SizeInfo* pInfo,void* pBuffer);
+    Module* LoadModule(void* pRo,size_t roSize,void* pBuffer,size_t  bufferSize,bool doRegister,FixLevel fixLevel,const RegistrationList* pRr);
 
 namespace detail{
     const char PORT_NAME_RELOCATEABLE_OBJECT[] = "ldr:ro";

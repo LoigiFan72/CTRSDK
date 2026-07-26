@@ -1,12 +1,12 @@
 // Filename: srv_Api.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
-#include <nn/srv/srv_API.h>
-#include <nn/srv/srv_Service.h>
-
-#include <nn/os/os_Thread.h>
-#include <nn/os/os_Semaphore.h>
+#include <nn/srv.h>
+#include <nn/svc.h>
+#include <nn/Result.h>
+#include <nn/Handle.h>
+#include <nn/os.h>
 
 #include <nn/util/util_Result.h>
 
@@ -14,14 +14,14 @@
 #include <nn/dbg/dbg_Break.h>
 
 #define NN_NOTIFICATION_PRIORITY 1359598848
+#ifdef NN_BUILD_DEVELOPMENT
+    const size_t DISPATCHER_STACK_SIZE  = 1024;
+#else
+    const size_t DISPATCHER_STACK_SIZE  =  512;
+#endif
 
 namespace nn {
 namespace srv {
-
-    int sInitializeCount;
-    os::CriticalSection sInitializeLock;
-    const char PORT_NAME_SERVICE[] = "srv:";
-
 namespace detail {
     
 class HandlerManager{
@@ -38,9 +38,10 @@ public:
         return ResultSuccess();
     }
     NotificationHandler* Find(bit32 message){
-        nn::srv::NotificationHandler *i
         NN_TASSERT_(message != 0);
-        for(i = this->mHandler.GetFront(); (i != 0 && (i->mAttachedMessage != message)); i = this->mHandler.GetNext(i)){
+
+        NotificationHandler *i;
+        for(i = this->mHandler.GetFront(); i != NULL; i = this->mHandler.GetNext(i)){
             if(i->mAttachedMessage == message){
                 break;
             }
@@ -49,27 +50,17 @@ public:
     }
 
 };
-    static HandlerManager sHandlerManager;
 
-    NN_NOINLINE Result Connect(const char* name) {
-        Result res;
-        while (true) {
-            res = svc::ConnectToPort(&Service::sSession, name);
-            if (res.GetLevel()       != Result::LEVEL_PERMANENT   ||
-                res.GetSummary()     != Result::SUMMARY_NOT_FOUND ||
-                res.GetDescription() != 1018) break;
-            os::Thread::Sleep(fnd::TimeSpan::FromNanoSeconds(1000 * 500));
-        }
-        if (res.IsSuccess()) {
-            res = Service::RegisterClient();
-            sInitializeCount++;
-        }
-        return res;
-    }
-}
-namespace {
-    os::Semaphore sNotificationSemaphore;
-    os::Thread sNotificationDispatcher;
+} // detail
+
+namespace{
+    bool sInitialized = false;
+    s32 sInitializeCount = 0;
+    static os::CriticalSection sInitializeLock;
+    static os::Semaphore sNotificationSemaphore;
+    static os::Thread sNotificationDispatcher;
+    static detail::HandlerManager sHandlerManager;
+    os::StackBuffer<DISPATCHER_STACK_SIZE> sStack;
 
     void DispatcherThread() {
         Result result;
@@ -79,22 +70,39 @@ namespace {
             NN_PANIC_IF_FAILED(result);
         }
     }
-}
+} // namespace
 
-namespace {
-    os::StackBuffer<4132> sStack;
-}
+namespace detail{
+    bool IsInitialized() { return sInitializeCount > 0; }
+
+    NN_NOINLINE Result Connect(const char* name) {
+        Result res;
+        while (true) {
+            res = svc::ConnectToPort(&Service::sSession, name);
+            if (res.GetLevel()       != Result::LEVEL_PERMANENT   ||
+                res.GetSummary()     != Result::SUMMARY_NOT_FOUND ||
+                res.GetDescription() != 1018) 
+                break;
+            os::Thread::Sleep(fnd::TimeSpan::FromNanoSeconds(1000 * 500));
+        }
+        if (res.IsSuccess()) {
+            res = Service::RegisterClient();
+            sInitializeCount++;
+        }
+        return res;
+    }
+} // detail
 
 Result Initialize() {
     os::CriticalSection::ScopedLock lock(sInitializeLock);
-    if (srv::sInitializeCount > 0) {
-        srv::sInitializeCount++;
-        Result res; res.mResult = 0x82067F9;
-        return res;
-    }
     NN_MIN_TASSERT_(sInitializeCount, 0);
-    Result connect = detail::Connect(srv::PORT_NAME_SERVICE);
-    return connect;
+    if (srv::sInitializeCount > 0) {
+        sInitializeCount++;
+        return MakeInfoResult(Result::SUMMARY_NOTHING_HAPPENED, Result::MODULE_NN_SRV, Result::DESCRIPTION_ALREADY_INITIALIZED);
+    }
+    else{ 
+        return detail::Connect(srv::PORT_NAME); 
+    }
 }
 
 Result StartNotification() {
@@ -108,8 +116,9 @@ Result EnableNotification(os::Semaphore* pOut) {
     Result res;
     Handle h;
     res = detail::Service::EnableNotication(&h);
-    if (res.IsSuccess())
+    if (res.IsSuccess()){
         pOut->SetHandle(h);
+    }
     return res;
 }
 
@@ -119,29 +128,30 @@ Result DispatchNotification() {
     if(res.IsFailure()){
         return res;
     }
-    NotificationHandler* pHandler = detail::sHandlerManager.Find(message);
+
+    NotificationHandler* pHandler = sHandlerManager.Find(message);
     if (pHandler != NULL) {
         pHandler->HandleNotification(message);
         return ResultSuccess();
     }
-    else
+    else{
         return ResultSuccess();
+    }
 }
 
 Result RegisterNotificationHandler(NotificationHandler* pHandler, u32 message) {
-    return detail::sHandlerManager.Register(pHandler, message);
+    return sHandlerManager.Register(pHandler, message);
 }
 
 Result GetServiceHandle(nn::Handle* pOut, const char* pName, s32 nameLen, bit32 flags) {
-    if (srv::sInitializeCount <= 0) {
-        Result res; res.mResult = 0xD8A067F8;
-        return res;
+    Result res;
+    if (!detail::IsInitialized()) {
+        return ResultNotInitialized();
     }
-    if (nameLen > 8) {
-        Result res; res.mResult = 0xD9006405;
-        return res;
+    if (nameLen > MAX_SERVICE_NAME_LEN) {
+        return ResultTooLongServiceName();
     }
-    NN_TWARNING_(pName, "Failed to open service \"%s\"\n");
+    NN_TWARNING_(res.IsSuccess(), "Failed to open service \"%s\"\n", pName);
     return nn::srv::detail::Service::GetServiceHandle(pOut, pName, nameLen, flags);
 }
 

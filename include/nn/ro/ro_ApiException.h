@@ -7,11 +7,10 @@
 namespace nn {
 namespace ro {
 namespace detail{
-    
-        Result RegisterEit(Module* pModule);
-        Result UnregisterEit(Module* pModule);
 
-    }
+Result RegisterEit(Module* pModule);
+Result UnregisterEit(Module* pModule);
 
+}
 }
 }

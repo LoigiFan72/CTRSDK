@@ -7,7 +7,7 @@
 
 namespace nn { 
 namespace os {
-class CriticalSection : private nn::util::NonCopyable<CriticalSection>{
+class CriticalSection : private nn::util::ADLFireWall::NonCopyable<CriticalSection>{
 public:
     SimpleLock mLock;
     u32 mThreadUniqueValue;

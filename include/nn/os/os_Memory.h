@@ -12,7 +12,7 @@ namespace detail{
     }
 }
     uptr GetDeviceMemoryAddress();
-    uptr GetAppMemorySize();
+    size_t GetAppMemorySize();
 
     size_t GetDeviceMemorySize();
     Result SetDeviceMemorySize(size_t size);

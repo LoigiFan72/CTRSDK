@@ -1,12 +1,12 @@
 // Filename: applet_Connect.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/applet/CTR/applet_Connect.h>
 #include <nn/applet/CTR/applet_Ipc.h>
 #include <nn/srv/srv_API.h>
 #include <nn/err/CTR/err_Api.h>
-#include <nn/gxlow/gxlow_SystemUse.h>
+#include <nn/gxlow/CTR/gxlow_SystemUse.h>
 
 #include <string.h>
 

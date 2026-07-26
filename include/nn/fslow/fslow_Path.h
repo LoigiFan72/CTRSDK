@@ -1,6 +1,10 @@
 #pragma once
 
 #include <cwchar>
+#include <memory>
+#include <cstdlib>
+#include <cstring>
+#include <cwchar>
 
 namespace nn {
 namespace fslow {
@@ -20,7 +24,7 @@ public:
     LowPath (const wchar_t* path){
         this->mPathType   = 4;
         this->mData       = path;
-//        this->mBinarySize = 2 * (wcslen (path) + 1);
+        //this->mBinarySize = 2 * (wcslen (path) + 1);
     }
 
     const wchar_t* GetWStringRaw() const{
@@ -48,5 +52,5 @@ public:
     }
 };
 
-} // namespace fslow
-} // namespace nn
+}
+}

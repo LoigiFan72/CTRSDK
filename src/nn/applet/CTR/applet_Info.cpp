@@ -1,6 +1,6 @@
 // Filename: applet_Info.cpp
 //
-// Project: Horizon CTRSDK
+// Project: Horizon
 
 #include <nn/applet/CTR/applet_Info.h>
 

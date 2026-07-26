@@ -42,6 +42,9 @@ typedef volatile s64      vs64;
 typedef volatile f32      vf32;
 typedef volatile f64      vf64;
 
+typedef char     char8;
+typedef wchar_t  char16;
+
 typedef unsigned char           bit8;
 typedef unsigned short          bit16;
 typedef unsigned int            bit32;
@@ -69,6 +72,6 @@ typedef bit64 ProgramId;
 #define NN_INLINE inline
 #define NN_NOINLINE __attribute__((noinline))
 
-#ifdef NN_DEBUG
+#ifdef NN_BUILD_DEBUG
     #pragma O0
 #endif

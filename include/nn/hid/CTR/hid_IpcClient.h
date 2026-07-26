@@ -6,17 +6,20 @@ namespace nn{
 namespace hid{
 namespace CTR{
 namespace detail{
-namespace Ipc{
-    Result EnableAccelerometer();
-    Result DisableAccelerometer();
-    Result EnableGyroscopeLow();
-    Result DisableGyroscopeLow();
-    Result GetGyroscopeLowCalibrateParam(GyroscopeLowCalibrateParam *);
-    Result GetGyroscopeLowRawToDpsCoefficient();
-    Result GetIPCHandles(Handle *pSharedMemoryHandle,Handle *pPadEvent,Handle *pTouchPanelEvent,Handle *pAccelerometerEvent,Handle *pGyroscopeLowEvent,Handle *pDebugPadEvent);
 
-extern nn::Handle sSession;
-}
+class Ipc{
+public:
+    static Result EnableAccelerometer();
+    static Result DisableAccelerometer();
+    static Result EnableGyroscopeLow();
+    static Result DisableGyroscopeLow();
+    static Result GetGyroscopeLowCalibrateParam(GyroscopeLowCalibrateParam *);
+    static Result GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient);
+    static Result GetIPCHandles(Handle *pSharedMemoryHandle,Handle *pPadEvent,Handle *pTouchPanelEvent,Handle *pAccelerometerEvent,Handle *pGyroscopeLowEvent,Handle *pDebugPadEvent);
+
+    static nn::Handle sSession;
+};
+
 }
 }
 }

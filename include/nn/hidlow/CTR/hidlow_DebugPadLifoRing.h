@@ -8,6 +8,8 @@ namespace nn{
 namespace hidlow{
 namespace CTR{
 
+const s32 DEBUGPAD_LIFORING_BUFFER_NUM = 8;
+
 struct IDebugPadRawStatus{
     fnd::InterlockedVariable<s16> hold;
     fnd::InterlockedVariable<s16> trigger;
@@ -18,9 +20,9 @@ struct IDebugPadRawStatus{
     fnd::InterlockedVariable<s8> rightStickY;
 };
 
-class DebugPadLifoRing : public hidlow::LifoRing{
+class DebugPadLifoRing : public LifoRing{
 public:
-    IDebugPadRawStatus mBuffers[8];
+    IDebugPadRawStatus mBuffers[DEBUGPAD_LIFORING_BUFFER_NUM];
 
     void ReadData(DebugPadRawStatus *status,s32 bufferNum,s32 *pReadCount,s64 *pTick,s32 *pIndex);
 };

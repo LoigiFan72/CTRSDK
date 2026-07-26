@@ -25,5 +25,6 @@ inline uint Convert32HToBE(uint he){
 inline static u32 RotateLeft32(int shift, u32 value){
     return (u32)((value << shift) | (value >> (u32)(32 - shift)));
 }
+
 }
 }

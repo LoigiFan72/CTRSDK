@@ -1,6 +1,6 @@
 // Filename: [MPCORE] fs_Api.cpp
 //
-// Project: Horizon Decompilation
+// Project: Horizon
 
 #include <nn/fs/fs_Api.h>
 #include <nn/fs/fs_Parameters.h>
@@ -8,7 +8,7 @@
 #include <nn/err/CTR/err_Api.h>
 #include <nn/fnd/fnd_TimeSpan.h>
 #include <nn/cfg/CTR/cfg_Api.h>
-#include <nn/srv/srv_API.h>
+#include <nn/srv.h>
 
 #include <string.h>
 
@@ -46,7 +46,7 @@ inline Result SetPriority(s32 pri){
 void Initialize(){
     if(!IsInitialized()){
         Result res = srv::Initialize();
-        if(res.mResult != 0x8a067f9)
+        if(res != nn::srv::ResultAlreadyInitialized())
             NN_ERR_THROW_FATAL_ALL(res);
         NN_ERR_THROW_FATAL_ALL(srv::GetServiceHandle(&sFileServerSession, detail::PORT_NAME_USER));
         sFileSystemBaseImpl.Initialize(sFileServerSession);
@@ -61,7 +61,7 @@ void Initialize(){
 void InitializeLoader(){
     if(!IsInitialized()){
         Result res = srv::Initialize();
-        if(res.mResult != 0x8a067f9)
+        if(res != nn::srv::ResultAlreadyInitialized())
             NN_ERR_THROW_FATAL_ALL(res);
         NN_ERR_THROW_FATAL_ALL(srv::GetServiceHandle(&sFileServerSession, detail::PORT_NAME_LOADER));
         sFileSystemBaseImpl.Initialize(sFileServerSession);
@@ -75,6 +75,12 @@ bool IsSdmcInserted(){
     bool bInserted;
     NN_ERR_THROW_FATAL_ALL(nn::fs::detail::GetIpcFileSystem().IsSdmcDetected(&bInserted));
     return bInserted;
+}
+
+bool IsSdmcWritable(){
+    bool isWritable;
+    NN_ERR_THROW_FATAL_ALL(nn::fs::detail::GetIpcFileSystem().IsSdmcWritable(&isWritable));
+    return isWritable;
 }
 
 }

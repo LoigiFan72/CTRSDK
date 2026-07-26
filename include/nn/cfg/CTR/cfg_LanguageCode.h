@@ -19,6 +19,6 @@ namespace CTR {
                 CFG_LANGUAGE_CODE_MAX     = 12,
         };
 
-} // namespace CTR
-} // namespace cfg
-} // namespace nn
+}
+}
+}

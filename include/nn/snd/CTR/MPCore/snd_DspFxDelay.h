@@ -1,8 +1,8 @@
 #pragma once
 
-#include "nn/snd/CTR/Common/snd_Types.h"
-#include "nn/util/util_NonCopyable.h"
-#include "nn/util/util_SizedEnum.h"
+#include <nn/snd/CTR/Common/snd_Types.h>
+#include <nn/util/util_NonCopyable.h>
+#include <nn/util/util_SizedEnum.h>
 
 namespace nn {
 namespace snd {

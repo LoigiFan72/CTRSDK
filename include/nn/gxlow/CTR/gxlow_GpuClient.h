@@ -1,8 +1,8 @@
 #pragma once
 
-#include "nn/gxlow/gxlow_Parameters.h"
-#include "nn/Handle.h"
-#include "nn/Result.h"
+#include <nn/gxlow/CTR/gxlow_Parameters.h>
+#include <nn/Handle.h>
+#include <nn/Result.h>
 
 namespace nn{
 namespace gxlow{
