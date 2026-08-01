@@ -8,16 +8,16 @@ namespace applet{
 namespace CTR{
 namespace detail{
 namespace{
-    extern os::Mutex sMutex;
+
+    const char PORT_NAME_SYSTEM[] = "APT:S"; // APPLET SYSTEM
+    const char PORT_NAME_USER[] = "APT:U"; // APPLET USER
 }
-namespace{
-    const char PORT_NAME_SYSTEM[] = "APT:S";
-    const char PORT_NAME_USER[] = "APT:U";
-}
+    //--- Initialize / Connect
     void InitializeMutex(Handle handle);
     Result Connect();
     void LockAndConnect();
 
+    //--- Finalize / Disconnect
     Result Disconnect();
     void DisconnectAndUnlock();
 

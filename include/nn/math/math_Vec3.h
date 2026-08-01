@@ -10,10 +10,18 @@ namespace math {
 class VEC3;
 
 inline VEC3* VEC3Scale(VEC3* pOut, const VEC3* p, f32 scale);
+inline VEC3* VEC3Normalize(VEC3* pOut, const VEC3* p);
 inline f32   VEC3SquareLen(const VEC3* p);
-inline bool VEC3IsZero(const VEC3* p);
+inline bool  VEC3IsZero(const VEC3* p);
+inline f32   VEC3Len(const VEC3* p);
+
+struct VEC3_{
+    f32 x;
+    f32 y;
+    f32 z;
+};
     
-class VEC3{
+class VEC3 : public VEC3_{
 public:
     static const VEC3& Zero(){
         static const VEC3 zero(0.0f, 0.0f, 0.0f);
@@ -32,7 +40,7 @@ public:
 public:
     VEC3() {}
     explicit VEC3(const f32* p) { x = p[0]; y = p[1]; z = p[2]; }
-    VEC3(const VEC3& v) { x = v.x; y = v.y; z = v.z; }
+    VEC3(const VEC3_& v) { x = v.x; y = v.y; z = v.z; }
     VEC3(f32 fx, f32 fy, f32 fz) { x = fx; y = fy; z = fz; }
 
     operator f32*() { return &x; }
@@ -43,8 +51,13 @@ public:
 
     void Set(f32 fx, f32 fy, f32 fz) { x = fx; y = fy; z = fz; }
     void Set(const self_type& value) { x = value.x; y = value.y; z = value.z; }
+    
+    self_type& Normalize(){
+        return *VEC3Normalize(this, this);
+    }
 
     f32 LengthSquare() const { return VEC3SquareLen(this); }
+    f32 Length() const { return VEC3Len(this); }
 
     bool IsZero() const { return VEC3IsZero(this); }
 
@@ -95,7 +108,9 @@ inline f32 VEC3Dot(const VEC3* p1, const VEC3* p2){
 }
 
 inline f32 VEC3Len(const VEC3* p){
-    return ::std::sqrtf(VEC3SquareLen(p));
+    NN_NULL_ASSERT_(p);
+    
+    return ::std::sqrtf( VEC3SquareLen( p ) );
 }
 
 inline f32 VEC3SquareLen(const VEC3* p){
@@ -163,6 +178,8 @@ inline VEC3* VEC3NormalizeC_FAST(VEC3* pOut, const VEC3* p){
 }
 
 }
+
+inline VEC3* VEC3Normalize(VEC3* pOut, const VEC3& v) { return VEC3Normalize(pOut, &v); }
 
 inline VEC3* VEC3Normalize(VEC3* pOut, const VEC3* p){
     #ifdef NN_BUILD_DEBUG // Unoptimized check.

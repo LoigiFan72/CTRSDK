@@ -8,6 +8,7 @@ namespace nn{
 namespace camera{
 namespace CTR{
 namespace detail{
+    bool IsInitialized();
     Result ArriveApplication();
     Result LeaveApplication();
 

@@ -6,6 +6,7 @@
 namespace nn{
 namespace gxlow{
 namespace CTR{
+namespace detail{
 struct CfReq {
     bit32 addr0;
     bit32 size0;
@@ -76,29 +77,29 @@ enum CmdReqId{
     REQ_ID_CACHE_FLUSH
 };
 
-union CmdReqParam {
-    union cmdData {
-        bit32 d[7];
-    };
-    cmdData data;
-    DmaReq dma;
-    P3dReq ren;
-    FillReq mf;
-    PpfReq pf;
-    PpfTcReq ctx;
-    CfReq cf;
-};
 
 struct CmdReq {
     util::SizedEnum1<CmdReqId> id;
     bool callbackEnabled;
     bool stopEnabled;
     bool sync;
-    union CmdReqParam param;
+    union CmdReqParam {
+        union{
+            bit32 d[7];
+        } data;
+        DmaReq dma;
+        P3dReq ren;
+        FillReq mf;
+        PpfReq pf;
+        PpfTcReq ctx;
+        CfReq cf;
+    } param;
 };
 
 class CmdReqQueueBase{
-public:
+protected:
+    static const s32 QUEUE_LENGTH  = 15;
+    
     struct QueueControl {
         u8 head;
         u8 usedCount;
@@ -106,75 +107,47 @@ public:
         bit8 control;
     };
 
+    union QueueControlPacker{
+        QueueControl qc;
+        bit32 packed32;
+    };
+
     struct QueueBody {
-        struct QueueControl control;
-        struct Result lastResult;
+        QueueControl control;
+        Result lastResult;
         bit32 pad[6];
-        struct CmdReq data[15];
+        CmdReq data[15];
     };
 
     QueueBody* mpBody;
 
-    void Initialize(void* pQueueBody){
-        NN_TASSERT_(pQueueBody != 0);
-        this->mpBody = reinterpret_cast<QueueBody*>(pQueueBody);
-    }
-
-    void Finalize(){
-        this->mpBody = 0;
-    }
-};
-
-class CmdReqQueueTx : public CmdReqQueueBase{
+    CmdReqQueueBase(): 
+        mpBody(0) 
+    {}
+    ~CmdReqQueueBase() {}
 public:
-    void Initialize(void*);
+    void Initialize(void* pQueueBody);
     void Finalize();
-    Result TryEnqueue(CmdReq* pCmdReq);
 };
 
-/* DisplaySwap */ // MOVE TO gxlow_DisplaySwapInfoPad.h
+inline void CmdReqQueueBase::Initialize(void* pQueueBody){
+    NN_TASSERT_(pQueueBody != 0);
+    mpBody = reinterpret_cast<QueueBody*>(pQueueBody);
+}
 
-struct DisplaySwapInfo {
-    s32 nextBank;
-    uptr address;
-    uptr addressB;
-    size_t size;
-    bit32 mode;
-    bit32 swap;
-    bit32 attribute;
-};
+inline void CmdReqQueueBase::Finalize(){
+    mpBody = NULL;
+}
 
-class DisplaySwapInfoBase{
-    struct PadControl {
-        u8 currentIndex;
-        bool update;
-        bit8 pad[2];
-    };
+}
 
-    struct PadBody {
-        struct PadControl control;
-        struct DisplaySwapInfo info[2];
-        bit32 reserved;
-    };
-    PadBody* mpBody[2];
+class CmdReqQueueTx : public detail::CmdReqQueueBase{
 public:
-    void Initialize(void* pPadBody){
-        NN_TASSERT_(!pPadBody);
-        this->mpBody[0] = (PadBody*) pPadBody;
-        for(int i = 1; i < 2; i++){
-            this->mpBody[i] = this->mpBody[i + -1];
-            this->mpBody[i] = this->mpBody[i] + 1;
-        }
-    }
-    void Finalize(){
-        for(int i = 0; i < 2; i++){
-            this->mpBody[i] = 0;
-        }
-    }
-};
-
-class DisplaySwapInfoTx : public DisplaySwapInfoBase{
-
+    void Initialize(void* pQueueBody);
+    void Finalize();
+    Result TryEnqueue(const detail::CmdReq* pCmdReq);
+private:
+    void Reset();
 };
 
 }

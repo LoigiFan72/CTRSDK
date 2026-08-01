@@ -22,7 +22,10 @@ inline f32 FLog(f32 x){
     NN_WARNING_(x > 0, "FLog: Input is out of the domain.");
 
     return ::std::logf(x);
+}
 
+inline u32 F32AsU32(f32 x){
+    return *reinterpret_cast<u32*>(&x);
 }
 
 inline f32 FMod(f32 x, f32 y){

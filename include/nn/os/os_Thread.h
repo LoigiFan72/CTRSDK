@@ -48,7 +48,6 @@ private:
     struct InitializeAsCurrentTag {};
 
 private:
-    Thread(const InitializeAsCurrentTag&) { }
 
     // Use the top to call this!
     
@@ -74,6 +73,7 @@ public:
     static Thread sMainThread;
     static AutoStackManager* spAutoStackManager;
 private:
+    Thread(const InitializeAsCurrentTag&);
     static void ThreadStart(uptr p);
     static void ThreadStartUsingAutoStack(uptr);
     static void CallDestructorAndExit(void*);

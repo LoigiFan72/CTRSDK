@@ -23,7 +23,7 @@ namespace svc{
     Result Break(nn::dbg::BreakReason,const void*,int);
     Result CloseHandle(nn::Handle);
     Result ConnectToPort(nn::Handle*, const char*);
-    Result DuplicateHandle(nn::Handle*);
+    Result DuplicateHandle(nn::Handle*, Handle);
     Result GetProcessId(uint*, nn::Handle);
     Result GetResourceLimit(nn::Handle*, Handle);
     Result GetResourceLimitCurrentValues(s64 values[], nn::Handle resourceLimit, const nn::os::LimitableResource names[], s32 umNames);

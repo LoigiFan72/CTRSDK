@@ -5,6 +5,9 @@
 namespace nn{
 namespace font{
 namespace detail{
+namespace{
+    const u16 BYTE_ORDER_MARK = 0xFEFF;
+}
 
 typedef u32 SigWord;
 
@@ -15,6 +18,11 @@ typedef u32 SigWord;
         | (static_cast<u8>(c) << 16)        \
         | (static_cast<u8>(d) << 24)        \
     )
+
+#define NN_FONT_VERSION_MAJOR(version)        (((version) >> 24) & 0xff)
+#define NN_FONT_VERSION_MINOR(version)        (((version) >> 16) & 0xff)
+#define NN_FONT_VERSION_MICRO(version)        (((version) >>  8) & 0xff)
+#define NN_FONT_VERSION_BINARYBUGFIX(version) (((version) >>  0) & 0xff)
 
 struct BinaryFileHeader{
     SigWord signature;

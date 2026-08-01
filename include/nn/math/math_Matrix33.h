@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nn/types.h>
+#include <nn/math/math_Vec3.h>
 
 #pragma push
 #pragma Otime
@@ -15,17 +15,38 @@ inline MTX33* MTX33Copy(MTX33* pOut, const MTX33* p);
 //inline MTX34* MTX33ToMTX34(MTX34* pOut, const MTX33* pM);
 //inline MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pM);
 
-class MTX33{
+class MTX33_{
 public:
+    struct BaseData{
+        f32 _00;
+        f32 _01;
+        f32 _02;
+        f32 _10;
+        f32 _11;
+        f32 _12;
+        f32 _20;
+        f32 _21;
+        f32 _22;
+    };
+
     union{
+        BaseData f;
         f32 matrix[3][3];
         f32 a[9];
+        VEC3_ v[3];
     };
+};
+
+class MTX33 : public MTX33_{
 public:
     MTX33() {}
     explicit MTX33(const f32* p) { MTX33Copy(this, reinterpret_cast<const MTX33*>(p)); }
     //explicit MTX33(const MTX34& rhs) { MTX34ToMTX33(this, &rhs); }
-    MTX33(f32 x00, f32 x01, f32 x02,f32 x10, f32 x11, f32 x12,f32 x20, f32 x21, f32 x22){ }
+    MTX33(f32 x00, f32 x01, f32 x02,f32 x10, f32 x11, f32 x12,f32 x20, f32 x21, f32 x22){
+        f._00 = x00; f._01 = x01; f._02 = x02;
+        f._10 = x10; f._11 = x11; f._12 = x12;
+        f._20 = x20; f._21 = x21; f._22 = x22;
+    }
     static const int ROW_COUNT = 3;
     static const int COLUMN_COUNT = 3;
     

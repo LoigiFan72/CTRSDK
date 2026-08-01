@@ -4,14 +4,20 @@
 
 namespace nn {
 namespace math {
+
+class VEC2_{
+public:
+    float x;
+    float y;
+};
     
-class VEC2{
+class VEC2 : public VEC2_{
     typedef VEC2 self_type;
     typedef f32  value_type;
 public:
     VEC2(){ }
     explicit VEC2(const f32* p) { x = p[0]; y = p[1]; }
-    VEC2(const VEC2& v) { x = v.x; y = v.y; }
+    VEC2(const VEC2_& v) { x = v.x; y = v.y; }
     VEC2(f32 fx, f32 fy) { x = fx; y = fy; }
 
     operator f32*() { return &x; }
@@ -29,9 +35,6 @@ public:
     self_type operator / (f32 f) const { f32 r = 1.f / f; return self_type(r * x, r * y); }
 
     void Set(f32 fx, f32 fy) { x = fx; y = fy; }
-
-    float x;
-    float y;
 };
 
 static const VEC2& Zero(){

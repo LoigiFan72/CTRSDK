@@ -13,7 +13,7 @@ namespace fs{
 
     Result MountRom(const char *pArchiveName,size_t pMaxFile,size_t pMaxDirectory,void *pWorkingMemory, size_t pWorkingMemorySize,bool pUseCache);
     Result MountRom(size_t pMaxFile, size_t pMaxDirectory, void* pWorkingMemory, size_t pWorkingMemorySize, bool pUseCache);
-    Result Unmount(const char* pArchiveName = "data:");
+    Result Unmount(const char* pArchiveName);
 
     Result MountSdmc(const char* archiveName = "sdmc:");
 

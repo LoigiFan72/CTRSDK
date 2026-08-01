@@ -24,7 +24,7 @@ public:
     };
 public:
     void Initialize();
-    DspFxManagerImpl* Finalize();
+    void Finalize();
     static DspFxManager& GetInstance();
     bool Detach(DspEffectType type,AuxBusId id);
     bool Attach(DspEffectType,AuxBusId);
@@ -49,7 +49,7 @@ protected:
 
 public:
     void Initialize();
-    DspFxManagerImpl* Finalize();
+    void Finalize();
     void ForceUpdateParams();
     static DspFxManagerImpl& GetInstance();
     bool SetDspDelayEffect(AuxBusId id, DspFxDelayParams* param);

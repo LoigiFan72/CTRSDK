@@ -1,3 +1,5 @@
+#pragma once
+
 #include <nn/gx.h>
 #include <nn/gx/CTR/gx_CommandAccess.h>
 

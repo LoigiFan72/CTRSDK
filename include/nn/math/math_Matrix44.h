@@ -1,6 +1,8 @@
 #pragma once
 
 #include <nn/math/math_Vec3.h>
+#include <nn/math/math_Vec4.h>
+#include <nn/math/math_Matrix34.h>
 
 namespace nn{
 namespace math{
@@ -17,22 +19,55 @@ class MTX44;
 
 MTX44* MTX44Copy(MTX44* pOut, const MTX44* m);
 inline MTX44* MTX44Copy(MTX44* pOut, const MTX44& m) { return MTX44Copy( pOut, &m ); }
-
-class MTX44{
+class MTX44_{
 public:
-    union{
-        float matrix[4][4];
-        f32 a[16];
+    struct BaseData{
+        f32 _00;
+        f32 _01;
+        f32 _02;
+        f32 _03;
+        f32 _10;
+        f32 _11;
+        f32 _12;
+        f32 _13;
+        f32 _20;
+        f32 _21;
+        f32 _22;
+        f32 _23;
+        f32 _30;
+        f32 _31;
+        f32 _32;
+        f32 _33;
     };
+    union{
+        BaseData f;
+        f32 matrix[4][4];
+        f32 a[16];
+        VEC4_ v[4];
+    };
+};
+
+class MTX44 : public MTX44_{
+public:
+    MTX44() {}
+    explicit MTX44(const f32* p) { (void)MTX44Copy(this, (MTX44*)p); }
+    explicit MTX44(const MTX34& rhs){
+        (void)MTX34Copy((MTX34*)this, (MTX34*)&rhs);
+        f._30 = f._31 = f._32 = 0.f; f._33 = 1.f;
+    }
+    MTX44(const MTX44& rhs) { (void)MTX44Copy(this, &rhs); }
+    MTX44(f32 x00, f32 x01, f32 x02, f32 x03,f32 x10, f32 x11, f32 x12, f32 x13,f32 x20, f32 x21, f32 x22, f32 x23,f32 x30, f32 x31, f32 x32, f32 x33){
+        f._00 = x00; f._01 = x01; f._02 = x02; f._03 = x03;
+        f._10 = x10; f._11 = x11; f._12 = x12; f._13 = x13;
+        f._20 = x20; f._21 = x21; f._22 = x22; f._23 = x23;
+        f._30 = x30; f._31 = x31; f._32 = x32; f._33 = x33;
+    }
 
     operator f32*() { return this->a; }
     operator const f32*() const { return this->a; }
 
     static const int ROW_COUNT = 4; //
     static const int COLUMN_COUNT = 4; //
-    MTX44() {}
-    MTX44(f32 x00, f32 x01, f32 x02, f32 x03,f32 x10, f32 x11, f32 x12, f32 x13,f32 x20, f32 x21, f32 x22, f32 x23,f32 x30, f32 x31, f32 x32, f32 x33);
-    MTX44(const MTX44& rhs) { (void)MTX44Copy(this, &rhs); }
     static const MTX44& Identity(){
         static const MTX44 identity(1.0f, 0.0f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f, 0.0f,0.0f, 0.0f, 1.0f, 0.0f,0.0f, 0.0f, 0.0f, 1.0f);
         return identity;

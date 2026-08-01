@@ -17,6 +17,10 @@ namespace CTR {
         SAMPLING_RATE_10910 = 2,
         SAMPLING_RATE_8180 = 3
     };
+
+    typedef struct {
+        s32 offset;
+    } Header;
 }
 }
 }

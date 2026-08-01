@@ -2,6 +2,9 @@
 
 #include <nn/types.h>
 
+
+#ifdef __cplusplus
+
 namespace nn{
 namespace gxlow{
 namespace CTR{
@@ -13,3 +16,5 @@ uptr GetPhysicalAddr(uptr virtualAddr);
 }
 }
 }
+
+#endif

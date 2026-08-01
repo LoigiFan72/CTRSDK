@@ -43,18 +43,14 @@ public:
     bool SetParam(const DspFxReverb::Param& param);
     bool Enable(bool enable = true);
 
-    bool Disable()   {
-        return Enable(false); 
-    }
-    bool IsEnabled() {
-        return mIsEnabled; 
-    }
+    bool Disable(){ return Enable(false); }
+    bool IsEnabled() { return mIsEnabled;  }
 
     bool IsBufferInUse();
 
 private:
     bool AssignWorkBuffer(uptr buffer, size_t size);
-    void ReleaseWorkBuffer(){ this->mBuffer = 0; this->mBufferPhysical = 0; this->mBufferSize = 0; }
+    void ReleaseWorkBuffer();
 
     static FilterSize sDefaultFilterSize;
 

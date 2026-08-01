@@ -3,6 +3,7 @@
 #include <nn/types.h>
 #include <nn/cfg/CTR/cfg_LanguageCode.h>
 #include <nn/cfg/CTR/cfg_UserInfo.h>
+#include <nn/cfg/CTR/cfg_RegionCode.h>
 
 namespace nn {
 namespace cfg {
@@ -15,6 +16,7 @@ const char PORT_NAME_SYSTEM[] = "cfg:s";
 void Initialize();
 void Finalize();
 void GetBirthday(Birthday* pBirthday);
+CfgRegionCode GetRegion();
 CfgLanguageCode GetLanguage();
 
 struct LanguageCfgData{

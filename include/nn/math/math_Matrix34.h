@@ -3,6 +3,7 @@
 #include <nn/types.h>
 #include <nn/math/math_Matrix33.h>
 #include <nn/math/math_Vec3.h>
+#include <nn/math/math_Vec4.h>
 
 #pragma push
 
@@ -16,13 +17,32 @@ MTX34* MTX34Copy(MTX34* pOut, const MTX34* p);
 MTX34* MTX34Scale(MTX34* pOut, const VEC3* pS);
 bool   MTX34IsIdentity(const MTX34* p);
 
-class MTX34{
+class MTX34_{
 public:
+    struct BaseData{
+        f32 _00;
+        f32 _01;
+        f32 _02;
+        f32 _03;
+        f32 _10;
+        f32 _11;
+        f32 _12;
+        f32 _13;
+        f32 _20;
+        f32 _21;
+        f32 _22;
+        f32 _23;
+    };
     union{
+        BaseData f;
         float matrix[3][4];
         f32 a[12];
+        VEC4_ v[3];
     };
+};
 
+class MTX34 : public MTX34_{
+public:
     typedef MTX34 self_type;
     typedef f32   value_type;
 public:
@@ -39,9 +59,9 @@ public:
     MTX34(const MTX34& rhs)        { MTX34Copy(this, &rhs); }
     //explicit MTX34(const MTX33& rhs) { MTX33ToMTX34(this, &rhs); }
     MTX34(f32 x00, f32 x01, f32 x02, f32 x03,f32 x10, f32 x11, f32 x12, f32 x13,f32 x20, f32 x21, f32 x22, f32 x23){
-        matrix[0][0] = x00; matrix[0][1] = x01; matrix[0][2] = x02; matrix[0][3] = x03;
-        matrix[1][0] = x10; matrix[1][1] = x11; matrix[1][2] = x12; matrix[1][3] = x13;
-        matrix[2][0] = x20; matrix[2][1] = x21; matrix[2][2] = x22; matrix[2][3] = x23;
+        f._00 = x00; f._01 = x01; f._02 = x02; f._03 = x03;
+        f._10 = x10; f._11 = x11; f._12 = x12; f._13 = x13;
+        f._20 = x20; f._21 = x21; f._22 = x22; f._23 = x23;
     }
 
     VEC3 GetColumn(int index) const{
@@ -55,9 +75,9 @@ public:
     self_type& SetupScale(const VEC3& scale) { return *MTX34Scale(this, &scale); }
 
     void SetColumn(int index, const VEC3& column){
-        this->matrix[0][index] = column.x;
-        this->matrix[1][index] = column.y;
-        this->matrix[2][index] = column.z;
+        matrix[0][index] = column.x;
+        matrix[1][index] = column.y;
+        matrix[2][index] = column.z;
     }
 
     /* Inlines */
@@ -72,9 +92,9 @@ public:
 inline bool MTX34IsIdentity(const MTX34& m) { return MTX34IsIdentity( &m ); }
 
 inline bool MTX34IsIdentity(const MTX34* p) { 
-    return p->matrix[0][0] == 1.f && p->matrix[0][1] == 0.f && p->matrix[0][2] == 0.f && p->matrix[0][3] == 0.f &&
-           p->matrix[1][0] == 0.f && p->matrix[1][1] == 1.f && p->matrix[1][2] == 0.f && p->matrix[1][3] == 0.f &&
-           p->matrix[2][0] == 0.f && p->matrix[2][1] == 0.f && p->matrix[2][2] == 1.f && p->matrix[2][3] == 0.f;
+    return p->f._00 == 1.f && p->f._01 == 0.f && p->f._02 == 0.f && p->f._03 == 0.f &&
+           p->f._10 == 0.f && p->f._11 == 1.f && p->f._12 == 0.f && p->f._13 == 0.f &&
+           p->f._20 == 0.f && p->f._21 == 0.f && p->f._22 == 1.f && p->f._23 == 0.f;
 }
 
 inline MTX34* MTX34Copy(MTX34* pOut, const MTX34& m) { return MTX34Copy( pOut, &m ); }
@@ -92,9 +112,9 @@ inline VEC3* VEC3TransformC(VEC3* pOut, const MTX34* __restrict pM, const VEC3* 
     VEC3 vTmp;
     VEC3* pDst = (pOut == pV) ? &vTmp : pOut;
     
-    pDst->x = pM->matrix[0][0] * pV->x + pM->matrix[0][1] * pV->y + pM->matrix[0][2] * pV->z + pM->matrix[0][3];
-    pDst->y = pM->matrix[1][0] * pV->x + pM->matrix[1][1] * pV->y + pM->matrix[1][2] * pV->z + pM->matrix[1][3];
-    pDst->z = pM->matrix[2][0] * pV->x + pM->matrix[2][1] * pV->y + pM->matrix[2][2] * pV->z + pM->matrix[2][3];
+    pDst->x = pM->f._00 * pV->x + pM->f._01 * pV->y + pM->f._02 * pV->z + pM->f._03;
+    pDst->y = pM->f._10 * pV->x + pM->f._11 * pV->y + pM->f._12 * pV->z + pM->f._13;
+    pDst->z = pM->f._20 * pV->x + pM->f._21 * pV->y + pM->f._22 * pV->z + pM->f._23;
     
     if (pDst == &vTmp){
         pOut->x = pDst->x;

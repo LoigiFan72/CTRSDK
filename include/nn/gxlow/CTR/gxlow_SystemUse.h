@@ -3,6 +3,8 @@
 #include <nn/Result.h>
 #include <nn/gxlow/CTR/gxlow_Parameters.h>
 
+#ifdef __cplusplus
+
 namespace nn{
 namespace gxlow{
 namespace CTR{
@@ -11,6 +13,9 @@ namespace CTR{
     Result ReleaseGpuRight();
     Result RestoreVramSysArea();
     Result SaveVramSysArea();
+    void SuppressVSync(bool enable);
 }
 }
 }
+
+#endif

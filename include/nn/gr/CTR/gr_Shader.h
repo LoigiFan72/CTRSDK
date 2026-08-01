@@ -88,6 +88,7 @@ public:
     bool SearchBindSymbol(BindSymbol* symbol,const char* name) const;
     u32 SearchBindSymbolNum(const BindSymbol::ShaderType shader_type,const BindSymbol::SymbolType symbol_type) const;               
     bool SearchBindSymbol(BindSymbol* symbol,const u8 symbol_index) const;
+    void SetShaderIndex(s32 vtx_shader, s32 geo_shader);
 
     u8 GetShaderNum() const{ return mExeImageInfoNum; }
     bool IsEnableGeoShader() const{ return (0 <= this->GetGeoShaderIndex()); }

@@ -7,17 +7,15 @@ namespace nn {
 namespace applet {
 namespace CTR {
 namespace detail{
+    //--- Initialize / Finalize
     void InitializeClientThread(s32 threadPriority, Handle hControl, Handle hMessage);
-    void ThreadFunc(int param);
-
-    void SetReceiveCallback(AppletReceiveCallback callback,uptr parameter);
-
     void FinalizeClientThread();
+    void SetReceiveCallback(AppletReceiveCallback callback,uptr parameter);
     
+    //--- Control Event
     void WaitForControlEvent();
     bool TryWaitForControlEvent();
     void ClearControlEvent();
-
 }
 }
 }

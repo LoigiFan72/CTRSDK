@@ -1,6 +1,8 @@
 #pragma once
 
 #include <nn/drivers/gxlow/CTR/gxlow_InterruptTable.h>
+#include <nn/gxlow/CTR/detail/gxlow_DisplaySwapInfoPad.h>
+#include <nn/gxlow/CTR/detail/gxlow_InterruptRelayQueue.h>
 
 namespace nn{
 namespace gxlow{
@@ -22,30 +24,10 @@ namespace detail{
         }
     };
 }
-    class InterruptRelayQueueBase{
-    protected:
-        os::Event mRxEvent;
-        CmdReqQueueBase::QueueBody* mpBody;
-    public:
-        void Initialize(Handle eventHandle, void* pQueueBody){
-            this->mRxEvent.SetHandle(eventHandle);
-            NN_TASSERT_(pQueueBody);
-            this->mpBody = (CmdReqQueueBase::QueueBody*)pQueueBody;
-        }
-        void Finalize(){
-            this->mRxEvent.ClearHandle();
-            this->mpBody = 0;
-        }
-    };
-
-    class InterruptRelayQueueRx : public InterruptRelayQueueBase{
+    class InterruptRelayQueueRx : public detail::InterruptRelayQueueBase{
     public:
         void SuppressPdcEvents(bool enable);
-
-        Result TryDequeue(nngxlowInterrupt* pSrc){
-            Result res;
-            // TODO
-        }
+        Result TryDequeue(nngxlowInterrupt* pSrc);
     };
 
     class InterruptReceiver : public drivers::gxlow::CTR::InterruptTable{
@@ -59,7 +41,7 @@ namespace detail{
         InterruptRelayQueueRx mRelayQ;
         detail::SharedWorkMem mSharedWorkMem;
         CmdReqQueueTx mCmdReqQ;
-        DisplaySwapInfoTx mSwapInfoPad;
+        DisplaySwapInfoPadTx mSwapInfoPad;
         os::LightEvent mAnyHandlerDoneEvent;
         os::Thread mReceiverThread;
         s8 mGspContextIndex;
@@ -70,22 +52,13 @@ namespace detail{
     public:
         InterruptReceiver(){ }    
 
-        void CallHandlerFunc(s32 index){
-            this->LockTable();
-            if(this->mInterruptHandlerTable[index])
-                this->mInterruptHandlerTable[index]();
-            HandlerWaitStatus status = this->mHandlerWaitStatus;
-            memcpy(&this->mHandlerWaitStatus,&status,1);
-            if(status == RECEIVER_WAITING)
-                this->mAnyHandlerDoneEvent.Signal();
-            this->UnlockTable();
-        }
+        void CallHandlerFunc(s32 index);
         void Initialize();
         void Finalize();
         CmdReqQueueTx* GetCmdReqQueue(){ return &this->mCmdReqQ; }
-        DisplaySwapInfoTx* GetSwapInfoPad(){ return &this->mSwapInfoPad; }
+        DisplaySwapInfoPadTx* GetSwapInfoPad(){ return &this->mSwapInfoPad; }
         bool IsFirstConnection(){ return this->mIsFirstConnection; }
-        static void ReceiverThreadFunc(InterruptReceiver* arg);
+        static void ReceiverThreadFunc(uptr arg);
         void SuppressPdcEvents(bool enable){ this->mRelayQ.SuppressPdcEvents(enable); }
         void WaitAnyHandlerDone();
     };  

@@ -27,6 +27,7 @@ void Finalize();
 Result FinalizeBase(nn::Handle* session);
 void FinalizeProperPort(IPCPortType portType);
 
+CfgRegionCode GetRegion();
 Result GetConfig(void* pData, size_t size, bit32 key);
 
 }

@@ -9,14 +9,16 @@ namespace nn{
 namespace svc{
     s64 GetSystemTick();
 }
+
 namespace os{
+
 class Tick{
 public:
     s64 mTick;
 
     static const s64 TICKS_PER_SECOND  = NN_CTR_MPCORE_TICKS_PER_SECOND;
 
-    explicit Tick(s64 tick = 0) : mTick(tick) {}
+    Tick(s64 tick = 0) : mTick(tick) {}
     Tick(nn::fnd::TimeSpan span);
     static Tick GetSystemCurrent();
 

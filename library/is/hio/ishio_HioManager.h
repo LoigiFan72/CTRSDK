@@ -9,7 +9,7 @@ public:
     ushort rev;
 
 public:
-    ChannelManager(ushort ch){ this->mCh = ch; }
+    ChannelManager(ushort ch){ mCh = ch; }
     Result CheckAddress();
     Result CheckSIOStatus();
     Result Close();

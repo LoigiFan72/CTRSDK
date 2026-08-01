@@ -22,7 +22,7 @@ public:
     Result SetSemaphore(u16 mask);
     Result SetSemaphoreMask(u16 mask);
     Result UnloadComponent();
-    Result WriteProcessPipe(s32 port,u8 *pBuffer,size_t length);
+    Result WriteProcessPipe(s32 port,const u8 *pBuffer,size_t length);
 };
 }
 }

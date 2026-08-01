@@ -7,13 +7,14 @@ namespace nn{
 namespace ptm{
 namespace CTR{
 namespace detail{
-namespace PtmIpc{
 
-extern nn::Handle sSession;
+class PtmIpc{
+public:
 
-Result GetStepHistory(ushort* pStepCounts, s32 numHours, nn::fnd::DateTime start);
+    static nn::Handle sSession;
 
-}
+    static Result GetStepHistory(u16* pStepCounts, s32 numHours, fnd::DateTime start);
+};
 }
 }
 }

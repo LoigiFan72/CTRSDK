@@ -1,17 +1,25 @@
 #pragma once
 
-#include "nn/math/math_Vec3.h"
+#include <nn/math/math_Vec3.h>
 
 namespace nn {
 namespace math {
+
+class VEC4_{
+public:
+    float x;
+    float y;
+    float z;
+    float w;
+};
     
-class VEC4{
+class VEC4 : public VEC4_{
     typedef VEC4 self_type;
     typedef f32  value_type;
 public:
     VEC4() {}
     explicit VEC4(const f32* p) { x = p[0]; y = p[1]; z = p[2]; w = p[3]; }
-    VEC4(const VEC4& v) { x = v.x; y = v.y; z = v.z; w = v.w; }
+    VEC4(const VEC4_& v) { x = v.x; y = v.y; z = v.z; w = v.w; }
     VEC4(f32 fx, f32 fy, f32 fz, f32 fw) { x = fx; y = fy; z = fz; w = fw; }
     explicit VEC4(const VEC3& v) { x = v.x; y = v.y; z = v.z; w = 0.0f; }
 
@@ -25,10 +33,12 @@ public:
 
         return zero;
     }
-    float x;
-    float y;
-    float z;
-    float w;
+
+    static const VEC4& One(){
+        static const VEC4 one(1.0f, 1.0f, 1.0f, 1.0f);
+
+        return one;
+    }
 
     void Set(f32 fx, f32 fy, f32 fz, f32 fw) { x = fx; y = fy; z = fz; w = fw; }
 };

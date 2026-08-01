@@ -6,6 +6,9 @@
 namespace nn{
 namespace hidlow{
 namespace CTR{
+
+const int TOUCHPANEL_LIFORING_BUFFER_NUM = 8;
+
 struct ITouchPanelStatus{
     fnd::InterlockedVariable<u16> x;
     fnd::InterlockedVariable<u16> y;
@@ -15,8 +18,6 @@ struct ITouchPanelStatus{
 
 class TouchPanelLifoRing : public hidlow::LifoRing{
 public:
-    const int TOUCHPANEL_LIFORING_BUFFER_NUM = 8;
-
     ITouchPanelStatus mRaw;
     ITouchPanelStatus mBuffers[TOUCHPANEL_LIFORING_BUFFER_NUM];
 

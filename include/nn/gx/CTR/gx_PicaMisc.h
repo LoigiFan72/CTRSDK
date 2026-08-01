@@ -25,6 +25,28 @@ enum PicaDataDepth{
     PICA_DATA_DEPTH24_STENCIL8_EXT  = 0x3
 };
 
+enum PicaDataStencilOp{
+    PICA_DATA_STENCIL_OP_KEEP      = 0x0,
+    PICA_DATA_STENCIL_OP_ZERO      = 0x1,
+    PICA_DATA_STENCIL_OP_REPLACE   = 0x2,
+    PICA_DATA_STENCIL_OP_INCR      = 0x3,
+    PICA_DATA_STENCIL_OP_DECR      = 0x4,
+    PICA_DATA_STENCIL_OP_INVERT    = 0x5,
+    PICA_DATA_STENCIL_OP_INCR_WRAP = 0x6,
+    PICA_DATA_STENCIL_OP_DECR_WRAP = 0x7
+};
+
+enum PicaDataStencilTest{
+    PICA_DATA_STENCIL_TEST_NEVER    = 0x0,
+    PICA_DATA_STENCIL_TEST_ALWAYS   = 0x1,
+    PICA_DATA_STENCIL_TEST_EQUAL    = 0x2,
+    PICA_DATA_STENCIL_TEST_NOTEQUAL = 0x3,
+    PICA_DATA_STENCIL_TEST_LESS     = 0x4,
+    PICA_DATA_STENCIL_TEST_LEQUAL   = 0x5,
+    PICA_DATA_STENCIL_TEST_GREATER  = 0x6,
+    PICA_DATA_STENCIL_TEST_GEQUAL   = 0x7
+};
+
 #define PICA_CMD_DATA_RENDER_BUFFER_DEPTH_MODE( mode ) (mode)
 
 #define PICA_CMD_DATA_RENDER_BUFFER_RESOLUTION( width, height ) \
@@ -44,7 +66,22 @@ enum PicaDataGasColorLutInput{
 };
 
 #define PICA_CMD_DATA_GAS_LIGHT_Z_COLOR(lightZ4, colorLutInput) \
-    ( (lightZ4) | ((colorLutInput) ? 1 : 0) << 8 )
+    ((lightZ4) | ((colorLutInput) ? 1 : 0) << 8)
+
+#define PICA_CMD_DATA_RENDER_BUFFER_COLOR_MODE( pixSize, format ) \
+    ((pixSize) | (format) << 16)
+
+#define PICA_CMD_DATA_STENCIL_OP( fail, zfail, zpass) \
+    ( (fail)       | \
+      (zfail) << 4 | \
+      (zpass) << 8 )
+
+#define PICA_CMD_DATA_STENCIL_TEST( enableStencilTest, stencilFunc, stencilMask, ref, mask) \
+    ( ((enableStencilTest) ? 1 : 0 ) | \
+      (stencilFunc) << 4             | \
+      (stencilMask) << 8             | \
+      (ref) << 16                    | \
+      (mask) << 24 )
 
 enum PicaDataDepthTest2{ 
     PICA_DATA_DEPTH_TEST2_NEVER   = 0x0,

@@ -24,12 +24,16 @@ public:
     class State;
 protected:
     FrameHeapBase() : mAddr(0){}
-    virtual ~FrameHeapBase();
-    virtual void FreeV(void*);
-    virtual void* GetStartAddress() const;
-    virtual size_t GetTotalSize() const;
+    virtual ~FrameHeapBase(){ this->Finalize(); }
+    virtual void FreeV(void* p){}
+    virtual void* GetStartAddress() const{ return reinterpret_cast<void*>(mAddr); }
+    virtual size_t GetTotalSize() const{ return mSize; }
     virtual void Dump() const;
-    virtual bool HasAddress(const void* addr) const;
+    virtual bool HasAddress(const void* addr) const{ 
+        return mAddr <= reinterpret_cast<uptr>(addr) && reinterpret_cast<uptr>(addr) < (mAddr + mSize);
+    }
+
+    void Finalize() { mAddr = 0; }
 
 private:
     uptr   mAddr;

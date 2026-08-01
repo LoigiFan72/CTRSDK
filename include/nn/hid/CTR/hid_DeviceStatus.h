@@ -1,8 +1,6 @@
 #pragma once
 
-#include <nn/types.h>
-#include <nn/math/math_Vec3.h>
-#include <nn/math/math_Matrix33.h>
+#include <nn/math.h>
 
 namespace nn {
 namespace hid {
@@ -61,18 +59,18 @@ namespace CTR {
 
     struct Direction{
     public:
-        nn::math::VEC3 x;
-        nn::math::VEC3 y;
-        nn::math::VEC3 z;
+        VEC3 x;
+        VEC3 y;
+        VEC3 z;
     public: 
         Direction(){ }
-        explicit Direction(const nn::math::VEC3& vecx,const nn::math::VEC3& vecy,const nn::math::VEC3& vecz):x(vecx),y(vecy),z(vecz){}
-        Direction(const nn::math::MTX33 &mtx33)//:
-            //x(mtx33.v[0]),y(mtx33.v[1]),z(mtx33.v[2])
+        explicit Direction(const VEC3& vecx,const VEC3& vecy,const VEC3& vecz):x(vecx),y(vecy),z(vecz){}
+        Direction(const MTX33 &mtx33):
+            x(mtx33.v[0]),y(mtx33.v[1]),z(mtx33.v[2])
         {}
 
-        nn::math::MTX33 ToMTX33(){
-            return nn::math::MTX33(
+        MTX33 ToMTX33(){
+            return MTX33(
                 x.x, x.y, x.z,
                 y.x, y.y, y.z,
                 z.x, z.y, z.z);

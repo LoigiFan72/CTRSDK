@@ -35,7 +35,7 @@ public:
     bool IsBufferInUse();
 private:
     bool AssignWorkBuffer(uptr buffer, size_t size);
-    void ReleaseWorkBuffer(){ this->mBuffer = 0; this->mBufferPhysical = 0; this->mBufferSize = 0; }
+    void ReleaseWorkBuffer();
     
 protected:
     uptr mBuffer;

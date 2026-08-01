@@ -1,7 +1,6 @@
 #pragma once
 
 #include <nn/gr/CTR/gr_Utility.h>
-#include <nn/gx/CTR/gx_PicaFragment.h>
 
 namespace nn{
 namespace gr{
@@ -10,6 +9,7 @@ namespace CTR{
 class FragmentLight{
 public:
     static const int MAX_SOURCES = 8;
+    static const u32 LIGHT_SOURCE_MAX = 8;
     
     class Source{
     public:

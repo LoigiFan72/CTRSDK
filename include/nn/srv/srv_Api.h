@@ -42,7 +42,7 @@ Result DispatchNotification();
 Result RegisterNotificationHandler(NotificationHandler* pHandler, bit32 message);
 Result GetServiceHandle(nn::Handle* pOut, const char* pName, s32 nameLen, bit32 flags);
 
-inline Result GetServiceHandle(nn::Handle* pOut, const char* pName){return GetServiceHandle(pOut, pName, strlen(pName), 0);}
+inline Result GetServiceHandle(nn::Handle* pOut, const char* pName){ return GetServiceHandle(pOut, pName, strlen(pName), 0); }
 
 namespace detail {
 

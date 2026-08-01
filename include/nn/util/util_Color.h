@@ -1,6 +1,7 @@
 #pragma once
 
 #include "nn/types.h"
+#include <nn/math.h>
 #include <nn/math/math_Vec4.h>
 
 namespace nn {
@@ -40,15 +41,13 @@ public:
 
     const SelfType operator+(const SelfType& rhs) const {
         return SelfType(
-//            nn::math::Min(r + rhs.r, ELEMENT_MAX), nn::math::Min(g + rhs.g, ELEMENT_MAX),
-//            nn::math::Min(b + rhs.b, ELEMENT_MAX), nn::math::Min(a + rhs.a, ELEMENT_MAX));
-        );
+            nn::math::Min(r + rhs.r, ELEMENT_MAX), nn::math::Min(g + rhs.g, ELEMENT_MAX),
+            nn::math::Min(b + rhs.b, ELEMENT_MAX), nn::math::Min(a + rhs.a, ELEMENT_MAX));
     }
     const SelfType operator-(const SelfType& rhs) const {
         return SelfType(
-//            nn::math::Max(r - rhs.r, ELEMENT_MIN), nn::math::Max(g - rhs.g, ELEMENT_MIN),
-//            nn::math::Max(b - rhs.b, ELEMENT_MIN), nn::math::Max(a - rhs.a, ELEMENT_MIN));
-        );
+            nn::math::Max(r - rhs.r, ELEMENT_MIN), nn::math::Max(g - rhs.g, ELEMENT_MIN),
+            nn::math::Max(b - rhs.b, ELEMENT_MIN), nn::math::Max(a - rhs.a, ELEMENT_MIN));
     }
     const SelfType operator*(const SelfType& rhs) const {
         return SelfType(
@@ -162,11 +161,10 @@ public:
     operator const f32*() const      { return &r; }
     operator Color8() const {
         return Color8(
-//            u8(0.5f + nn::math::Clamp(r, 0.f, 1.f) * 255.f),
-//            u8(0.5f + nn::math::Clamp(g, 0.f, 1.f) * 255.f),
-//            u8(0.5f + nn::math::Clamp(b, 0.f, 1.f) * 255.f),
-//            u8(0.5f + nn::math::Clamp(a, 0.f, 1.f) * 255.f));
-        );
+            u8(0.5f + math::Clamp(r, 0.f, 1.f) * 255.f),
+            u8(0.5f + math::Clamp(g, 0.f, 1.f) * 255.f),
+            u8(0.5f + math::Clamp(b, 0.f, 1.f) * 255.f),
+            u8(0.5f + math::Clamp(a, 0.f, 1.f) * 255.f));
     }
     operator nn::math::VEC4&()             { return ToVEC4(); }
     operator const nn::math::VEC4&() const { return ToVEC4(); }
@@ -205,19 +203,19 @@ public:
 
     void Clamp()              { Clamp(0.f, 1.f); }
     void Clamp(f32 lo, f32 hi) {
-//        r = nn::math::Clamp(r, lo, hi); g = nn::math::Clamp(g, lo, hi);
-//        b = nn::math::Clamp(b, lo, hi); a = nn::math::Clamp(a, lo, hi);
+        r = nn::math::Clamp(r, lo, hi); g = nn::math::Clamp(g, lo, hi);
+        b = nn::math::Clamp(b, lo, hi); a = nn::math::Clamp(a, lo, hi);
     }
 
     f32*       ToArray()       { return reinterpret_cast<f32*>(this); }
     const f32* ToArray() const { return reinterpret_cast<const f32*>(this); }
 
     u32 ToPicaU32() const {
-//        u8 red   = u8(0.5f + nn::math::Clamp(r, 0.f, 1.f) * 255.f);
-//        u8 green = u8(0.5f + nn::math::Clamp(g, 0.f, 1.f) * 255.f);
-//        u8 blue  = u8(0.5f + nn::math::Clamp(b, 0.f, 1.f) * 255.f);
-//        u8 alpha = u8(0.5f + nn::math::Clamp(a, 0.f, 1.f) * 255.f);
-//        return (alpha << 24) | (blue << 16) | (green << 8) | red;
+        u8 red   = u8(0.5f + nn::math::Clamp(r, 0.f, 1.f) * 255.f);
+        u8 green = u8(0.5f + nn::math::Clamp(g, 0.f, 1.f) * 255.f);
+        u8 blue  = u8(0.5f + nn::math::Clamp(b, 0.f, 1.f) * 255.f);
+        u8 alpha = u8(0.5f + nn::math::Clamp(a, 0.f, 1.f) * 255.f);
+        return (alpha << 24) | (blue << 16) | (green << 8) | red;
     }
 
     f32 r, g, b, a;
@@ -237,5 +235,5 @@ protected:
     } ResFloatColor;
 #endif
 
-} // namespace util
-} // namespace nn
+}
+}

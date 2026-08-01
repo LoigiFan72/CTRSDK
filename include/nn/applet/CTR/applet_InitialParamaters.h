@@ -6,6 +6,7 @@ namespace nn{
 namespace applet{ 
 namespace CTR { 
 namespace detail {
+    //--- APT Params
     u8* GetInitialParamBuffer();
 
     void SetInitialParamSenderId(AppletId id);

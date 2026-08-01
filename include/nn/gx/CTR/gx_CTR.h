@@ -7,24 +7,6 @@
 extern "C" {
 #endif
 
-#if defined(WIN32) || defined(__VC32__)
-#   if defined(NNGX_EXPORTS)
-#       define NNGX_APICALL __declspec(dllexport)
-#   else
-#       define NNGX_APICALL __declspec(dllimport)
-#   endif
-#elif defined(__ARMCC_VERSION)
-#   define NNGX_APICALL
-#elif defined(__SYMBIAN32__) && defined(__GCC32__)
-#   define NNGX_APICALL __declspec(dllexport)
-#elif defined(__GNUC__)
-#   define NNGX_APICALL
-#endif
-
-#if !defined(NNGX_APICALL)
-#   error Unsupported platform!
-#endif
-
 #define NNGX_APIENTRY
 #define NNGX_APICALL
 

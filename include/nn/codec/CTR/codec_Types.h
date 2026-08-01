@@ -41,6 +41,14 @@ namespace CTR {
                 IirFilterParamBiquad biquadC;
         } IirFilterParamEQ;
 
+        typedef struct{
+                IirFilterParamBiquad biquadA;
+                IirFilterParamBiquad biquadB;
+                IirFilterParamBiquad biquadC;
+                IirFilterParamBiquad biquadD;
+                IirFilterParamBiquad biquadE;
+        } IirFilterParamMic;
+
 }
 }
 }

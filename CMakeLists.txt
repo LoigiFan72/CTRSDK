@@ -6,6 +6,15 @@ cmake_minimum_required(VERSION 3.24)
 
 project(CTRSDK C CXX ASM)
 
+if(NN_BUILD_DEBUG)
+    add_compile_definitions(NN_BUILD_DEBUG)
+elseif(NN_BUILD_DEVELOPMENT)
+    add_compile_definitions(NN_BUILD_DEVELOPMENT)
+elseif(NN_BUILD_RELEASE)
+    add_compile_definitions(NN_BUILD_RELEASE)
+endif()
+
+
 
 function(nn_library TARGET_NAME MODULE_DIR)
     file(GLOB_RECURSE MODULE_SOURCES
@@ -27,12 +36,16 @@ function(nn_library TARGET_NAME MODULE_DIR)
         SUFFIX ".fast.a"
     )
 
+    if(NN_BUILD_DEBUG)
+        target_compile_options(${TARGET_NAME} PRIVATE -O0)
+    endif()
+
     target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:
         --multibyte-chars --signed_chars --cpu=MPCore
         --dollar --littleend --wchar --wchar16
         --apcs=//interwork --data-reorder --split_sections
         --debug_info=line_inlining_extensions --force_new_nothrow --fpmode=fast --no_exceptions --rtti --rtti_data --remarks --no_vfe --no_allow_fpreg_for_nonfpdata
-        --diag_suppress=3017,940,997,177,541,1,1134,550,83,427,2525,117,284,174,111,1441,161
+        --diag_suppress=3017,940,997,177,541,1,1134,550,83,427,2525,117,284,174,111,1441,161,826,177,1549,513,1441,340,228,2530,1297,401,261,381,2516,2192,1596,193,113,1035,2523,2091,1663,1801,1621,2519,1676,63,286,74,271,2945,1301,1945,1847,2813,68,2523
         --cpp --arm -O3 -Otime
         -DNN_PROCESSOR_ARM11MPCORE -DNN_BUILD_RELEASE
         >
@@ -43,7 +56,7 @@ function(nn_library TARGET_NAME MODULE_DIR)
         --dollar --littleend --wchar --wchar16
         --apcs=//interwork --data-reorder --split_sections
         --debug_info=line_inlining_extensions --force_new_nothrow --fpmode=fast --no_exceptions --rtti --rtti_data --remarks --no_vfe --no_allow_fpreg_for_nonfpdata
-        --diag_suppress=3017,940,997,177,541,1,1134,550,83,427,2525,117,284,174,111,1441,161,826
+        --diag_suppress=3017,940,997,177,541,1,1134,550,83,427,2525,117,284,174,111,1441,161,826,177,1549,513,1441,340,228,2530,1297,401,261,381,2516,2192,1596,193,113,1035,2523,2091,1663,1801,1621,2519,1676,63,286,74,271,2945,1301,1945,1847,2813,68,2523
         --c99 --arm -O3 -Otime
         -DNN_PROCESSOR_ARM11MPCORE -DNN_BUILD_RELEASE
         >
@@ -51,6 +64,7 @@ function(nn_library TARGET_NAME MODULE_DIR)
 
     target_include_directories(${TARGET_NAME} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${MODULE_DIR}
     )
 
     target_compile_definitions(${TARGET_NAME} PUBLIC
@@ -58,56 +72,45 @@ function(nn_library TARGET_NAME MODULE_DIR)
     )
 endfunction()
 
-nn_library(nn_applet  ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/applet)
-nn_library(nn_camera  ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/camera)
-nn_library(nn_cfg     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/cfg)
-nn_library(nn_crt0    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/crt0)
-nn_library(nn_crypto  ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/crypto)
-nn_library(nn_cx      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/cx)
-nn_library(nn_dbg     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/dbg)
-nn_library(nn_dbm     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/dbm)
-nn_library(nn_dev     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/dev)
-nn_library(nn_dsp     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/dsp)
-nn_library(nn_err     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/err)
-nn_library(nn_fnd     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/fnd)
-nn_library(nn_font    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/font)
-nn_library(nn_fs      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/fs)
-nn_library(nn_fslow   ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/fslow)
-nn_library(nn_gr      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/gr)
-nn_library(nn_gx      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/gx)
-#nn_library(nn_gxlow   ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/gxlow)
-nn_library(nn_hid     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/hid)
-nn_library(nn_hidlow  ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/hidlow)
-#nn_library(nn_hio     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/hio)
-nn_library(nn_init    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/init)
-nn_library(nn_ir      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/ir)
-nn_library(nn_math    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/math)
-#nn_library(nn_mic     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/mic)
-nn_library(nn_ndm     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/ndm)
-nn_library(nn_nstd    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/nstd)
-nn_library(nn_os      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/os)
-nn_library(nn_pl      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/pl)
-nn_library(nn_ptm     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/ptm)
-nn_library(nn_ro      ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/ro)
-nn_library(nn_rtport  ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/rtport/rvct)
-nn_library(nn_snd     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/snd)
-nn_library(nn_srv     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/srv)
-nn_library(nn_svc     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/svc)
-nn_library(nn_ulcd    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/ulcd)
-nn_library(nn_util    ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/util)
+nn_library(nn_applet  ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/applet)
+nn_library(nn_camera  ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/camera)
+nn_library(nn_cfg     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/cfg)
+nn_library(nn_crt0    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/crt0)
+nn_library(nn_crypto  ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/crypto)
+nn_library(nn_cx      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/cx)
+nn_library(nn_dbg     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/dbg)
+nn_library(nn_dbm     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/dbm)
+nn_library(nn_dev     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/dev)
+nn_library(nn_dsp     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/dsp)
+nn_library(nn_err     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/err)
+nn_library(nn_fnd     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/fnd)
+nn_library(nn_font    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/font)
+nn_library(nn_fs      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/fs)
+nn_library(nn_fslow   ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/fslow)
+nn_library(nn_gr      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/gr)
+nn_library(nn_gxlow   ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/gxlow)
+nn_library(nn_hid     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/hid)
+nn_library(nn_hidlow  ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/hidlow)
+#nn_library(nn_hio     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/hio)
+nn_library(nn_init    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/init)
+nn_library(nn_ir      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ir)
+nn_library(nn_math    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/math)
+#nn_library(nn_mic     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/mic)
+nn_library(nn_ndm     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ndm)
+nn_library(nn_nstd    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/nstd)
+nn_library(nn_os      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/os)
+nn_library(nn_pl      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/pl)
+nn_library(nn_ptm     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ptm)
+nn_library(nn_ro      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ro)
+nn_library(nn_rtport  ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/rtport/rvct)
+nn_library(nn_snd     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/snd)
+nn_library(nn_srv     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/srv)
+nn_library(nn_svc     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/svc)
+nn_library(nn_ulcd    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ulcd)
+nn_library(nn_util    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/util)
+nn_library(gles2      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/gles2)
 
 add_library(CTRSDK INTERFACE)
-add_library(gles2 STATIC IMPORTED GLOBAL)
-add_library(gxlow STATIC IMPORTED GLOBAL)
-
-set_target_properties(gles2 PROPERTIES
-    IMPORTED_LOCATION
-        "${CMAKE_CURRENT_SOURCE_DIR}/build/libgles2.fast.a"
-)
-set_target_properties(gxlow PROPERTIES
-    IMPORTED_LOCATION
-        "${CMAKE_CURRENT_SOURCE_DIR}/build/libnn_gxlow.fast.a"
-)
 
 target_link_libraries(CTRSDK INTERFACE
     nn_applet
@@ -125,8 +128,7 @@ target_link_libraries(CTRSDK INTERFACE
     nn_font
     nn_fs
     nn_fslow
-#    nn_gx
-#    nn_gxlow
+    nn_gxlow
     nn_hid
     nn_hidlow
 #    nn_hio
@@ -147,6 +149,5 @@ target_link_libraries(CTRSDK INTERFACE
     nn_ulcd
     nn_util
 
-    gxlow
     gles2
 )

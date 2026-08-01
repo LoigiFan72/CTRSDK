@@ -1,11 +1,14 @@
 #pragma once
 
-#include <nn/hid/CTR/hid_Gyroscope.h>
+#include <nn/hid/CTR/hid_GyroscopeLowStatus.h>
+#include <nn/hid/CTR/hid_DeviceStatus.h>
 #include <nn/hidlow/hidlow_LifoRing.h>
 
 namespace nn{
 namespace hidlow{
 namespace CTR{
+
+const s32 GYROSCOPELOW_LIFORING_BUFFER_NUM = 32;
     
 struct IGyroscopeLowStatus{
     fnd::InterlockedVariable<s16> x;
@@ -15,10 +18,26 @@ struct IGyroscopeLowStatus{
 
 class GyroscopeLowLifoRing : public LifoRing{
 public:
+    GyroscopeLowLifoRing(){
+        mRaw.x = 0;
+        mRaw.y = 0;
+        mRaw.z = 0;
+    };
+    ~GyroscopeLowLifoRing() {};
+
+    void ReadRaw(nn::hid::CTR::GyroscopeLowStatus* pBuf){
+        pBuf->x = mRaw.x;
+        pBuf->y = mRaw.y;
+        pBuf->z = mRaw.z;
+    }
+
+    void ReadData(hid::CTR::GyroscopeLowStatus* pBuffers, s32 bufferNum, s32* pReadCount, s64* pTick, s32* pIndex);\
+
     IGyroscopeLowStatus mRaw;
     s16 rev;
-    IGyroscopeLowStatus mBuffers[32];
+    IGyroscopeLowStatus mBuffers[GYROSCOPELOW_LIFORING_BUFFER_NUM];
 };
+
 }
 }
 }

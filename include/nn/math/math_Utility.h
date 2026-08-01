@@ -49,5 +49,20 @@ inline const void* RoundDown(const void* x, u32 base){
     return reinterpret_cast<const void*>( RoundDown(reinterpret_cast<uptr>(x), base) );
 }
 
+template <typename T>
+inline T GetBits(bit32 v, int pos, int len){
+    return static_cast<T>( (v >> pos) & ((1u << len) - 1) );
+}
+
+template <typename T>
+inline T GetBits(bit64 v, int pos, int len){
+    return static_cast<T>( (v >> pos) & ((1ull << len) - 1) );
+}
+
+template <typename T>
+inline T Clamp(T x, T low, T high){
+    return (x >= high) ? high : ((x <= low) ? low: x);
+}
+
 }
 }

@@ -10,13 +10,11 @@ namespace drivers{
 namespace gxlow{
 namespace CTR{
 
-const int GXLOW_HANDLER_TABLE = 7;
-
 class InterruptTable{
 public:
     os::CriticalSection mHandlerLock;
     int pad;
-    nngxlowFuncPtr mInterruptHandlerTable[GXLOW_HANDLER_TABLE];
+    nngxlowFuncPtr mInterruptHandlerTable[NN_GXLOW_NUM_INTERRUPTS];
 public:
     InterruptTable(){ }
     void LockTable(){
@@ -44,14 +42,14 @@ public:
     void InitializeTable(){
         this->mHandlerLock.Initialize();
         this->LockTable();
-        for(int i = 0; i < GXLOW_HANDLER_TABLE; i++){
-            this->mInterruptHandlerTable[i] = 0;
+        for(int i = 0; i < NN_GXLOW_NUM_INTERRUPTS; i++){
+            mInterruptHandlerTable[i] = 0;
         }
     }
 
     void FinalizeTable(){
-        for(int i = 0; i < GXLOW_HANDLER_TABLE; i++){
-            this->mInterruptHandlerTable[i] = 0;
+        for(int i = 0; i < NN_GXLOW_NUM_INTERRUPTS; i++){
+            mInterruptHandlerTable[i] = 0;
         }
         this->UnlockTable();
         this->mHandlerLock.Finalize();

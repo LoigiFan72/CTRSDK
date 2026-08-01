@@ -20,7 +20,7 @@ namespace CTR {
         };
 
         struct ParentalControlInfo{
-                nn::cfg::CTR::ParentalControlFlags flags;
+                ParentalControlFlags flags;
                 u32  rsv1;
                 u8   ogn;
                 u8   ratingAge;

@@ -9,6 +9,7 @@ namespace applet{
 namespace CTR{
 namespace detail{
 
+    //--- Display Info
     void GetDisplayInfo(AppletDisplayInfo* pInfo);
     void CalcCaptureBufferInfo(CaptureBufferInfo *cInfo);
 }

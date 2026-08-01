@@ -17,8 +17,8 @@ public:
     void Initialize(const wchar_t* pathName, bit32 openMode) { detail::FileBase::Initialize(pathName, openMode); }
     void Initialize(const char* pathName, bit32 openMode) { detail::FileBase::Initialize(pathName, openMode); }
 
-    void TryInitialize(const wchar_t* pathName, bit32 openMode) { detail::FileBase::TryInitialize(pathName, openMode); }
-    void TryInitialize(const char* pathName, bit32 openMode) { detail::FileBase::TryInitialize(pathName, openMode); }
+    Result TryInitialize(const wchar_t* pathName, bit32 openMode) { detail::FileBase::TryInitialize(pathName, openMode); }
+    Result TryInitialize(const char* pathName, bit32 openMode) { detail::FileBase::TryInitialize(pathName, openMode); }
 
     void Finalize() { detail::FileBase::Finalize(); }
     
