@@ -42,7 +42,7 @@ function(nn_library TARGET_NAME MODULE_DIR)
 
     target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:
         --multibyte-chars --signed_chars --cpu=MPCore
-        --dollar --littleend --wchar --wchar16
+        --dollar --littleend --wchar --wchar16 --library_interface=rvct
         --apcs=//interwork --data-reorder --split_sections
         --debug_info=line_inlining_extensions --force_new_nothrow --fpmode=fast --no_exceptions --rtti --rtti_data --remarks --no_vfe --no_allow_fpreg_for_nonfpdata
         --diag_suppress=3017,940,997,177,541,1,1134,550,83,427,2525,117,284,174,111,1441,161,826,177,1549,513,1441,340,228,2530,1297,401,261,381,2516,2192,1596,193,113,1035,2523,2091,1663,1801,1621,2519,1676,63,286,74,271,2945,1301,1945,1847,2813,68,2523

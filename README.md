@@ -8,9 +8,6 @@ Some of the functions I rewrited in ASM, or Asmebly code (Mispell). *Why?*
 
 I'm lazy to be simple, but the rules for that are stated down below;
 
-The only library which is already complied for you at my request, is CTR-GLES2. Cry about it.
-
-
 # Rewrite rules:
 
 1) Any game function that calls into an SDK function will have that SDK function rewritten alongside it. If a function makes no SDK calls, inline ASM is a valid alternative. (nn::math, and svc are exempt.)

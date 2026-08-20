@@ -207,11 +207,20 @@ inline t name(){
 }
 */
 
+
 inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV){
     #ifdef NN_BUILD_DEBUG // Unoptimized check.
         return ARMv6::VEC3TransformC(pOut,pM,pV);
     #else
         return ARMv6::VEC3TransformAsm(pOut, pM, pV);
+    #endif
+}
+
+inline MTX34* MTX34Copy(MTX34* pOut, const MTX34* pM){
+    #ifdef NN_BUILD_DEBUG
+        return ARMv6::MTX34CopyC(pOut, pM);
+    #else
+        return ARMv6::MTX34CopyAsm(pOut, pM);
     #endif
 }
 

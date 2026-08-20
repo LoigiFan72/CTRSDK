@@ -83,6 +83,12 @@ enum PicaDataGasColorLutInput{
       (ref) << 16                    | \
       (mask) << 24 )
 
+#define PICA_CMD_DATA_SCISSOR( mode ) ((mode) ? 3 : 0)
+
+#define PICA_CMD_DATA_SCISSOR_SIZE( x, y ) \
+    ( ((x) < 0) ? 0 : (x) | \
+    ( ((y) < 0) ? 0 : (y)) << 16 )
+
 enum PicaDataDepthTest2{ 
     PICA_DATA_DEPTH_TEST2_NEVER   = 0x0,
     PICA_DATA_DEPTH_TEST2_ALWAYS  = 0x1,

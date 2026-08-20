@@ -51,7 +51,24 @@ protected:
     Pad& mPad;
     s32 mIndexOfRead;
     bit32 mLatestHold;
-    AnalogStickClamper mStickClamper;
+    #if NN_VERSION_MAJOR > 2
+        AnalogStickClamper mStickClamper;
+    #else
+        short mMinOfStickClampCircle;
+        short mMinOfStickClampCross;
+        short mMinOfStickClampMinimum;
+        short mMaxOfStickClampCircle;
+        short mMaxOfStickClampCross;
+        short mMaxOfStickClampMinimum;
+        SizedEnum1<AnalogStickClamper::ClampMode> mStickClampMode;
+        s8 rev;
+        short mThreshold;
+        f32 mScale;
+        f32 mStroke;
+        f32 mStrokeVelocity;
+        f32 mLastLength;
+        f32 mLastDiff;
+    #endif 
     bool mIsReadLatestFirst;
     s8 rev[3];
     s32 rev2;

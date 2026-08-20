@@ -7,8 +7,26 @@
 extern "C" {
 #endif
 
-#define NNGX_APIENTRY
+#if defined(WIN32) || defined(__VC32__)             /* Win32 */
+#   if defined (NNGX_EXPORTS)
+#       define NNGX_APICALL __declspec(dllexport)
+#   else
+#       define NNGX_APICALL __declspec(dllimport)
+#   endif
+#elif defined (__ARMCC_VERSION)                      /* ADS */
+#   define NNGX_APICALL
+#elif defined (__SYMBIAN32__) && defined (__GCC32__) /* Symbian GCC */
+#   define NNGX_APICALL __declspec(dllexport)
+#elif defined (__GNUC__)                             /* GCC dependencies (kludge) */
+#   define NNGX_APICALL
+#endif
+
+#if !defined (NNGX_APICALL)
+#   error Unsupported platform!
+#endif
+
 #define NNGX_APICALL
+#define NNGX_APIENTRY
 
 // Memory areas
 #define NN_GX_MEM_FCRAM             0x00010000

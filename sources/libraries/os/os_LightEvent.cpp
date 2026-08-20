@@ -15,7 +15,12 @@ void LightEvent::Initialize(bool pIsManualReset){
 
 void LightEvent::ClearSignal(){
     if(*this->mCounter == RESETED_MANUAL){
+
+    #if NN_VERSION_MAJOR > 2 || \
+        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
+        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
         SimpleLock::ScopedLock lock(this->mLock);
+    #endif
         *this->mCounter = NOT_RESETED_MANUAL;
     }
     else if(*this->mCounter == RESETED_AUTO){
@@ -25,31 +30,36 @@ void LightEvent::ClearSignal(){
 
 void LightEvent::Wait(){
     for(;;){
-        switch (*this->mCounter){
-            case NOT_RESETED_MANUAL:
-                    this->mCounter.WaitIfLessThan(0);
-                    return;
-            case RESETED_MANUAL:
-                    return;
-            case NOT_RESETED_AUTO:
-                    break;
-            case RESETED_AUTO:
-                if (this->mCounter->CompareAndSwap (RESETED_AUTO, NOT_RESETED_AUTO) == RESETED_AUTO) {
-                    return;
-                }
-                break;
+    switch (*this->mCounter){
+        case NOT_RESETED_MANUAL:
+            this->mCounter.WaitIfLessThan(0);
+            return;
+        case RESETED_MANUAL:
+            return;
+        case NOT_RESETED_AUTO:
+            break;
+        case RESETED_AUTO:
+            if (this->mCounter->CompareAndSwap (RESETED_AUTO, NOT_RESETED_AUTO) == RESETED_AUTO) {
+                return;
             }
+            break;
+    }
         this->mCounter.WaitIfLessThan (0);
     }
 }
 
-void LightEvent::Signal() {
+void LightEvent::Signal(){
     if(*this->mCounter == NOT_RESETED_AUTO){
         *this->mCounter = RESETED_AUTO;
         this->mCounter.Signal(1);
     }
     else if(*this->mCounter == NOT_RESETED_MANUAL){
+    #if NN_VERSION_MAJOR > 2 || \
+        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
+        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
+
         SimpleLock::ScopedLock lock(this->mLock);
+    #endif
         *this->mCounter = RESETED_MANUAL;
         this->mCounter.SignalAll();
     }

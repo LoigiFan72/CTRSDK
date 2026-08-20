@@ -1,6 +1,5 @@
 #pragma once
 
-#include "nn/types.h"
 #include <nn/math.h>
 #include <nn/math/math_Vec4.h>
 
