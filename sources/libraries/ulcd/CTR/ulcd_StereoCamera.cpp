@@ -4,6 +4,7 @@
 
 #include <nn/ulcd/CTR/ulcd_StereoCamera.h>
 #include <nn/cfg.h>
+#include <nn/cfg/CTR/cfg_DetailApi.h>
 #include <nn/math.h>
 #include <nn/dbg/dbg_Break.h>
 #include <nn/os/os_Types.h>
@@ -71,8 +72,52 @@ namespace{
 }
 
 namespace{
-    StereoCamera::cfgdata sCfgData;
+    struct cfgdata{
+        void* cfgData;
+        f32 far;
+        f32 near;
+        f32 level;
+        float limit;
+    };
+
+    cfgdata sCfgData;
 }
+
+StereoCamera::StereoCamera(){
+    mDepthLevel = 0.0;
+    mCameraInterval = 0.0;
+}
+
+StereoCamera::~StereoCamera(){ this->Finalize(); }
+
+void StereoCamera::Initialize(){
+    if(!sIsInitialized){
+        cfg::CTR::Initialize();
+        Result res = cfg::CTR::detail::GetConfig(&sCfgData,0x20,0x50005);
+        NN_UTIL_PANIC_IF_FAILED(res);
+        cfg::CTR::Finalize();
+        sIsInitialized = true;
+    }
+
+    mLimitParallax = sCfgData.limit;
+    mLevelWidth = 0.0;
+    mDepthLevel = 0.0;
+    mDistanceToNearClip = 0.0;
+    mDistanceToFarClip = 0.0;
+    mCameraInterval = 0.0;
+    mBaseCamera.left = 0.0;
+    mBaseCamera.right = 0.0;
+    mBaseCamera.bottom = 0.0;
+    mBaseCamera.top = 0.0;
+    mBaseCamera.near = 0.0;
+    mBaseCamera.far = 0.0;
+    mBaseCamera.position  =  math::VEC3(0.0f, 0.0f, 0.0f);
+    mBaseCamera.posRight  =  math::VEC3(0.0f, 0.0f, 0.0f);
+    mBaseCamera.posUp     =  math::VEC3(0.0f, 0.0f, 0.0f);
+    mBaseCamera.posTarget =  math::VEC3(0.0f, 0.0f, 0.0f);
+}
+
+void StereoCamera::Finalize(){ }
 
 void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *viewL,nn::math::MTX44 *projR,nn::math::MTX34 *viewR, nn::math::MTX44 *projOriginal,nn::math::MTX34 *viewOriginal,const f32 depthLevel,const f32 factor,const math::PivotDirection pivot){
     NN_ASSERT_(sIsInitialized);
@@ -261,42 +306,6 @@ void StereoCamera::SetBaseFrustum(const nn::math::MTX44 *proj){
     mBaseCamera.top = (proj->matrix[1][2] + 1.0f) * inverseProjY;
     mBaseCamera.bottom = (proj->matrix[1][2] - 1.0f) * inverseProjY;
 }
-
-void StereoCamera::Initialize(){
-    Result res;
-    if(!sIsInitialized){
-        cfg::CTR::Initialize();
-        res = cfg::CTR::detail::GetConfig(&sCfgData,0x20,0x50005);
-        NN_UTIL_PANIC_IF_FAILED(res);
-        cfg::CTR::Finalize();
-        sIsInitialized = true;
-    }
-    mLimitParallax = sCfgData.limit;
-    mLevelWidth = 0.0;
-    mDepthLevel = 0.0;
-    mDistanceToNearClip = 0.0;
-    mDistanceToFarClip = 0.0;
-    mCameraInterval = 0.0;
-    mBaseCamera.left = 0.0;
-    mBaseCamera.right = 0.0;
-    mBaseCamera.bottom = 0.0;
-    mBaseCamera.top = 0.0;
-    mBaseCamera.near = 0.0;
-    mBaseCamera.far = 0.0;
-    mBaseCamera.position =  math::VEC3(0.0f, 0.0f, 0.0f);
-    mBaseCamera.posRight =  math::VEC3(0.0f, 0.0f, 0.0f);
-    mBaseCamera.posUp =     math::VEC3(0.0f, 0.0f, 0.0f);
-    mBaseCamera.posTarget = math::VEC3(0.0f, 0.0f, 0.0f);
-}
-
-void StereoCamera::Finalize(){ }
-
-StereoCamera::StereoCamera(){
-    mDepthLevel = 0.0;
-    mCameraInterval = 0.0;
-}
-
-StereoCamera::~StereoCamera(){ this->Finalize(); }
 
 }
 }
