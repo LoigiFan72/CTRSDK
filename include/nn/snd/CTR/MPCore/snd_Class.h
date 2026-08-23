@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/Assert.h"
+#include <nn/Assert.h>
 
 namespace nn{
 namespace snd{

@@ -146,6 +146,12 @@ enum SyncMode{
     SYNC_MODE_NUM    = 2
 };
 
+struct ThreadParameter{
+    uptr   stackBuffer;
+    uptr   stackSize;
+    size_t priority;
+};
+
 } // namespace CTR
 } // namespace snd
 } // namespace nn

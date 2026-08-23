@@ -31,3 +31,13 @@ enum{
     PICA_REG_VS_FLOAT_DATA7            = 0x2c7,
     PICA_REG_VS_FLOAT_DATA8            = 0x2c8
 };
+
+#define PICA_CMD_DATA_LOAD_ARRAY0_ELEMENT(attr0, attr1, attr2, attr3, attr4, attr5, attr6, attr7) \
+   ( (attr0)       | (attr1) << 4  | (attr2) << 8  | (attr3) << 12 | \
+     (attr4) << 16 | (attr5) << 20 | (attr6) << 24 | (attr7) << 28)
+
+#define PICA_CMD_DATA_VTX_ATTR_ARRAYS_BASE_ADDR(addr) ( ((u32)(addr) >> 4) << 1 )
+
+#define PICA_CMD_DATA_VERTEX_ATTR_ARRAYS(attr0, attr1, attr2, attr3, attr4, attr5, attr6, attr7) \
+   ((attr0)       | (attr1) <<  4 | (attr2) <<  8 | (attr3) << 12 | \
+    (attr4) << 16 | (attr5) << 20 | (attr6) << 24 | (attr7) << 28)

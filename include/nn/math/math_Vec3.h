@@ -9,6 +9,9 @@ namespace math {
 
 class VEC3;
 
+inline VEC3* VEC3Add(VEC3* pOut, const VEC3& v1, const VEC3& v2);
+inline VEC3* VEC3Sub(VEC3* pOut, const VEC3& v1, const VEC3& v2);
+inline VEC3* VEC3Mult(VEC3* pOut, const VEC3& v1, const VEC3& v2);
 inline VEC3* VEC3Scale(VEC3* pOut, const VEC3* p, f32 scale);
 inline VEC3* VEC3Normalize(VEC3* pOut, const VEC3* p);
 inline f32   VEC3SquareLen(const VEC3* p);
@@ -138,6 +141,12 @@ inline bool VEC3IsZero(const VEC3* p){
     return p->x == 0.f && p->y == 0.f && p->z == 0.f;
 }
 
+/* Converter */
+
+inline VEC3* VEC3Add(VEC3* pOut, const VEC3& v1, const VEC3& v2) { return VEC3Add( pOut, &v1, &v2 ); }
+inline VEC3* VEC3Sub(VEC3* pOut, const VEC3& v1, const VEC3& v2) { return VEC3Sub( pOut, &v1, &v2 ); }
+inline VEC3* VEC3Mult(VEC3* pOut, const VEC3& v1, const VEC3& v2) { return VEC3Mult( pOut, &v1, &v2 ); }
+inline VEC3* VEC3Scale(VEC3* pOut, const VEC3& v, f32 scale) { return VEC3Scale( pOut, &v, scale ); }
 inline VEC3* VEC3Cross(VEC3* pOut, const VEC3& v1, const VEC3& v2) { return VEC3Cross(pOut, &v1, &v2 );}
 
 namespace ARMv6{
@@ -188,5 +197,7 @@ inline VEC3* VEC3Normalize(VEC3* pOut, const VEC3* p){
         return ARMv6::VEC3NormalizeC_FAST(pOut, p);
     #endif
 }
+
+
 }
 }

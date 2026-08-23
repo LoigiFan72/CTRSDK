@@ -17,6 +17,9 @@ namespace{
 namespace nn{
 namespace ndm{
 
+using namespace CTR;
+using namespace CTR::detail;
+
 Result Initialize(){
     nn::os::CriticalSection::ScopedLock locker(sCs);
     Result result;
@@ -31,7 +34,26 @@ Result Initialize(){
 }
 
 Result SuspendDaemons(bit32 mask){
-    return CTR::detail::Interface::SuspendDaemons(mask);
+    return Interface::SuspendDaemons(mask);
+}
+
+Result ResumeDaemons(bit32 mask){
+    return Interface::ResumeDaemons(mask);
+}
+
+Result Resume(DaemonName name){
+    if (name < 0 || name >= NUM_OF_DAEMONS){
+        return ResultInvalidEnumValue();
+    }
+    return ResumeDaemons(1 << name);
+}
+
+Result SuspendScheduler(bool bAsync){
+    return Interface::SuspendScheduler(bAsync);
+}
+
+Result ResumeScheduler(void){
+    return Interface::ResumeScheduler();
 }
 
 }

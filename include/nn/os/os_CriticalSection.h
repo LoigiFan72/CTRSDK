@@ -9,7 +9,9 @@ namespace nn {
 namespace os {
 class CriticalSection : private nn::util::ADLFireWall::NonCopyable<CriticalSection>{
 private:
-#if NN_VERSION_MAJOR > 2
+#if NN_VERSION_MAJOR > 2 || \
+    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
+    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
     SimpleLock mLock;
 #else
     struct ReverseIfPositiveUpdater{
@@ -79,6 +81,15 @@ public:
                 this->mCounter.Signal(1);
             }
         }
+    }
+
+    void Enter(){
+        NN_TASSERT_(IsInitialized());
+
+        if (!LockedByCurrentThread() && !TryEnterImpl()){
+            EnterImpl();
+        }
+        ++this->mLockCount;
     }
 
     void Initialize(){

@@ -2,7 +2,7 @@
 //
 // Project: Horizon
 
-#include <nn/snd/CTR/MPCore/snd_MasterManager.h>
+#include "snd_MasterManager.h"
 #include <nn/dsp.h>
 #include <nn/math/math_Utility.h>
 #include <nn/Assert.h>
@@ -43,48 +43,41 @@ void MasterManagerImpl::Finalize(){
 }
 
 void MasterManagerImpl::ForceUpdateParams(){
-    AuxBusId id;
-    bool flag;
-    OutputMode outmode;
-    ClippingMode clippingmode;
-    SurroundSpeakerPosition pos;
-    SyncMode syncmode;
     Dspsnd::GetInstance().SetMasterVolume(this->mMasterVolume * this->mSystemMasterVolume);
     for(int i = 0; i < AUX_BUS_NUM; i++){
-        Dspsnd::GetInstance().SetAuxReturnVolume(id,this->mAuxVolume[id]);
-        if((!mAuxCallback[id]) && (!mFxEnabled[id])){
-            flag = false;
-        }
-        else{
-            flag = true;
-        }
-        Dspsnd::GetInstance().EnableAuxBus(id,flag);
-        Dspsnd::GetInstance().SetAuxFrontBypass(id,this->mAuxFrontBypass[id]);
+        AuxBusId busId = static_cast<AuxBusId>(i);
+        Dspsnd::GetInstance().SetAuxReturnVolume(busId, this->mAuxVolume[busId]);
+        Dspsnd::GetInstance().EnableAuxBus(busId, (this->mAuxCallback[busId] != NULL) || this->mFxEnabled[busId]);
+        Dspsnd::GetInstance().SetAuxFrontBypass(busId, this->mAuxFrontBypass[busId]);
     }
-    outmode = mOutputMode;
-    Dspsnd::GetInstance().SetSoundOutputMode(outmode);
-
-    clippingmode = mClippingMode;
-    Dspsnd::GetInstance().SetClippingMode(clippingmode);
-
+    Dspsnd::GetInstance().SetSoundOutputMode(this->mOutputMode);
+    Dspsnd::GetInstance().SetClippingMode(this->mClippingMode);
     Dspsnd::GetInstance().SetSurroundDepth(this->mSurroundDepth);
-
-    pos = mSpeakerPosition;
-    Dspsnd::GetInstance().SetSurroundSpeakerPosition(pos);
-
+    Dspsnd::GetInstance().SetSurroundSpeakerPosition(this->mSpeakerPosition);
     Dspsnd::GetInstance().SetRearRatio(this->mRearRatio);
     Dspsnd::GetInstance().SetOutputBufferCount(this->mOutputBufferCount);
     this->mDroppedFrameCount = 0;
 
-    syncmode = this->mSyncMode;
+    SyncMode syncmode = this->mSyncMode;
     Dspsnd::GetInstance().SetSyncMode(syncmode);
 }
 
-void MasterManagerImpl::Initialize(){
-    if(!mInitialized){
-        this->mCriticalSection.Initialize();
-        mInitialized = true;
+void MasterManagerImpl::EnableFx(AuxBusId busId, bool enable){
+    os::CriticalSection::ScopedLock lock(this->mCriticalSection);
+    mFxEnabled[busId] = enable;
+    if (enable){
+        Dspsnd::GetInstance().EnableAuxBus(busId, true);
     }
+    else{
+        Dspsnd::GetInstance().EnableAuxBus(busId, (this->mAuxCallback[busId] != NULL));
+    }
+}
+
+void MasterManagerImpl::Initialize(){
+    if(mInitialized) return;
+
+    this->mCriticalSection.Initialize();
+    mInitialized = true;
 }
 
 void MasterManagerImpl::InitializeParam(){
@@ -159,10 +152,10 @@ void MasterManagerImpl::SetMasterVolume(f32 fVolume){
 }
 
 void MasterManagerImpl::SetOutputBufferCount(s32 outputBufferCount){
-    s32 newCnt = math::Max(outputBufferCount,2);
-    newCnt = math::Min(newCnt, 3);
-    mOutputBufferCount = newCnt;
-    Dspsnd::GetInstance().SetOutputBufferCount(newCnt);
+    outputBufferCount = math::Max(outputBufferCount,2);
+    outputBufferCount = math::Min(outputBufferCount, 3);
+    mOutputBufferCount = outputBufferCount;
+    Dspsnd::GetInstance().SetOutputBufferCount(outputBufferCount);
 }
 
 bool MasterManagerImpl::SetRearRatio(f32 ratio){
@@ -182,12 +175,10 @@ bool MasterManagerImpl::SetSoundOutputMode(OutputMode mode){
 }
 
 bool MasterManagerImpl::SetSurroundDepth(f32 depth){
-    if(depth < 0.0)
-        depth = 0.0;
-    if(depth != 1.0 && depth < 1.0 == (depth))
-        depth = 1.0;
+    if(depth < 0.0) depth = 0.0;
+    if(depth != 1.0 && depth < 1.0 == (depth)) depth = 1.0;
     this->mSurroundDepth = (0.0 < depth * 32767.0) * (depth * 32767.0);
-    return internal::sDspsnd.SetSurroundDepth(this->mSurroundDepth);
+    return Dspsnd::GetInstance().SetSurroundDepth(this->mSurroundDepth);
 }
 
 void MasterManagerImpl::SetSyncMode(SyncMode mode){

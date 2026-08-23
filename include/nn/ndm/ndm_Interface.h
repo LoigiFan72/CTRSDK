@@ -15,6 +15,9 @@ public:
 
     static Result OverrideDefaultDaemons(bit32 mask);
     static Result SuspendDaemons(bit32 mask);
+    static Result ResumeDaemons(bit32 mask);
+    static Result SuspendScheduler(bool bAsync);
+    static Result ResumeScheduler();
 };
 
 }

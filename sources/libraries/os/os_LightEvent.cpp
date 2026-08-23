@@ -8,10 +8,14 @@
 namespace nn{
 namespace os{
 
+#if NN_VERSION_MAJOR > 2 || \
+        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
+        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
 void LightEvent::Initialize(bool pIsManualReset){
     this->mLock.Initialize();
     *this->mCounter = pIsManualReset ? NOT_RESETED_MANUAL: NOT_RESETED_AUTO;
 }
+#endif
 
 void LightEvent::ClearSignal(){
     if(*this->mCounter == RESETED_MANUAL){

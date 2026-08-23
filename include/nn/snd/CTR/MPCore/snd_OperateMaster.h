@@ -109,6 +109,7 @@ public:
     DspsndMasterDirect* GetMasterDirectAddr(){ return this->mpMasterDirectOnShare[this->mWritePage]; }
     DspsndMasterStatus* GetMasterStatusAddr(){ return this->mpMasterStatusOnShare[this->mReadPage]; }
     short* GetMixBusAddr(){ return this->mpMixBusOnShare[this->mReadPage]; }
+    s32 GetDspCyclesWhole() { return mDspCycles.ch0.whole; }
     u32 getNextPage(){ u32 page = this->getCurrentPage(); return page + 1 & 1; }
     bool UpdateSlotId(ushort recvid);
     bool SetIsHeadSet(bool flag);

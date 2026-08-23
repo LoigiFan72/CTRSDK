@@ -31,6 +31,10 @@ namespace dbg{
     typedef void (*BreakHandler)(BreakReason reason, Result* pResult, const char* filename, int lineno, const char* fmt, std::va_list args);
 
     Result Break(BreakReason reason);
+    
+    inline Result Break(){
+        return Break(BREAK_REASON_PANIC);
+    }
     void Panic();
 
 namespace detail{

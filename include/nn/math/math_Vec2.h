@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn/types.h"
+#include <nn/types.h>
 
 namespace nn {
 namespace math {
@@ -43,9 +43,7 @@ static const VEC2& Zero(){
     return zero;
 }
 
-    //
-    static const VEC2& One(){
-
+static const VEC2& One(){
     static const VEC2 one(1.0f, 1.0f);
     return one;
 }

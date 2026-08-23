@@ -5,13 +5,11 @@
 #include <nn/snd/CTR/Common/snd_Const.h>
 #include <nn/snd/CTR/Common/snd_Bcwav.h>
 #include <nn/snd/CTR/MPCore/snd_Api.h>
-#include <nn/snd/CTR/MPCore/snd_Voice.h>
+#include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 #include <nn/snd/CTR/MPCore/snd_FxDelay.h>
 #include <nn/snd/CTR/MPCore/snd_FxReverb.h>
 #include <nn/snd/CTR/MPCore/snd_DspFxDelay.h>
 #include <nn/snd/CTR/MPCore/snd_DspFxReverb.h>
-#include <nn/snd/CTR/MPCore/snd_DspFxManager.h>
-#include <nn/snd/CTR/MPCore/snd_MasterManager.h>
 
 #ifdef __cplusplus
 

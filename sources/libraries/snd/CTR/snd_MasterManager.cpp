@@ -2,7 +2,7 @@
 //
 // Project: Horizon
 
-#include <nn/snd/CTR/MPCore/snd_MasterManager.h>
+#include "snd_MasterManager.h"
 #include <nn/snd/CTR/MPCore/snd_Api.h>
 #include <nn/cfg/CTR/cfg_Api.h>
 #include <nn/cfg/CTR/cfg_DetailApi.h>
@@ -25,32 +25,85 @@ void MasterManager::AuxUserCallback(AuxBusId busId, uptr data){
 
 void MasterManager::ExecuteEffect(AuxBusId busId, uptr data){
     os::CriticalSection::ScopedLock lock(this->mFxCriticalSection);
-    AuxBusData auxBusData;
-    auxBusData.frontRight = (s32*)data + 0x280;
-    auxBusData.rearLeft = (s32*)data + 0x500;
-    auxBusData.rearRight = (s32*)data + 0x780;
-    auxBusData.frontLeft = (s32*)data;
-    if(!mFxSet[busId].mpFxDelay){
-        if(!mFxSet[busId].mpFxReverb){
-            this->mFxSet[busId].mpFxReverb->UpdateBuffer(&auxBusData);
-        }
+
+    s32* pData = reinterpret_cast<s32*>(data);
+    AuxBusData auxBusData ={
+        pData,
+        pData + NN_SND_SAMPLES_PER_FRAME,
+        pData + NN_SND_SAMPLES_PER_FRAME * 2,
+        pData + NN_SND_SAMPLES_PER_FRAME * 3
+    };
+    if (mFxSet[busId].mpFxDelay != NULL){
+        this->mFxSet[busId].mpFxDelay->UpdateBuffer(reinterpret_cast<uptr>(&auxBusData));
     }
-    else{
-        mFxSet[busId].mpFxDelay->UpdateBuffer(&auxBusData);
+    else if (mFxSet[busId].mpFxReverb != NULL){
+        this->mFxSet[busId].mpFxReverb->UpdateBuffer(reinterpret_cast<uptr>(&auxBusData));
     }
+}
+
+bool MasterManager::SetEffect(AuxBusId busId, FxDelay* fx){
+    if (fx == NULL){
+        return false;
+    }
+
+    this->ClearEffect(busId);
+
+    {
+        os::CriticalSection::ScopedLock lock(this->mFxCriticalSection);
+        mFxSet[busId].mpFxDelay = fx;
+        fx->Initialize();
+
+        this->GetImpl()->EnableFx(busId, true);
+    }
+
+    return true;
+}
+
+bool MasterManager::SetEffect(AuxBusId busId, FxReverb* fx){
+    if (fx == NULL){
+        return false;
+    }
+
+    this->ClearEffect(busId);
+
+    {
+        os::CriticalSection::ScopedLock lock(this->mFxCriticalSection);
+        mFxSet[busId].mpFxReverb = fx;
+        fx->Initialize();
+
+        this->GetImpl()->EnableFx(busId, true);
+    }
+
+    return true;
+}
+
+void MasterManager::ClearEffect(AuxBusId busId){
+    nn::os::CriticalSection::ScopedLock lock(this->mFxCriticalSection);
+
+    if (mFxSet[busId].mpFxDelay != NULL){
+        this->mFxSet[busId].mpFxDelay->Finalize();
+    }
+
+    if (mFxSet[busId].mpFxReverb != NULL){
+        this->mFxSet[busId].mpFxReverb->Finalize();
+    }
+    mFxSet[busId].mpFxDelay = NULL;
+    mFxSet[busId].mpFxReverb = NULL;
+
+    this->GetImpl()->EnableFx(busId, false);
 }
 
 void MasterManager::Finalize(){
     if(this->mInitialized){
-        MasterManagerImpl::GetInstance().Finalize();
+        this->GetImpl()->Finalize();
         this->mFxCriticalSection.Finalize();
-        this->mInitialized = false;
+        mInitialized = false;
     }
 }
 
 s32 MasterManager::GetDspCycles(){
     s32 cycle = 0xcd78;
-    switch(this->mOutputMode){
+    switch(this->GetSoundOutputMode()){
     case OUTPUT_MODE_MONO:
         cycle = 0xdf0c;
         break;
@@ -67,7 +120,7 @@ s32 MasterManager::GetDspCycles(){
         break;
     }
 
-    switch(this->mOutputMode){
+    switch(mClippingMode){
     case CLIPPING_MODE_NORMAL:
         cycle += 0x400 + 0x1DC;
         break;
@@ -78,83 +131,113 @@ s32 MasterManager::GetDspCycles(){
     return cycle;
 }
 
+void MasterManager::GetAuxCallback( AuxBusId busId, AuxCallback* pCallback, uptr* pUserData ){
+    *pCallback = mAuxCallback[busId];
+    *pUserData = mAuxUserData[busId];
+}
+
 void MasterManager::Initialize(){
-    cfg::CTR::SoundSettingCfgData cfgData;
-    u8 mode;
-    Result res;
-    if(!mInitialized){
-        mInitialized = true;
-        MasterManagerImpl::GetInstance().Initialize();
-        mMasterVolume = 1.0f;
-        mSystemMasterVolume = 1.0f;
-        mAuxVolume[0] = 1.0f;
-        mAuxVolume[1] = 1.0f;
-        mAuxCallback[0] = 0;
-        mAuxCallback[1] = 0;
-        mAuxUserData[0] = 0;
-        mAuxUserData[1] = 0;
-        mAuxFrontBypass[0] = 0;
-        mAuxFrontBypass[1] = 0;
-        mRearRadio = 1.0f;
-        mSurroundDepth = 1.0f;
-        mClippingMode = CLIPPING_MODE_SOFT;
-        MasterManagerImpl::GetInstance().InitializeParam();
-        cfg::CTR::Initialize();
-        res = cfg::CTR::detail::GetConfig(&cfgData,1,0x70001);
-        if(res.IsSuccess()){
-            mode = cfgData.soundOutputMode != 0;
-            if(cfgData.soundOutputMode == 1){
-                mode = OUTPUT_MODE_STEREO;
-            }
-            if(cfgData.soundOutputMode == 2){
-                mode = OUTPUT_MODE_3DSURROUND;
-            }
+    if(mInitialized) 
+        return;
+    mInitialized = true;
+    this->GetImpl()->Initialize();
+
+    mMasterVolume = 1.0f;
+    mSystemMasterVolume = 1.0f;
+    mAuxVolume[0] = 1.0f;
+    mAuxVolume[1] = 1.0f;
+    mAuxCallback[AUX_BUS_A] = NULL;
+    mAuxCallback[AUX_BUS_B] = NULL;
+    mAuxUserData[AUX_BUS_A] = 0;
+    mAuxUserData[AUX_BUS_B] = 0;
+    mAuxFrontBypass[AUX_BUS_A] = false;
+    mAuxFrontBypass[AUX_BUS_B] = false;
+    mRearRadio = 1.0f;
+    mSurroundDepth = 1.0f;
+    mClippingMode = CLIPPING_MODE_SOFT;
+
+    this->GetImpl()->InitializeParam();
+
+    nn::cfg::CTR::detail::SoundSettingCfgData soundSettingCfgData;
+    cfg::CTR::Initialize();
+    Result res = cfg::CTR::detail::GetConfig(&soundSettingCfgData,1,0x70001);
+    cfg::CTR::Finalize();
+
+    OutputMode mode = OUTPUT_MODE_STEREO;
+    if(res.IsSuccess()){
+        nn::cfg::CTR::CfgSoundOutputMode nandMode = static_cast<nn::cfg::CTR::CfgSoundOutputMode>(soundSettingCfgData.soundOutputMode);
+        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_MONO){
+            mode = OUTPUT_MODE_MONO;
         }
-        else{
+        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_STEREO){
             mode = OUTPUT_MODE_STEREO;
         }
-        mOutputMode = (OutputMode)mode;
-        MasterManagerImpl::GetInstance().SetSoundOutputMode((OutputMode)mode);
-        mDroppedFrameCount = 0;
-        for(int i = 0; i < AUX_BUS_NUM; i++){
-            mFxSet[i].mpFxDelay = 0;
-            mFxSet[i].mpFxReverb = 0;
+        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_SURROUND){
+            mode = OUTPUT_MODE_3DSURROUND;
         }
-        mFxCriticalSection.Initialize();
     }
+    else{
+        mode = OUTPUT_MODE_STEREO;
+    }
+    mOutputMode = mode;
+    this->GetImpl()->SetSoundOutputMode(mode);
+    mDroppedFrameCount = 0;
+    for(int i = 0; i < AUX_BUS_NUM; i++){
+        mFxSet[i].mpFxDelay = NULL;
+        mFxSet[i].mpFxReverb = NULL;
+    }
+    this->mFxCriticalSection.Initialize();
 }
 
 void MasterManager::SetOutputBufferCount(s32 outputBufferCount){
-    return MasterManagerImpl::GetInstance().SetOutputBufferCount(outputBufferCount);
+    return this->GetImpl()->SetOutputBufferCount(outputBufferCount);
 }
 
 void MasterManager::SetMasterVolume(float fVolume){
     if(mInitialized){
-        MasterManagerImpl::GetInstance().SetMasterVolume(fVolume);
+        this->GetImpl()->SetMasterVolume(fVolume);
     }
 }
 
-
 void MasterManager::SetSurroundSpeakerPosition(SurroundSpeakerPosition pos){
     mSpeakerPosition = pos;
-    return MasterManagerImpl::GetInstance().SetSurroundSpeakerPosition(pos);
+    return this->GetImpl()->SetSurroundSpeakerPosition(pos);
 }
 bool MasterManager::SetSurroundDepth(f32 depth){
     mSurroundDepth = depth;
-    return MasterManagerImpl::GetInstance().SetSurroundDepth(depth);
+    return this->GetImpl()->SetSurroundDepth(depth);
 }
 
 void MasterManager::SetIsHeadphoneConnected(bool flag){
     mIsHeadsetConnected = flag;
-    MasterManagerImpl::GetInstance().SetIsHeadphoneConnected(flag);
+    this->GetImpl()->SetIsHeadphoneConnected(flag);
+}
+
+OutputMode MasterManager::GetSoundOutputMode(){
+    return mOutputMode;
+}
+
+bool MasterManager::SetClippingMode(ClippingMode mode){
+    mClippingMode = mode;
+
+    return this->GetImpl()->SetClippingMode(mode);
 }
 
 void MasterManager::UpdateDroppedSoundFrameCount(){
-    s32 frameCnt = internal::sDspsnd.GetDroppedFrameCount();
-    if(0 <= frameCnt){
-        this->mDroppedFrameCount += frameCnt;
+    s32 frameCnt = Dspsnd::GetInstance().GetDroppedFrameCount();
+    if(frameCnt >= 0 && mDroppedFrameCount + frameCnt <= 0x7fffffff){
+        mDroppedFrameCount += frameCnt;
     }
 }
+
+void MasterManager::SetAuxReturnVolume(AuxBusId busId, f32 volume){
+    if (!mInitialized) 
+        return;
+    mAuxVolume[busId] = volume;
+
+    this->GetImpl()->SetAuxReturnVolume(busId, volume);
+}
+
 }
 }
 }

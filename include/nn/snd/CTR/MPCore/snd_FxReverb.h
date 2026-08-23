@@ -14,9 +14,13 @@ public:
         u32  mComb0;
         u32  mComb1;
         u32  mAllPass;
-        FilterSize(): mComb0(19 * NN_SND_SAMPLES_PER_FRAME), mComb1(23 * NN_SND_SAMPLES_PER_FRAME), mAllPass(13 * NN_SND_SAMPLES_PER_FRAME)
+        FilterSize(): 
+            mComb0(19 * NN_SND_SAMPLES_PER_FRAME), 
+            mComb1(23 * NN_SND_SAMPLES_PER_FRAME), 
+            mAllPass(13 * NN_SND_SAMPLES_PER_FRAME)
         {}
     };
+    
     struct Param{
         u32 mEarlyReflectionTime;
         u32 mFusedTime;
@@ -27,8 +31,29 @@ public:
         f32 mEarlyGain;
         f32 mFusedGain;
         bool mUseHpfDamping;
+
+        Param(): 
+            mEarlyReflectionTime(60),
+            mFusedTime(4000),
+            mPreDelayTime(100),
+            mDamping(0.4f),
+            mpFilterSize(&sDefaultFilterSize),
+            mEarlyGain(0.6f),
+            mFusedGain(0.4f),
+            mUseHpfDamping(false)
+        {}
     };
-    void UpdateBuffer(AuxBusData* data);
+
+    FxReverb();
+    virtual ~FxReverb();
+    bool SetParam(const Param& param);
+    const Param& GetParam() const{ return mParam; }
+    size_t GetRequiredMemSize();
+    bool AssignWorkBuffer(uptr buffer, size_t size);
+    void ReleaseWorkBuffer();
+    bool Initialize();
+    void Finalize();
+    void UpdateBuffer(uptr data);
 private:
     struct WorkBuffer{
         s32* mEarlyReflection[4];
@@ -39,7 +64,10 @@ private:
     };
 
     static FilterSize sDefaultFilterSize;
-    virtual ~FxReverb(){ }
+
+    void AllocBuffer();
+    void FreeBuffer();
+    void InitializeParam();
 
     Param mParam;
     uptr mpBuffer;

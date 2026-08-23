@@ -3,10 +3,44 @@
 #define VER_STR_(version) #version
 #define VER_STR(version) VER_STR_(version)
 
+#define NN_VERSION_NONE      -1
+#define NN_VERSION_CUSTOM    0
+#define NN_VERSION_MILLI4C   1
+#define NN_VERSION_REDPEPPER 2
+#define NN_VERSION_CTRDASH   3
+#define NN_VERSION_GARDEN    4
+#define NN_VERSION_STICKSTR  5
+
+/* Your version here! */
+
+#define NN_VERSION NN_VERSION_RP
+
+#if NN_VERSION == NN_VERSION_MILLI4C
+
 #define NN_VERSION_MAJOR 4
 #define NN_VERSION_MINOR 2
 #define NN_VERSION_MICRO 5
 #define NN_VERSION_ID    200
+
+#elif NN_VERSION == NN_VERSION_REDPEPPER
+
+#define NN_VERSION_MAJOR 2
+#define NN_VERSION_MINOR 4
+#define NN_VERSION_MICRO 1
+#define NN_VERSION_ID    200
+
+
+/* Do this yourself */
+
+#elif NN_VERSION == NN_VERSION_CUSTOM
+
+#define NN_VERSION_MAJOR 0
+#define NN_VERSION_MINOR 0
+#define NN_VERSION_MICRO 0
+#define NN_VERSION_ID    200
+
+#endif
+
 #define NN_VERSION_PATCH "none"
 #define NN_VERSION_SYSTEM_MAJOR   0
 #define NN_VERSION_SYSTEM_MINOR   17

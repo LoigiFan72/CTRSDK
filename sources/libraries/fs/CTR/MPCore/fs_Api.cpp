@@ -34,7 +34,7 @@ namespace detail{
     }
 }
 
-inline bool IsInitialized(){
+bool IsInitialized(){
     return sFileServerSession.IsValid();
 }
 
@@ -52,7 +52,9 @@ void Initialize(){
         sFileSystemBaseImpl.Initialize(sFileServerSession);
         sFileSystemBase.Initialize(sFileSystemBaseImpl);
         detail::RegisterGlobalFileSystemBase(sFileSystemBase);
-        NN_ERR_THROW_FATAL_ALL(SetPriority(0));
+        #if NN_VERSION_MAJOR > 2
+            NN_ERR_THROW_FATAL_ALL(SetPriority(0));
+        #endif
     }
 }
 //! @brief This isnt anywhere, but this initializes fs:LDR exh service.

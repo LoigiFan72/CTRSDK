@@ -7,21 +7,52 @@
 namespace nn{
 namespace math{
 
-class QUAT{
+struct QUAT_{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+};
+
+class QUAT : public QUAT_{
 public:
     typedef QUAT self_type;
     typedef f32  value_type;
 public:
     QUAT() {}
     explicit QUAT(const f32* p) { x = p[0]; y = p[1]; z = p[2]; w = p[3]; }
-    QUAT(const QUAT& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w; }
+    QUAT(const QUAT_& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w; }
     QUAT(f32 fx, f32 fy, f32 fz, f32 fw) { x = fx; y = fy; z = fz; w = fw; }
 
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
+    operator f32*() { return &x; }
+    operator const f32*() const { return &x; }
 };
+
+namespace ARMv6{
+    inline QUAT* QUATNormalizeC(QUAT* pOut, const QUAT* __restrict q){
+        f32 mag;
+
+        NN_NULL_ASSERT_(q);
+        NN_NULL_ASSERT_(pOut);
+
+        mag = (q->x * q->x) + (q->y * q->y) + (q->z * q->z) + (q->w * q->w);
+
+        if (mag >= NN_QUAT_EPSILON){
+            mag = 1.0F / ::std::sqrtf(mag);
+            
+            pOut->x = q->x * mag;
+            pOut->y = q->y * mag;
+            pOut->z = q->z * mag;
+            pOut->w = q->w * mag;
+        }
+        else
+        {
+            pOut->x = pOut->y = pOut->z = pOut->w = 0.0F;
+        }
+        
+        return pOut;
+    }
+}
 
 /* Inlines */
 
@@ -58,6 +89,18 @@ inline QUAT* QUATSlerp(QUAT* pOut, const QUAT* __restrict q1, const QUAT* __rest
 }
 
 inline QUAT* QUATSlerp(QUAT* pOut, const QUAT& q1, const QUAT& q2, f32 t) { return QUATSlerp( pOut, &q1, &q2, t ); }
+
+inline QUAT* QUATNormalize(QUAT* pOut, const QUAT* q){
+
+}
+
+inline QUAT* MTX34ToQUAT(QUAT* pOut, const MTX34* pMtx){
+    #ifdef NN_BUILD_DEBUG
+        return ARMv6::MTX34ToQUATC(pOut, pMtx);
+    #else
+        return ARMv6::MTX34ToQUATC_FAST(pOut, pMtx);
+    #endif
+}
 
 QUAT* MTX34ToQUAT(QUAT* pOut, const MTX34* pMtx);
 }

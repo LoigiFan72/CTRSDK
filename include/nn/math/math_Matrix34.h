@@ -97,15 +97,22 @@ inline bool MTX34IsIdentity(const MTX34* p) {
            p->f._20 == 0.f && p->f._21 == 0.f && p->f._22 == 1.f && p->f._23 == 0.f;
 }
 
-inline MTX34* MTX34Copy(MTX34* pOut, const MTX34& m) { return MTX34Copy( pOut, &m ); }
+inline MTX34* MTX34Identity(MTX34* pOut) {
+    NN_NULL_ASSERT_(pOut);
 
-//
-/* ARMv6*/
-//
+    MTX34Copy(pOut, MTX34::Identity());
 
+    return pOut;
+}
+
+inline MTX34* MTX34Copy(MTX34* pOut, const MTX34& m) { return MTX34Copy(pOut, &m); }
+
+} // math
+} // nn
+
+namespace nn{
+namespace math{
 namespace ARMv6{
-
-/* VEC3 */
 
 VEC3* VEC3TransformAsm(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV);
 inline VEC3* VEC3TransformC(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV){
@@ -195,18 +202,6 @@ inline MTX34* MTX34ScaleC_FAST(MTX34* pOut, const VEC3* pS){
 
 MTX34* QUATToMTX34C_FAST(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = true);
 MTX34* QUATToMTX34C(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = true);
-
-}
-/* 
-inline t name(){
-    #ifdef NN_DEBUG
-        return C
-    #else
-        return _FAST
-    #endif
-}
-*/
-
 
 inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV){
     #ifdef NN_BUILD_DEBUG // Unoptimized check.
@@ -330,7 +325,8 @@ inline MTX34* QUATToMTX34(MTX34* pOut, const QUAT* pQ){
     #endif
 }
 
-} // math
-} // nn
+}
+}
+}
 
 #pragma pop

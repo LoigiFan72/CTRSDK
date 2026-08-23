@@ -6,6 +6,9 @@
 #include <nn/snd.h>
 #include <nn/Assert.h>
 
+// Native
+#include "snd_DspFxManager.h"
+
 namespace nn{
 namespace snd{
 namespace CTR{

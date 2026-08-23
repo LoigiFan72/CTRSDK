@@ -134,14 +134,6 @@ inline QUAT* MTX34ToQUATC_FAST(QUAT* pOut, const MTX34* pMtx){
 
 }
 
-inline QUAT* MTX34ToQUAT(QUAT* pOut, const MTX34* pMtx){
-    #ifdef NN_BUILD_DEBUG
-        return ARMv6::MTX34ToQUATC(pOut, pMtx);
-    #else
-        return ARMv6::MTX34ToQUATC_FAST(pOut, pMtx);
-    #endif
-}
-
 
 }
 }

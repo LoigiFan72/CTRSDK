@@ -9,6 +9,11 @@
 #include <nn/os/ARM/os_MemoryBarrier.h>
 #include <nn/os/os_Thread.h>
 
+// Native
+#include "snd_MasterManager.h"
+#include "snd_DspFxManager.h"
+#include "snd_ThreadManager.h"
+
 namespace nn{
 namespace snd{
 namespace CTR{
@@ -101,6 +106,14 @@ bool SetSurroundDepth(f32 depth){
     return MasterManager::GetInstance().SetSurroundDepth(depth);
 }
 
+void SetAuxReturnVolume(AuxBusId id, f32 fVolume){
+    MasterManager::GetInstance().SetAuxReturnVolume(id, fVolume);
+}
+
+void ClearEffect(AuxBusId busId){
+    MasterManager::GetInstance().ClearEffect(busId);
+}
+
 void SetOutputBufferCount(s32 outputBufferCount){
     return MasterManager::GetInstance().SetOutputBufferCount(outputBufferCount);
 }
@@ -153,6 +166,36 @@ void SendParameterToDsp(){
     }
 }
 
+void WaitForDspSync(nn::os::Tick* pTick){
+    if (sIsSleepPrepare){
+        if (Dspsnd::GetInstance().WaitPipe(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME*2))){
+            nn::os::Tick tick = nn::os::Tick::GetSystemCurrent();
+            Dspsnd::GetInstance().SyncFrameData();
+            sSyncState = SYNC_STATE_WAIT;
+            *pTick = nn::os::Tick::GetSystemCurrent() - tick;
+            return;
+        }
+        else{
+            sIsSleep = true;
+        }
+    }
+    if (sIsSleep == true){
+        sSleepEvent.Wait();
+        sSleepEvent.ClearSignal();
+        sSleepEvent.Finalize();
+    }
+    if (sIsWaitingForFinalize){
+        nn::os::Thread::Sleep(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME));
+    }
+    else{
+        Dspsnd::GetInstance().WaitPipe();
+        nn::os::Tick tick = nn::os::Tick::GetSystemCurrent();
+        Dspsnd::GetInstance().SyncFrameData();
+        sSyncState = SYNC_STATE_WAIT;
+        *pTick = nn::os::Tick::GetSystemCurrent() - tick;
+    }
+}
+
 Voice* AllocVoice(s32 priority, VoiceDropCallbackFunc callback, uptr userArg){
     NN_TASSERT_(sInitialized);
     return VoiceManager::GetInstance().AllocVoice(priority,callback,userArg);
@@ -162,6 +205,38 @@ void FreeVoice(Voice* pVoice){
     NN_TASSERT_(sInitialized);
     VoiceManager::GetInstance().FreeVoice(pVoice);
 }
+
+void InitializeWaveBuffer(WaveBuffer * pWaveBuffer){
+#if 0
+    NN_TASSERT_(pWaveBuffer->status != WaveBuffer::STATUS_WAIT && pWaveBuffer->status != WaveBuffer::STATUS_PLAY);
+#endif
+
+    ::std::memset(pWaveBuffer, 0, sizeof(WaveBuffer) );
+
+    pWaveBuffer->status = WaveBuffer::STATUS_FREE;
+}
+
+void GetAuxCallback(AuxBusId busId, AuxCallback* pcb, uptr* pUserData){
+    return MasterManager::GetInstance().GetAuxCallback(busId, pcb, pUserData);
+}
+
+Result StartSoundThread(const ThreadParameter* mainThreadParam,void (*mainThreadCallback)(uptr),uptr mainThreadArg,const ThreadParameter* userThreadParam,void (*userThreadCallback)(uptr),uptr userThreadArg,s32 coreNo){
+    return ThreadManager::GetInstance().StartSoundThread(mainThreadParam, mainThreadCallback, mainThreadArg,userThreadParam, userThreadCallback, userThreadArg,coreNo);
+}
+
+void FinalizeSoundThread(){
+    ThreadManager::GetInstance().FinalizeSoundThread();
+}
+
+void EnableSoundThreadTickCounter(bool enable){
+    ThreadManager::GetInstance().EnableSoundThreadTickCounter(enable);
+}
+
+os::Tick GetSoundThreadTick(){
+    return ThreadManager::GetInstance().GetSoundThreadTick();
+}
+
+
 
 }
 }

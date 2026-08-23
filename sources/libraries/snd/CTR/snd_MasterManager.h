@@ -13,6 +13,14 @@ namespace nn{
 namespace snd{
 namespace CTR{
 
+class MasterManager;
+class MasterManagerImpl;
+
+namespace internal{
+    extern CTR::MasterManager sMasterManager;
+    extern CTR::MasterManagerImpl sMasterManagerImpl;
+}
+
 class MasterManager{
 public:
     struct FxSet{
@@ -40,19 +48,29 @@ public:
 
     MasterManager(){ }
     ~MasterManager(){ }
+    
     void AuxUserCallback(AuxBusId busId, uptr data);
+    void GetAuxCallback(AuxBusId busId, AuxCallback* pCallback, uptr* pUserData);
+    void ClearEffect(AuxBusId busId);
     void ExecuteEffect(AuxBusId busId, uptr data);
+    bool SetEffect(AuxBusId busId, FxDelay* fx);
+    bool SetEffect(AuxBusId busId, FxReverb* fx);
     void Finalize();
     s32 GetDspCycles();
     void Initialize();
+    OutputMode GetSoundOutputMode(void);
     void SetIsHeadphoneConnected(bool flag);
+    bool SetClippingMode(ClippingMode mode);
+    void SetAuxReturnVolume(AuxBusId busId, f32 volume);
     void SetMasterVolume(float fVolume);
     void SetOutputBufferCount(s32 outputBufferCount);
     bool SetSurroundDepth(f32 depth);
     void UpdateDroppedSoundFrameCount();
     void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos);
     void SetIsHeadsetConnected(bool flag);
-    static MasterManager& GetInstance();
+
+    MasterManagerImpl* GetImpl() { return &(MasterManagerImpl::GetInstance()); }
+    static MasterManager& GetInstance(){ return internal::sMasterManager; }
 };
 
 class MasterManagerImpl{
@@ -83,6 +101,7 @@ public:
     void ClearAuxCallback(AuxBusId busId){ return this->RegisterAuxCallback(busId, 0, 0); }
     void Finalize();
     void ForceUpdateParams();
+    void EnableFx(AuxBusId busId, bool enable);
     void Initialize();
     void InitializeParam();
     void RegisterAuxCallback(AuxBusId busId, AuxCallback callback, uptr userData);
@@ -99,21 +118,9 @@ public:
     void SetSystemMasterVolume(f32 volume);
     void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos);
     void SetIsHeadsetConnected(bool flag);
-    static MasterManagerImpl& GetInstance();
+    static MasterManagerImpl& GetInstance(){ return internal::sMasterManagerImpl; }
 };
 
-namespace internal{
-    extern CTR::MasterManager sMasterManager;
-    extern CTR::MasterManagerImpl sMasterManagerImpl;
-}
-
-inline MasterManager& MasterManager::GetInstance(){
-    return internal::sMasterManager;
-}
-
-inline MasterManagerImpl& MasterManagerImpl::GetInstance(){
-    return internal::sMasterManagerImpl;
-}
 
 }
 }

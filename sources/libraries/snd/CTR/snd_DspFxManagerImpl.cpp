@@ -2,7 +2,7 @@
 //
 // Project: Horizon
 
-#include <nn/snd/CTR/MPCore/snd_DspFxManager.h>
+#include "snd_DspFxManager.h"
 #include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 
 namespace nn {
@@ -17,15 +17,20 @@ namespace{
 }
 
 void DspFxManagerImpl::Initialize() {
-    DspFxReverbParams params;
-
     for(int i = 0; i < AUX_BUS_NUM; i++){
-        params.combFrames[1] = 0;
-        params.combFrames[0] = 1;
-        this->SetDspDelayEffect((AuxBusId)i,(DspFxDelayParams*)&params);
-        params.enable = 0;
-        params.ctrl = 1;
-        this->SetDspReverbEffect((AuxBusId)i,&params);
+        {
+            DspFxDelayParams params;
+            params.enable = false;
+            params.ctrl = 1;
+            this->SetDspDelayEffect((AuxBusId)i,&params);
+        }
+
+        {
+            DspFxReverbParams params;
+            params.enable = 0;
+            params.ctrl = 1;
+            this->SetDspReverbEffect((AuxBusId)i,&params);
+        }
     }
 }
 

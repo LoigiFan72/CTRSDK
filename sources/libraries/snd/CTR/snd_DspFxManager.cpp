@@ -2,7 +2,7 @@
 //
 // Project: Horizon
 
-#include <nn/snd/CTR/MPCore/snd_DspFxManager.h>
+#include "snd_DspFxManager.h"
 #include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 
 namespace nn {

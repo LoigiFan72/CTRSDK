@@ -41,6 +41,47 @@ Result Interface::SuspendDaemons(bit32 mask){
     return ipcMsg.GetRaw<Result>(1);
 }
 
+nn::Result Interface::ResumeDaemons( bit32 mask ){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(7, 1, 0, 0);
+    ipcMsg.SetRaw(1, mask);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
+}
+
+Result Interface::SuspendScheduler(bool bAsync){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(8, 1, 0, 0);
+    ipcMsg.SetRaw(1, bAsync);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
+}
+
+Result Interface::ResumeScheduler(){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(9, 0, 0, 0);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
+}
+
 }
 }
 }

@@ -15,19 +15,27 @@ public:
         bool mIsEnableSurround;
         Param(): mDelayTime(250), mFeedbackGain(0.4f), mDamping(0.5f),mIsEnableSurround(false){}
     };
-    void UpdateBuffer(AuxBusData* data);
+
+    void UpdateBuffer(uptr data);
+    bool SetParam(const FxDelay::Param& param);
+    size_t GetRequiredMemSize();
+    bool AssignWorkBuffer(uptr buffer, size_t size);
+    void ReleaseWorkBuffer();
+    bool Initialize();
+    void Finalize();
+
     const Param& GetParam() const{
         return mParam;
     }
 private:
+    void AllocBuffer();
+    void FreeBuffer();
+    void InitializeParam();
+
     struct WorkBuffer{
         s32* mDelay[4];
         s32  mLpf[4];
     };
-    
-    void AllocBuffer();
-    void FreeBuffer();
-    void InitializeParam();
     
     Param mParam;
     uptr mpBuffer;

@@ -3,10 +3,12 @@
 // Project: Horizon
 
 #include <nn/snd/CTR/MPCore/snd_DspFxReverb.h>
-#include <nn/snd/CTR/MPCore/snd_DspFxManager.h>
 #include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 #include <nn/snd.h>
 #include <nn/math.h>
+
+// Native
+#include "snd_DspFxManager.h"
 
 namespace nn {
 namespace snd {
