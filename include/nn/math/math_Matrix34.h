@@ -203,6 +203,8 @@ inline MTX34* MTX34ScaleC_FAST(MTX34* pOut, const VEC3* pS){
 MTX34* QUATToMTX34C_FAST(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = true);
 MTX34* QUATToMTX34C(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = true);
 
+}
+
 inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV){
     #ifdef NN_BUILD_DEBUG // Unoptimized check.
         return ARMv6::VEC3TransformC(pOut,pM,pV);
@@ -325,7 +327,6 @@ inline MTX34* QUATToMTX34(MTX34* pOut, const QUAT* pQ){
     #endif
 }
 
-}
 }
 }
 

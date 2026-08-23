@@ -4,8 +4,9 @@
 
 #include <nn/os.h>
 #include <nn/snd.h>
-#include <nn/applet.h>
+#include <nn/snd/CTR/snd_Result.h>
 #include <nn/snd/CTR/MPCore/snd_Class.h>
+#include <nn/applet/CTR/applet_Info.h>
 #include <nn/os/ARM/os_MemoryBarrier.h>
 
 #include "snd_MasterManager.h"
@@ -64,9 +65,8 @@ void ThreadManager::SoundThreadFuncImpl(uptr){
         }
 
         if (isUserSoundThreadRunning && (isUserSoundCallbackRequired || isAuxCallbackRequired)){
-            NN_TASSERT_(m_CoreNo == 1);
             os::ARM::DataSynchronizationBarrier();
-            mEventSystem2User.Signal();
+            this->mEventSystem2User.Signal();
         }
 
         if (mCoreNo == 0 && mUserSoundThreadCallback){
@@ -120,10 +120,15 @@ Result ThreadManager::StartSoundThread(void (*callback)(uptr), uptr arg, uptr st
     }
 
     ThreadStack stack(stackBuffer + stackSize);
-
-    if (nn::applet::CTR::IsSystemApplet() && coreNo == 1){
-        prio = nn::os::LIBRARY_THREAD_PRIORITY_BASE;
+#if NN_VERSION_MAJOR > 2
+    if (nn::applet::IsSystemApplet() && coreNo == 1){
+        prio = 0x5109d500;
     }
+#else
+    if (coreNo == 1){
+        prio += 0x5109d500;
+    }
+#endif
 
     this->mCriticalSection.Initialize();
     Result result = this->mSoundThread.TryStart(SoundThreadFunc,NULL,stack,prio,coreNo);
@@ -144,6 +149,96 @@ Result ThreadManager::StartSoundThread(void (*callback)(uptr), uptr arg, uptr st
         this->mCriticalSection.Finalize();
     }
     return result;
+}
+
+Result ThreadManager::StartSoundThread(const ThreadParameter* mainThreadParam,void (*mainThreadCallback)(uptr),uptr mainThreadArg,const ThreadParameter* userThreadParam,void (*userThreadCallback)(uptr),uptr userThreadArg,s32 coreNo){
+    Result result;
+    result = StartSoundThread(userThreadCallback,userThreadArg,mainThreadParam->stackBuffer,mainThreadParam->stackSize,mainThreadParam->priority,coreNo);
+    NN_UTIL_RETURN_IF_FAILED(result);
+    mNwSoundThreadCallback = mainThreadCallback;
+    mArgForNw = mainThreadArg;
+    if (userThreadParam){
+        result = StartUserSoundThread(userThreadParam->stackBuffer,userThreadParam->stackSize,userThreadParam->priority);
+        if (result.IsFailure()){
+            this->FinalizeSoundThread();
+            return result;
+        }
+    }
+    return ResultSuccess();
+}
+
+nn::Result ThreadManager::StartUserSoundThread(uptr stackBuffer, size_t stackSize, s32 prio){
+    if (!mIsSoundThreadCreated){
+        return ResultInvalidUsage();
+    }
+
+    if (mIsUserSoundThreadCreated){
+        return ResultAlreadyInitialized();
+    }
+
+    if (mCoreNo != 1){
+        return ResultInvalidUsage();
+    }
+
+    this->mEventUser2System.Initialize(false);
+    this->mEventSystem2User.Initialize(false);
+
+    ThreadStack stack(stackBuffer + stackSize);
+    nn::Result result = this->mUserSoundThread.TryStart(UserSoundThreadFunc,NULL,stack,prio,0);
+    mIsUserSoundThreadCreated = result.IsSuccess();
+    if (result.IsFailure()){
+        this->mEventUser2System.Finalize();
+        this->mEventSystem2User.Finalize();
+    }
+    return result;
+}
+
+void ThreadManager::FinalizeUserSoundThread(){
+    if (!mIsUserSoundThreadCreated){
+        return;
+    }
+
+    mIsUserSoundThreadEnabled = false;
+    this->mUserSoundThread.Join();
+    this->mUserSoundThread.Finalize();
+    mIsUserSoundThreadCreated = false;
+
+    os::ARM::DataSynchronizationBarrier();
+    this->mEventUser2System.Signal();
+    this->mEventUser2System.Finalize();
+    this->mEventSystem2User.Finalize();
+}
+
+void ThreadManager::FinalizeSoundThread(){
+    this->FinalizeUserSoundThread();
+
+    if (!mIsSoundThreadCreated){
+        return;
+    }
+
+    mIsSoundThreadEnabled = false;
+    this->mSoundThread.Join();
+    this->mSoundThread.Finalize();
+    mNwSoundThreadCallback = NULL;
+    mUserSoundThreadCallback = NULL;
+
+    mCoreNo = 0;
+
+    this->mCriticalSection.Finalize();
+
+    Dspsnd::GetInstance().EnableAuxCallbackInSendParameter(true);
+
+    mIsSoundThreadCreated = false;
+}
+
+void ThreadManager::EnableSoundThreadTickCounter(bool enable){
+    if (mCoreNo == 0){
+        mIsTickCounterEnabled = enable;
+    }
+}
+
+os::Tick ThreadManager::GetSoundThreadTick(){
+    return mSoundThreadTick;
 }
 
 }

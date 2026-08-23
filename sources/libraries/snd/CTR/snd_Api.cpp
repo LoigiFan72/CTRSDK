@@ -9,7 +9,9 @@
 #include <nn/os/ARM/os_MemoryBarrier.h>
 #include <nn/os/os_Thread.h>
 
-// Native
+// Private
+#include "snd_VoiceManager.h"
+#include "snd_VoiceImpl.h"
 #include "snd_MasterManager.h"
 #include "snd_DspFxManager.h"
 #include "snd_ThreadManager.h"
@@ -44,6 +46,7 @@ Result Initialize(){
 
     NN_UTIL_RETURN_IF_FAILED(srv::Initialize());
     NN_UTIL_RETURN_IF_FAILED(Dspsnd::GetInstance().Initialize(false));
+
     UpdateHeadphoneStatus();
     VoiceManager::GetInstance().Initialize();
     MasterManager::GetInstance().Initialize();
@@ -76,7 +79,7 @@ Result Finalize(){
 }
 
 void Sleep(){
-    if((sInitialized & ~ sIsSleep) != 0){
+    if(sInitialized && !sIsSleep){
         sSleepEvent.Initialize(true);
         sIsSleepPrepare = true;
         Dspsnd::GetInstance().Finalize(true);
@@ -84,8 +87,19 @@ void Sleep(){
     }
 }
 
+void WakeUp(){
+    if (sInitialized && sIsSleep){
+        Dspsnd::GetInstance().Initialize(true);
+        UpdateHeadphoneStatus();
+        sIsSleep = false;
+        sIsSleepPrepare = false;
+        os::ARM::DataSynchronizationBarrier();
+        sSleepEvent.Signal();
+    }
+}
+
 void OrderToWaitForFinalize(){
-    if((sInitialized) && (sIsSleep)){
+    if(sInitialized && sIsSleep){
         sIsWaitingForFinalize = true;
         sIsSleep = false;
         sIsSleepPrepare = false;
@@ -235,8 +249,6 @@ void EnableSoundThreadTickCounter(bool enable){
 os::Tick GetSoundThreadTick(){
     return ThreadManager::GetInstance().GetSoundThreadTick();
 }
-
-
 
 }
 }

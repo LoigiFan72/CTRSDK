@@ -372,3 +372,21 @@ inline Result MakeStatusResult   (Result::Summary summary, Result::Module module
 } // namespace nn
 
 typedef nn::Result Result;
+
+#if NN_VERSION <= 2
+    #ifdef __cplusplus
+    extern "C" {
+    #endif
+        typedef void (*nnResultHandlerImpl)(nnResult result, const char* filename, int lineno, const char* fmt, va_list vlist);
+
+        int nnResultFailureHandler(nnResult result, const char* filename, int lineno, const char* fmt, ...);
+        int nnResultTFailureHandler(nnResult result, const char* filename, int lineno, const char* fmt, ...);
+
+        int nnResultPanicHandler(nnResult result, const char* filename, int lineno, const char* fmt, ...);
+        int nnResultTPanicHandler(nnResult result, const char* filename, int lineno, const char* fmt, ...);
+
+        nnResult nnMakeInvalidResult();
+    #ifdef __cplusplus
+    }
+    #endif
+#endif

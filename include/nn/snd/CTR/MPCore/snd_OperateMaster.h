@@ -113,6 +113,7 @@ public:
     u32 getNextPage(){ u32 page = this->getCurrentPage(); return page + 1 & 1; }
     bool UpdateSlotId(ushort recvid);
     bool SetIsHeadSet(bool flag);
+    void EnableAuxCallbackInSendParameter(bool param){ mIsAuxCallbackInSendParameterEnabled = param; }
 };
 
 inline bool Dspsnd::UpdateSlotId(ushort recvid){
@@ -121,10 +122,10 @@ inline bool Dspsnd::UpdateSlotId(ushort recvid){
         return ret;
     }
     else{
-        this->mDirectId = recvid++;
+        mDirectId = recvid++;
         if(recvid == 0xffff)
-            this->mDirectId = 2;
-        this->mReadPage = this->mDirectId & 1;
+            mDirectId = 2;
+        mReadPage = mDirectId & 1;
     }
     return ret;
 }

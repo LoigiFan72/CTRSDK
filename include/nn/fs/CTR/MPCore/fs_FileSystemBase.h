@@ -13,6 +13,9 @@ namespace fs{
 
     Result MountRom(const char *pArchiveName,size_t pMaxFile,size_t pMaxDirectory,void *pWorkingMemory, size_t pWorkingMemorySize,bool pUseCache);
     Result MountRom(size_t pMaxFile, size_t pMaxDirectory, void* pWorkingMemory, size_t pWorkingMemorySize, bool pUseCache);
+    Result MountSharedExtSaveData(const char* archiveName, bit32 id);
+    Result MountSpecialArchive(const char* archiveName, bit32 archiveKind);
+    Result MountContent(const char* archiveName, MediaType mediaType, TitleId titleId, ContentIdx contentIndex, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache);
     Result Unmount(const char* pArchiveName);
 
     Result MountSdmc(const char* archiveName = "sdmc:");

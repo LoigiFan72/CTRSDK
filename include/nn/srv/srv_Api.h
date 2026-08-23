@@ -25,6 +25,17 @@ struct NotificationHandler : public fnd::IntrusiveLinkedList<NotificationHandler
 template <typename T>
 class EventNotificationHandlerBase : public NotificationHandler{
 public:
+    EventNotificationHandlerBase(): 
+        mpEvent(NULL) 
+    { }
+    EventNotificationHandlerBase(T* p): 
+        mpEvent(p) 
+    { }
+
+    void Initialize(T* p){
+        NN_POINTER_TASSERT_(p);
+        mpEvent = p;
+    }
     T* mpEvent;
 
     virtual void HandleNotification(bit32 mMessage){
@@ -40,9 +51,11 @@ Result StartNotification();
 Result EnableNotification(os::Semaphore*);
 Result DispatchNotification();
 Result RegisterNotificationHandler(NotificationHandler* pHandler, bit32 message);
-Result GetServiceHandle(nn::Handle* pOut, const char* pName, s32 nameLen, bit32 flags);
+NotificationHandler* UnregisterNotificationHandler(bit32 message);
+Result GetServiceHandle(Handle* pOut, const char* pName, s32 nameLen, bit32 flags);
 
-inline Result GetServiceHandle(nn::Handle* pOut, const char* pName){ return GetServiceHandle(pOut, pName, strlen(pName), 0); }
+inline Result Subscribe(bit32 message){ return detail::Service::Subscribe(message); }
+inline Result GetServiceHandle(Handle* pOut, const char* pName){ return GetServiceHandle(pOut, pName, strlen(pName), 0); }
 
 namespace detail {
 

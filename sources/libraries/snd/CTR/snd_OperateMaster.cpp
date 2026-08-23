@@ -12,6 +12,11 @@
 
 #include <string.h>
 
+#include "snd_DspFxManager.h"
+#include "snd_MasterManager.h"
+#include "snd_VoiceManager.h"
+#include "snd_VoiceImpl.h"
+
 #define NN_SND_DSP_OUTPUT_BUFFER_COUNT_MIN = 2;
 #define NN_SND_DSP_OUTPUT_BUFFER_COUNT_MAX = 3;
 

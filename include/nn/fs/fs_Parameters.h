@@ -6,7 +6,10 @@
 namespace nn{
 namespace fs{
 namespace detail { struct ArchiveHandleTag {}; }
-typedef nn::util::Int64<bit64, detail::ArchiveHandleTag> ArchiveHandle;
+    typedef nn::util::Int64<bit64, detail::ArchiveHandleTag> ArchiveHandle;
+    typedef bit64 ExtSaveDataId;
+    typedef bit32 ContentIdx;
+    typedef s64 TitleId;
 
     static const size_t MAX_ARCHIVE_NAME_LENGTH = 7;
     static const size_t MAX_SUB_PATH_LENGTH = 253;
@@ -44,21 +47,44 @@ typedef nn::util::Int64<bit64, detail::ArchiveHandleTag> ArchiveHandle;
         util::Int64<ProgramDataPath> mId;
     };
 
-    struct ContentPath{
-        int mContentPath;
-        s64 mContentId;
-    };
+    struct TitleDataSpecifier{
+        TitleId id;
+        nn::util::SizedEnum1<MediaType> media;
+        s8 rev1[3];
+        s32 rev2;
+        
+        static TitleDataSpecifier Make(MediaType media, TitleId id){
+            TitleDataSpecifier ret;
+            ret.id = id;
+            ret.media = media;
+            return ret;
+        }
 
-    struct TitleId{
-        s64 fs_TitleId;
+        void CopyTo(TitleDataSpecifier* p) const{
+            p->id = this->id;
+            p->media = this->media;
+        }
     };
 
     struct ExtSaveDataSpecifier{
-        s8 mMediaType;
-        s8 mStorageAttribute;
-        s8 pad[0x2];
-        s64 mExtSaveDataId;
+        nn::util::SizedEnum1<MediaType> mediaType;
+        nn::util::SizedEnum1<StorageAttribute> storageAttribute;
+        bit8 reserved[2];
+        nn::util::Int64<ExtSaveDataId> extSaveDataId;
+        static ExtSaveDataSpecifier Make(MediaType mediaType, ExtSaveDataId extSaveDataId){
+            return Make(mediaType, StorageAttribute::NORMAL, extSaveDataId);
+        }
+        
+        static ExtSaveDataSpecifier Make(MediaType mediaType, StorageAttribute storageAttribute, ExtSaveDataId extSaveDataId){
+            ExtSaveDataSpecifier ret = {};
+            ret.mediaType = mediaType;
+            ret.storageAttribute = storageAttribute;
+            ret.extSaveDataId = extSaveDataId;
+            return ret;
+        }
     };
+
+    typedef ExtSaveDataSpecifier ExtSaveDataArchivePath;
 
     struct TitleDataSpecificer{
         TitleId mId;
@@ -68,9 +94,9 @@ typedef nn::util::Int64<bit64, detail::ArchiveHandleTag> ArchiveHandle;
     };
 
     struct DataContentArchivePath{
-        TitleId mFs_TitleId;
-        int mDataConPath;
-        int mContentIdx;
+        TitleId titleId;
+        nn::util::SizedEnum4<MediaType> mediaType;
+        ContentIdx contentIdx;
     };
 
     struct WriteOption{

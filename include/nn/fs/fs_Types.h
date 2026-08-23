@@ -53,5 +53,6 @@ namespace fs{
 
     struct FsCompatibilityInfo : public Fs9CompatibilityInfo{
     };
+
 }
 }

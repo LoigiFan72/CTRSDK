@@ -90,10 +90,10 @@ struct WaveBuffer{
     s32 sampleLength;
     const AdpcmContext* pAdpcmContext;
     uptr userParam;
-    bool loopFlag;
+    util::SizedEnum1<Status> status;
     s8 status;
     u16 bufferId;
-    struct WaveBuffer* next;
+    WaveBuffer* next;
 };
 
 enum SampleFormat{

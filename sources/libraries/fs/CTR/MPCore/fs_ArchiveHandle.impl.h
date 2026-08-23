@@ -109,6 +109,9 @@ Result RegisterArchive(const char* path, IArchive* archive, bool isAddOnContent,
     return ResultOutOfMemory();
 }
 
+inline Result RegisterArchive(const char* path, IArchive* archive){ return RegisterArchive(path, archive, false, false); }
+inline Result RegisterArchive(const char* path, IArchive* archive, bool isAddOnContent){ return RegisterArchive(path, archive, isAddOnContent, false);  }
+
 IArchive* UnregisterArchive(bool* pIsAlias, const ArchiveName& name){
     for (s32 i = 0; i < NUM_ARCHIVE; ++i){
         if (gArchiveTable[i].id == name.id){

@@ -10,6 +10,20 @@ namespace CTR{
 
 class DspFxManagerImpl;
 
+class DspFxManagerImpl{
+protected:
+    DspFxDelayParams mDspFxDelayParams[2];
+    DspFxReverbParams mDspFxReverbParams[2];
+
+public:
+    void Initialize();
+    void Finalize();
+    void ForceUpdateParams();
+    static DspFxManagerImpl& GetInstance();
+    bool SetDspDelayEffect(AuxBusId id, DspFxDelayParams* param);
+    bool SetDspReverbEffect(AuxBusId id, DspFxReverbParams* param);
+};
+
 class DspFxManager{
 protected:
     bool mIsAttached[2][2];
@@ -31,30 +45,11 @@ public:
     s32 GetDspCycles();
     bool SetDspDelayEffect(AuxBusId id, DspFxDelayParams* param);
     bool SetDspReverbEffect(AuxBusId id, DspFxReverbParams* param);
+    s32 GetChannelNum(DspEffectType type, AuxBusId id);
 
-    inline s32 GetChannelNum(DspEffectType type, AuxBusId id){
-        if(this->mIsEnabled[type][id]){
-            return this->mChannelNum[type][id];
-        } 
-        else{
-            return 0;
-        }
-    }
+    DspFxManagerImpl* GetImpl(){ return &DspFxManagerImpl::GetInstance(); }
 };
 
-class DspFxManagerImpl{
-protected:
-    DspFxDelayParams mDspFxDelayParams[2];
-    DspFxReverbParams mDspFxReverbParams[2];
-
-public:
-    void Initialize();
-    void Finalize();
-    void ForceUpdateParams();
-    static DspFxManagerImpl& GetInstance();
-    bool SetDspDelayEffect(AuxBusId id, DspFxDelayParams* param);
-    bool SetDspReverbEffect(AuxBusId id, DspFxReverbParams* param);
-};
 }
 }
 }

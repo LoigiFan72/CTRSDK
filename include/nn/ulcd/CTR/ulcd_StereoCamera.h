@@ -20,6 +20,22 @@ struct Direction{
 
 class StereoCamera{
 public:
+    StereoCamera();
+    StereoCamera(const WithInitialize&){ this->Initialize(); }
+    ~StereoCamera();
+    void Initialize();
+    void Finalize();
+    void CalculateMatrices(MTX44 *projL,MTX34 *viewL,MTX44 *projR,MTX34 *viewR, MTX44 *projOriginal,MTX34 *viewOriginal,const f32 depthLevel,const f32 factor, const nn::math::PivotDirection pivot = nn::math::PIVOT_UPSIDE_TO_TOP);
+    void CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34* viewL,nn::math::MTX44* projR, nn::math::MTX34* viewR, const f32 depthLevel, const f32 factor, const nn::math::PivotDirection pivot = nn::math::PIVOT_UPSIDE_TO_TOP);
+    void SetBaseFrustum(const MTX44 *proj);
+    void SetBaseCamera(const MTX34 *view);
+    f32 GetCoefficientForParallax() const;
+    f32 GetMaxParallax() const;
+    f32 GetLimitParallax() const { return mLimitParallax; }
+    f32 GetDistanceToLevel() const { return mDepthLevel; }
+    f32 GetDistanceToNearClip() const { return mDistanceToNearClip; }
+    f32 GetDistanceToFarClip() const { return mDistanceToFarClip; }
+private:
     struct CameraInfo{
         f32 left;
         f32 right;
@@ -34,33 +50,13 @@ public:
         VEC3 posTarget;
     };
 
-CameraInfo mBaseCamera;
-f32 mLimitParallex;
-f32 mLevelWidth;
-f32 mDepthLevel;
-f32 mDistanceToNearClip;
-f32 mDistanceToFarClip;
-f32 mCameraInterval;
-
-StereoCamera();
-StereoCamera(const WithInitialize&){ this->Initialize(); }
-~StereoCamera();
-void CalculateMatrices(MTX44 *projL,MTX34 *viewL,MTX44 *projR,MTX34 *viewR, MTX44 *projOriginal,MTX34 *viewOriginal,const f32 depthLevel,const f32 factor, const nn::math::PivotDirection pivot = nn::math::PIVOT_UPSIDE_TO_TOP);
-void CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34* viewL,nn::math::MTX44* projR, nn::math::MTX34* viewR, const f32 depthLevel, const f32 factor, const nn::math::PivotDirection pivot = nn::math::PIVOT_UPSIDE_TO_TOP);
-f32 GetCoefficientForParallax(void) const;
-void SetBaseFrustum(const MTX44 *proj);
-void SetBaseCamera(const MTX34 *view);
-void Initialize();
-void Finalize();
-
-struct cfgdata{
-    void* cfgData;
-    f32 far;
-    f32 near;
-    f32 level;
-    float limit;
-};
-
+    CameraInfo mBaseCamera;
+    f32 mLimitParallax;
+    f32 mLevelWidth;
+    f32 mDepthLevel;
+    f32 mDistanceToNearClip;
+    f32 mDistanceToFarClip;
+    f32 mCameraInterval;
 };
 
 }

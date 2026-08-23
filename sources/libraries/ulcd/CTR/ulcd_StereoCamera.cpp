@@ -3,11 +3,11 @@
 // Project: Horizon
 
 #include <nn/ulcd/CTR/ulcd_StereoCamera.h>
-#include <nn/cfg/CTR/cfg_Api.h>
-#include <nn/cfg/CTR/cfg_DetailApi.h>
-#include <nn/math/math_Arithmetic.h>
+#include <nn/cfg.h>
+#include <nn/math.h>
 #include <nn/dbg/dbg_Break.h>
 #include <nn/os/os_Types.h>
+#include <nn/util/util_Result.h>
 
 #include <string.h>
 
@@ -88,46 +88,46 @@ void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *vie
     
     {
 
-    mDepthLevel = depthLevel;
-    f32 heightDiff = mLimitParallex;
-    heightDiff *= math::FAbs(this->mBaseCamera.top - this->mBaseCamera.bottom) * mDepthLevel / (mBaseCamera.near * sCfgData.level);
-    if (mBaseCamera.far > mDepthLevel) {
-        mCameraInterval = heightDiff * (this->mBaseCamera.far / (this->mBaseCamera.far - this->mDepthLevel));
-    } 
-    else {
-        this->mCameraInterval = 0.0f;
-    }
-    
-    this->mCameraInterval *= factor;
-    this->mCameraInterval *= GetSliderVolume() * 0.5f;
+        mDepthLevel = depthLevel;
+        f32 heightDiff = mLimitParallax;
+        heightDiff *= math::FAbs(this->mBaseCamera.top - this->mBaseCamera.bottom) * mDepthLevel / (mBaseCamera.near * sCfgData.level);
+        if (mBaseCamera.far > mDepthLevel) {
+            mCameraInterval = heightDiff * (this->mBaseCamera.far / (this->mBaseCamera.far - this->mDepthLevel));
+        } 
+        else {
+            mCameraInterval = 0.0f;
+        }
+        
+        mCameraInterval *= factor;
+        mCameraInterval *= GetSliderVolume() * 0.5f;
 
-    infoL.left  = mBaseCamera.left +  mCameraInterval * mBaseCamera.near / mDepthLevel;
-    infoL.right = mBaseCamera.right + mCameraInterval * mBaseCamera.near / mDepthLevel;
+        infoL.left  = mBaseCamera.left +  mCameraInterval * mBaseCamera.near / mDepthLevel;
+        infoL.right = mBaseCamera.right + mCameraInterval * mBaseCamera.near / mDepthLevel;
 
-    infoR.right = mBaseCamera.right - mCameraInterval * mBaseCamera.near / mDepthLevel;
-    infoR.left  = mBaseCamera.left  - mCameraInterval * mBaseCamera.near / mDepthLevel;
+        infoR.right = mBaseCamera.right - mCameraInterval * mBaseCamera.near / mDepthLevel;
+        infoR.left  = mBaseCamera.left  - mCameraInterval * mBaseCamera.near / mDepthLevel;
 
-    infoL.bottom = infoR.bottom = mBaseCamera.bottom;
-    infoL.top    = infoR.top    = mBaseCamera.top;
-    infoL.near   = infoR.near   = mBaseCamera.near;
-    infoL.far    = infoR.far    = mBaseCamera.far;
+        infoL.bottom = infoR.bottom = mBaseCamera.bottom;
+        infoL.top    = infoR.top    = mBaseCamera.top;
+        infoL.near   = infoR.near   = mBaseCamera.near;
+        infoL.far    = infoR.far    = mBaseCamera.far;
 
-    nn::math::VEC3Scale(&(infoL.position), &this->mBaseCamera.posRight, this->mCameraInterval);
-    nn::math::VEC3Sub(&infoL.position, &this->mBaseCamera.position, &infoL.position);
-    nn::math::VEC3Add(&(infoL.posTarget), &(infoL.position), &this->mBaseCamera.posTarget);
-    infoL.posRight = this->mBaseCamera.posRight;
-    infoL.posUp    = this->mBaseCamera.posUp;
+        nn::math::VEC3Scale(&(infoL.position), &this->mBaseCamera.posRight, this->mCameraInterval);
+        nn::math::VEC3Sub(&infoL.position, &this->mBaseCamera.position, &infoL.position);
+        nn::math::VEC3Add(&(infoL.posTarget), &(infoL.position), &this->mBaseCamera.posTarget);
+        infoL.posRight = mBaseCamera.posRight;
+        infoL.posUp    = mBaseCamera.posUp;
 
-    nn::math::VEC3Scale(&infoR.position, &mBaseCamera.posRight, mCameraInterval);
-    nn::math::VEC3Add(&infoR.position, &mBaseCamera.position, &infoR.position);
-    nn::math::VEC3Add(&infoR.posTarget, &infoR.position, &mBaseCamera.posTarget);
-    infoR.posRight = this->mBaseCamera.posRight;
-    infoR.posUp = this->mBaseCamera.posUp;
+        nn::math::VEC3Scale(&infoR.position, &mBaseCamera.posRight, mCameraInterval);
+        nn::math::VEC3Add(&infoR.position, &mBaseCamera.position, &infoR.position);
+        nn::math::VEC3Add(&infoR.posTarget, &infoR.position, &mBaseCamera.posTarget);
+        infoR.posRight = mBaseCamera.posRight;
+        infoR.posUp =    mBaseCamera.posUp;
 
-    mDistanceToNearClip = mBaseCamera.near;
-    mDistanceToFarClip  = mBaseCamera.far;
+        mDistanceToNearClip = mBaseCamera.near;
+        mDistanceToFarClip  = mBaseCamera.far;
 
-    mLevelWidth = nn::math::FAbs(this->mBaseCamera.right - this->mBaseCamera.left) * (this->mDepthLevel / this->mBaseCamera.near);
+        mLevelWidth = nn::math::FAbs(this->mBaseCamera.right - this->mBaseCamera.left) * (this->mDepthLevel / this->mBaseCamera.near);
 
     }
 
@@ -232,7 +232,11 @@ void StereoCamera::CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34
 }
 
 f32 StereoCamera::GetCoefficientForParallax(void) const{
-    this->mCameraInterval / this->mLevelWidth;
+    mCameraInterval / mLevelWidth;
+}
+
+f32 StereoCamera::GetMaxParallax(void) const{
+    return mLimitParallax / sCfgData.near * 0.5f * GetSliderVolume();
 }
 
 void StereoCamera::SetBaseCamera(const nn::math::MTX34 *view){
@@ -240,8 +244,8 @@ void StereoCamera::SetBaseCamera(const nn::math::MTX34 *view){
     Direction direction;
     GetLookPose(view, &this->mBaseCamera.position, &direction);
     
-    mBaseCamera.posRight = direction.right;
-    mBaseCamera.posUp = direction.up;
+    mBaseCamera.posRight  = direction.right;
+    mBaseCamera.posUp     = direction.up;
     mBaseCamera.posTarget = direction.target;
 }
 
@@ -260,14 +264,14 @@ void StereoCamera::SetBaseFrustum(const nn::math::MTX44 *proj){
 
 void StereoCamera::Initialize(){
     Result res;
-    if(sIsInitialized == 0){
+    if(!sIsInitialized){
         cfg::CTR::Initialize();
         res = cfg::CTR::detail::GetConfig(&sCfgData,0x20,0x50005);
-        NN_PANIC_IF_FAILED(res);
+        NN_UTIL_PANIC_IF_FAILED(res);
         cfg::CTR::Finalize();
         sIsInitialized = true;
     }
-    mLimitParallex = sCfgData.limit;
+    mLimitParallax = sCfgData.limit;
     mLevelWidth = 0.0;
     mDepthLevel = 0.0;
     mDistanceToNearClip = 0.0;

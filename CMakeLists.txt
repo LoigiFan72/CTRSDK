@@ -106,6 +106,7 @@ nn_library(nn_rtport  ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/rtport/rvct)
 nn_library(nn_snd     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/snd)
 nn_library(nn_srv     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/srv)
 nn_library(nn_svc     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/svc)
+nn_library(nn_ubl     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ugc/ubl)
 nn_library(nn_ulcd    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ulcd)
 nn_library(nn_util    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/util)
 nn_library(gles2      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/gles2)
@@ -146,6 +147,7 @@ target_link_libraries(CTRSDK INTERFACE
     nn_snd
     nn_srv
     nn_svc
+    nn_ubl
     nn_ulcd
     nn_util
 

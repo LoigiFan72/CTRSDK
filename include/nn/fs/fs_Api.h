@@ -13,6 +13,8 @@ namespace detail{
 void Initialize();
 void InitializeLoader(); // Isn't anywhere, custom bit
 bool IsInitialized();
+void RegisterSdmcEjectedEvent(os::LightEvent* p);
+void UnregisterSdmcEjectedEvent();
 bool IsSdmcInserted();
 bool IsSdmcWritable();
 Result GetPriortity(int out);

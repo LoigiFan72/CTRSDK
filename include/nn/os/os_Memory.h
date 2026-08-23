@@ -22,6 +22,7 @@ namespace detail{
     uptr GetCodeRegionAddress();
     size_t GetCodeRegionSize();
     size_t GetUsingMemorySize();
+    uptr ConvertAddressForDevice(uptr addr, size_t length);
 
 }
 }

@@ -20,13 +20,20 @@ void DspFxManager::Initialize() {
             mChannelNum[type][id] = 0;
         }
     }
-    DspFxManagerImpl::GetInstance().Initialize();
+    this->GetImpl()->Initialize();
 }
 
-
+s32 DspFxManager::GetChannelNum(DspEffectType type, AuxBusId id){
+    if(mIsEnabled[type][id]){
+        return mChannelNum[type][id];
+    } 
+    else{
+        return 0;
+    }
+}
 
 void DspFxManager::Finalize(){
-    return DspFxManagerImpl::GetInstance().Finalize();
+    return this->GetImpl()->Finalize();
 }
 
 DspFxManager& DspFxManager::GetInstance() {
@@ -63,8 +70,6 @@ s32 DspFxManager::GetDspCycles() {
     }
     return cycle;
 }
-
-
 
 }
 }

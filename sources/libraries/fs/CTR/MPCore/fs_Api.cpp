@@ -57,7 +57,7 @@ void Initialize(){
         #endif
     }
 }
-//! @brief This isnt anywhere, but this initializes fs:LDR exh service.
+//! @brief This isnt anywhere, but this initializes fs:LDR exheader service.
 //!
 //! @param in ()
 void InitializeLoader(){
@@ -71,6 +71,17 @@ void InitializeLoader(){
         detail::RegisterGlobalFileSystemBase(sFileSystemBase);
         NN_ERR_THROW_FATAL_ALL(SetPriority(0));
     }
+}
+
+void RegisterSdmcEjectedEvent(os::LightEvent* p){
+    sNotificationSdmcEjectedHandler.Initialize(p);
+    NN_ERR_THROW_FATAL_ALL(nn::srv::RegisterNotificationHandler(&sNotificationSdmcEjectedHandler, 521));
+    NN_ERR_THROW_FATAL_ALL(nn::srv::Subscribe(521));
+}
+
+void UnregisterCardEjectedEvent(){
+    NN_ERR_THROW_FATAL_ALL(nn::srv::Unsubscribe(521));
+    nn::srv::UnregisterNotificationHandler(521);
 }
 
 bool IsSdmcInserted(){

@@ -5,6 +5,8 @@
 #include <nn/snd/CTR/MPCore/snd_DspFxReverb.h>
 #include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 #include <nn/snd.h>
+#include <nn/dsp.h>
+#include <nn/dsp/CTR/Common/dsp_Types.h>
 #include <nn/math.h>
 
 // Native
@@ -110,7 +112,7 @@ bool DspFxReverb::Enable(bool enable) {
 }
 
 bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) {
-    /*NN_TASSERTMSG_((mAuxBusId == AUX_BUS_A || mAuxBusId == AUX_BUS_B) && mBuffer != NULL && mBufferSize > 0, "DspFxReverb is not initialized\n");
+    NN_TASSERTMSG_((mAuxBusId == AUX_BUS_A || mAuxBusId == AUX_BUS_B) && mBuffer != NULL && mBufferSize > 0, "DspFxReverb is not initialized\n");
     if ((mAuxBusId != AUX_BUS_A) && (mAuxBusId != AUX_BUS_B)){
         return false;
     }
@@ -161,7 +163,7 @@ bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) {
     params.combFrames[1] = static_cast<s32>(pFilterSize->mComb1 / NN_SND_SAMPLES_PER_FRAME);
 
     for(s32 i = 0; i < 2; i++){
-        f32 comb_coef = std::powf(10.0f, (-3.0f * static_cast<f32>(params.combFrames[i] * NN_SND_SAMPLES_PER_FRAME) / (fused_time_sec * NN_SND_HW_I2S_CLOCK_32KHZ_F32) ) );
+        f32 comb_coef = std::powf(10.0f, (-3.0f * static_cast<f32>(params.combFrames[i] * NN_SND_SAMPLES_PER_FRAME) / (fused_time_sec * NN_SND_HW_I2S_CLOCK_32KHZ_F32)));
         params.aCombCoefs[i] = static_cast<s32>( static_cast<f32>(0x80L) * comb_coef );
     }
 
@@ -222,12 +224,12 @@ bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) {
     }
     NN_TASSERTMSG_(ret, "Invalid parameter (requires larger memory than allocated)\n");
 
-    params.ctrl |= NN_SND_FX_DELAY_CTRL_DELAY_BUFFER_ADDR;
+    params.ctrl |= 2;
 
     ::std::memset(reinterpret_cast<void*>(mBuffer), 0, mBufferSize);
     nn::dsp::CTR::FlushDataCache(mBuffer, mBufferSize);
 
-    return DspFxManager::GetInstance().SetDspReverbEffect(mAuxBusId, &params);*/
+    return DspFxManager::GetInstance().SetDspReverbEffect(mAuxBusId, &params);
 }
 
 size_t DspFxReverb::GetRequiredMemorySize(const DspFxReverb::Param& _param) {
@@ -247,7 +249,7 @@ size_t DspFxReverb::GetRequiredMemorySize(const DspFxReverb::Param& _param) {
 }
 
 bool DspFxReverb::AssignWorkBuffer(uptr buffer, size_t size) {
-    /*NN_TASSERTMSG_(mBuffer == NULL, "DspFxReverb is already initialized\n");
+    NN_TASSERTMSG_(mBuffer == NULL, "DspFxReverb is already initialized\n");
     if (mBuffer){
         return false;
     }
@@ -262,7 +264,7 @@ bool DspFxReverb::AssignWorkBuffer(uptr buffer, size_t size) {
     mBufferPhysical = deviceAddress;
     mBufferSize = size;
 
-    return true;*/
+    return true;
 }
 
 void DspFxReverb::ReleaseWorkBuffer(){ 

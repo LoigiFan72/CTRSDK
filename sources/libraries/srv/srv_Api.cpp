@@ -26,7 +26,7 @@ namespace detail {
     
 class HandlerManager{
 public:
-    nn::fnd::IntrusiveLinkedList<NotificationHandler> mHandler;
+    nn::fnd::IntrusiveLinkedList<NotificationHandler> mHandlers;
 
     Result Register(NotificationHandler* pHandler, u32 message) {
         NN_POINTER_TASSERT_(pHandler);
@@ -34,14 +34,14 @@ public:
         NN_TASSERT_(!pHandler->mAttachedMessage == 0);
 
         pHandler->mAttachedMessage = message;
-        this->mHandler.PushBack(pHandler);
+        this->mHandlers.PushBack(pHandler);
         return ResultSuccess();
     }
     NotificationHandler* Find(bit32 message){
         NN_TASSERT_(message != 0);
 
         NotificationHandler *i;
-        for(i = this->mHandler.GetFront(); i != NULL; i = this->mHandler.GetNext(i)){
+        for(i = this->mHandlers.GetFront(); i != NULL; i = this->mHandlers.GetNext(i)){
             if(i->mAttachedMessage == message){
                 break;
             }
@@ -49,6 +49,17 @@ public:
         return i;
     }
 
+    NotificationHandler* Unregister(bit32 message){
+        NN_ASSERT_(message != 0);
+
+        NotificationHandler* p = Find(message);
+        if(p != NULL){
+            mHandlers.Erase(p);
+            p->mAttachedMessage = NULL;
+        }
+
+        return p;
+    }
 };
 
 } // detail
@@ -56,18 +67,21 @@ public:
 namespace{
     bool sInitialized = false;
     s32 sInitializeCount = 0;
-    static os::CriticalSection sInitializeLock;
-    static os::Semaphore sNotificationSemaphore;
-    static os::Thread sNotificationDispatcher;
-    static detail::HandlerManager sHandlerManager;
+    os::CriticalSection sInitializeLock;
+    os::Semaphore sNotificationSemaphore;
+    os::Thread sNotificationDispatcher;
+    detail::HandlerManager sHandlerManager;
+    os::CriticalSection sManagerLock;
+
     os::StackBuffer<DISPATCHER_STACK_SIZE> sStack;
+
 
     void DispatcherThread() {
         Result result;
         for(;;){
             sNotificationSemaphore.Acquire();
             result = DispatchNotification();
-            NN_PANIC_IF_FAILED(result);
+            NN_UTIL_PANIC_IF_FAILED(result);
         }
     }
 } // namespace
@@ -141,6 +155,11 @@ Result DispatchNotification() {
 
 Result RegisterNotificationHandler(NotificationHandler* pHandler, u32 message) {
     return sHandlerManager.Register(pHandler, message);
+}
+
+NotificationHandler* UnregisterNotificationHandler(bit32 message){
+    nn::os::CriticalSection::ScopedLock lock(sManagerLock);
+    return sHandlerManager.Unregister(message);
 }
 
 Result GetServiceHandle(nn::Handle* pOut, const char* pName, s32 nameLen, bit32 flags) {

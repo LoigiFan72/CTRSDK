@@ -53,10 +53,76 @@ WaveBuffer* SearchPlayingBuffer(ushort currentBufferId, ushort lastBufferId, Wav
 
 }
 
-void VoiceImpl::AppendWaveBuffer(WaveBuffer* buffer){
+void VoiceImpl::AppendWaveBuffer(WaveBuffer* pBuffer){
     NN_TASSERT_(buffer->status == WaveBuffer::STATUS_FREE);
     NN_NULL_TASSERT_(buffer->bufferAddress);
+    NN_TASSERTMSG_(reinterpret_cast<uptr>(pBuffer->bufferAddress) >= nn::os::GetDeviceMemoryAddress() && reinterpret_cast<uptr>(pBuffer->bufferAddress) < nn::os::GetDeviceMemoryAddress() + nn::os::GetDeviceMemorySize(), "pBuffer->bufferAddress must be in device memory area.");
 
+    if (pBuffer->sampleLength == 0){
+        pBuffer->status = WaveBuffer::STATUS_DONE;
+        return;
+    }
+
+    pBuffer->next = NULL;
+    pBuffer->status = WaveBuffer::STATUS_WAIT;
+
+    {
+        os::CriticalSection::ScopedLock lock(this->mCriticalSection);
+
+        WaveBuffer* pWaveBuffer = mpWaveBuffer;
+
+        if (pWaveBuffer){
+            NN_TASSERT_(pWaveBuffer != pBuffer);
+            while (pWaveBuffer->next){
+                pWaveBuffer = pWaveBuffer->next;
+                NN_TASSERT_(pWaveBuffer != pBuffer);
+            }
+            pWaveBuffer->next = pBuffer;
+        }
+        else{
+            mpWaveBuffer = pBuffer;
+        }
+
+        if (mBufferId == 0) mBufferId++;
+        pBuffer->bufferId = mBufferId++;
+    }
+}
+
+void VoiceImpl::SetBiquadFilterCoefficients(const BiquadFilterCoefficients& coeff){
+    mBiquadFilterCoeffs = coeff;
+    mModifiedParamFlag |= 16;
+}
+
+void VoiceImpl::SetMonoFilterCoefficients(const MonoFilterCoefficients& coeff){
+    mMonoFilterCoeffs = coeff;
+    mModifiedParamFlag |= 8;
+}
+
+void VoiceImpl::SetFilterType(FilterType type){ 
+    mFilterType = type; 
+    mModifiedParamFlag |= 4;
+}
+
+void VoiceImpl::SetFrontBypassFlag(bool flag){
+    DspsndAudioInfo* pSampleInfo = reinterpret_cast<DspsndAudioInfo*>((u16*)&this->mSampleInfo);
+    pSampleInfo->isFrontBypass = flag;
+}
+
+void VoiceImpl::SetChannelCount(s32 channelCount){
+    NN_TASSERT_(channelCount == 1 || channelCount == 2); 
+    this->mSampleInfo &= 0xfffc | channelCount & 3; 
+}
+
+f32 VoiceImpl::CalcFsRatio(){ 
+    return (mSampleRate * mPitch) / 32728.0;
+}
+
+s32 VoiceImpl::GetCycle() const{
+    return mDspCycles;
+}
+
+s32 VoiceImpl::GetPlayPosition() const{
+    return mPlayPosition;
 }
 
 void VoiceImpl::CalculateDspCycle(){
@@ -380,16 +446,20 @@ void VoiceImpl::SetTimer(){
 }
 
 void VoiceImpl::UpdateInterpolationType(){
-    DSPWord method;
-    ushort coefSelect;
-    if(mInterpolationType == INTERPOLATION_TYPE_POLYPHASE){
-        method = 0;
+    u16 srcSelect = 2;
+    u16 coefSelect = 1;
+
+    switch (mInterpolationType){
+    case INTERPOLATION_TYPE_POLYPHASE:
+        srcSelect = 0;
         coefSelect = this->SelectCoefficient();
+        break;
+
+    case INTERPOLATION_TYPE_LINEAR:
+        srcSelect = 1;
+        break;
     }
-    else if(mInterpolationType == INTERPOLATION_TYPE_LINEAR){
-        method = 1;
-    }
-    Dspsnd::GetInstance().SetChannelRIM(this->mId,method,coefSelect);
+    Dspsnd::GetInstance().SetChannelRIM(this->mId,srcSelect,coefSelect);
 }
 
 }

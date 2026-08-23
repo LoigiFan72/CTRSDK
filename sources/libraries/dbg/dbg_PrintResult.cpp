@@ -15,16 +15,31 @@
 
 namespace nn{
 namespace dbg{
-namespace detail{
+
+#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
 
 void PrintResult(Result result){
-    TPrintf("Result (%08x)\n", result.GetPrintableBits());
-    TPrintf("Level:       (%4d) %s\n",result.GetLevel());
-    TPrintf("Summary:     (%4d) %s\n",result.GetSummary()); // GetSummaryString());
-    TPrintf("Module:      (%4d) %s\n",result.GetModule()); // GetModuleString());
-    TPrintf("Description: (%4d) %s\n",result.GetDescription()); // GetDescriptionString());
+    NN_TLOG_("Result (%08x)\n", result.GetPrintableBits());
+    NN_TLOG_("Level:       (%4d) %s\n",result.GetLevel());
+    NN_TLOG_("Summary:     (%4d) %s\n",result.GetSummary()); // GetSummaryString());
+    NN_TLOG_("Module:      (%4d) %s\n",result.GetModule()); // GetModuleString());
+    NN_TLOG_("Description: (%4d) %s\n",result.GetDescription()); // GetDescriptionString());
 }
 
+void PrintTResult(Result result){
+    NN_TLOG_("Result (%08x)\n", result.GetPrintableBits());
+    NN_TLOG_("Level:       (%4d) %s\n",result.GetLevel());
+    NN_TLOG_("Summary:     (%4d) %s\n",result.GetSummary()); // GetSummaryString());
+    NN_TLOG_("Module:      (%4d) %s\n",result.GetModule()); // GetModuleString());
+    NN_TLOG_("Description: (%4d) %s\n",result.GetDescription()); // GetDescriptionString());
 }
+
+#else
+
+void PrintResult(Result result){}
+void PrintTResult(Result result){}
+
+#endif
+
 }
 }

@@ -56,10 +56,9 @@ void MasterManagerImpl::ForceUpdateParams(){
     Dspsnd::GetInstance().SetSurroundSpeakerPosition(this->mSpeakerPosition);
     Dspsnd::GetInstance().SetRearRatio(this->mRearRatio);
     Dspsnd::GetInstance().SetOutputBufferCount(this->mOutputBufferCount);
-    this->mDroppedFrameCount = 0;
+    mDroppedFrameCount = 0;
 
-    SyncMode syncmode = this->mSyncMode;
-    Dspsnd::GetInstance().SetSyncMode(syncmode);
+    Dspsnd::GetInstance().SetSyncMode(this->mSyncMode);
 }
 
 void MasterManagerImpl::EnableFx(AuxBusId busId, bool enable){

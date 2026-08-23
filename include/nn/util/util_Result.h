@@ -23,4 +23,38 @@
 #define NN_UTIL_RETURN_IF_FAILED_4(result, c1, c2, c3, c4) NN_UTIL_RETURN_IF_FAILED_BASE(result,c1,c2,c3,c4,)
 #define NN_UTIL_RETURN_IF_FAILED_5(result, c1, c2, c3, c4, c5) NN_UTIL_RETURN_IF_FAILED_BASE(result,c1,c2,c3,c4,c5)
 
+#ifdef NN_VERSION_MAJOR > 2
+
 #define NN_UTIL_PANIC_IF_FAILED(result) NN_PANIC_IF_FAILED(result)
+
+#else
+
+#define NN_UTIL_BEGIN_CHECK_RESULT(result) \
+    { \
+        ::nn::Result nn_util_result_try_result = (result); \
+        if (nn_util_result_try_result.IsFailure()) \
+        { \
+            do {
+
+#define NN_UTIL_ADD_RESULT_MESSAGE(expected, ...) \
+                if (nn_util_result_try_result == (expected)) \
+                { \
+                    ::nnResultFailureHandler(nn_util_result_try_result, NN_FILE_NAME, __LINE__, __VA_ARGS__); \
+                    break; \
+                }
+
+#define NN_UTIL_END_CHECK_RESULT \
+                ::nnResultTFailureHandler(nn_util_result_try_result, NN_FILE_NAME, __LINE__, "Unexpected Result Failure."); \
+            } while (0); \
+            ::nn::dbg::Break(::nn::dbg::BREAK_REASON_PANIC); \
+        } \
+    }
+
+#define NN_UTIL_PANIC_IF_FAILED(result)                     \
+    do {                                                    \
+        NN_UTIL_BEGIN_CHECK_RESULT(result)                  \
+        NN_TLOG_("RESULT FAILURE: result = %s\n", #result);   \
+        NN_UTIL_END_CHECK_RESULT                            \
+    } while (0)
+
+#endif

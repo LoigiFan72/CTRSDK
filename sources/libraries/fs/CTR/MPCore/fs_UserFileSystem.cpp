@@ -3,21 +3,23 @@
 // Project: Horizon
 
 #include <nn/fs/CTR/MPCore/fs_UserFileSystem.h>
-#include <nn/fs/CTR/MPCore/fs_RomFsArchive.impl.h>
 #include <nn/fs/fs_IpcFileSystem.h>
 #include <nn/fs/fs_IpcFile.h>
 #include <nn/fs/fs_IpcDirectory.h>
-#include <nn/fs/CTR/MPCore/fs_AccessAnalysis.h>
-#include <nn/fs/CTR/MPCore/fs_ArchiveHandle.h>
 #include <nn/fs/CTR/MPCore/fs_FileSystemBase.h>
 #include <nn/fs/fs_Types.h>
-#include <nn/err.h>
 #include <nn/fslow/fslow_QueryOptimalBucketCount.h>
 
-#include <nn/os.h>
+#include <nn/CTR.h>
+#include <nn/err.h>
 #include <nn/fnd.h>
+#include <nn/os.h>
 #include <nn/util/util_Result.h>
 #include <nn/cfg/CTR/cfg_DebugParam.h>
+
+#include "fs_AccessAnalysis.h"
+#include "fs_ArchiveHandle.impl.h"
+#include "fs_RomFsArchive.impl.h"
 
 namespace nn{
 namespace fs{
@@ -343,6 +345,32 @@ public:
         return ResultSuccess();
     }
 
+    Result Initialize(const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+        Handle handle;{
+            TitleDataSpecifier titleSpec = TitleDataSpecifier::Make(contentArchivePath.mediaType, contentArchivePath.titleId);
+            Path path = Path::Make(&titleSpec);
+            TitleDataPath titleData = TitleDataPath::MakeContentDataPath(contentArchivePath.contentIdx, ContentPath::MakeRomfsPath());
+            Path filePath = Path::Make(&titleData);
+            NN_UTIL_RETURN_IF_FAILED(GetFileServer().OpenFileDirectly(&handle,nn::fs::Transaction(),0x2345678a,path.GetPathType(),path.GetDataBuffer(), path.GetDataSize(),
+                    filePath.GetPathType(),filePath.GetDataBuffer(), filePath.GetDataSize(),nn::fs::OPEN_MODE_READ,nn::fs::Attributes())
+            );
+        }
+    }
+
+    static Result Create(ContentRomFsArchive** pOut, const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+        ContentRomFsArchive* p = new (AllocateBuffer()) ContentRomFsArchive();
+        if (!p){
+            return nn::fs::ResultOutOfMemory();
+        }
+        Result result = p->Initialize(contentArchivePath, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache);
+        if (result.IsFailure()){
+            p->DeleteObject();
+            return result;
+        }
+        *pOut = p;
+        return ResultSuccess();
+    }
+
     virtual void DeleteObject(){
         this->~ContentRomFsArchive();
         sArchiveHeap->Free(this);
@@ -533,7 +561,8 @@ Result MountSaveData(const char* archive) {
         result = CTR::MPCore::detail::RegisterArchive(archive,p,false,false);
         if(result.IsFailure()){
             p->DeleteObject();
-        } else{
+        } 
+        else{
             gSaveDataArchive = p;
         }
     }
@@ -635,12 +664,44 @@ s32 GetRomRequiredMemorySizeImpl(size_t maxFile, size_t maxDirectory, bool useCa
     return ret;
 }
 
-/* Sdmc Card mounting, MountSpecialArchive is custom. */
-
 Result MountSpecialArchive(const char* archiveName, bit32 archiveKind){
     IArchive* p;
     NN_UTIL_RETURN_IF_FAILED(OpenSpecialArchiveRaw(&p, archiveKind));
     NN_UTIL_RETURN_IF_FAILED_1(RegisterArchive(archiveName, p, false, false),p->DeleteObject());
+    return ResultSuccess();
+}
+
+Result OpenDataContent(IArchive** pOut, const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+    ContentRomFsArchive* p = 0;
+    NN_UTIL_RETURN_IF_FAILED(ContentRomFsArchive::Create(&p, contentArchivePath, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache));
+    *pOut = p;
+    return ResultSuccess();
+}
+
+Result MountContent(const char* archiveName, MediaType mediaType, TitleId titleId, ContentIdx contentIndex, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+    nn::fs::DataContentArchivePath path;
+    path.mediaType = mediaType;
+    path.titleId = titleId;
+    path.contentIdx = contentIndex;
+    IArchive* p;
+    NN_UTIL_RETURN_IF_FAILED(OpenDataContent(&p, path, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache));
+    NN_UTIL_RETURN_IF_FAILED_1(RegisterArchive(archiveName, p, nn::CTR::IsAddOnContents(titleId)),p->DeleteObject());
+    return ResultSuccess();
+}
+
+Result OpenSharedExtSaveData(IArchive** pOut, const nn::fs::ExtSaveDataArchivePath& extSaveDataArchivePath){
+    Path path = Path::Make(&extSaveDataArchivePath);
+    bit64 lowHandle;
+    NN_UTIL_RETURN_IF_FAILED_0(GetFileServer().OpenArchive(&lowHandle, 0x200000007LL, path.GetPathType(), path.GetDataBuffer(), path.GetDataSize()));
+    NN_UTIL_RETURN_IF_FAILED_1(FileServerArchive::Create(pOut, gFileServerHandle, lowHandle), GetFileServer().CloseArchive(lowHandle));
+    return ResultSuccess();
+}
+
+Result MountSharedExtSaveData(const char* archiveName, bit32 id){
+    nn::fs::ExtSaveDataArchivePath path = nn::fs::ExtSaveDataArchivePath::Make(nn::fs::MEDIA_TYPE_NAND, static_cast<nn::fs::ExtSaveDataId>(id));
+    IArchive* p;
+    NN_UTIL_RETURN_IF_FAILED(OpenSharedExtSaveData(&p, path));
+    NN_UTIL_RETURN_IF_FAILED_1(RegisterArchive(archiveName, p),p->DeleteObject());
     return ResultSuccess();
 }
 
