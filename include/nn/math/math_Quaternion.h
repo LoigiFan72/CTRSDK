@@ -1,11 +1,11 @@
 #pragma once
 
-#include "nn/types.h"
-#include <nn/math/math_Matrix34.h>
 #include <cmath>
 
 namespace nn{
 namespace math{
+
+class MTX34;
 
 struct QUAT_{
     f32 x;
@@ -29,6 +29,9 @@ public:
 };
 
 namespace ARMv6{
+    QUAT* MTX34ToQUATC_FAST(QUAT* pOut, const MTX34* pMtx);
+    QUAT* MTX34ToQUATC(QUAT* pOut, const MTX34* pMtx);
+    
     inline QUAT* QUATNormalizeC(QUAT* pOut, const QUAT* __restrict q){
         f32 mag;
 
@@ -37,7 +40,7 @@ namespace ARMv6{
 
         mag = (q->x * q->x) + (q->y * q->y) + (q->z * q->z) + (q->w * q->w);
 
-        if (mag >= NN_QUAT_EPSILON){
+        if (mag >= 0.00001F){
             mag = 1.0F / ::std::sqrtf(mag);
             
             pOut->x = q->x * mag;

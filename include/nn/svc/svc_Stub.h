@@ -14,7 +14,8 @@ namespace svc{
     Result CreateThread(nn::Handle*, void (*)(uint), uint, uint, int, int);
     Result ExitThread();
     Result SleepThread(long long);
-    Result GetThreadPriority();
+    Result GetThreadPriority(s32* pOut, nn::Handle thread);
+    Result SetThreadPriority(nn::Handle thread, s32 prio);
     Result CreateMutex(nn::Handle*,bool);
     Result CreateEvent(nn::Handle*,nn::os::ResetType);
     Result CreateAddressArbiter(nn::Handle*);

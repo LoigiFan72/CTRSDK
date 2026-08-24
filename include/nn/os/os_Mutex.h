@@ -29,6 +29,7 @@ public:
     }
     void Finalize() { this->WaitObject::Finalize(); }
     void Lock() { this->WaitObject::WaitOne(); }
+    bool TryLock(nn::fnd::TimeSpan timeout = 0) { return this->WaitOne(timeout); }
     void Unlock(){
         NN_OS_ERROR_IF_FAILED(nn::svc::ReleaseMutex(GetHandle()));
     }

@@ -25,5 +25,6 @@ namespace fs{
     int GetRomRequiredMemorySizeImpl(size_t pMaxFile, size_t pMaxDirectory, bool pUseCache, ProgramDataPath* pContentPath);
 
     void InitializeLatencyEmulation();
+    void ForceDisableLatencyEmulation();
 }
 }

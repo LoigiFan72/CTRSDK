@@ -35,11 +35,19 @@ public:
     /* Open / Close Generaal */
     static Result Initialize(nn::Handle handle);
     static void CloseFile(void* p);
+    static void CloseDirectory(void* p);
+
     static Result TryOpenFile(void** pout, const wchar_t* pathName,bit32 mode);
+    static Result TryOpenDirectory(void** pOut, const wchar_t* pathName);
+
     static Result TryReadFile(s32* pOut, void* p, s64 offset, void* buffer, size_t size);
+    static Result TryReadDirectory(s32* pOut, void* p, DirectoryEntry pEntries[], s32 numEntries);
+
     static Result TryWriteFile(s32* pOut, void* p, s64 offset, const void* buffer, size_t size, bool flush);
+
     static Result TryGetFileSize(s64* pout,void*);
     static Result TrySetFileSize(void* p, s64 size);
+
     static Result TryFlush(void*);
 
     /* Delete */

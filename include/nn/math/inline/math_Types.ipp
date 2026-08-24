@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nn/math/math_Vec3.h>
+#include <nn/math/math_Matrix34.h>
 
 namespace nn{
 namespace math{

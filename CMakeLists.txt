@@ -95,7 +95,7 @@ nn_library(nn_hidlow  ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/hidlow)
 nn_library(nn_init    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/init)
 nn_library(nn_ir      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ir)
 nn_library(nn_math    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/math)
-#nn_library(nn_mic     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/mic)
+nn_library(nn_mic     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/mic)
 nn_library(nn_ndm     ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/ndm)
 nn_library(nn_nstd    ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/nstd)
 nn_library(nn_os      ${CMAKE_CURRENT_SOURCE_DIR}/sources/libraries/os)
@@ -136,7 +136,7 @@ target_link_libraries(CTRSDK INTERFACE
     nn_init
     nn_ir
     nn_math
-#    nn_mic
+    nn_mic
     nn_ndm
     nn_nstd
     nn_os

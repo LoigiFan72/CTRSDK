@@ -161,17 +161,36 @@ os::CTR::ThreadLocalRegion* spTlr = NULL;
 
 namespace detail{
 
+
+constexpr s32 SVC_USER_THREAD_PRIORITY_HIGHEST    = 0x20; // 32
+constexpr s32 SVC_LIBRARY_THREAD_PRIORITY_HIGHEST = 0x18; // 24
+constexpr s32 LIBRARY_THREAD_PRIORITY_BASE    = 0x5109D500;
+constexpr s32 PRIVILEGED_THREAD_PRIORITY_BASE = 0x6C8DA500;
+
+s32 ConvertSvcToLibraryPriority(s32 svc){
+    if (svc >= SVC_USER_THREAD_PRIORITY_HIGHEST){
+        const s32 offset = svc - SVC_USER_THREAD_PRIORITY_HIGHEST;
+        return offset;
+    }
+    else if (svc >= SVC_LIBRARY_THREAD_PRIORITY_HIGHEST){
+        const s32 offset = svc - SVC_LIBRARY_THREAD_PRIORITY_HIGHEST;
+        return LIBRARY_THREAD_PRIORITY_BASE + offset;
+    }
+    else{
+        return PRIVILEGED_THREAD_PRIORITY_BASE + svc;
+    }
+}
+
 s32 ConvertLibraryToSvcPriority(s32 lib){
-  if (lib >= 0 && lib <= 32)
-    return lib + 32;
+  if (lib >= 0 && lib <= SVC_USER_THREAD_PRIORITY_HIGHEST)
+    return lib + SVC_USER_THREAD_PRIORITY_HIGHEST;
 
-  if (lib >= 0x5109D500 && lib <= 0x5109D527) {
-      const s32 offset = lib - 0x5109D500;
-    return 24 + offset;
-
+  if (lib >= LIBRARY_THREAD_PRIORITY_BASE && lib <= 0x5109D527) {
+      const s32 offset = lib - LIBRARY_THREAD_PRIORITY_BASE;
+    return SVC_LIBRARY_THREAD_PRIORITY_HIGHEST + offset;
   }
-  if (lib >= 0x6C8DA500 && lib <= 0x6C8DA540) {
-      const s32 offset = lib - 0x6C8DA500;
+  if (lib >= PRIVILEGED_THREAD_PRIORITY_BASE && lib <= 0x6C8DA540) {
+      const s32 offset = lib - PRIVILEGED_THREAD_PRIORITY_BASE;
     return offset;
   }
   return -1;

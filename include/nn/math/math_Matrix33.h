@@ -55,19 +55,76 @@ public:
         return identity;
     }
 };
+
+}
+}
+
+namespace nn{
+namespace math{
 namespace ARMv6{
 
-MTX33* MTX33CopyC(MTX33* pOut, const MTX33* p);
+inline MTX33* MTX33CopyC(MTX33* pOut, const MTX33* p){
+    if (pOut != p){
+        *pOut = *p;
+    }
+
+    return pOut;
+}
 MTX33* MTX33CopyAsm(MTX33* pOut, const MTX33* p);
 
 template<typename TMatrix>
-TMatrix* MTX33MultC(TMatrix* pOut, const TMatrix* p1, const TMatrix* p2);
+inline TMatrix* MTX33MultC(TMatrix* pOut, const TMatrix* __restrict p1, const TMatrix* __restrict p2){
+    NN_NULL_ASSERT_(p1);
+    NN_NULL_ASSERT_(p2);
+    NN_NULL_ASSERT_(pOut);
+
+    TMatrix mTmp;
+    TMatrix* __restrict pDst = (pOut == p1 || pOut == p2) ? &mTmp : pOut;
+
+    pDst->f._00 = p1->f._00 * p2->f._00 + p1->f._01 * p2->f._10 + p1->f._02 * p2->f._20;
+    pDst->f._01 = p1->f._00 * p2->f._01 + p1->f._01 * p2->f._11 + p1->f._02 * p2->f._21;
+    pDst->f._02 = p1->f._00 * p2->f._02 + p1->f._01 * p2->f._12 + p1->f._02 * p2->f._22;
+
+    pDst->f._10 = p1->f._10 * p2->f._00 + p1->f._11 * p2->f._10 + p1->f._12 * p2->f._20;
+    pDst->f._11 = p1->f._10 * p2->f._01 + p1->f._11 * p2->f._11 + p1->f._12 * p2->f._21;
+    pDst->f._12 = p1->f._10 * p2->f._02 + p1->f._11 * p2->f._12 + p1->f._12 * p2->f._22;
+
+    pDst->f._20 = p1->f._20 * p2->f._00 + p1->f._21 * p2->f._10 + p1->f._22 * p2->f._20;
+    pDst->f._21 = p1->f._20 * p2->f._01 + p1->f._21 * p2->f._11 + p1->f._22 * p2->f._21;
+    pDst->f._22 = p1->f._20 * p2->f._02 + p1->f._21 * p2->f._12 + p1->f._22 * p2->f._22;
+
+    if (pDst == &mTmp){
+        pOut->f._00 = pDst->f._00; pOut->f._01 = pDst->f._01; pOut->f._02 = pDst->f._02;
+        pOut->f._10 = pDst->f._10; pOut->f._11 = pDst->f._11; pOut->f._12 = pDst->f._12;
+        pOut->f._20 = pDst->f._20; pOut->f._21 = pDst->f._21; pOut->f._22 = pDst->f._22;
+    }
+
+    return pOut;
+}
 
 template<typename TMatrix>
 TMatrix* MTX33MultAsm(TMatrix* pOut, const TMatrix* p1, const TMatrix* p2);
 
 VEC3* VEC3TransformAsm(VEC3* pOut, const MTX33* pM, const VEC3* pV);
-VEC3* VEC3TransformC(VEC3* pOut, const MTX33* pM, const VEC3* pV);
+inline VEC3* VEC3TransformC(VEC3* pOut, const MTX33* pM, const VEC3* pV){
+    NN_NULL_ASSERT_(pOut);
+    NN_NULL_ASSERT_(pM);
+    NN_NULL_ASSERT_(pV);
+
+    VEC3 vTmp;
+    VEC3* pDst = (pOut == pV) ? &vTmp : pOut;
+    pDst->x = pM->f._00 * pV->x + pM->f._01 * pV->y + pM->f._02 * pV->z;
+    pDst->y = pM->f._10 * pV->x + pM->f._11 * pV->y + pM->f._12 * pV->z;
+    pDst->z = pM->f._20 * pV->x + pM->f._21 * pV->y + pM->f._22 * pV->z;
+
+    if (pDst == &vTmp){
+        pOut->x = pDst->x;
+        pOut->y = pDst->y;
+        pOut->z = pDst->z;
+    }
+
+    return pOut;
+}
 
 }
 
@@ -97,7 +154,7 @@ inline TMatrix* MTX33Mult(TMatrix* pOut, const TMatrix* p1, const TMatrix* p2){
 }
 
 template<typename TMatrix>
-inline TMatrix* MTX33Mult(TMatrix* pOut, const TMatrix& m1, const TMatrix& m2) { return MTX33Mult( pOut, &m1, &m2 ); }
+inline TMatrix* MTX33Mult(TMatrix* pOut, const TMatrix& m1, const TMatrix& m2) { return MTX33Mult(pOut, &m1, &m2); }
 
 }
 }

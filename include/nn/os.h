@@ -2,6 +2,7 @@
 
 #include <nn/os/os_Alarm.h>
 #include <nn/os/os_AutoStackManager.h>
+#include <nn/os/os_BlockingQueue.h>
 #include <nn/os/os_CriticalSection.h>
 #include <nn/os/os_Default.h>
 #include <nn/os/os_Event.h>

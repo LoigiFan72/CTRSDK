@@ -9,6 +9,11 @@
 
 namespace nn{
 namespace os{
+    
+inline CTR::ThreadLocalRegion* GetThreadLocalBuffer(){
+    return CTR::GetThreadLocalRegion();
+}
+
 namespace{
     static int TLS_NUM = 16;
 
@@ -45,6 +50,25 @@ void ThreadLocalStorage::ClearAllSlots(){
     CTR::ThreadLocalRegion& tlr = *CTR::GetThreadLocalRegion();
     for(int i = 0; i < TLS_NUM; ++i){
         tlr.tls[i] = 0;
+    }
+}
+
+uptr ThreadLocalStorage::GetValue() const{
+    NN_TASSERT_(mIndex >= 0 && m_Index < TLS_NUM);
+    NN_TASSERT_(IsMappedIndex(m_Index));
+    if (IsMappedIndex(this->mIndex)){
+        return GetThreadLocalBuffer()->tls[this->mIndex];
+    }
+    else{
+        return 0;
+    }
+}
+
+void ThreadLocalStorage::SetValue(uptr value){
+    NN_TASSERT_(mIndex >= 0 && mIndex < TLS_NUM);
+    NN_TASSERT_(IsMappedIndex(mIndex));
+    if (IsMappedIndex(mIndex)){
+        GetThreadLocalBuffer()->tls[mIndex] = value;
     }
 }
 

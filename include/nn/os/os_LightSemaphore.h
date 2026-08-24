@@ -8,7 +8,7 @@
 namespace nn { 
 namespace os {
 
-class LightSemaphore : private nn::util::ADLFireWall::NonCopyable<LightSemaphore>{
+class LightSemaphore : private util::ADLFireWall::NonCopyable<LightSemaphore>{
 public:
     static const s32 MAX_MAX_COUNT  = 0x7fff;
 
@@ -44,14 +44,14 @@ private:
             return true;
         }
     };
-private:
+
     WaitableCounter mCounter;
     fnd::InterlockedVariable<s16> mNumWaiting;
     s16 mMax;
 public:
     LightSemaphore() {}
-    LightSemaphore(s32 initialCount, s32 maxCount) { Initialize(initialCount, maxCount); }
-    LightSemaphore(s32 initialCount) { Initialize(initialCount); }
+    LightSemaphore(s32 initialCount, s32 maxCount) { this->Initialize(initialCount, maxCount); }
+    LightSemaphore(s32 initialCount) { this->Initialize(initialCount); }
     ~LightSemaphore(){ this->Finalize(); }
 
     void Initialize(s32 initialCount) { Initialize(initialCount, MAX_MAX_COUNT); }
@@ -74,7 +74,7 @@ public:
     }
 
     void Acquire(){
-        while(!TryAcquire()){
+        while(!this->TryAcquire()){
             ++this->mNumWaiting;
             this->mCounter.WaitIfLessThan(1);
             --mNumWaiting;

@@ -460,15 +460,27 @@ void UserFileSystem::CloseFile(void* p){
     }
 }
 
+void UserFileSystem::CloseDirectory(void *p){
+    if (p){
+        NN_FS_ANALYSIS_LOG_NORETURN(static_cast<IDirectory*>(p)->Close(),"API=CloseDirectory,Handle=%08X",p);
+    }
+}
+
 Result UserFileSystem::TryReadFile(s32* pOut, void* p, s64 offset, void* buffer, size_t size){
     if ((p == NULL) || (buffer == NULL)){
         return ResultInvalidArgument();
     }
 
     LatencyEmulation(true);
-    NN_FS_ANALYSIS_LOG_RETURN(static_cast<IFile*>(p)->TryRead(pOut, offset, buffer, size),"API=ReadFile,Handle=%08X,Offset=%lld,Dst=0x%08X,Size=%u",
-        p,offset,buffer,size
-    );
+    NN_FS_ANALYSIS_LOG_RETURN(static_cast<IFile*>(p)->TryRead(pOut, offset, buffer, size),"API=ReadFile,Handle=%08X,Offset=%lld,Dst=0x%08X,Size=%u",p,offset,buffer,size);
+}
+
+Result UserFileSystem::TryReadDirectory(s32 *pOut, void *p, nn::fs::DirectoryEntry pEntries[], s32 numEntries){
+    if ((pOut == NULL) || (p == NULL)){
+        return nn::fs::ResultInvalidArgument();
+    }
+    LatencyEmulation(true);
+    NN_FS_ANALYSIS_LOG_RETURN(static_cast<IDirectory*>(p)->TryRead(pOut, pEntries, numEntries),"API=ReadDirectory,Handle=%08X",p);
 }
 
 Result UserFileSystem::TryWriteFile(s32* pOut, void* p, s64 offset, const void* buffer, size_t size, bool flush){
@@ -538,6 +550,10 @@ void InitializeLatencyEmulation(){
     if((CTR::MPCore::detail::sIsLatencyEmulationEnable) || (CTR::MPCore::detail::sConstantWait != 0)){
         CTR::MPCore::detail::sIsEmulateEndurance = true;
     }
+}
+
+void ForceDisableLatencyEmulation(){
+    sIsLatencyEmulationEnable = false;
 }
 
 using namespace CTR::MPCore::detail;

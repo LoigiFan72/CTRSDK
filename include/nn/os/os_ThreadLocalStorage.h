@@ -12,6 +12,8 @@ namespace os{
         ~ThreadLocalStorage();
         void Finalize();
         static void ClearAllSlots();
+        uptr GetValue() const;
+        void SetValue(uptr value);
     };
 
 namespace{

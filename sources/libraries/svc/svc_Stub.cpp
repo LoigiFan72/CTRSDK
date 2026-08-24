@@ -66,7 +66,7 @@ namespace svc{
     }
 
     // GetThreadPriority - look for priority of a Thread #
-    __asm Result GetThreadPriority(){
+    __asm Result GetThreadPriority(s32* pOut, nn::Handle thread){
         push {r0}
         swi 0xb
         ldr r2, [sp]
@@ -83,6 +83,11 @@ namespace svc{
         str r1,[r2]
         add sp, sp, #4
         bx lr
+    }
+
+    __asm Result SetThreadPriority(nn::Handle thread, s32 prio){
+        swi      0xC
+        bx       lr
     }
 
     // CreateEvent - Create / Load New Memory event
