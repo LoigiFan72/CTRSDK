@@ -26,7 +26,7 @@ public:
     short mAllocatedVoiceCount;
     util::SizedEnum1<VoiceDropMode> mVoiceDropMode;
     s8 pad1;
-    os::CriticalSection mCriticalSection;
+    os::InterCoreCriticalSection mCriticalSection;
     u8 mVoiceBuffer[2592];
     u8 mVoiceImplBuffer[2976];
     Voice* mpVoice[24];

@@ -3,7 +3,11 @@
 // Project: Horizon
 
 #include <nn/snd/CTR/MPCore/snd_Voice.h>
+#include <nn/snd/CTR/Common/snd_Const.h>
 #include <cstring>
+
+#include "snd_VoiceImpl.h"
+#include "snd_VoiceManager.h"
 
 namespace nn {
 namespace snd {

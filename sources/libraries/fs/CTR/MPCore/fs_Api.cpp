@@ -57,21 +57,6 @@ void Initialize(){
         #endif
     }
 }
-//! @brief This isnt anywhere, but this initializes fs:LDR exheader service.
-//!
-//! @param in ()
-void InitializeLoader(){
-    if(!IsInitialized()){
-        Result res = srv::Initialize();
-        if(res != nn::srv::ResultAlreadyInitialized())
-            NN_ERR_THROW_FATAL_ALL(res);
-        NN_ERR_THROW_FATAL_ALL(srv::GetServiceHandle(&sFileServerSession, detail::PORT_NAME_LOADER));
-        sFileSystemBaseImpl.Initialize(sFileServerSession);
-        sFileSystemBase.Initialize(sFileSystemBaseImpl);
-        detail::RegisterGlobalFileSystemBase(sFileSystemBase);
-        NN_ERR_THROW_FATAL_ALL(SetPriority(0));
-    }
-}
 
 void RegisterSdmcEjectedEvent(os::LightEvent* p){
     sNotificationSdmcEjectedHandler.Initialize(p);

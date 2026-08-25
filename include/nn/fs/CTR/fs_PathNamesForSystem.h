@@ -6,6 +6,9 @@
 
 namespace nn{
 namespace fs{
+
+typedef bit32 ContentIdx;
+
 namespace CTR{
 
 struct ExeFsSectionNames{};

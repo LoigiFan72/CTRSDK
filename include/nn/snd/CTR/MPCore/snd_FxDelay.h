@@ -8,6 +8,9 @@ namespace CTR{
 
 class FxDelay{
 public:
+    FxDelay();
+    virtual ~FxDelay();
+    
     struct Param{
         u32 mDelayTime;
         f32 mFeedbackGain;  

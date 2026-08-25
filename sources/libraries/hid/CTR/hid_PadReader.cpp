@@ -15,14 +15,30 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-PadReader::PadReader(Pad& pad) : 
-    mPad(pad), 
+PadReader::PadReader(Pad& pad): 
+    mPad(pad),
+#if NN_VERSION_MAJOR > 2
     mIndexOfRead(-1), 
     mIsReadLatestFirst(true), 
-    mTickOfRead(-1){
+    mTickOfRead(-1)
+#else
+    mIndexOfRead(-1), 
+    mMinOfStickClampCircle(MIN_OF_STICK_CLAMP_MODE_CIRCLE),
+    mMinOfStickClampCross(MIN_OF_STICK_CLAMP_MODE_CROSS),
+    mMinOfStickClampMinimum(MIN_OF_STICK_CLAMP_MODE_CIRCLE),
+    mMaxOfStickClampCircle(LIMIT_OF_STICK_CLAMP_MAX),
+    mMaxOfStickClampCross(LIMIT_OF_STICK_CLAMP_MAX),
+    mMaxOfStickClampMinimum(LIMIT_OF_STICK_CLAMP_MAX),
+    mStickClampMode(AnalogStickClamper::STICK_CLAMP_MODE_CIRCLE),
+    mIsReadLatestFirst(true),
+    mTickOfRead(-1)
+#endif
+{
+
 }
 
-bool PadReader::ReadLatest(PadStatus* pBuf){
+bool PadReader::ReadLatest(PadStatus* pBuf)
+{
 #if NN_VERSION_MAJOR > 2
     s64 tick = -1LL;
     s32 index = -1;
@@ -64,32 +80,10 @@ bool PadReader::ReadLatest(PadStatus* pBuf){
     if(ExtraPad::IsSampling())
         return false;
     
-    if (mMinOfStickClampCircle < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
-        mMinOfStickClampCircle = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
-        
-    if (mMinOfStickClampCross < MIN_OF_STICK_CLAMP_MODE_CROSS)
-        mMinOfStickClampCross = MIN_OF_STICK_CLAMP_MODE_CROSS;
-        
-    if (mMaxOfStickClampCircle > LIMIT_OF_STICK_CLAMP_MAX)
-        mMaxOfStickClampCircle = LIMIT_OF_STICK_CLAMP_MAX;
-        
-    if (mMaxOfStickClampCross > LIMIT_OF_STICK_CLAMP_MAX)
-        mMaxOfStickClampCross = LIMIT_OF_STICK_CLAMP_MAX;
-        
-    if (mMaxOfStickClampMinimum > LIMIT_OF_STICK_CLAMP_MAX)
-        mMaxOfStickClampMinimum = LIMIT_OF_STICK_CLAMP_MAX;
+    this->ClampValueOfClamp();
     reinterpret_cast<nn::hidlow::CTR::PadLifoRing*>(mPad.GetResource())->ReadData(pBuf, 1, &readLen, &tick, &index);
     if(0 < readLen){
-    switch (this->mStickClampMode) {
-        case STICK_CLAMP_MODE_CIRCLE:
-            hidlow::ClampStickCircle(&pBuf->stick.x, &pBuf->stick.y, pBuf->stick.x, pBuf->stick.y, this->mMinOfStickClampCircle, this->mMaxOfStickClampCircle);
-            break;
-        case STICK_CLAMP_MODE_CROSS:
-            hidlow::ClampStickCross(&pBuf->stick.x, &pBuf->stick.y, pBuf->stick.x, pBuf->stick.y, this->mMinOfStickClampCross, this->mMaxOfStickClampCross);
-        case STICK_CLAMP_MODE_MINIMUM:
-            hidlow::ClampStickMinimum(&pBuf->stick.x, &pBuf->stick.y, pBuf->stick.x, pBuf->stick.y, this->mMinOfStickClampMinimum, this->mMaxOfStickClampMinimum);
-            break;
-        }
+        this->ClampCore(&pBuf->stick.x, &pBuf->stick.y, pBuf->stick.x, pBuf->stick.y);
         if(this->mIsReadLatestFirst != false){
             this->mLatestHold = pBuf->hold;
             this->mIsReadLatestFirst = false;
@@ -140,20 +134,9 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
     }
 #else
     NN_TASSERT_(NULL != pBufs);
-    if (mMinOfStickClampCircle < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
-        mMinOfStickClampCircle = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
-        
-    if (mMinOfStickClampCross < MIN_OF_STICK_CLAMP_MODE_CROSS)
-        mMinOfStickClampCross = MIN_OF_STICK_CLAMP_MODE_CROSS;
-        
-    if (mMaxOfStickClampCircle > LIMIT_OF_STICK_CLAMP_MAX)
-        mMaxOfStickClampCircle = LIMIT_OF_STICK_CLAMP_MAX;
-        
-    if (mMaxOfStickClampCross > LIMIT_OF_STICK_CLAMP_MAX)
-        mMaxOfStickClampCross = LIMIT_OF_STICK_CLAMP_MAX;
-        
-    if (mMaxOfStickClampMinimum > LIMIT_OF_STICK_CLAMP_MAX)
-        mMaxOfStickClampMinimum = LIMIT_OF_STICK_CLAMP_MAX;
+
+    this->ClampValueOfClamp();
+
     reinterpret_cast<nn::hidlow::CTR::PadLifoRing*>(this->mPad.GetResource())->ReadData(pBufs, bufLen, pReadLen, &this->mTickOfRead, &this->mIndexOfRead);
 
     if(ExtraPad::IsSampling()){
@@ -172,19 +155,9 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
         }
         
         if(!sIsEnableSelect){
-               hidlow::GatherStartAndSelect(&pBufs[i]);
+            hidlow::GatherStartAndSelect(&pBufs[i]);
         }
-        switch (this->mStickClampMode) {
-        case STICK_CLAMP_MODE_CIRCLE:
-            hidlow::ClampStickCircle(&pBufs[i].stick.x, &pBufs[i].stick.x, pBufs[i].stick.x, pBufs[i].stick.y, this->mMinOfStickClampCircle, this->mMaxOfStickClampCircle);
-            break;
-        case STICK_CLAMP_MODE_CROSS:
-            hidlow::ClampStickCross(&pBufs[i].stick.x, &pBufs[i].stick.x, pBufs[i].stick.x, pBufs[i].stick.y, this->mMinOfStickClampCross, this->mMaxOfStickClampCross);
-            break;
-        case STICK_CLAMP_MODE_MINIMUM:
-            hidlow::ClampStickMinimum(&pBufs[i].stick.x, &pBufs[i].stick.x, pBufs[i].stick.x, pBufs[i].stick.y, this->mMinOfStickClampMinimum, this->mMaxOfStickClampMinimum);
-            break;
-        }
+        this->ClampCore(&pBufs[i].stick.x, &pBufs[i].stick.x, pBufs[i].stick.x, pBufs[i].stick.y);
     }
 #endif
 }

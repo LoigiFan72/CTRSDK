@@ -8,6 +8,8 @@
 #include <nn/applet/CTR/applet_Api.h>
 #include <nn/applet/CTR/applet_Info.h>
 
+#if NN_VERSION_MAJOR > 2
+
 namespace nn{
 namespace hid{
 namespace CTR{
@@ -141,3 +143,5 @@ void ExtraPadReader::GetNormalizeStickScaleSettings(f32* scale, s16* threshold) 
 }
 }
 }
+
+#endif

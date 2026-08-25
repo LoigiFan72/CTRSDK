@@ -156,7 +156,7 @@ Result SetBuffer(void* p, size_t size){
         return ResultMisalignedAddress();
     }
 
-    sSharedMemory.Initialize(p, size, os::MEMORY_PERMISSION_READ_WRITE);
+    //sSharedMemory.Initialize(p, size, os::MEMORY_PERMISSION_READ_WRITE);
     result = detail::Mic::AllocateBuffer(sSharedMemory.GetHandle(), size);
 
     user_size = size -sizeof(Header);

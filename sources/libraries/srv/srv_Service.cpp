@@ -88,6 +88,20 @@ Result Service::Subscribe( bit32 message ){
     return ipcMsg.GetRaw<Result>(1);
 }
 
+Result Service::Subscribe(bit32 message){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(0xA, 1, 0, 0);
+    ipcMsg.SetRaw(1, message);
+
+
+    Result ipcResult = SendSyncRequest(sSession);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    return ipcMsg.GetRaw<Result>(1);
+}
+
 }
 }
 }

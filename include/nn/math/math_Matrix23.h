@@ -208,19 +208,6 @@ inline MTX23* MTX23Scale(MTX23* pOut, const MTX23* __restrict pM, const VEC2* __
     return pOut;
 }
 
-inline MTX23* MTX23Translate(MTX23* pOut, const MTX23* pM, const VEC2* pT){
-    if (pOut != pM){
-        (void)MTX23Copy(pOut, pM);
-    }
-
-    VEC2 tmp;
-    VEC2Transform(&tmp, pM, pT);
-
-    pOut->f._02 = tmp.x;
-    pOut->f._12 = tmp.y;
-    return pOut;
-}
-
 inline MTX23* MTX23RotFIdx(MTX23* pOut, f32 fIdx){
     NN_NULL_ASSERT_(pOut);
     

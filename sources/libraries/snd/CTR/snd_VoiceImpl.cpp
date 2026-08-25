@@ -13,6 +13,9 @@
 #include <nn/snd/CTR/MPCore/snd_OperateMaster.h>
 #include <nn/os/ARM/os_MemoryBarrier.h>
 
+#include "snd_VoiceImpl.h"
+#include "snd_VoiceManager.h"
+
 namespace nn{
 namespace snd{
 namespace CTR{

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nn/fs/fs_IpcFileSystem.h>
+#include <nn/os/os_LightEvent.h>
 
 namespace nn{
 namespace fs{
@@ -11,7 +12,6 @@ namespace detail{
 }
 
 void Initialize();
-void InitializeLoader(); // Isn't anywhere, custom bit
 bool IsInitialized();
 void RegisterSdmcEjectedEvent(os::LightEvent* p);
 void UnregisterSdmcEjectedEvent();

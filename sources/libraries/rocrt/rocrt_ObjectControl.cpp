@@ -6,6 +6,7 @@
 
 #include <nn/ro.h>
 #include <nn/module.h>
+#include <nn/version.h>
 #include <nn/ro/ro_Info.h>
 
 extern "C"{

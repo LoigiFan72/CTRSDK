@@ -2,7 +2,9 @@
 
 #include <nn/os/os_LightEvent.h>
 #include <nn/os/os_CriticalSection.h>
+#include <nn/srv/srv_Service.h>
 #include <nn/fnd/fnd_Intrusive.h>
+#include <nn/srv/srv_Service.h>
 
 namespace nn {
 namespace os{
@@ -54,7 +56,8 @@ Result RegisterNotificationHandler(NotificationHandler* pHandler, bit32 message)
 NotificationHandler* UnregisterNotificationHandler(bit32 message);
 Result GetServiceHandle(Handle* pOut, const char* pName, s32 nameLen, bit32 flags);
 
-inline Result Subscribe(bit32 message){ return detail::Service::Subscribe(message); }
+inline Result Subscribe(bit32 message){ return nn::srv::detail::Service::Subscribe(message); }
+inline Result Unsubscribe(bit32 message){ return nn::srv::detail::Service::Unsubscribe(message); }
 inline Result GetServiceHandle(Handle* pOut, const char* pName){ return GetServiceHandle(pOut, pName, strlen(pName), 0); }
 
 namespace detail {

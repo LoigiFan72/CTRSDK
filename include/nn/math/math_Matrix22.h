@@ -90,7 +90,7 @@ inline MTX22* MTX22Zero(MTX22* pOut){
     return pOut;
 }
 
-NN_MATH_INLINE MTX22* MTX22Identity(MTX22* pOut){
+inline MTX22* MTX22Identity(MTX22* pOut){
     NN_NULL_ASSERT_(pOut);
     
     MTX22Copy(pOut, MTX22::Identity());

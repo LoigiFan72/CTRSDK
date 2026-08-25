@@ -16,6 +16,7 @@ public:
     static Result ReceiveNotification(bit32 *pOut);
     static Result RegisterClient();
     static Result Subscribe(bit32 message);
+    static Result Unsubscribe(bit32 message);
 };
 
 }

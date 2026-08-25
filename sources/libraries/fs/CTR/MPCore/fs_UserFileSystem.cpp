@@ -553,7 +553,7 @@ void InitializeLatencyEmulation(){
 }
 
 void ForceDisableLatencyEmulation(){
-    sIsLatencyEmulationEnable = false;
+    CTR::MPCore::detail::sIsLatencyEmulationEnable = false;
 }
 
 using namespace CTR::MPCore::detail;

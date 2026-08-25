@@ -10,6 +10,9 @@ namespace CTR{
 
 class FxReverb{
 public:
+    FxReverb();
+    virtual ~FxReverb();
+    
     struct FilterSize{
         u32  mComb0;
         u32  mComb1;
@@ -44,8 +47,6 @@ public:
         {}
     };
 
-    FxReverb();
-    virtual ~FxReverb();
     bool SetParam(const Param& param);
     const Param& GetParam() const{ return mParam; }
     size_t GetRequiredMemSize();

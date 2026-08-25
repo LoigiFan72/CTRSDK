@@ -32,12 +32,12 @@ Result HidDevices::Initialize(const char* portName){
 
     res = srv::Initialize();
     if(res.GetDescription() != Result::DESCRIPTION_ALREADY_INITIALIZED)
-            NN_PANIC_IF_FAILED(res);
+        NN_UTIL_PANIC_IF_FAILED(res);
     res = srv::GetServiceHandle(&detail::Ipc::sSession, portName);
-    NN_PANIC_IF_FAILED(res);
+    NN_UTIL_PANIC_IF_FAILED(res);
 
     res = detail::Ipc::GetIPCHandles(&hSharedMemory, &padEventHandle, &touchEventHandle, &accelerometerEventHandle, &gyroscopeEventHandle, &debugPadEventHandle);
-    NN_PANIC_IF_FAILED(res);
+    NN_UTIL_PANIC_IF_FAILED(res);
         
     this->mSharedMemoryBlock.AttachAndMap(hSharedMemory,0x2b0,true);
     uptr instanceAddress = this->mSharedMemoryBlock.GetAddress();

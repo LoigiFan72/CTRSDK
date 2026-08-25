@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nn/snd/CTR/MPCore/snd_Voice.h>
+#include <nn/os/os_InterCoreCriticalSection.h>
 
 namespace nn{
 namespace snd{

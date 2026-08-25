@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nn/snd/CTR/Common/snd_Bcwav.h>
+#include <nn/util/util_SizedEnum.h>
 #include <string.h>
 
 namespace nn {
@@ -90,8 +91,8 @@ struct WaveBuffer{
     s32 sampleLength;
     const AdpcmContext* pAdpcmContext;
     uptr userParam;
+    bool loopFlag;
     util::SizedEnum1<Status> status;
-    s8 status;
     u16 bufferId;
     WaveBuffer* next;
 };
@@ -144,12 +145,6 @@ enum SyncMode{
     SYNC_MODE_STRICT = 0,
     SYNC_MODE_LOOSE  = 1,
     SYNC_MODE_NUM    = 2
-};
-
-struct ThreadParameter{
-    uptr   stackBuffer;
-    uptr   stackSize;
-    size_t priority;
 };
 
 } // namespace CTR

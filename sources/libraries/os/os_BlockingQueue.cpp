@@ -87,7 +87,7 @@ bool BlockingQueueBase<Locker>::TryEnqueue(uptr data)
     if (mSize > mUsedCount){
         s32 lastIndex = (mFirstIndex + mUsedCount) % mSize;
         mppBuffer[lastIndex] = data;
-        musedCount++;
+        mUsedCount++;
 
         NotifyEnqueue();
         return true;
@@ -172,7 +172,7 @@ bool BlockingQueueBase<Locker>::TryDequeue(uptr* pOut)
 {
     ScopedLock locker(mCs);
 
-    if (0 < m_usedCount){
+    if (0 < mUsedCount){
         *pOut = mppBuffer[mFirstIndex];
         mFirstIndex = (mFirstIndex + 1) % mSize;
         mUsedCount--;

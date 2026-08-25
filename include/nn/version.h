@@ -6,7 +6,7 @@
 #define NN_VERSION_NONE        -1
 #define NN_VERSION_CUSTOM      0
 #define NN_VERSION_MILLI4C     1
-#define NN_VERSION_REDPEPPER_1 2
+#define NN_VERSION_REDPEPPER   2
 #define NN_VERSION_CTRDASH     3
 #define NN_VERSION_GARDEN      4
 #define NN_VERSION_STICKSTR    5

@@ -27,16 +27,31 @@ public:
     bool ReadLatest(PadStatus* pBuf);
 
     void SetStickClamp(short min, short max);
-    void GetStickClamp(s16* pMin, s16* pMax) const{
+
+    void GetStickClamp(s16* pMin, s16* pMax) const
+#ifdef NN_VERSION > 2
+    {
         this->mStickClamper.GetStickClamp(pMin,pMax);
     }
-    void SetStickClampMode(StickClampMode mode){
+#else
+    ;
+#endif
+    void SetStickClampMode(StickClampMode mode)
+#if NN_MAJOR_VERSION > 2
+    {
         this->mStickClamper.SetStickClampMode(ClamperClampMode(mode));
     }
+#else
+    ;
+#endif
     
     f32 NormalizeStick(short x);
     void NormalizeStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y);
     void SetNormalizeStickScaleSettings(f32 scale, s16 threshold);
+#if NN_VERSION_MAJOR <= 2
+    void ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y);
+    void ClampValueOfClamp();
+#endif
 
     static const s8 MAX_READ_NUM = 7;
     
@@ -82,6 +97,41 @@ public:
 namespace{
     bool sIsEnableSelect;
 }
+
+#if NN_VERSION_MAJOR <= 2
+
+inline void PadReader::ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y){
+    switch (this->mStickClampMode) {
+    case STICK_CLAMP_MODE_CIRCLE:
+        hidlow::ClampStickCircle(pOutX, pOutY, x, y, this->mMinOfStickClampCircle, this->mMaxOfStickClampCircle);
+        break;
+    case STICK_CLAMP_MODE_CROSS:
+        hidlow::ClampStickCross(pOutX, pOutY, x, y, this->mMinOfStickClampCross, this->mMaxOfStickClampCross);
+        break;
+    case STICK_CLAMP_MODE_MINIMUM:
+        hidlow::ClampStickMinimum(pOutX, pOutY, x, y, this->mMinOfStickClampMinimum, this->mMaxOfStickClampMinimum);
+        break;
+    }
+}
+
+inline void PadReader::ClampValueOfClamp(){
+  if (mMinOfStickClampCircle < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
+    mMinOfStickClampCircle = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
+    
+  if (mMinOfStickClampCross < MIN_OF_STICK_CLAMP_MODE_CROSS)
+    mMinOfStickClampCross = MIN_OF_STICK_CLAMP_MODE_CROSS;
+    
+  if (mMaxOfStickClampCircle > LIMIT_OF_STICK_CLAMP_MAX)
+    mMaxOfStickClampCircle = LIMIT_OF_STICK_CLAMP_MAX;
+    
+  if (mMaxOfStickClampCross > LIMIT_OF_STICK_CLAMP_MAX)
+    mMaxOfStickClampCross = LIMIT_OF_STICK_CLAMP_MAX;
+    
+  if (mMaxOfStickClampMinimum > LIMIT_OF_STICK_CLAMP_MAX)
+    mMaxOfStickClampMinimum = LIMIT_OF_STICK_CLAMP_MAX;
+}
+
+#endif
 
 }
 }

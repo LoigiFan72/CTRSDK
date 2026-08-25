@@ -40,8 +40,11 @@ void FinalizeFatalErrSession(){
     }
 }
 
+}
+
 #if NN_VERSION_MAJOR > 2
 
+namespace{
     NN_NOINLINE void Throw(FatalErrInfo& info){
         for(;;){
             os::CriticalSection::ScopedLock lock(sLock);

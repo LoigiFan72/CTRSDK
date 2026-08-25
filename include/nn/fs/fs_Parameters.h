@@ -2,6 +2,7 @@
 
 #include <nn/types.h>
 #include <nn/util/util_Int64.h>
+#include <nn/util/util_SizedEnum.h>
 
 namespace nn{
 namespace fs{
@@ -20,6 +21,18 @@ namespace detail { struct ArchiveHandleTag {}; }
         bool mIsHidden;
         bool mIsArchive;
         bool mIsReadOnly;
+    };
+
+    enum StorageAttribute{
+        NORMAL = 0,
+        FIXED,
+        NEW,
+    };
+
+    enum MediaType{
+        MEDIA_TYPE_NAND = 0,
+        MEDIA_TYPE_SDMC,
+        MEDIA_TYPE_CTRCARD
     };
 
     struct ShortName{
@@ -72,7 +85,7 @@ namespace detail { struct ArchiveHandleTag {}; }
         bit8 reserved[2];
         nn::util::Int64<ExtSaveDataId> extSaveDataId;
         static ExtSaveDataSpecifier Make(MediaType mediaType, ExtSaveDataId extSaveDataId){
-            return Make(mediaType, StorageAttribute::NORMAL, extSaveDataId);
+            return Make(mediaType, NORMAL, extSaveDataId);
         }
         
         static ExtSaveDataSpecifier Make(MediaType mediaType, StorageAttribute storageAttribute, ExtSaveDataId extSaveDataId){
@@ -116,13 +129,6 @@ namespace detail { struct ArchiveHandleTag {}; }
         bit32 mDummy;
     };
 
-
-    enum MediaType{
-        MEDIA_TYPE_NAND = 0,
-        MEDIA_TYPE_SDMC,
-        MEDIA_TYPE_CTRCARD
-    };
-
     enum PositionBase{
         BASE_BEGIN = 0,
         BASE_CURRENT,
@@ -134,12 +140,6 @@ namespace detail { struct ArchiveHandleTag {}; }
         TWL_NAND,
         SDMC,
         TWL_PHOTO,
-    };
-
-    enum StorageAttribute{
-        NORMAL = 0,
-        FIXED,
-        NEW,
     };
     
 }

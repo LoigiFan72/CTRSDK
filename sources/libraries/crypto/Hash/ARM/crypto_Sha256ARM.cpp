@@ -45,7 +45,7 @@ How Nintendo Felt writing ProcessBlock:
 //
 //! @brief Processes a SHA-256 Block.
 asm void Sha256Context::ProcessBlock(){
-    push{r0,r4,r5,r6,r7,r8,r9,r10,r11,lr}
+    push {r0,r4-r11,lr}
     sub sp,sp,#0x100
     add r4,r0,#0x4
     mov r2,#0x10
@@ -124,7 +124,7 @@ loop
     add r5,r5,lr
     stmia r1!,{r2,r3,r4,r5}
     add sp,sp,#0x104
-    pop{r4,r5,r6,r7,r8,r9,r10,r11,pc}
+    pop {r4-r11,pc}
 }
 
 void Sha256Context::Initialize(){

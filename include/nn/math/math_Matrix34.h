@@ -102,7 +102,7 @@ inline bool MTX34IsIdentity(const MTX34* p) {
 inline MTX34* MTX34Identity(MTX34* pOut) {
     NN_NULL_ASSERT_(pOut);
 
-    MTX34Copy(pOut, MTX34::Identity());
+    MTX34Copy(pOut, &MTX34::Identity());
 
     return pOut;
 }
