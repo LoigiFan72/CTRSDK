@@ -31,7 +31,7 @@ public:
     Accelerometer accelerometer;
     Gyroscope gyroscope;
     DebugPad debugPad;
-    nn::os::SharedMemoryBlock mSharedMemoryBlock;
+    os::SharedMemoryBlock m_SharedMemoryBlock;
     
     void Finalize();
     Result Initialize(const char* portName);
@@ -39,7 +39,6 @@ public:
 };
 
 Result Initialize();
-Result InitializeSpecialPrivilage(); // Not anywhere so custom name
 void Finalize();
 
 Pad& GetPad();
@@ -47,8 +46,6 @@ DebugPad& GetDebugPad();
 TouchPanel& GetTouchPanel();
 Accelerometer& GetAccelerometer();
 Gyroscope& GetGyroscope();
-
-extern HidDevices sDevices;
 
 }
 }

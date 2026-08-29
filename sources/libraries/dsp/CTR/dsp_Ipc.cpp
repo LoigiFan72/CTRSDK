@@ -16,7 +16,7 @@ Result DSP::RecvData(u16 regNo, u16* pValue){
     ipcMsg.SetRaw(1, regNo);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -31,7 +31,7 @@ Result DSP::RecvDataIsReady(u16 regNo, bool* pReady){
     ipcMsg.SetRaw(1, regNo);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -47,7 +47,7 @@ Result DSP::SetSemaphore(u16 mask){
     ipcMsg.SetRaw(1, mask);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -61,7 +61,7 @@ Result DSP::ConvertProcessAddressFromDspDram(uptr _address, uptr* address){
     ipcMsg.SetRaw(1, _address);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -80,7 +80,7 @@ Result DSP::WriteProcessPipe(s32 port, const u8 pBuffer[], size_t length){
     ipcMsg.SetPointer(4, pBuffer);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -104,7 +104,7 @@ Result DSP::ReadPipeIfPossible(s32 port, s32 peer, u8 pBuffer[], u16 length, u16
     ipcRcv.SetPointerHeaderForReceive(0, sizeof(*pBuffer) * length);
     ipcRcv.SetPointer(1, pBuffer);
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
 
     std::memcpy(ipcRcvBuf, rcvBufRefuge, sizeof(rcvBufRefuge));
 
@@ -126,7 +126,7 @@ Result DSP::LoadComponent(const u8 pComponent[], size_t size, bit16 maskPram, bi
     ipcMsg.SetSend(4, pComponent, sizeof(*pComponent) * size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -141,7 +141,7 @@ Result DSP::UnloadComponent(){
     ipcMsg.SetHeader(0x12, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -158,7 +158,7 @@ Result DSP::FlushDataCache(nn::Handle clientProcess, uptr addr, size_t size){
     ipcMsg.SetHandle(4, clientProcess);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -175,7 +175,7 @@ nn::Result DSP::RegisterInterruptEvents(nn::Handle handle, s32 type, s32 port){
     ipcMsg.SetHandle(4, handle);
 
 
-    nn::Result ipcResult = SendSyncRequest(this->mSession);
+    nn::Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -188,7 +188,7 @@ Result DSP::GetSemaphoreEventHandle(nn::Handle* handle){
     ipcMsg.SetHeader(0x16, 0, 0, 0);
 
 
-    nn::Result ipcResult = SendSyncRequest(this->mSession);
+    nn::Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -204,7 +204,7 @@ Result DSP::SetSemaphoreMask(bit16 mask){
     ipcMsg.SetRaw(1, mask);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

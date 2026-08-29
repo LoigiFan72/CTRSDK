@@ -11,7 +11,7 @@ namespace detail{
 
 class Interface{
 public:
-    static nn::Handle sSession;
+    static nn::Handle s_Session;
 
     static Result OverrideDefaultDaemons(bit32 mask);
     static Result SuspendDaemons(bit32 mask);

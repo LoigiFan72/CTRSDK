@@ -33,7 +33,7 @@ public:
     static Result SleepSystem(bit64 awakeReason);
     static Result StartSystemApplet(AppletId id,u8 *pParam,size_t paramSize,Handle handle);
 
-    static nn::Handle sSession;
+    static nn::Handle s_Session;
 };
 
 }

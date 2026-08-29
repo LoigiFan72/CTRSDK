@@ -52,10 +52,10 @@ Result GetParentDirectoryName(RomEntryName* pOut, const RomEntryName& base, cons
 
 class PathParser{
 protected:
-    const RomPathChar* mpPrevStartPath;
-    const RomPathChar* mpPrevEndPath;
-    const RomPathChar* mpNextPath;
-    bool mbParseFinished;
+    const RomPathChar* m_pPrevStartPath;
+    const RomPathChar* m_pPrevEndPath;
+    const RomPathChar* m_pNextPath;
+    bool m_bParseFinished;
     short rev;
 
 public:

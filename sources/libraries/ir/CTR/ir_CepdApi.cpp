@@ -41,9 +41,9 @@ const nn::fnd::TimeSpan TIMEOUT_TO_GET_FIRM_VERSION =  nn::fnd::TimeSpan::FromMi
 const bit32 PLUSBUTTON_EMULATION_SCALE_SHIFT = 8;
 const s32 PLUSBUTTON_EMULATION_SCALE  = 1 << PLUSBUTTON_EMULATION_SCALE_SHIFT;
 
-const s16 sRadius = nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CIRCLE;
-const s16 sDegree = 60;
-const s32 sTangent = static_cast<s32>(nn::math::TanDeg(sDegree) * PLUSBUTTON_EMULATION_SCALE);
+const s16 s_Radius = nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CIRCLE;
+const s16 s_Degree = 60;
+const s32 s_Tangent = static_cast<s32>(nn::math::TanDeg(s_Degree) * PLUSBUTTON_EMULATION_SCALE);
 
 CepdStatus CepdGetStatus(){
     return cepdStatus;

@@ -31,10 +31,10 @@ public:
     void SetBaseCamera(const MTX34 *view);
     f32 GetCoefficientForParallax() const;
     f32 GetMaxParallax() const;
-    f32 GetLimitParallax() const { return mLimitParallax; }
-    f32 GetDistanceToLevel() const { return mDepthLevel; }
-    f32 GetDistanceToNearClip() const { return mDistanceToNearClip; }
-    f32 GetDistanceToFarClip() const { return mDistanceToFarClip; }
+    f32 GetLimitParallax() const { return m_LimitParallax; }
+    f32 GetDistanceToLevel() const { return m_DepthLevel; }
+    f32 GetDistanceToNearClip() const { return m_DistanceToNearClip; }
+    f32 GetDistanceToFarClip() const { return m_DistanceToFarClip; }
 private:
     struct CameraInfo{
         f32 left;
@@ -50,13 +50,13 @@ private:
         VEC3 posTarget;
     };
 
-    CameraInfo mBaseCamera;
-    f32 mLimitParallax;
-    f32 mLevelWidth;
-    f32 mDepthLevel;
-    f32 mDistanceToNearClip;
-    f32 mDistanceToFarClip;
-    f32 mCameraInterval;
+    CameraInfo m_BaseCamera;
+    f32 m_LimitParallax;
+    f32 m_LevelWidth;
+    f32 m_DepthLevel;
+    f32 m_DistanceToNearClip;
+    f32 m_DistanceToFarClip;
+    f32 m_CameraInterval;
 };
 
 }

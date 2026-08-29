@@ -11,7 +11,7 @@ namespace detail{
 
 class StackMemoryBlock : public nn::os::MemoryBlockBase{
 public:
-    uptr mMemoryAddress;
+    uptr m_MemoryAddress;
 
     uptr GetStackBottom() const { return GetAddress() + GetSize(); }
 };

@@ -17,14 +17,14 @@ extern "C" bit8 Load$$LR$$TEXT_SECTION$$Length[];
 namespace nn{
 namespace os{
 namespace {
-    uptr sDeviceMemoryAddress = 0;
-    size_t sDeviceMemorySize = 0;
-    size_t sHeapSize = 0;
+    uptr s_DeviceMemoryAddress = 0;
+    size_t s_DeviceMemorySize = 0;
+    size_t s_HeapSize = 0;
 }
 
 uptr GetDeviceMemoryAddress(){
-    NN_TASSERTMSG_(sDeviceMemoryAddress != NULL, "Device Memory is NOT Initialized.");
-    return sDeviceMemoryAddress;
+    NN_TASSERTMSG_(s_DeviceMemoryAddress != NULL, "Device Memory is NOT Initialized.");
+    return s_DeviceMemoryAddress;
 }
 
 Result SetDeviceMemorySize(size_t size){
@@ -33,41 +33,41 @@ Result SetDeviceMemorySize(size_t size){
     }
     Result res;
 
-    if(size > sDeviceMemorySize){
-        if (sDeviceMemorySize != 0){
-            if (!(sDeviceMemorySize % (1024 * 1024) == 0 && size % (1024 * 1024) == 0)){
+    if(size > s_DeviceMemorySize){
+        if (s_DeviceMemorySize != 0){
+            if (!(s_DeviceMemorySize % (1024 * 1024) == 0 && size % (1024 * 1024) == 0)){
                     return ResultMisalignedSize();
             }
         }
         uptr addr;
-        const size_t mapSize = size - sDeviceMemorySize;
-        const uptr requestAddress = (sDeviceMemorySize == 0) ? NULL: (sDeviceMemoryAddress + sDeviceMemorySize);
+        const size_t mapSize = size - s_DeviceMemorySize;
+        const uptr requestAddress = (s_DeviceMemorySize == 0) ? NULL: (s_DeviceMemoryAddress + s_DeviceMemorySize);
 
         res = nn::svc::ControlMemory(&addr,requestAddress,NULL,mapSize, (nn::os::MEMORY_OPERATION_COMMIT | nn::os::MEMORY_OPERATION_FLAG_LINEAR),nn::os::MEMORY_PERMISSION_READ_WRITE);
 
         if(res.IsSuccess() ){
             NN_TASSERT_(sDeviceMemorySize == 0 || addr == requestAddress);
 
-            if(sDeviceMemorySize == 0 ){
-                sDeviceMemoryAddress   = addr;
+            if(s_DeviceMemorySize == 0 ){
+                s_DeviceMemoryAddress   = addr;
             }
 
-            sDeviceMemorySize  = size;
+            s_DeviceMemorySize  = size;
         }
     }
     else{
         uptr addr;
-        const size_t unmapSize = sDeviceMemorySize - size;
-        const uptr freeAddress = sDeviceMemoryAddress + size;
+        const size_t unmapSize = s_DeviceMemorySize - size;
+        const uptr freeAddress = s_DeviceMemoryAddress + size;
 
-        res = nn::svc::ControlMemory(&addr,freeAddress,NULL,unmapSize,nn::os::MEMORY_OPERATION_FREE,nn::os::MEMORY_PERMISSION_NONE);
+        res = nn::svc::ControlMemory(&addr,freeAddress,NULL,unmapSize,MEMORY_OPERATION_FREE,MEMORY_PERMISSION_NONE);
 
         if(res.IsSuccess()){
             if(size == 0){
-                sDeviceMemoryAddress   = NULL;
+                s_DeviceMemoryAddress   = NULL;
             }
 
-            sDeviceMemorySize  = size;
+            s_DeviceMemorySize  = size;
         }
     }
 
@@ -75,7 +75,7 @@ Result SetDeviceMemorySize(size_t size){
 }
 
 size_t GetDeviceMemorySize(){
-    return sDeviceMemorySize;
+    return s_DeviceMemorySize;
 }
 
 Result SetHeapSize(size_t size){
@@ -86,27 +86,27 @@ Result SetHeapSize(size_t size){
     }
     Result res;
 
-    if(size > sHeapSize){
+    if(size > s_HeapSize){
         uptr addr;
-        const size_t mapSize = size - sHeapSize;
-        const uptr requestAddress = 0x08000000 + sHeapSize;
+        const size_t mapSize = size - s_HeapSize;
+        const uptr requestAddress = 0x08000000 + s_HeapSize;
 
         res = nn::svc::ControlMemory(&addr,requestAddress,NULL,mapSize,nn::os::MEMORY_OPERATION_COMMIT,nn::os::MEMORY_PERMISSION_READ_WRITE);
 
         if(res.IsSuccess()){
             NN_TASSERT_(addr == requestAddress);
-            sHeapSize  = size;
+            s_HeapSize  = size;
         }
     }
     else{
         uptr addr;
-        const size_t unmapSize = sHeapSize - size;
+        const size_t unmapSize = s_HeapSize - size;
         const uptr freeAddress = 0x08000000 + size;
 
         res = nn::svc::ControlMemory(&addr,freeAddress,NULL,unmapSize,nn::os::MEMORY_OPERATION_FREE,nn::os::MEMORY_PERMISSION_NONE);
 
         if(res.IsSuccess()){
-            sHeapSize  = size;
+            s_HeapSize  = size;
         }
     }
 
@@ -120,7 +120,7 @@ uptr GetHeapAddress(){
 
 size_t GetHeapSize(){
     NN_TASSERTMSG_(!nninitIsStartUpDefaultUsing(),"Using default nninitStartUp.\nPlease override nninitStartUp.");
-    return sHeapSize;
+    return s_HeapSize;
 }
 
 uptr GetCodeRegionAddress(){

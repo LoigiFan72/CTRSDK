@@ -18,6 +18,7 @@ void Finalize();
 void GetBirthday(Birthday* pBirthday);
 CfgRegionCode GetRegion();
 CfgLanguageCode GetLanguage();
+bit64 GetTransferableId(bit32 uniqueId);
 
 struct LanguageCfgData{
     u8 code;
@@ -26,13 +27,12 @@ struct LanguageCfgData{
 extern LanguageCfgData LANGUAGE_CFG_DEFAULT;
 
 struct DebugParamCfgData{
+
+    bool dlpDebug;
     union debugParam{
         u8 flags1;
         u8 param1;
-    };
-
-    bool dlpDebug;
-    debugParam param;
+    } param;
     u8 fsLatencyParam;
     u8 rsv;
 };

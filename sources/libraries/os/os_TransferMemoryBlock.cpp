@@ -41,7 +41,7 @@ void TransferMemoryBlock::Finalize(){
 
 void TransferMemoryBlock::Unmap(){
     if (GetAddress() != NULL){
-        if(this->mSpaceAllocated){
+        if(this->m_SpaceAllocated){
             nn::svc::UnmapMemoryBlock(GetHandle(), GetAddress());
             os::detail::FreeToSharedMemorySpace(this);
         }

@@ -7,21 +7,21 @@ namespace os{
 class MemoryBlockBase : public nn::fnd::IntrusiveLinkedList<MemoryBlockBase>::Item{
 protected:
     void SetReadOnly(bool readOnly) {
-        this->mReadOnly = readOnly; 
+        m_ReadOnly = readOnly; 
     }
 public:
-    uptr mAddr;
-    size_t mSize;
-    bool mReadOnly;
+    uptr m_Addr;
+    size_t m_Size;
+    bool m_ReadOnly;
     s8 rev[3];
 
     void SetAddressAndSize(uptr addr, size_t size){
-        this->mAddr = addr;
-        this->mSize = size;
+        m_Addr = addr;
+        m_Size = size;
     }
-    uptr GetAddress() const { return this->mAddr; }
-    size_t GetSize() const {return this->mSize; }
-    bool IsReadOnly() const {return this->mReadOnly; }
+    uptr GetAddress() const { return m_Addr; }
+    size_t GetSize() const {return m_Size; }
+    bool IsReadOnly() const {return m_ReadOnly; }
 };
 
 }

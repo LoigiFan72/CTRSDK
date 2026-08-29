@@ -2,6 +2,7 @@
 //
 // Project: Horizon
 
+#include <nn/cfg.h>
 #include <nn/cfg/CTR/cfg_ApiSys.h>
 #include <nn/cfg/CTR/cfg_DetailApi.h>
 #include <nn/cfg/CTR/cfg_IpcSys.h>
@@ -16,43 +17,39 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 namespace{
-    static bool sIsInitializedSys;
-    static int sInitializeSysCount;
+    bool s_IsInitializedSys;
+    int  s_InitializeSysCount;
 }
 
 Result InitializeSys(){
     Result res;
-    if(sInitializeSysCount == 0){
-        res = InitializeBase(&IpcSys::sSession,CTR::PORT_NAME_SYSTEM);
+    if(s_InitializeSysCount == 0){
+        Result res = InitializeBase(&IpcSys::s_Session,CTR::PORT_NAME_SYSTEM);
         if(res.IsSuccess()){
-            sIsInitializedSys = true;
-            IpcUser::sSession = IpcSys::sSession;
+            s_IsInitializedSys = true;
+            IpcUser::s_Session = IpcSys::s_Session;
         } 
-        else {
-            if(res == (Result)0xd92103fb){
-                return res;
-            }
+        else if(res == ResultCancelRequested()){
+            return res;
         }
     }
-    sInitializeSysCount++;
+    s_InitializeSysCount++;
     return ResultSuccess();
 }
 
 void FinalizeSys(){
-    if(sInitializeSysCount > 0){
-        sInitializeSysCount--;
+    if(s_InitializeSysCount > 0){
+        --s_InitializeSysCount;
     }
-    if(sInitializeSysCount != 0){
-        return;
-    }
-    if(!sIsInitializedSys){
-        return;
-    }
-    sIsInitializedSys = false;
-    Result res = FinalizeBase(&IpcInit::sSession);
-    if(res.IsSuccess()){
-        nn::Handle h = IpcSys::sSession;
-        IpcUser::sSession = h;
+
+    if(s_InitializeSysCount == 0){
+        if(s_IsInitializedSys){
+            s_IsInitializedSys = false;
+            nn::Result result = detail::FinalizeBase(&detail::IpcSys::s_Session);
+            if(result.IsSuccess()){
+                IpcUser::s_Session = INVALID_HANDLE_VALUE;
+            }
+        }
     }
 }
 

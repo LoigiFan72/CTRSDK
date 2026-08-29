@@ -2,6 +2,7 @@
 //
 // Project: Horizon
 
+#include <nn/applet.h>
 #include <nn/applet/CTR/applet_Connect.h>
 #include <nn/applet/CTR/applet_Ipc.h>
 #include <nn/srv/srv_API.h>
@@ -15,73 +16,85 @@ namespace applet{
 namespace CTR{
 namespace detail{
 namespace{
-    static os::Mutex sMutex;
-    const char* sPortName = PORT_NAME_USER;
+    const char* s_PortName = PORT_NAME_USER;
+    nn::os::Mutex            s_Mutex;
 }
 
-void SetPortName(const char* name){
-    if(sPortName == NULL){
-        sPortName = name;
+void SetPortName(const char* name)
+{
+    if(s_PortName == NULL)
+    {
+        s_PortName = name;
     }
 }
 
-Result InitializePort(Handle* pSession){
+Result InitializePort(Handle* pSession)
+{
     SetPortName(PORT_NAME_USER);
-    Result res;
-    if(pSession->IsValid()){
-        return (Result)0xE0A0CFF9;
+    if(pSession->IsValid())
+    {
+        return ResultAlreadyInitialized();
     } 
-    return srv::GetServiceHandle(pSession,sPortName);
+    return srv::GetServiceHandle(pSession,s_PortName);
 }
 
-Result FinalizePort(Handle* pSession){
-    Result res;
-    if(pSession->IsValid()){
-        res.mResult = svc::CloseHandle(*pSession).mResult;
-        *pSession = INVALID_HANDLE_VALUE;
-    } 
-    else{
-        return (Result)0xe0a0cff8;
+Result FinalizePort(Handle* pSession)
+{
+    if (!pSession->IsValid())
+    {
+        return ResultNotInitialized();
     }
-    return res;
+
+    Result result = nn::svc::CloseHandle(*pSession);
+    *pSession = INVALID_HANDLE_VALUE;
+    return result;
 }
 
-void Lock(){
-    if(sMutex.IsValid()){
-        sMutex.Lock();
-    }
-}
-
-void Unlock(){
-    if(sMutex.IsValid()){
-        sMutex.Unlock();
+void Lock()
+{
+    if(s_Mutex.IsValid())
+    {
+        s_Mutex.Lock();
     }
 }
 
-Result Connect(){
-    Result res = InitializePort(&APPLET::sSession);
+void Unlock()
+{
+    if(s_Mutex.IsValid())
+    {
+        s_Mutex.Unlock();
+    }
+}
+
+Result Connect()
+{
+    Result res = InitializePort(&APPLET::s_Session);
     NN_ERR_THROW_FATAL(res);
     return res;
 }
 
-Result Disconnect(){
-    Result res = FinalizePort(&APPLET::sSession);
+Result Disconnect()
+{
+    Result res = FinalizePort(&APPLET::s_Session);
     NN_ERR_THROW_FATAL(res);
     return res;
 }
 
-void LockAndConnect(){
+void LockAndConnect()
+{
     Lock();
     Connect();
 }
 
-void DisconnectAndUnlock(){
+void DisconnectAndUnlock()
+{
     Disconnect();
     Unlock();
 }
 
-void InitializeMutex(nn::Handle handle){
-    sMutex.mHandle = handle.mHandle;
+void InitializeMutex(nn::Handle handle)
+{
+    s_Mutex.SetHandle(handle);
 }
 
 }

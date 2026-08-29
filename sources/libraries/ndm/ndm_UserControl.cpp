@@ -10,8 +10,8 @@
 #include <string.h>
 
 namespace{
-    static s32 sInitializedCount = 0;
-    static nn::os::CriticalSection sCs = nn::WithInitialize();
+    static s32 s_InitializedCount = 0;
+    static nn::os::CriticalSection s_Cs = nn::WithInitialize();
 }
 
 namespace nn{
@@ -21,15 +21,15 @@ using namespace CTR;
 using namespace CTR::detail;
 
 Result Initialize(){
-    nn::os::CriticalSection::ScopedLock locker(sCs);
+    nn::os::CriticalSection::ScopedLock locker(s_Cs);
     Result result;
 
-    if (sInitializedCount == 0){
+    if (s_InitializedCount == 0){
         nn::srv::Initialize();
-        result = nn::srv::GetServiceHandle(&CTR::detail::Interface::sSession, PORT_NAME_USER);
+        result = nn::srv::GetServiceHandle(&CTR::detail::Interface::s_Session, PORT_NAME_USER);
         NN_UTIL_RETURN_IF_FAILED(result);
     }
-    ++sInitializedCount;
+    ++s_InitializedCount;
     return ResultSuccess();
 }
 

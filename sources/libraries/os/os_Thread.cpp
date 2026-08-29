@@ -14,13 +14,13 @@
 
 extern "C" void _fp_init();
 
-extern "C" nn::os::AutoStackManager* spAutoStackManager;
+extern "C" nn::os::AutoStackManager* s_pAutoStackManager;
 
 namespace nn{
 namespace os{
 
-Thread Thread::sMainThread = Thread::InitializeAsCurrentTag();
-Thread::AutoStackManager* Thread::spAutoStackManager = NULL;
+Thread Thread::s_MainThread = Thread::InitializeAsCurrentTag();
+Thread::AutoStackManager* Thread::s_pAutoStackManager = NULL;
 
 /* Inlines */
 
@@ -36,8 +36,8 @@ Thread::Thread(const Thread::InitializeAsCurrentTag&){
     Handle handle;
     NN_OS_ERROR_IF_FAILED(nn::svc::DuplicateHandle(&handle, PSEUDO_HANDLE_CURRENT_THREAD));
     this->SetHandle(handle);
-    this->mCanFinalize = false;
-    this->mUsingAutoStack = false;
+    this->m_CanFinalize = false;
+    this->m_UsingAutoStack = false;
 }
 
 /* ThreadStart */
@@ -58,10 +58,10 @@ void Thread::ThreadStart(uptr p){
 
 /* FinalizeImpl */
 void Thread::FinalizeImpl(){
-    if (!mCanFinalize){
-        NN_TASSERTMSG_(mCanFinalize, "Thread should be Joined or Detached before being Finalized.");
+    if (!m_CanFinalize){
+        NN_TASSERTMSG_(m_CanFinalize, "Thread should be Joined or Detached before being Finalized.");
         this->WaitOne();
-        this->mCanFinalize = true;
+        this->m_CanFinalize = true;
     }
 }
 
@@ -73,12 +73,12 @@ void Thread::NoParameterFunc(void (*f)()){
 
 /* SetAutoStackManager */
 void Thread::SetAutoStackManager(nn::os::AutoStackManager* pManager){
-    nn::os::Thread::spAutoStackManager = pManager;
+    nn::os::Thread::s_pAutoStackManager = pManager;
 }
 
 /* PreStartUsingAutoStack */
 uptr Thread::PreStartUsingAutoStack(size_t stackSize){
-    void* pStackBottom = spAutoStackManager->Construct(stackSize);
+    void* pStackBottom = s_pAutoStackManager->Construct(stackSize);
 
     return reinterpret_cast<uptr>(pStackBottom);
 }
@@ -103,7 +103,7 @@ Result Thread::TryInitializeAndStartImplUsingAutoStack(const TypeInfo& typeInfo,
 
 /* SleepImpl */
 void Thread::SleepImpl(fnd::TimeSpan span){
-    if(span.GetNanoSeconds() >= 0){ // >= 0 could be wrong
+    if(span.GetNanoSeconds() >= 0){
         svc::SleepThread(span.GetNanoSeconds());
     }
     else{
@@ -138,8 +138,8 @@ Result Thread::TryInitializeAndStartImpl(const TypeInfo& typeInfo,nn::os::Thread
     NN_UTIL_RETURN_IF_FAILED(nn::svc::CreateThread(&handle,ThreadStart,stack,stack,os::detail::ConvertLibraryToSvcPriority(priority),coreNo));
 
     this->SetHandle(handle);
-    this->mCanFinalize = false;
-    this->mUsingAutoStack = false;
+    this->m_CanFinalize = false;
+    this->m_UsingAutoStack = false;
     return ResultSuccess();
 }
 
@@ -199,7 +199,7 @@ s32 ConvertLibraryToSvcPriority(s32 lib){
 
 void SaveThreadLocalRegionAddress(){
     NN_TASSERT_(spTlr == NULL);
-    spTlr = CTR::GetThreadLocalRegion();
+    s_pTlr = CTR::GetThreadLocalRegion();
 }
 
 void InitializeThreadEnvrionment(){

@@ -23,6 +23,10 @@
 #include <nn/gx/CTR/gx_CTR.h>
 
 namespace{
+    bool                        isInitialized = false;
+    bool                        isGpuRightGiven = false;
+    bool                        isDspSleeping   = false;
+
     class ExitHandler : public NotificationHandler{
     public:
         virtual void HandleNotification(bit32 message){
@@ -36,22 +40,11 @@ namespace{
 namespace nn{
 namespace applet{
 namespace CTR{
-namespace detail{
-namespace{
-
-bool sIsApplet;
-bool sIsVramSaved;
-bool sIsInitialized;
-bool sIsGpuRightGiven;
-bool sIsDspSleeping;
-
-} // namespace
-} // namespace detail
 
 nn::Handle HANDLE_NONE = 0;
 
 bool IsInitialized(){
-    return CTR::detail::sIsInitialized;
+    return isInitialized;
 }
 
 namespace detail{
@@ -76,8 +69,10 @@ inline void RestoreSleepForTransition(bool e){
         DisableSleepForTransition();
 }
 
+bool s_IsVramSaved = false;
+
 inline Result SaveVramSysArea(){
-    sIsVramSaved = true;
+    s_IsVramSaved = true;
     return gxlow::CTR::SaveVramSysArea();
 }
 
@@ -88,15 +83,15 @@ inline Result SaveVramSysArea(){
 void AssignGpuRight(bool flag){
     Result res;
     if(flag){
-        sIsGpuRightGiven = true;
+        isGpuRightGiven = true;
         res = gxlow::CTR::AcquireGpuRight();
         NN_ERR_THROW_FATAL(res);
     }
     else{
-        if (!sIsGpuRightGiven){
+        if (!isGpuRightGiven){
             return;
         }
-        sIsGpuRightGiven = false;
+        isGpuRightGiven = false;
         res = gxlow::CTR::ReleaseGpuRight();
         if(res == Result(0xd8a02a05))
             return;
@@ -111,7 +106,7 @@ void AssignGpuRight(bool flag){
 
 void AssignDspRight(bool flag){
     if(flag){
-        if(sIsDspSleeping){
+        if(isDspSleeping){
             dsp::CTR::WakeUp();
             sIsDspSleeping = false;
         }
@@ -119,7 +114,7 @@ void AssignDspRight(bool flag){
     else{
         if(dsp::CTR::IsComponentLoaded()){
             dsp::CTR::Sleep();
-            sIsDspSleeping = true;
+            isDspSleeping = true;
         }
     }
 }
@@ -137,7 +132,7 @@ void AssignCameraRight(bool flag){
 
 Result $Sub$$Initialize(AppletAttr appletAttr) {
     if (!detail::IsAppletMode()) {
-        sIsGpuRightGiven = true;
+        isGpuRightGiven = true;
         appletAttr = AppletAttr(appletAttr & ~7);
         nn::srv::RegisterNotificationHandler(&exitHandler, 0x100);
         Result result = detail::InitializeConnect(0x300, appletAttr, 0xF);
@@ -148,10 +143,10 @@ Result $Sub$$Initialize(AppletAttr appletAttr) {
 }
 
 Result InitializeConnect(AppletId appletId, AppletAttr appletAttr, s32 threadPriority){
-    if (sIsInitialized)
+    if (isInitialized)
         return Result(0xE0A0CFF9);
 
-    sIsInitialized = true;
+    isInitialized = true;
 
     Connect();
     {
@@ -227,11 +222,11 @@ void Enable(bool isSleepEnable){
     Result result = APPLET::Enable(GetAttribute());
     NN_ERR_THROW_FATAL(result);
     DisconnectAndUnlock();
-    if((nn::applet::CTR::IsApplication()) && !(GetAttribute(), & *(AppletAttr*)0x20)){
+    if(nn::applet::CTR::IsApplication() && !(GetAttribute(), & *(AppletAttr*)0x20)){
         AppletId id;
         s32 size;
         SetTransitionType(TRANSITION_ENABLE_APPLET);
-        AppletWakeupState state = WaitForStarting(&id,GetInitialParamBuffer(),0x1000,&size,(Handle *)0x0,CTR::WAIT_INFINITE);
+        WakeupState state = WaitForStarting(&id,GetInitialParamBuffer(),0x1000,&size);
         SetInitialParamSenderId(id);
         SetInitialParamSenderSize(size);
         SetInitialParamValid();
@@ -274,7 +269,7 @@ bool GetAppletInfo(AppletId appletId, ProgramId* pProgramId, nn::fs::MediaType* 
     AppletAttr appletAttr;
 
     detail::LockAndConnect();
-    //res = detail::APPLET::GetAppletInfo(appletId, &programId, &mediaType, &isUsed, &isPreloaded, &appletAttr);
+    res = detail::APPLET::GetAppletInfo(appletId, &programId, &mediaType, &isUsed, &isPreloaded, &appletAttr);
     detail::DisconnectAndUnlock();
 
     if (res.IsSuccess()){

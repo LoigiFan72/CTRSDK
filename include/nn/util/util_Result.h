@@ -1,6 +1,5 @@
 #pragma once
 
-#include <nn/Result.h>
 #include <nn/Assert.h>
 
 #define NN_UTIL_RETURN_IF_FAILED_BASE(result, s1, s2, s3, s4, s5) \
@@ -23,7 +22,7 @@
 #define NN_UTIL_RETURN_IF_FAILED_4(result, c1, c2, c3, c4) NN_UTIL_RETURN_IF_FAILED_BASE(result,c1,c2,c3,c4,)
 #define NN_UTIL_RETURN_IF_FAILED_5(result, c1, c2, c3, c4, c5) NN_UTIL_RETURN_IF_FAILED_BASE(result,c1,c2,c3,c4,c5)
 
-#ifdef NN_VERSION_MAJOR > 2
+#if NN_VERSION_MAJOR > 2
 
 #define NN_UTIL_PANIC_IF_FAILED(result) NN_PANIC_IF_FAILED(result)
 

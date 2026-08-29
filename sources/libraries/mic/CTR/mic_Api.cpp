@@ -55,10 +55,10 @@ Result FinalizeBase(Handle* pSession){
 
 namespace{
     const char PORT_NAME_USER[] = "mic:u";
-    nn::os::TransferMemoryBlock sSharedMemory;
-    bool sIsBufferInitialized = false;
-    bool sIsLpfEnable = false;
-    SamplingRate sSamplingRate;
+    nn::os::TransferMemoryBlock s_SharedMemory;
+    bool s_IsBufferInitialized = false;
+    bool s_IsLpfEnable = false;
+    SamplingRate s_SamplingRate;
     size_t user_size;
 
 	const nn::codec::CTR::IirFilterParamMic MicLpfParam[4] ={
@@ -106,7 +106,7 @@ Result Finalize()    { return detail::FinalizeBase(&detail::Mic::sSession); }
 Result StartSampling(SamplingType type, SamplingRate rate, s32 offset, size_t size, bool loop){
 	nn::Result result;
 		
-    if (!sIsBufferInitialized){
+    if (!s_IsBufferInitialized){
         return ResultNotInitialized();
     }
 
@@ -118,7 +118,7 @@ Result StartSampling(SamplingType type, SamplingRate rate, s32 offset, size_t si
         return ResultOutOfMemory();
     }
 
-    if (sIsLpfEnable){
+    if (s_IsLpfEnable){
 		result = SetLowPassFilterCore( rate );
 	    if (result.IsFailure()){
 			return result;
@@ -127,7 +127,7 @@ Result StartSampling(SamplingType type, SamplingRate rate, s32 offset, size_t si
 
 	result = detail::Mic::StartSampling( type, rate, offset, size, loop );
     if (result.IsSuccess()){
-		sSamplingRate = rate; 
+		s_SamplingRate = rate; 
 	}
 
     return result;
@@ -144,7 +144,7 @@ Result IsSampling(bool* pSampling){
 Result SetBuffer(void* p, size_t size){
     Result result;
 
-    if (sIsBufferInitialized){
+    if (s_IsBufferInitialized){
         return ResultAlreadyInitialized();
     }
 
@@ -157,11 +157,11 @@ Result SetBuffer(void* p, size_t size){
     }
 
     //sSharedMemory.Initialize(p, size, os::MEMORY_PERMISSION_READ_WRITE);
-    result = detail::Mic::AllocateBuffer(sSharedMemory.GetHandle(), size);
+    result = detail::Mic::AllocateBuffer(s_SharedMemory.GetHandle(), size);
 
     user_size = size -sizeof(Header);
     if (result.IsSuccess()){ 
-        sIsBufferInitialized = true;
+        s_IsBufferInitialized = true;
     }
 
     return result;

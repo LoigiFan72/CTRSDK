@@ -13,13 +13,13 @@ namespace os{
 
 void InterCoreCriticalSection::EnterImpl(){
     for(;;){
-        if(*mCounter > 0){
+        if(*m_Counter > 0){
             if(this->TryEnterImpl()){
                 break;
             }
         }
 
-        this->mCounter.DecrementAndWaitIfLessThan(0);
+        this->m_Counter.DecrementAndWaitIfLessThan(0);
     }
 }
 

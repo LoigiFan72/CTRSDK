@@ -11,11 +11,11 @@ namespace nn{
 namespace ulcd{
 namespace CTR{
 namespace{
-    NN_MAKE_MODULE(sDetectableString, "NINTENDO", "3DVolume");
+    NN_MAKE_MODULE(s_DetectableString, "NINTENDO", "3DVolume");
 }
 
 float GetSliderVolume(){
-    NN_REFER_MODULE(sDetectableString);
+    NN_REFER_MODULE(s_DetectableString);
     if (os::GetWritableSharedInfo().displayModeLockFlag){
         return 0.0f;
     }

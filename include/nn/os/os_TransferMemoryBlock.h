@@ -9,13 +9,13 @@ namespace os{
 
 class TransferMemoryBlock : public MemoryBlockBase, public HandleObject{
 public:
-    bool mSpaceAllocated;
+    bool m_SpaceAllocated;
     s8 reseversed1[3];
     int reseversed2;
 
 public:
     TransferMemoryBlock(): 
-        mSpaceAllocated(false) 
+        m_SpaceAllocated(false) 
     {}
     ~TransferMemoryBlock(){ this->Finalize(); }
     void Initialize(void* p, size_t size, bit32 myPermission, bit32 otherPermission);

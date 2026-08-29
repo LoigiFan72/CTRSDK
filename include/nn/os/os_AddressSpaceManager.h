@@ -11,12 +11,12 @@ public:
     typedef fnd::IntrusiveLinkedList<MemoryBlockBase> BlockList;
     typedef os::CriticalSection Lock;
 
-    uptr mSpaceBegin;
-    uptr mSpaceEnd;
-    BlockList mBlockList;
-    CriticalSection mLock;
+    uptr m_SpaceBegin;
+    uptr m_SpaceEnd;
+    BlockList m_BlockList;
+    CriticalSection m_Lock;
 
-    AddressSpaceManager() { mSpaceBegin = mSpaceEnd = 0; }
+    AddressSpaceManager() { m_SpaceBegin = m_SpaceEnd = 0; }
     uptr Allocate(MemoryBlockBase *pBlock,size_t size,size_t skipSize);
     void Free(MemoryBlockBase *p);
     void Switch(MemoryBlockBase *pTo,MemoryBlockBase *pFrom);

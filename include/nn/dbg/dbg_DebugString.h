@@ -1,5 +1,7 @@
-#include "nn/Result.h"
-#include "nn/types.h"
+#pragma once
+
+
+#include <nn/Result.h>
 #include <cstdarg>
 
 namespace nn{

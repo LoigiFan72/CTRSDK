@@ -11,14 +11,14 @@ namespace hid{
 namespace CTR{
 namespace detail{
 
-nn::Handle Ipc::sSession;
+nn::Handle Ipc::s_Session;
 
 Result Ipc::GetIPCHandles(Handle* pSharedMemoryHandle, Handle* pPadEvent, Handle* pTouchPanelEvent, Handle* pAccelerometerEvent, Handle* pGyroscopeLowEvent, Handle* pDebugPadEvent){
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xA, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -38,7 +38,7 @@ Result Ipc::EnableAccelerometer(){
     ipcMsg.SetHeader(0x11, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -51,7 +51,7 @@ Result Ipc::DisableAccelerometer(){
     ipcMsg.SetHeader(0x12, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -64,7 +64,7 @@ Result Ipc::EnableGyroscopeLow(){
     ipcMsg.SetHeader(0x13, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -77,7 +77,7 @@ Result Ipc::DisableGyroscopeLow(){
     ipcMsg.SetHeader(0x14, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -90,7 +90,7 @@ Result Ipc::GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient){
     ipcMsg.SetHeader(0x15, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -100,12 +100,12 @@ Result Ipc::GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Ipc::GetGyroscopeLowCalibrateParam( nn::hid::CTR::GyroscopeLowCalibrateParam* param ){
+Result Ipc::GetGyroscopeLowCalibrateParam(nn::hid::CTR::GyroscopeLowCalibrateParam* param){
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x16, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

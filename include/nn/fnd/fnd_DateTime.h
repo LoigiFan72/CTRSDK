@@ -4,6 +4,29 @@
 
 namespace nn{
 namespace fnd{
+
+enum Week{
+    WEEK_SUNDAY = 0,
+    WEEK_MONDAY,
+    WEEK_TUESDAY,
+    WEEK_WEDNESDAY,
+    WEEK_THURSDAY,
+    WEEK_FRIDAY,
+    WEEK_SATURDAY,
+    WEEK_MAX
+};
+
+struct DateTimeParameters{
+    s32     year;
+    s8      month;
+    s8      day;
+    Week    week;
+    s8      hour;
+    s8      minute;
+    s8      second;
+    s16     milliSecond;
+};
+
 class DateTime{
     s64 mMilliSeconds;
 

@@ -13,10 +13,10 @@ namespace nn{
 namespace os{
 
 void AddressSpaceManager::Initialize(uptr begin, size_t size){
-    if (mSpaceBegin == 0 && mSpaceEnd == 0){
-        this->mLock.Initialize();
-        mSpaceBegin = begin;
-        mSpaceEnd = begin + size;
+    if (m_SpaceBegin == 0 && m_SpaceEnd == 0){
+        m_Lock.Initialize();
+        m_SpaceBegin = begin;
+        m_SpaceEnd = begin + size;
     }
 }
 
@@ -24,25 +24,25 @@ uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t 
     NN_NULL_TASSERT_(pBlock);
     NN_ALIGN_TASSERT_(size, NN_OS_MEMORY_PAGE_SIZE);
     NN_ALIGN_TASSERT_(skipSize, NN_OS_MEMORY_PAGE_SIZE);
-    Lock::ScopedLock scopedLock(this->mLock);
+    Lock::ScopedLock scopedLock(this->m_Lock);
 
     MemoryBlockBase* pPrev = FindSpace(size, skipSize);
     uptr allocatedAddress;
 
     if(pPrev != NULL){
         allocatedAddress = pPrev->GetAddress() + pPrev->GetSize() + skipSize;
-        MemoryBlockBase* pNext = mBlockList.GetNext(pPrev);
+        MemoryBlockBase* pNext = m_BlockList.GetNext(pPrev);
 
         if(pNext != NULL){
-            mBlockList.Insert(pNext, pBlock);
+            m_BlockList.Insert(pNext, pBlock);
         }
         else{
-            mBlockList.PushBack(pBlock);
+            m_BlockList.PushBack(pBlock);
         }
     }
     else{
-        allocatedAddress = mSpaceBegin;
-        MemoryBlockBase* pNext = mBlockList.GetFront();
+        allocatedAddress = m_SpaceBegin;
+        MemoryBlockBase* pNext = m_BlockList.GetFront();
 
         if(pNext != NULL){
             const uptr allocatedEnd = allocatedAddress + size;
@@ -52,15 +52,15 @@ uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t 
                 return NULL;
             }
 
-            mBlockList.Insert(pNext, pBlock);
+            m_BlockList.Insert(pNext, pBlock);
         }
         else{
             const uptr allocatedEnd = allocatedAddress + size;
 
-            if(mSpaceEnd < allocatedEnd){
+            if(m_SpaceEnd < allocatedEnd){
                 return NULL;
             }
-            mBlockList.PushBack(pBlock);
+            m_BlockList.PushBack(pBlock);
         }
     }
 
@@ -69,24 +69,24 @@ uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t 
 }
 
 void AddressSpaceManager::Free(MemoryBlockBase *pBlock){
-    Lock::ScopedLock scopedLock(this->mLock);
-    this->mBlockList.Erase(pBlock);
+    Lock::ScopedLock scopedLock(this->m_Lock);
+    this->m_BlockList.Erase(pBlock);
     pBlock->SetAddressAndSize(NULL, 0);
 }
 
 void AddressSpaceManager::Switch(MemoryBlockBase *pTo,MemoryBlockBase *pFrom){
-    Lock::ScopedLock scopedLock(this->mLock);
+    Lock::ScopedLock scopedLock(this->m_Lock);
 
     pTo->SetAddressAndSize(pFrom->GetAddress(), pFrom->GetSize());
-    this->mBlockList.Insert(pFrom, pTo);
+    this->m_BlockList.Insert(pFrom, pTo);
 
     pFrom->SetAddressAndSize(NULL, 0);
-    this->mBlockList.Erase(pFrom);
+    this->m_BlockList.Erase(pFrom);
 }
 
 MemoryBlockBase* AddressSpaceManager::FindSpace(size_t size, size_t skipSize){
-    MemoryBlockBase* pItem = this->mBlockList.GetBack();
-    uptr end = mSpaceEnd;
+    MemoryBlockBase* pItem = this->m_BlockList.GetBack();
+    uptr end = m_SpaceEnd;
 
     while(pItem != NULL){
         const uptr nextBegin = pItem->GetAddress();
@@ -97,7 +97,7 @@ MemoryBlockBase* AddressSpaceManager::FindSpace(size_t size, size_t skipSize){
         }
 
         end = nextBegin - skipSize;
-        pItem = this->mBlockList.GetPrevious(pItem);
+        pItem = this->m_BlockList.GetPrevious(pItem);
     }
     return NULL;
 }

@@ -11,12 +11,11 @@ namespace detail {
 
 class IpcUser{
 public:
+    static nn::Handle s_Session;
 
-static nn::Handle sSession;
-
-static Result GetConfig (void* pData, size_t size, bit32 key);
-static Result GetRegion (CfgRegionCode* regionCode);
-
+    static Result GetConfig (void* pData, size_t size, bit32 key);
+    static Result GetRegion (CfgRegionCode* regionCode);
+    static Result GetTransferableId(bit32 uniqueId, bit64* transferableId);
 };
 
 }

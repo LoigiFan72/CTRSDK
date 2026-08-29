@@ -25,15 +25,15 @@ namespace{
 
 namespace{
 
-static nn::dbg::BreakHandler spBreakHandler = NULL;
+static nn::dbg::BreakHandler s_pBreakHandler = NULL;
 
 /* nn::dbg::Break Call Handlers */
 
 void CallBreakHandler(nn::dbg::BreakReason reason, Result* pResult, const char* filename, int lineno, const char* fmt, std::va_list args){
-    nn::dbg::BreakHandler pBreakHandler = spBreakHandler;
+    nn::dbg::BreakHandler pBreakHandler = s_pBreakHandler;
 
     if (pBreakHandler != NULL){
-        spBreakHandler = NULL;
+        s_pBreakHandler = NULL;
         pBreakHandler(reason, pResult, filename, lineno, fmt, args);
     }
 }

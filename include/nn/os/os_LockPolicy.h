@@ -51,7 +51,7 @@ public:
     template <class Locker>
     struct Global {
     protected:
-        static Locker gMutex;
+        static Locker g_Mutex;
     public:
         class LockObject {
         public:

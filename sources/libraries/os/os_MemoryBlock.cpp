@@ -8,12 +8,12 @@
 
 namespace nn{
 namespace os{
-    nnosAddressSpaceManager sSpaceManager;
+    nnosAddressSpaceManager s_SpaceManager;
 
 namespace detail{
 
 bool IsMemoryBlockEnabled(){
-    return sIsMemoryBlockEnabled;
+    return s_IsMemoryBlockEnabled;
 }
 
 uptr AllocateFromMemoryBlockSpace(MemoryBlockBase* p, size_t size){
@@ -31,14 +31,14 @@ void FreeToMemorySpace(MemoryBlockBase* p){
 void InitializeMemoryBlock(uptr begin, size_t size){
     if(sIsMemoryBlockEnabled == 0){
         sIsMemoryBlockEnabled = 1;
-        nnosAddressSpaceManagerInitialize(&os::sSpaceManager,begin,size);
+        nnosAddressSpaceManagerInitialize(&s_SpaceManager,begin,size);
         return;
     }
     return;
 }
 
 void Switch(nnosMemoryBlockBase* pTo, nnosMemoryBlockBase* pFrom){
-    nnosAddressSpaceManagerSwitch(&os::sSpaceManager,pTo,pFrom);
+    nnosAddressSpaceManagerSwitch(&s_SpaceManager,pTo,pFrom);
 }
 }
 }

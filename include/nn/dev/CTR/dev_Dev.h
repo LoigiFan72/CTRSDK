@@ -9,9 +9,9 @@ namespace dev{
 namespace CTR{
 class Dev{
 public:
-    Handle mSession;
+    Handle m_Session;
     Dev(Handle session): 
-        mSession(session) 
+        m_Session(session) 
     {}
 
     Result ReadHostIO(bit8 pData[], size_t size, s32 numSectors, SectorSize sectorSize, const bit8 pCommnand[]);

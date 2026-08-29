@@ -13,22 +13,22 @@
 namespace nn{
 namespace os{
 namespace{
-nnosAddressSpaceManager sSpaceManager;
+nnosAddressSpaceManager s_SpaceManager;
 
 }
 
 namespace detail{
 void InitializeSharedMemory(){
-    nnosAddressSpaceManagerInitialize(&os::sSpaceManager,0x10000000,0x4000000);
+    nnosAddressSpaceManagerInitialize(&s_SpaceManager,0x10000000,0x4000000);
 }
 
 uptr AllocateFromSharedMemorySpace(MemoryBlockBase* p, size_t s){
-    AddressSpaceManager* pManager = reinterpret_cast<AddressSpaceManager*>(&sSpaceManager);
+    AddressSpaceManager* pManager = reinterpret_cast<AddressSpaceManager*>(&s_SpaceManager);
     return pManager->Allocate(p, s, NN_OS_MEMORY_PAGE_SIZE);
 }
 
 void FreeToSharedMemorySpace(MemoryBlockBase* p){
-    AddressSpaceManager* pManager = reinterpret_cast<AddressSpaceManager*>(&sSpaceManager);
+    AddressSpaceManager* pManager = reinterpret_cast<AddressSpaceManager*>(&s_SpaceManager);
     pManager->Free(p);
 }
 

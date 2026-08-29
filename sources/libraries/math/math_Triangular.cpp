@@ -11,7 +11,7 @@ namespace internal{
 
 /* gSinCosTbl */
 
-const SinCosSample gSinCosTbl[256 + 1] ={
+const SinCosSample g_SinCosTbl[256 + 1] ={
     0.0f, 1.0f, 0.0245412285229123f, -0.00030118130379575f,
     0.0245412285229123f, 0.999698818696204f, 0.0245264458045057f, -0.000903362491031845f,
     0.049067674327418f, 0.998795456205172f, 0.0244968892722494f, -0.0015049995264822f,
@@ -337,8 +337,8 @@ void SinCosIdx(f32* pSin, f32* pCos, u16 idx){
     u16 i = idx >> 8;
     u16 d = idx & 0xff;
     f32 fd = U16ToF32(d) * (1.f / 256.f);
-    f32 sVal = internal::gSinCosTbl[i].sin_val + fd * internal::gSinCosTbl[i].sin_delta;
-    f32 cVal = internal::gSinCosTbl[i].cos_val + fd * internal::gSinCosTbl[i].cos_delta;
+    f32 sVal = internal::g_SinCosTbl[i].sin_val + fd * internal::g_SinCosTbl[i].sin_delta;
+    f32 cVal = internal::g_SinCosTbl[i].cos_val + fd * internal::g_SinCosTbl[i].cos_delta;
 
     *pSin = (idx >> 31) ? -sVal : sVal;
     *pCos = cVal;
@@ -359,7 +359,7 @@ f32 SinFIdx(f32 fidx){
     r = abs_fidx - U16ToF32(idx);
     idx &= 0xff;
 
-    val = internal::gSinCosTbl[idx].sin_val + r * internal::gSinCosTbl[idx].sin_delta;
+    val = internal::g_SinCosTbl[idx].sin_val + r * internal::g_SinCosTbl[idx].sin_delta;
 
     return (fidx < 0.0f) ? -val: val;
 }
@@ -377,7 +377,7 @@ f32 CosFIdx(f32 fidx){
     r = fidx - U16ToF32(idx);
     idx &= 0xff;
 
-    return internal::gSinCosTbl[idx].cos_val + r * internal::gSinCosTbl[idx].cos_delta;
+    return internal::g_SinCosTbl[idx].cos_val + r * internal::g_SinCosTbl[idx].cos_delta;
 }
 
 void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx){
@@ -397,8 +397,8 @@ void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx){
     r = abs_fidx - U16ToF32(idx);
     idx &= 0xff;
 
-    sVal = internal::gSinCosTbl[idx].sin_val + r * internal::gSinCosTbl[idx].sin_delta;
-    cVal = internal::gSinCosTbl[idx].cos_val + r * internal::gSinCosTbl[idx].cos_delta;
+    sVal = internal::g_SinCosTbl[idx].sin_val + r * internal::g_SinCosTbl[idx].sin_delta;
+    cVal = internal::g_SinCosTbl[idx].cos_val + r * internal::g_SinCosTbl[idx].cos_delta;
 
     *pSin = (fidx < 0.0f) ? -sVal : sVal;
     *pCos = cVal;

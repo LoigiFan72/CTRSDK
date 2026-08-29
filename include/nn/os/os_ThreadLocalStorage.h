@@ -5,19 +5,17 @@
 
 namespace nn{
 namespace os{
-    class ThreadLocalStorage{
-    public:
-        int mIndex;
 
-        ~ThreadLocalStorage();
-        void Finalize();
-        static void ClearAllSlots();
-        uptr GetValue() const;
-        void SetValue(uptr value);
-    };
+class ThreadLocalStorage{
+public:
+    int m_Index;
 
-namespace{
-    short sTLSMap;
-}
+    ~ThreadLocalStorage();
+    void Finalize();
+    static void ClearAllSlots();
+    uptr GetValue() const;
+    void SetValue(uptr value);
+};
+
 }
 }

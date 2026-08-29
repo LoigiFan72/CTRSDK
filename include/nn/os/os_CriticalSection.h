@@ -9,10 +9,8 @@ namespace nn {
 namespace os {
 class CriticalSection : private nn::util::ADLFireWall::NonCopyable<CriticalSection>{
 private:
-#if NN_VERSION_MAJOR > 2 || \
-    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
-    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
-    SimpleLock mLock;
+#if NN_VERSION_MAJOR > 2 || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
+    SimpleLock m_Lock;
 #else
     struct ReverseIfPositiveUpdater{
         bool operator()(s32& x){
@@ -33,34 +31,30 @@ private:
         }
     };
 
-    WaitableCounter mCounter;
+    WaitableCounter m_Counter;
 #endif
-    u32 mThreadUniqueValue;
-    s32 mLockCount;
+    u32 m_ThreadUniqueValue;
+    s32 m_LockCount;
 
 public:
 
-    CriticalSection() : mThreadUniqueValue(GetInvalidThreadUniqueValue()), mLockCount(-1) {}
+    CriticalSection() : m_ThreadUniqueValue(GetInvalidThreadUniqueValue()), m_LockCount(-1) {}
     CriticalSection(const nn::WithInitialize&) { this->Initialize(); }
 
-#if NN_VERSION_MAJOR <= 2 || \
-    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR < 4) || \
-    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO < 1)
+#if NN_VERSION_MAJOR <= 2 || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR < 4) || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO < 1)
     void EnterImpl();
     bool TryEnterImpl(){
         ReverseIfPositiveUpdater updater;
-        if (this->mCounter->AtomicUpdateConditional(updater)) {
-            NN_ASSERT_(mLockCount == 0);
-            mThreadUniqueValue = this->GetThreadUniqueValue();
+        if (this->m_Counter->AtomicUpdateConditional(updater)) {
+            NN_ASSERT_(m_LockCount == 0);
+            m_ThreadUniqueValue = this->GetThreadUniqueValue();
             return true;
         }
         return false;
     }
 #endif
 
-#if NN_VERSION_MAJOR > 2 || \
-    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
-    (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
+#if NN_VERSION_MAJOR > 2 || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
     void Initialize();
     void Enter();
     void Leave();
@@ -69,16 +63,16 @@ public:
 #else
     void Leave(){
         NN_ASSERT_(IsInitialized());
-        NN_ASSERTMSG_(LockedByCurrentThread() && mLockCount > 0, "CriticalSection is not entered on the current thread.");
+        NN_ASSERTMSG_(LockedByCurrentThread() && m_LockCount > 0, "CriticalSection is not entered on the current thread.");
 
-        if (--mLockCount == 0) {
-            NN_ASSERTMSG_(*mCounter < 0, "CriticalSection is not entered.");
-            mThreadUniqueValue = GetInvalidThreadUniqueValue();
+        if (--m_LockCount == 0) {
+            NN_ASSERTMSG_(*m_Counter < 0, "CriticalSection is not entered.");
+            m_ThreadUniqueValue = GetInvalidThreadUniqueValue();
             ReverseUpdater updater;
-            mCounter->AtomicUpdateConditional(updater);
+            m_Counter->AtomicUpdateConditional(updater);
 
             if (updater.afterUpdate > 1) {
-                this->mCounter.Signal(1);
+                this->m_Counter.Signal(1);
             }
         }
     }
@@ -89,13 +83,13 @@ public:
         if (!LockedByCurrentThread() && !TryEnterImpl()){
             EnterImpl();
         }
-        ++this->mLockCount;
+        ++this->m_LockCount;
     }
 
     void Initialize(){
-        *mCounter = 1;
-        mThreadUniqueValue = this->GetInvalidThreadUniqueValue();
-        mLockCount = 0;
+        *m_Counter = 1;
+        m_ThreadUniqueValue = this->GetInvalidThreadUniqueValue();
+        m_LockCount = 0;
     }
 #endif
 
@@ -103,15 +97,15 @@ public:
         this->Initialize();
         return ResultSuccess();
     }
-    void Finalize(){this->mLockCount = -1;}
+    void Finalize(){ this->m_LockCount = -1;}
     ~CriticalSection() { }
     class ScopedLock;
 
     void OnLocked(){
-        this->mThreadUniqueValue = GetThreadUniqueValue();
+        this->m_ThreadUniqueValue = GetThreadUniqueValue();
     }
     bool LockedByCurrentThread() const{
-        return GetThreadUniqueValue() == mThreadUniqueValue;
+        return GetThreadUniqueValue() == m_ThreadUniqueValue;
     }
 private:
     static uptr GetThreadUniqueValue(){
@@ -123,7 +117,7 @@ private:
         return static_cast<uptr>(-1);
     }
     bool IsInitialized() const{
-        return this->mLockCount >= 0;
+        return this->m_LockCount >= 0;
     }
 };
     

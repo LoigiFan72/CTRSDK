@@ -12,7 +12,11 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-HidDevices sDevices;
+Result MakeResultAlreadyInitialized(){
+    return nn::MakeUsageResult(Result::SUMMARY_INVALID_STATE, Result::Module::MODULE_NN_HID, Result::Description::DESCRIPTION_ALREADY_INITIALIZED);
+}
+
+HidDevices s_Devices;
 bool isInitialized;
 
 
@@ -27,20 +31,20 @@ Result HidDevices::Initialize(const char* portName){
     Handle gyroscopeEventHandle;
     Handle debugPadEventHandle;
     if(isInitialized){
-        return Result(0xe0a04ff9); // MakeResultAlreadyInitialized
+        return MakeResultAlreadyInitialized();
     }
 
     res = srv::Initialize();
     if(res.GetDescription() != Result::DESCRIPTION_ALREADY_INITIALIZED)
         NN_UTIL_PANIC_IF_FAILED(res);
-    res = srv::GetServiceHandle(&detail::Ipc::sSession, portName);
+    res = srv::GetServiceHandle(&detail::Ipc::s_Session, portName);
     NN_UTIL_PANIC_IF_FAILED(res);
 
     res = detail::Ipc::GetIPCHandles(&hSharedMemory, &padEventHandle, &touchEventHandle, &accelerometerEventHandle, &gyroscopeEventHandle, &debugPadEventHandle);
     NN_UTIL_PANIC_IF_FAILED(res);
         
-    this->mSharedMemoryBlock.AttachAndMap(hSharedMemory,0x2b0,true);
-    uptr instanceAddress = this->mSharedMemoryBlock.GetAddress();
+    this->m_SharedMemoryBlock.AttachAndMap(hSharedMemory,0x2b0,true);
+    uptr instanceAddress = this->m_SharedMemoryBlock.GetAddress();
     NN_TASSERT_(instanceAddress);
 
     hidlow::CTR::LifoRingCollector* ring;
@@ -78,12 +82,12 @@ void HidDevices::Finalize(){
         res = svc::CloseHandle(this->debugPad.DetachHandle());
         NN_UTIL_PANIC_IF_FAILED(res);
 
-        res = svc::CloseHandle(this->mSharedMemoryBlock.DetachHandle());
+        res = svc::CloseHandle(this->m_SharedMemoryBlock.DetachHandle());
         NN_UTIL_PANIC_IF_FAILED(res);
 
-        this->mSharedMemoryBlock.Finalize();
+        this->m_SharedMemoryBlock.Finalize();
 
-        res = svc::CloseHandle(detail::Ipc::sSession);
+        res = svc::CloseHandle(detail::Ipc::s_Session);
         NN_UTIL_PANIC_IF_FAILED(res);
         
         isInitialized = false;
@@ -91,45 +95,41 @@ void HidDevices::Finalize(){
 }
 
 void Finalize(){
-    sDevices.Finalize();
+    s_Devices.Finalize();
 }
 
 Result Initialize(){
-    return sDevices.Initialize(PORT_NAME_USER);
-}
-
-Result InitializeSpecialPrivilage(){
-    return sDevices.Initialize(PORT_NAME_SPVR);
+    return s_Devices.Initialize(PORT_NAME_USER);
 }
 
 Pad& GetPad(){
     NN_TASSERT_(isInitialized);
 
-    return sDevices.pad;
+    return s_Devices.pad;
 }
 
 DebugPad& GetDebugPad(){
     NN_TASSERT_(isInitialized);
 
-    return sDevices.debugPad;
+    return s_Devices.debugPad;
 }
 
 TouchPanel& GetTouchPanel(){
     NN_TASSERT_(isInitialized);
 
-    return sDevices.touchPanel;
+    return s_Devices.touchPanel;
 }
 
 Accelerometer& GetAccelerometer(){
     NN_TASSERT_(isInitialized);
     
-    return sDevices.accelerometer;
+    return s_Devices.accelerometer;
 }
 
 Gyroscope& GetGyroscope(){
     NN_TASSERT_(isInitialized);
 
-    return sDevices.gyroscope;
+    return s_Devices.gyroscope;
 }
 
 }

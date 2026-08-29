@@ -7,10 +7,10 @@ namespace dsp {
 namespace CTR {
 class DSP{
 public:
-    Handle mSession;
+    Handle m_Session;
  
     DSP(){ }
-    DSP(Handle h){ this->mSession = h; }
+    DSP(Handle h){ this->m_Session = h; }
     Result ConvertProcessAddressFromDspDram(uptr _address,uptr *address);
     Result FlushDataCache(Handle clientProcess,uptr addr,size_t size);
     Result GetSemaphoreEventHandle(Handle *handle);

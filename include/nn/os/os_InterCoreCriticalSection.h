@@ -32,15 +32,15 @@ private:
         }
     };
 
-    WaitableCounter mCounter;
-    uptr mThreadUniqueValue;
-    s32 mLockCount;
+    WaitableCounter m_Counter;
+    uptr m_ThreadUniqueValue;
+    s32 m_LockCount;
 public:
     class ScopedLock;
 
     InterCoreCriticalSection(): 
-        mThreadUniqueValue(GetInvalidThreadUniqueValue()), 
-        mLockCount(-1) 
+        m_ThreadUniqueValue(GetInvalidThreadUniqueValue()), 
+        m_LockCount(-1) 
     {}
 
     InterCoreCriticalSection(const nn::WithInitialize&) { this->Initialize(); }
@@ -48,11 +48,11 @@ public:
     void EnterImpl();
     bool TryEnterImpl(){
         ReverseIfPositiveUpdater updater;
-        bool ret = mCounter->AtomicUpdateConditional(updater);
+        bool ret = m_Counter->AtomicUpdateConditional(updater);
         ARM::DataSynchronizationBarrier();
         if (ret) {
             NN_ASSERT_(mLockCount == 0);
-            mThreadUniqueValue = this->GetThreadUniqueValue();
+            m_ThreadUniqueValue = this->GetThreadUniqueValue();
             return true;
         }
         return false;
@@ -64,41 +64,43 @@ public:
         if (!LockedByCurrentThread() && !TryEnterImpl()){
             this->EnterImpl();
         }
-        ++this->mLockCount;
+        ++this->m_LockCount;
     }
 
     void Leave(){
         NN_ASSERT_(IsInitialized());
-        NN_ASSERTMSG_(LockedByCurrentThread() && mLockCount > 0, "CriticalSection is not entered on the current thread.");
+        NN_ASSERTMSG_(LockedByCurrentThread() && m_LockCount > 0, "CriticalSection is not entered on the current thread.");
 
-        if (--mLockCount == 0) {
-            NN_ASSERTMSG_(*mCounter < 0, "CriticalSection is not entered.");
-            mThreadUniqueValue = GetInvalidThreadUniqueValue();
+        if (--m_LockCount == 0) {
+            NN_ASSERTMSG_(*m_Counter < 0, "CriticalSection is not entered.");
+            m_ThreadUniqueValue = GetInvalidThreadUniqueValue();
             ReverseUpdater updater;
-            mCounter->AtomicUpdateConditional(updater);
+            m_Counter->AtomicUpdateConditional(updater);
             ARM::DataSynchronizationBarrier();
 
             if (updater.afterUpdate > 1) {
-                this->mCounter.Signal(1);
+                this->m_Counter.Signal(1);
             }
         }
     }
 
     void Initialize(){
-        *mCounter = 1;
-        mThreadUniqueValue = this->GetInvalidThreadUniqueValue();
-        mLockCount = 0;
+        *m_Counter = 1;
+        m_ThreadUniqueValue = this->GetInvalidThreadUniqueValue();
+        m_LockCount = 0;
     }
 
+    void Finalize(){ m_LockCount = -1;}
+
     bool IsLocked() const{
-        return (*mCounter < 0);
+        return (*m_Counter < 0);
     }
 
     void OnLocked(){
-        this->mThreadUniqueValue = GetThreadUniqueValue();
+        this->m_ThreadUniqueValue = GetThreadUniqueValue();
     }
     bool LockedByCurrentThread() const{
-        return GetThreadUniqueValue() == mThreadUniqueValue;
+        return GetThreadUniqueValue() == m_ThreadUniqueValue;
     }
 private:
     static uptr GetThreadUniqueValue(){
@@ -110,7 +112,7 @@ private:
         return static_cast<uptr>(-1);
     }
     bool IsInitialized() const{
-        return this->mLockCount >= 0;
+        return this->m_LockCount >= 0;
     }
 };
 

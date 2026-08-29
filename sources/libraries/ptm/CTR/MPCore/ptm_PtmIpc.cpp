@@ -11,7 +11,7 @@ namespace ptm{
 namespace CTR{
 namespace detail{
 
-Handle PtmIpc::sSession;
+Handle PtmIpc::s_Session;
 
 Result PtmIpc::GetStepHistory(u16 pStepCounts[], s32 numHours, fnd::DateTime start){
     MessageBuffer ipcMsg(GetMessageBuffer());
@@ -21,7 +21,7 @@ Result PtmIpc::GetStepHistory(u16 pStepCounts[], s32 numHours, fnd::DateTime sta
     ipcMsg.SetReceive(4, pStepCounts, sizeof(*pStepCounts) * numHours);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

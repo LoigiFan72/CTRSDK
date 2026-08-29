@@ -9,7 +9,7 @@ namespace os{
     
 class SimpleLock : private util::ADLFireWall::NonCopyable<SimpleLock>{
 private:
-    WaitableCounter mCounter;
+    WaitableCounter m_Counter;
 public:
     class ScopedLock;
 
@@ -21,7 +21,7 @@ public:
     void LockImpl(void);
     bool TryLock(void);
     void Unlock(void);
-    bool IsLocked() const{ return (*this->mCounter < 0);}
+    bool IsLocked() const{ return (*this->m_Counter < 0);}
     
 };
 }

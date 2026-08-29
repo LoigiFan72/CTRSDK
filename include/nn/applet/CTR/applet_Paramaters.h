@@ -281,6 +281,14 @@ namespace CTR{
     typedef void (*AppletAwakeCallback)(uptr);
     typedef void (*AppletSysSleepAcceptedCallback)(uptr);
     typedef bool (*AppletReceiveCallback)(uptr);
+    typedef bool (*AppletHomeButtonCallback)(uptr arg, bool isActive, nn::applet::CTR::HomeButtonState state);
+    typedef void (*AppletMessageCallback)(uptr arg, AppletId senderId, u8 pParam[], size_t paramSize, nn::Handle handle);
+    typedef void (*AppletReleaseMemoryCallback)(uptr arg);
+    typedef bool (*AppletCommandCallback)(uptr parameter, AppletId id, AppletCommand command, u8 pParam[], size_t paramSize, s32 readLen, nn::Handle handle);
+    typedef void (*AppletRequestMemoryCallback)(uptr arg, size_t size, nn::Handle* pHandle);
+    typedef void (*AppletReleaseMemoryCallback)(uptr arg);
+    typedef void (*AppletDspSleepCallback)(uptr arg);
+    typedef void (*AppletDspWakeUpCallback)(uptr arg);
     typedef Notification AppletNotification;
     typedef QueryReply AppletQueryReply;
     typedef DisplayBufferMode AppletDisplayBufferMode;

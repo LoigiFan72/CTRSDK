@@ -22,11 +22,11 @@ public:
     } StickClampMode;
 
     DebugPadReader(DebugPad& debugPad=GetDebugPad( )): 
-        mDebugPad(debugPad), 
-        mIndexOfRead(-1), 
-        mIsReadLatestFirst(true), 
-        mStickClampMode(STICK_CLAMP_MODE_CIRCLE_WITH_PLAY), 
-        mTickOfRead(-1)
+        m_DebugPad(debugPad), 
+        m_IndexOfRead(-1), 
+        m_IsReadLatestFirst(true), 
+        m_StickClampMode(STICK_CLAMP_MODE_CIRCLE_WITH_PLAY), 
+        m_TickOfRead(-1)
     {};
     ~DebugPadReader( ) {};
     bool ReadLatest(DebugPadStatus* pBuf);
@@ -35,21 +35,21 @@ public:
     StickClampMode GetStickClampMode() const;
     void SetStickClampMode(StickClampMode mode);
 protected:
-    DebugPad& mDebugPad;
-    s32 mIndexOfRead;
-    bit16 mLatestHold;
-    bool mIsReadLatestFirst;
-    nn::util::SizedEnum1<StickClampMode> mStickClampMode;
+    DebugPad& m_DebugPad;
+    s32 m_IndexOfRead;
+    bit16 m_LatestHold;
+    bool m_IsReadLatestFirst;
+    nn::util::SizedEnum1<StickClampMode> m_StickClampMode;
     s32 pad;
-    s64 mTickOfRead;
+    s64 m_TickOfRead;
 };
 
 inline DebugPadReader::StickClampMode DebugPadReader::GetStickClampMode( ) const{
-    return mStickClampMode;
+    return m_StickClampMode;
 }
 
 inline void DebugPadReader::SetStickClampMode(DebugPadReader::StickClampMode mode){
-    mStickClampMode = mode;
+    m_StickClampMode = mode;
 }
 
 }

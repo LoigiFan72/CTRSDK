@@ -20,7 +20,7 @@ Result Dev::ReadHostIO(bit8 pData[], size_t size, s32 numSectors, SectorSize sec
     ipcMsg.SetPXIOut(8, 0, pData, sizeof(*pData) * size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -38,7 +38,7 @@ Result Dev::WriteHostIO(const bit8 pData[], size_t size, s32 numSectors, SectorS
     ipcMsg.SetPXIIn(8, 0, pData, sizeof(*pData) * size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -56,7 +56,7 @@ Result Dev::ReadHostIO2(bit8 pData[], size_t size, s32 sectorOffset, s32 numSect
     ipcMsg.SetPXIOut(5, 0, pData, sizeof(*pData) * size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -74,7 +74,7 @@ Result Dev::WriteHostIO2( const bit8 pData[], size_t size, s32 sectorOffset, s32
     ipcMsg.SetPXIIn(5, 0, pData, sizeof(*pData) * size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

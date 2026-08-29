@@ -53,6 +53,3 @@ public:
 }
 }
 }
-
-//extern nn::snd::CTR::DspFxManager instance;
-//extern nn::snd::CTR::DspFxManagerImpl instance;

@@ -32,7 +32,7 @@ const s64 WAIT_INFINITE = NN_OS_WAIT_INFINITE;
     };
 
     struct PageInfo{
-        bit32 mFlags;
+        bit32 flags;
     };
 
     enum HandleInfoType{
@@ -131,14 +131,10 @@ const s64 WAIT_INFINITE = NN_OS_WAIT_INFINITE;
     };
 
     struct MemoryInfo{
-        uptr mBaseAddress;
-        size_t mSize;
-        bit32 mPermission;
-        MemoryState mState;
-    };
-
-    struct ValueType{
-        s32 mValueType;
+        uptr baseAddress;
+        size_t size;
+        bit32 permission;
+        MemoryState state;
     };
 
     struct NonCopyable{};

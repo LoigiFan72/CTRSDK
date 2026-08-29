@@ -70,7 +70,7 @@ public:
     void UpdateWaveBufferList();
     void UpdateWaveBufferStatus(ushort currentBufferId, ushort lastBufferId);
 public:
-    s32 GetCycle() const { return mDspCycles; }
+    s32 GetCycle() const;
     bool IsPlaying () const{ return mPlaying; }
     Voice::State VoiceImpl::GetState() const{ return mState; }
 };

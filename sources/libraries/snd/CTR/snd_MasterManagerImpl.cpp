@@ -11,7 +11,7 @@ namespace nn {
 namespace snd {
 namespace CTR {
 namespace internal{
-    CTR::MasterManagerImpl sMasterManagerImpl;
+    CTR::MasterManagerImpl s_MasterManagerImpl;
 }
 
 void MasterManagerImpl::AuxUserCallback(AuxBusId busId, uptr data){

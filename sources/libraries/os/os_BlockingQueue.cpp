@@ -27,55 +27,55 @@ BlockingQueueBase<Locker>::~BlockingQueueBase()
 template <class Locker>
 void BlockingQueueBase<Locker>::Initialize(uptr buffer[], size_t size)
 {
-    mppBuffer      = buffer;
-    mSize          = size;
-    mFirstIndex    = 0;
-    mUsedCount     = 0;
-    mWaitingEnqueueCount = 0;
-    mWaitingDequeueCount = 0;
-    mEnqueueSemaphore.Initialize(0);
-    mDequeueSemaphore.Initialize(0);
-    mCs.Initialize();
+    m_ppBuffer      = buffer;
+    m_Size          = size;
+    m_FirstIndex    = 0;
+    m_UsedCount     = 0;
+    m_WaitingEnqueueCount = 0;
+    m_WaitingDequeueCount = 0;
+    m_EnqueueSemaphore.Initialize(0);
+    m_DequeueSemaphore.Initialize(0);
+    m_Cs.Initialize();
 }
 
 template <class Locker>
 Result BlockingQueueBase<Locker>::TryInitialize(uptr buffer[], size_t size)
 {
-    mppBuffer      = buffer;
-    mSize          = size;
-    mFirstIndex    = 0;
-    mUsedCount     = 0;
-    mWaitingEnqueueCount = 0;
-    mWaitingDequeueCount = 0;
+    m_ppBuffer      = buffer;
+    m_Size          = size;
+    m_FirstIndex    = 0;
+    m_UsedCount     = 0;
+    m_WaitingEnqueueCount = 0;
+    m_WaitingDequeueCount = 0;
 
-    mEnqueueSemaphore.Initialize(0);
-    mDequeueSemaphore.Initialize(0);
+    m_EnqueueSemaphore.Initialize(0);
+    m_DequeueSemaphore.Initialize(0);
 
-    NN_UTIL_RETURN_IF_FAILED(mCs.TryInitialize());
+    NN_UTIL_RETURN_IF_FAILED(m_Cs.TryInitialize());
     return ResultSuccess();
 }
 
 template <class Locker>
 void BlockingQueueBase<Locker>::Finalize()
 {
-    mCs.Finalize();
-    mDequeueSemaphore.Finalize();
-    mEnqueueSemaphore.Finalize();
+    m_Cs.Finalize();
+    m_DequeueSemaphore.Finalize();
+    m_EnqueueSemaphore.Finalize();
 }
 
 template <class Locker>
 inline void BlockingQueueBase<Locker>::NotifyEnqueue() const
 {
-    if (mWaitingEnqueueCount > 0){
-        mEnqueueSemaphore.Release();
+    if (m_WaitingEnqueueCount > 0){
+        m_EnqueueSemaphore.Release();
     }
 }
 
 template <class Locker>
 inline void BlockingQueueBase<Locker>::NotifyDequeue() const
 {
-    if (mWaitingDequeueCount > 0){
-        mDequeueSemaphore.Release();
+    if (m_WaitingDequeueCount > 0){
+        m_DequeueSemaphore.Release();
     }
 }
 
@@ -84,10 +84,10 @@ bool BlockingQueueBase<Locker>::TryEnqueue(uptr data)
 {
     ScopedLock locker(mCs);
 
-    if (mSize > mUsedCount){
-        s32 lastIndex = (mFirstIndex + mUsedCount) % mSize;
-        mppBuffer[lastIndex] = data;
-        mUsedCount++;
+    if (m_Size > m_UsedCount){
+        s32 lastIndex = (m_FirstIndex + m_UsedCount) % m_Size;
+        m_ppBuffer[lastIndex] = data;
+        m_UsedCount++;
 
         NotifyEnqueue();
         return true;
@@ -102,16 +102,16 @@ bool BlockingQueueBase<Locker>::ForceEnqueue(uptr data, uptr* pOut)
 {
     ScopedLock locker(mCs);
     bool bReturn;
-    s32 lastIndex = (mFirstIndex + mUsedCount) % mSize;
-    if (mSize > mUsedCount){
-        mUsedCount++;
+    s32 lastIndex = (m_FirstIndex + m_UsedCount) % m_Size;
+    if (m_Size > m_UsedCount){
+        m_UsedCount++;
         bReturn = true;
     }
     else{
         if (pOut){
-            *pOut = mppBuffer[lastIndex];
+            *pOut = m_ppBuffer[lastIndex];
         }
-        mFirstIndex = (mFirstIndex + 1) % mSize;
+        m_FirstIndex = (m_FirstIndex + 1) % m_Size;
         bReturn = false;
     }
 
@@ -124,15 +124,15 @@ bool BlockingQueueBase<Locker>::ForceEnqueue(uptr data, uptr* pOut)
 template <class Locker>
 void BlockingQueueBase<Locker>::Enqueue(uptr data)
 {
-    ++mWaitingDequeueCount;
+    ++m_WaitingDequeueCount;
     for(;;){
         if (TryEnqueue(data)){
             break;
         }
 
-        mDequeueSemaphore.Acquire();
+        m_DequeueSemaphore.Acquire();
     }
-    --mWaitingDequeueCount;
+    --m_WaitingDequeueCount;
 }
 
 template <class Locker>
@@ -140,10 +140,10 @@ bool BlockingQueueBase<Locker>::TryJam(uptr data)
 {
     ScopedLock locker(mCs);
 
-    if (mSize > mUsedCount){
-        mFirstIndex = (mFirstIndex + mSize - 1) % mSize;
-        mppBuffer[mFirstIndex] = data;
-        mUsedCount++;
+    if (m_Size > m_UsedCount){
+        m_FirstIndex = (m_FirstIndex + m_Size - 1) % m_Size;
+        m_ppBuffer[m_FirstIndex] = data;
+        m_UsedCount++;
 
         NotifyEnqueue();
         return true;
@@ -156,15 +156,15 @@ bool BlockingQueueBase<Locker>::TryJam(uptr data)
 template <class Locker>
 void BlockingQueueBase<Locker>::Jam(uptr data)
 {
-    ++mWaitingDequeueCount;
+    ++m_WaitingDequeueCount;
     for(;;){
         if (TryJam(data)){
             break;
         }
 
-        mDequeueSemaphore.Acquire();
+        m_DequeueSemaphore.Acquire();
     }
-    --mWaitingDequeueCount;
+    --m_WaitingDequeueCount;
 }
 
 template <class Locker>
@@ -172,10 +172,10 @@ bool BlockingQueueBase<Locker>::TryDequeue(uptr* pOut)
 {
     ScopedLock locker(mCs);
 
-    if (0 < mUsedCount){
-        *pOut = mppBuffer[mFirstIndex];
-        mFirstIndex = (mFirstIndex + 1) % mSize;
-        mUsedCount--;
+    if (0 < m_UsedCount){
+        *pOut = m_ppBuffer[m_FirstIndex];
+        m_FirstIndex = (m_FirstIndex + 1) % m_Size;
+        m_UsedCount--;
 
         NotifyDequeue();
         return true;
@@ -188,7 +188,7 @@ bool BlockingQueueBase<Locker>::TryDequeue(uptr* pOut)
 template <class Locker>
 uptr BlockingQueueBase<Locker>::Dequeue()
 {
-    ++mWaitingEnqueueCount;
+    ++m_WaitingEnqueueCount;
     uptr data;
     for(;;){
         if (TryDequeue(&data)){
@@ -197,7 +197,7 @@ uptr BlockingQueueBase<Locker>::Dequeue()
 
         mEnqueueSemaphore.Acquire();
     }
-    --mWaitingEnqueueCount;
+    --m_WaitingEnqueueCount;
     return data;
 }
 
@@ -206,8 +206,8 @@ bool BlockingQueueBase<Locker>::TryGetFront(uptr* pOut) const
 {
     ScopedLock locker(mCs);
 
-    if (0 < mUsedCount){
-        *pOut = mppBuffer[mFirstIndex];
+    if (0 < m_UsedCount){
+        *pOut = m_ppBuffer[m_FirstIndex];
 
         return true;
     }
@@ -219,16 +219,16 @@ bool BlockingQueueBase<Locker>::TryGetFront(uptr* pOut) const
 template <class Locker>
 uptr BlockingQueueBase<Locker>::GetFront() const
 {
-    ++mWaitingEnqueueCount;
+    ++m_WaitingEnqueueCount;
     uptr data;
     for(;;){
         if (TryGetFront(&data)){
             break;
         }
 
-        mEnqueueSemaphore.Acquire();
+        m_EnqueueSemaphore.Acquire();
     }
-    --mWaitingEnqueueCount;
+    --m_WaitingEnqueueCount;
     return data;
 }
 

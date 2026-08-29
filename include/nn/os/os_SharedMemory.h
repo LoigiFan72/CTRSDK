@@ -17,11 +17,11 @@ void FreeToSharedMemorySpace(os::MemoryBlockBase* p);
 
 class SharedMemoryBlock : public MemoryBlockBase, public HandleObject{
 public:
-    bool mSpaceAllocated;
+    bool m_SpaceAllocated;
     s8 reversed[3];
     int reversed2;
 
-    Result AttachAndMap(nn::Handle handle, size_t size, bool readOnly);
+    Result AttachAndMap(Handle handle, size_t size, bool readOnly);
     Result Map(size_t size, bool readOnly);
     void Unmap();
     void Finalize();

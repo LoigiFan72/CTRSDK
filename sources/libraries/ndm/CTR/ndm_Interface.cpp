@@ -11,7 +11,7 @@ namespace ndm{
 namespace CTR{
 namespace detail{
 
-Handle Interface::sSession;
+Handle Interface::s_Session;
 
 Result Interface::OverrideDefaultDaemons(bit32 mask){
     MessageBuffer ipcMsg(GetMessageBuffer());
@@ -19,7 +19,7 @@ Result Interface::OverrideDefaultDaemons(bit32 mask){
     ipcMsg.SetRaw(1, mask);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -33,7 +33,7 @@ Result Interface::SuspendDaemons(bit32 mask){
     ipcMsg.SetRaw(1, mask);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -41,13 +41,13 @@ Result Interface::SuspendDaemons(bit32 mask){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-nn::Result Interface::ResumeDaemons( bit32 mask ){
+nn::Result Interface::ResumeDaemons(bit32 mask){
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(7, 1, 0, 0);
     ipcMsg.SetRaw(1, mask);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -61,7 +61,7 @@ Result Interface::SuspendScheduler(bool bAsync){
     ipcMsg.SetRaw(1, bAsync);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -74,7 +74,7 @@ Result Interface::ResumeScheduler(){
     ipcMsg.SetHeader(9, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

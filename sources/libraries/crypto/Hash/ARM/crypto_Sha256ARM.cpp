@@ -7,7 +7,7 @@
 
 namespace nn{
 namespace crypto{
-    u32 sSha256ConstantTable[64] ={
+    u32 s_Sha256ConstantTable[64] ={
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
         0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -57,7 +57,7 @@ loop_1
     str r5,[r3],#0x4
     bne loop_1
     mov r2,#0x30
-init_table
+loop_2
     subs r2,r2,#0x1
     ldr r10,[r3,#-0x3c]
     mov r11,r10, ror #0x7
@@ -73,11 +73,11 @@ init_table
     add r8,r8,r5
     add r8,r8,r10
     str r8,[r3],#0x4
-    bne init_table
+    bne loop_2
     add r0,r0,#0x50
-    ldr r1,=__cpp(sSha256ConstantTable)
+    ldr r1,=__cpp(s_Sha256ConstantTable)
     ldmia r0,{r6,r7,r8,r9,r10,r11,r12,lr}
-loop
+loop_3
     mov r5,r10, ror #0x6
     and r3,r10,r11
     bic r4,r12,r10
@@ -108,7 +108,7 @@ loop
     cpy r7,r6
     cmp r2,#0x40
     add r6,r5,r3
-    blt loop
+    blt loop_3
     ldr r0,[sp,#0x100]
     add r1,r0,#0x50
     ldmia r1,{r2,r3,r4,r5}

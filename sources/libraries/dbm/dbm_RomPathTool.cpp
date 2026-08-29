@@ -12,42 +12,42 @@ namespace RomPathTool{
 /* PathParser*/
 
 PathParser::PathParser(): 
-    mpPrevStartPath(NULL),
-    mpPrevEndPath(NULL),
-    mpNextPath(NULL),
-    mbParseFinished(false)
+    m_pPrevStartPath(NULL),
+    m_pPrevEndPath(NULL),
+    m_pNextPath(NULL),
+    m_bParseFinished(false)
 {}
 
 Result RomPathTool::PathParser::GetAsDirectoryName(RomEntryName* pName) const{
-    NN_NULL_TASSERT_(this->mpNextPath);
-    NN_NULL_TASSERT_(this->mpPrevStartPath);
-    NN_NULL_TASSERT_(this->mpPrevEndPath);
+    NN_NULL_TASSERT_(this->m_pNextPath);
+    NN_NULL_TASSERT_(this->m_pPrevStartPath);
+    NN_NULL_TASSERT_(this->m_pPrevEndPath);
     NN_NULL_TASSERT_(pName);
 
-    size_t numChar = mpPrevEndPath - mpPrevStartPath;
+    size_t numChar = m_pPrevEndPath - m_pPrevStartPath;
     if (numChar > MAX_PATH_LENGTH){
         return ResultDirectoryNameTooLong();
     }
 
     pName->length = numChar;
-    pName->path = mpPrevStartPath;
+    pName->path = m_pPrevStartPath;
 
     return ResultSuccess();
 }
 
 Result RomPathTool::PathParser::GetAsFileName(RomEntryName* pName) const{
-    NN_NULL_TASSERT_(this->mpNextPath);
-    NN_NULL_TASSERT_(this->mpPrevStartPath);
-    NN_NULL_TASSERT_(this->mpPrevEndPath);
+    NN_NULL_TASSERT_(this->m_pNextPath);
+    NN_NULL_TASSERT_(this->m_pPrevStartPath);
+    NN_NULL_TASSERT_(this->m_pPrevEndPath);
     NN_NULL_TASSERT_(pName);
 
-    size_t numChar = mpPrevEndPath - mpPrevStartPath;
+    size_t numChar = m_pPrevEndPath - m_pPrevStartPath;
     if (numChar > MAX_PATH_LENGTH){
         return ResultFileNameTooLong();
     }
 
     pName->length = numChar;
-    pName->path = mpPrevStartPath;
+    pName->path = m_pPrevStartPath;
 
     return ResultSuccess();
 }
@@ -55,60 +55,60 @@ Result RomPathTool::PathParser::GetAsFileName(RomEntryName* pName) const{
 Result PathParser::Initialize(const RomPathChar* pFullPath){
     NN_NULL_TASSERT_(pFullPath);
 
-    if (! IsSeparator(pFullPath[0])){
+    if (!IsSeparator(pFullPath[0])){
         return ResultInvalidPathFormat();
     }
 
-    while (IsSeparator(pFullPath[1])){
-        pFullPath ++;
+    while(IsSeparator(pFullPath[1])){
+        pFullPath++;
     }
 
-    mpPrevStartPath = pFullPath;
+    m_pPrevStartPath = pFullPath;
 
-    mpPrevEndPath = mpPrevStartPath;
+    m_pPrevEndPath = m_pPrevStartPath;
 
-    mpNextPath = &pFullPath[1];
-    while (IsSeparator(this->mpNextPath[0])){
-        this->mpNextPath ++;
+    m_pNextPath = &pFullPath[1];
+    while (IsSeparator(this->m_pNextPath[0])){
+        this->m_pNextPath++;
     }
 
     return ResultSuccess();
 }
 
 Result PathParser::GetNextDirectoryName(RomEntryName* pDirName){
-    NN_NULL_TASSERT_(mpPrevStartPath);
-    NN_NULL_TASSERT_(mpPrevEndPath);
-    NN_NULL_TASSERT_(mpNextPath);
+    NN_NULL_TASSERT_(m_pPrevStartPath);
+    NN_NULL_TASSERT_(m_pPrevEndPath);
+    NN_NULL_TASSERT_(m_pNextPath);
     NN_NULL_TASSERT_(pDirName);
 
-    pDirName->length = (mpPrevEndPath - mpPrevStartPath);
-    pDirName->path = mpPrevStartPath;
+    pDirName->length = (m_pPrevEndPath - m_pPrevStartPath);
+    pDirName->path = m_pPrevStartPath;
 
-    mpPrevStartPath = mpNextPath;
+    m_pPrevStartPath = m_pNextPath;
 
-    const RomPathChar* p = mpNextPath;
+    const RomPathChar* p = m_pNextPath;
     for (size_t dirNameLength = 0; ; dirNameLength++){
         if (IsSeparator(p[dirNameLength])){
             if (dirNameLength >= MAX_PATH_LENGTH){
                 return ResultDirectoryNameTooLong();
             }
 
-            mpPrevEndPath = &p[dirNameLength];
-            mpNextPath = mpPrevEndPath + 1;
+            m_pPrevEndPath = &p[dirNameLength];
+            m_pNextPath = m_pPrevEndPath + 1;
 
-            while (IsSeparator(*this->mpNextPath)){
-                mpNextPath ++;
+            while (IsSeparator(*this->m_pNextPath)){
+                m_pNextPath ++;
             }
 
-            if (*this->mpNextPath == NULL){
-                mbParseFinished = true;
+            if (*this->m_pNextPath == NULL){
+                m_bParseFinished = true;
             }
             break;
         }
 
         if (p[dirNameLength] == NULL){
-            mbParseFinished = true;
-            mpPrevEndPath = mpNextPath = &p[dirNameLength];
+            m_bParseFinished = true;
+            m_pPrevEndPath = m_pNextPath = &p[dirNameLength];
             break;
         }
     }
@@ -117,20 +117,20 @@ Result PathParser::GetNextDirectoryName(RomEntryName* pDirName){
 }
 
 bool PathParser::IsParseFinished() const{
-    return mbParseFinished;
+    return m_bParseFinished;
 }
 
 bool RomPathTool::PathParser::IsDirectoryPath() const{
-    NN_NULL_TASSERT_(mpNextPath);
-    if ((mpNextPath[0] == NULL) && (mpNextPath[-1] == 0x2F)){
+    NN_NULL_TASSERT_(m_pNextPath);
+    if ((m_pNextPath[0] == NULL) && (m_pNextPath[-1] == 0x2F)){
         return true;
     }
 
-    if (IsCurrentDirectory(this->mpNextPath)){
+    if (IsCurrentDirectory(this->m_pNextPath)){
         return true;
     }
 
-    if (IsParentDirectory(this->mpNextPath)){
+    if (IsParentDirectory(this->m_pNextPath)){
         return true;
     }
 

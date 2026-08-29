@@ -11,7 +11,7 @@ namespace camera{
 namespace CTR{
 namespace detail{
 
-Handle Camera::sSession;
+Handle Camera::s_Session;
 
 Result Camera::Activate(CameraSelect camera){
     MessageBuffer ipcMsg(GetMessageBuffer());
@@ -19,7 +19,7 @@ Result Camera::Activate(CameraSelect camera){
     ipcMsg.SetRaw(1, camera);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -32,7 +32,7 @@ Result Camera::GetActivatedCamera(CameraSelect* pSelect){
     ipcMsg.SetHeader(0x3B, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -47,7 +47,7 @@ Result Camera::GetSleepCamera(CameraSelect* pSelect){
     ipcMsg.SetHeader(0x3C, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -63,7 +63,7 @@ Result Camera::SetSleepCamera(CameraSelect select){
     ipcMsg.SetRaw(1, select);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

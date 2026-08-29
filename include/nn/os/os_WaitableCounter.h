@@ -10,15 +10,15 @@ namespace os{
     class WaitableCounter{
     public:
         typedef fnd::InterlockedVariable<s32> ValueType;
-        ValueType mValue;
+        ValueType m_v;
 
-        static nnHandle sHandle;
+        static nnHandle s_Handle;
     public:
         static void Initialize();
         static void Finalize(); // Unused
-        ValueType&       operator* () {return mValue; }
-        const ValueType& operator* () const { return mValue; }
-        ValueType*       operator->() { return &mValue; }
+        ValueType&       operator* () {return m_v; }
+        const ValueType& operator* () const { return m_v; }
+        ValueType*       operator->() { return &m_v; }
     public:
         Result WaitIfLessThan (s32 value){
                 return ArbitrateAddress(ARBITRATION_TYPE_WAIT_IF_LESS_THAN, value);
@@ -43,10 +43,10 @@ namespace os{
         }
     private:
         Result ArbitrateAddress (ArbitrationType type, s32 value){
-                return svc::ArbitrateAddress (sHandle, (uptr)&mValue, type, value, 0);
+                return svc::ArbitrateAddress (s_Handle, (uptr)&m_v, type, value, 0);
         }
         Result ArbitrateAddress(nn::os::ArbitrationType type, s32 value, fnd::TimeSpan timeout){
-                return nn::svc::ArbitrateAddress(sHandle, reinterpret_cast<uptr>(&mValue), type, value, timeout.GetNanoSeconds());
+                return nn::svc::ArbitrateAddress(s_Handle, reinterpret_cast<uptr>(&m_v), type, value, timeout.GetNanoSeconds());
         }
     };
 }

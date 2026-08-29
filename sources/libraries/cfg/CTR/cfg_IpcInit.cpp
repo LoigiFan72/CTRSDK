@@ -10,7 +10,7 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 
-nn::Handle IpcInit::sSession;
+nn::Handle IpcInit::s_Session;
 
 }
 }

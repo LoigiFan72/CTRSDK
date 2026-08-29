@@ -16,7 +16,7 @@ Result FatalErr::Throw(FatalErrInfo& info){
     ipcMsg.SetRaw(1, info);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

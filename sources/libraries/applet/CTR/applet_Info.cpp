@@ -7,9 +7,28 @@
 namespace nn{
 namespace applet{
 namespace CTR{
+namespace{
+    AppletId                    s_Id;
+    AppletAttr                  s_Attribute;
+    bool                        s_IsAppletMode = false;
+    bool                        s_IsActive = false;
+    u32                         s_MessageCommand = COMMAND_NONE;
+    HomeButtonState             s_AbsoluteHomeButtonState = HOME_BUTTON_NONE;
+    SleepSysState               s_SleepSysState = SLEEP_SYS_STATE_NONE;
+    ShutdownState               s_ShutdownState = SHUTDOWN_STATE_NONE;
+    PowerButtonState            s_PowerButtonState = POWER_BUTTON_STATE_NONE;
+    OrderToCloseState           s_OrderToCloseState = ORDER_TO_CLOSE_STATE_NONE;
+    bool                        s_IsToCallPowerButtonCallback = false;
+    bool                        s_IsToCallShutdownCallback = false;
+    bool                        s_IsReceivedWakeupByCancelFlag = false;
+    TransitionType              s_PrevTransition = TRANSITION_NONE;
+    SleepNotificationState      s_SleepNotificationState = NOTIFY_NONE;
+    HomeButtonState             s_HomeButtonState = HOME_BUTTON_NONE;
+    bool                        s_IsExpectedToJumpToHomeMenu = false;
+}
 
 CTR::AppletAttr GetAttribute(){
-    return sAttribute;
+    return s_Attribute;
 }
 
 CTR::AppletAttr GetAppletType(){
@@ -17,161 +36,161 @@ CTR::AppletAttr GetAppletType(){
 }
 
 void SetAttribute(CTR::AppletAttr attribute){
-    sAttribute = attribute;
+    s_Attribute = attribute;
 }
 
-s8 IsSystemApplet(){
-    return sAttribute & 7 == 2;
+bool IsSystemApplet(){
+    return s_Attribute & 7 == 2;
 }
 
-s8 IsApplication(){
-    return sAttribute & 7 == 0;
+bool IsApplication(){
+    return s_Attribute & 7 == 0;
 }
 
-s8 IsInfoAccess(){
-    return sAttribute & 7 == 6;
+bool IsInfoAccess(){
+    return s_Attribute & 7 == 6;
 }
 
 void SetHomeButtonState(CTR::HomeButtonState state){
-    sHomeButtonState = state;
+    s_HomeButtonState = state;
 }
 
 CTR::HomeButtonState GetHomeButtonState(){
-    return (CTR::HomeButtonState)sHomeButtonState;
+    return s_HomeButtonState;
 }
 
 void SetExpectationToJumpToHome(bool flag){
-    sIsExpectedToJumpToHomeMenu = flag;
+    s_IsExpectedToJumpToHomeMenu = flag;
 }
 
-s8 IsExpectedToJumpToHomeMenu(){
-    return sIsExpectedToJumpToHomeMenu;
+bool IsExpectedToJumpToHomeMenu(){
+    return s_IsExpectedToJumpToHomeMenu;
 }
 
 CTR::AppletId GetId(){
-    return sId;
+    return s_Id;
 }
 
 void SetId(CTR::AppletId id){
-    sId = id;
+    s_Id = id;
 }
 
 u32 GetMessageCommand(){
-    return sMessageCommand;
+    return s_MessageCommand;
 }
 
 void SetMessageCommand(u32 message){
-    sMessageCommand = message;
+    s_MessageCommand = message;
 }
 
-CTR::SleepNotificationState GetSleepNoticationState(){
-    return (CTR::SleepNotificationState)sSleepNotificationState;
+SleepNotificationState GetSleepNoticationState(){
+    return s_SleepNotificationState;
 }
 
-void SetSleepNotificationState(CTR::SleepNotificationState state){
-    sSleepNotificationState = state;
+void SetSleepNotificationState(SleepNotificationState state){
+    s_SleepNotificationState = state;
 }
 
-CTR::TransitionType GetTransitionType(){
-    return (CTR::TransitionType)sPrevTransitionType;
+TransitionType GetTransitionType(){
+    return s_PrevTransition;
 }
 
-void SetTransitionType(CTR::TransitionType type){
-    sPrevTransitionType = type;
+void SetTransitionType(TransitionType type){
+    s_PrevTransition = type;
 }
 
 void SetShutdownCallbackFlag(){
-    sIsToCallShutdownCallback = 1;
-}
-
-s8 IsToShutdownCallbackFlag(){
-    return sIsToCallShutdownCallback;
+    s_IsToCallShutdownCallback = true;
 }
 
 void ClearShutdownCallbackFlag(){
-    sIsToCallShutdownCallback = 0;
+    s_IsToCallShutdownCallback = false;
+}
+
+bool IsToShutdownCallback(){
+    return s_IsToCallShutdownCallback;
 }
 
 void SetPowerButtonCallbackFlag(){
-    sIsToCallPowerButtonCallback = 1;
+    s_IsToCallPowerButtonCallback = 1;
 }
 
-s8 IsToCallPowerButtonCallback(){
-    return sIsToCallPowerButtonCallback;
+bool IsToCallPowerButtonCallback(){
+    return s_IsToCallPowerButtonCallback;
 }
 
 void ClearPowerButtonCallbackFlag(){
-    sIsToCallPowerButtonCallback = 0;
+    s_IsToCallPowerButtonCallback = 0;
 }
 
 void SetReceivedWakeupByCancelFlag(){
-    sIsReceivedWakeupByCancelFlag = 1;
+    s_IsReceivedWakeupByCancelFlag = true;
 }
 
-s8 IsReceivedWakeupByCancel(){
-    return sIsReceivedWakeupByCancelFlag;
+bool IsReceivedWakeupByCancel(){
+    return s_IsReceivedWakeupByCancelFlag;
 }
 
-void SetOrderToCloseState(CTR::OrderToCloseState state){
-    CTR::sOrderToCloseState = state;
+void SetOrderToCloseState(OrderToCloseState state){
+    s_OrderToCloseState = state;
 }
 
 namespace detail{
 
 CTR::HomeButtonState GetAbsoluteHomeButtonState(){
-    CTR::sAbsoluteHomeButtonState;
+    CTR::s_AbsoluteHomeButtonState;
 }
 
 void SetAbsoluteHomeButtonState(CTR::HomeButtonState state){
-    CTR::sAbsoluteHomeButtonState = state;
+    CTR::s_AbsoluteHomeButtonState = state;
 }
 
 void ClearAbsoluteHomeButtonState(){
-    CTR::sAbsoluteHomeButtonState = 0;
+    CTR::s_AbsoluteHomeButtonState = HOME_BUTTON_NONE;
 }
 
 CTR::SleepSysState GetSleepSysState(){
-    return (CTR::SleepSysState)CTR::sSleepSysState;
+    return CTR::s_SleepSysState;
 }
 
 void SetSleepSysState(CTR::SleepSysState state){
-    CTR::sSleepSysState = state;
+    CTR::s_SleepSysState = state;
 }
 
 bool IsActive(){
-    return CTR::isActive;
+    return CTR::s_IsActive;
 }
 
 void SetActive(){
-    CTR::isActive = 1;
+    CTR::s_IsActive = true;
 }
 
 void SetInactive(){
-    nn::applet::CTR::isActive = 0;
+    CTR::s_IsActive = false;
 }
 
 CTR::PowerButtonState GetPowerButtonState(){
-    return (CTR::PowerButtonState)CTR::sPowerButtonState;
+    return CTR::s_PowerButtonState;
 }
 
 void SetPowerButtonState(CTR::PowerButtonState state){
-    CTR::sPowerButtonState = state;
+    CTR::s_PowerButtonState = state;
 }
 
 CTR::OrderToCloseState GetOrderToCloseState(){
-    return (CTR::OrderToCloseState)CTR::sOrderToCloseState;
+    return CTR::s_OrderToCloseState;
 }
 
 void ClearSleepSysState(){
-    CTR::sSleepSysState = 0;
+    CTR::s_SleepSysState = SLEEP_SYS_STATE_NONE;
 }
 
 void SetShutdownState(CTR::ShutdownState state){
-    CTR::sShutdownState = state;
+    CTR::s_ShutdownState = state;
 }
 
-s8 IsAppletMode(){
-    return CTR::isAppletMode;
+bool IsAppletMode(){
+    return CTR::s_IsAppletMode;
 }
 
 }

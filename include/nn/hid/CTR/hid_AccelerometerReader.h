@@ -23,18 +23,18 @@ namespace CTR{
 
 class AccelerometerReader : private nn::util::ADLFireWall::NonCopyable<AccelerometerReader>{
 protected:
-    Accelerometer& mAccelerometer;
-    short mPlay;
-    short mSensitivity;
-    AccelerometerStatus mLatestCalculatedStatus;
-    AccelerometerStatus mOffsetAccStatus;
+    Accelerometer& m_Accelerometer;
+    s16 m_Play;
+    s16 m_Sensitivity;
+    AccelerometerStatus m_LatestCalculatedStatus;
+    AccelerometerStatus m_OffsetAccStatus;
     s32 rev;
-    nn::math::MTX34 mRotateMtx;
-    bool mEnableOffset;
-    bool mEnableRotate;
+    MTX34 m_RotateMtx;
+    bool m_EnableOffset;
+    bool m_EnableRotate;
     short rev2;
-    s32 mIndexOfRead;
-    s64 mTickOfRead;
+    s32 m_IndexOfRead;
+    s64 m_TickOfRead;
 public:
 
     AccelerometerReader(Accelerometer& accelerometer = CTR::GetAccelerometer());
@@ -51,7 +51,7 @@ public:
     void SetSensitivity(s16 play, s16 sensitivity);
 
     void ResetOffset();
-    void SetOffset(short x, short y, short z);
+    void SetOffset(s16 x, s16 y, s16 z);
 private:
     void Transform(AccelerometerStatus* status);
 
@@ -59,21 +59,23 @@ private:
 
 /* Inlines */
 
-inline void AccelerometerReader::ResetOffset(){ SetOffset(0,0,0); }
+inline void AccelerometerReader::ResetOffset(){ 
+    SetOffset(0, 0, 0); 
+}
 
-inline void AccelerometerReader::SetOffset(short x, short y, short z){
-    mOffsetAccStatus.x = x; mOffsetAccStatus.y = y; mOffsetAccStatus.z = z;
+inline void AccelerometerReader::SetOffset(s16 x, s16 y, s16 z){
+    m_OffsetAccStatus.x = x; m_OffsetAccStatus.y = y; m_OffsetAccStatus.z = z;
 }
 
 inline void AccelerometerReader::SetSensitivity(s16 play, s16 sensitivity){
     NN_TASSERT_(0 <= play && MAX_OF_ACCELEROMETER_PLAY >= play && 0 <= sensitivity && MAX_OF_ACCELEROMETER_SENSITIVITY >= sensitivity);
-    mPlay = play;
-    mSensitivity = sensitivity;
+    m_Play = play;
+    m_Sensitivity = sensitivity;
 }
 
 inline void AccelerometerReader::GetSensitivity(s16* pPlay, s16* pSensitivity) const{
-    *pPlay = mPlay;
-    *pSensitivity = mSensitivity;
+    *pPlay = m_Play;
+    *pSensitivity = m_Sensitivity;
 }
 
 }

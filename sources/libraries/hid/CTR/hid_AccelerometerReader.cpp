@@ -35,20 +35,20 @@ short CalculateAccelerationTightly(short targetValue, short currentValue, short 
 }
 
 AccelerometerReader::AccelerometerReader(Accelerometer& accelerometer): 
-    mAccelerometer(accelerometer),
-    mPlay(0),
-    mSensitivity(MAX_OF_ACCELEROMETER_SENSITIVITY),
-    mEnableOffset(false),
-    mEnableRotate(false),
-    mIndexOfRead(-1),
-    mTickOfRead(-1LL){
+    m_Accelerometer(accelerometer),
+    m_Play(0),
+    m_Sensitivity(MAX_OF_ACCELEROMETER_SENSITIVITY),
+    m_EnableOffset(false),
+    m_EnableRotate(false),
+    m_IndexOfRead(-1),
+    m_TickOfRead(-1LL){
     AccelerometerStatus tempStatus;
     s32 tempLen;
 
     detail::Ipc::EnableAccelerometer();
-    mLatestCalculatedStatus.x = 0;
-    mLatestCalculatedStatus.y = 0;
-    mLatestCalculatedStatus.z = 0;
+    m_LatestCalculatedStatus.x = 0;
+    m_LatestCalculatedStatus.y = 0;
+    m_LatestCalculatedStatus.z = 0;
     this->ResetOffset();
     this->ResetAxisRotationMatrix();
     this->DisableOffset();
@@ -73,16 +73,16 @@ void AccelerometerReader::ConvertToAcceleration(AccelerationFloat* pAcceleration
 
 
 void AccelerometerReader::Read(AccelerometerStatus* pBufs, s32* pReadLen, s32 bufLen){
-    Accelerometer& accelerometer = this->mAccelerometer;
-    reinterpret_cast<nn::hidlow::CTR::AccelerometerLifoRing*>(this->mAccelerometer.GetResource())->ReadData(pBufs, bufLen, pReadLen, &this->mTickOfRead, &this->mIndexOfRead);
+    Accelerometer& accelerometer = m_Accelerometer;
+    reinterpret_cast<nn::hidlow::CTR::AccelerometerLifoRing*>(this->m_Accelerometer.GetResource())->ReadData(pBufs, bufLen, pReadLen, &this->m_TickOfRead, &this->m_IndexOfRead);
 
     s16 (*calculateAccelerationFunc)(s16 targetValue, s16 currentValue, s16 playRadius, s16 sensitivity);
     calculateAccelerationFunc = detail::CalculateAccelerationTightly;
         
     for(int i =*pReadLen - 1; i >= 0; --i){
-        mLatestCalculatedStatus.x = pBufs[i].x = calculateAccelerationFunc(pBufs[i].x, this->mLatestCalculatedStatus.x, this->mPlay, this->mSensitivity);
-        mLatestCalculatedStatus.y = pBufs[i].y = calculateAccelerationFunc(pBufs[i].y, this->mLatestCalculatedStatus.y, this->mPlay, this->mSensitivity);
-        mLatestCalculatedStatus.z = pBufs[i].z = calculateAccelerationFunc(pBufs[i].z, this->mLatestCalculatedStatus.z, this->mPlay, this->mSensitivity);
+        m_LatestCalculatedStatus.x = pBufs[i].x = calculateAccelerationFunc(pBufs[i].x, m_LatestCalculatedStatus.x, m_Play, m_Sensitivity);
+        m_LatestCalculatedStatus.y = pBufs[i].y = calculateAccelerationFunc(pBufs[i].y, m_LatestCalculatedStatus.y, m_Play, m_Sensitivity);
+        m_LatestCalculatedStatus.z = pBufs[i].z = calculateAccelerationFunc(pBufs[i].z, m_LatestCalculatedStatus.z, m_Play, m_Sensitivity);
 
         this->Transform(&pBufs[i]);
     }
@@ -93,7 +93,7 @@ bool AccelerometerReader::ReadLatest(AccelerometerStatus* pBuf){
     s32 index = -1;
     s32 readLen;
 
-    reinterpret_cast<nn::hidlow::CTR::AccelerometerLifoRing*>(this->mAccelerometer.GetResource())->ReadData(pBuf, 1, &readLen, &tick, &index);
+    reinterpret_cast<nn::hidlow::CTR::AccelerometerLifoRing*>(this->m_Accelerometer.GetResource())->ReadData(pBuf, 1, &readLen, &tick, &index);
 
     if (readLen <= 0) {
         return false;
@@ -102,9 +102,9 @@ bool AccelerometerReader::ReadLatest(AccelerometerStatus* pBuf){
     s16 (*calculateAccelerationFunc)(s16 targetValue, s16 currentValue, s16 playRadius, s16 sensitivity);
     calculateAccelerationFunc = detail::CalculateAccelerationTightly;
 
-    mLatestCalculatedStatus.x = pBuf->x = calculateAccelerationFunc(pBuf->x, this->mLatestCalculatedStatus.x, this->mPlay, this->mSensitivity);
-    mLatestCalculatedStatus.y = pBuf->y = calculateAccelerationFunc(pBuf->y, this->mLatestCalculatedStatus.y, this->mPlay, this->mSensitivity);
-    mLatestCalculatedStatus.z = pBuf->z = calculateAccelerationFunc(pBuf->z, this->mLatestCalculatedStatus.z, this->mPlay, this->mSensitivity);
+    m_LatestCalculatedStatus.x = pBuf->x = calculateAccelerationFunc(pBuf->x, m_LatestCalculatedStatus.x, m_Play, m_Sensitivity);
+    m_LatestCalculatedStatus.y = pBuf->y = calculateAccelerationFunc(pBuf->y, m_LatestCalculatedStatus.y, m_Play, m_Sensitivity);
+    m_LatestCalculatedStatus.z = pBuf->z = calculateAccelerationFunc(pBuf->z, m_LatestCalculatedStatus.z, m_Play, m_Sensitivity);
 
     this->Transform(pBuf);
     return true;
@@ -121,10 +121,10 @@ void AccelerometerReader::Transform(AccelerometerStatus* pAcclStatus){
         pAcclStatus->z = pAcclStatus->z - mOffsetAccStatus.z;
     }
     
-    if ((mEnableRotate != false && !this->mRotateMtx.IsIdentity())) {
+    if ((mEnableRotate != false && !this->m_RotateMtx.IsIdentity())) {
         nn::math::VEC3 vec(pAcclStatus->x,pAcclStatus->y,pAcclStatus->z);
 
-        math::VEC3Transform(&vec,&this->mRotateMtx,&vec);
+        math::VEC3Transform(&vec,&this->m_RotateMtx,&vec);
         pAcclStatus->x = vec.x;
         pAcclStatus->y = vec.y;
         pAcclStatus->z = vec.z;
@@ -132,15 +132,15 @@ void AccelerometerReader::Transform(AccelerometerStatus* pAcclStatus){
 }
 
 void AccelerometerReader::DisableAxisRotation(){
-    mEnableRotate = false;
+    m_EnableRotate = false;
 }
 
 void AccelerometerReader::DisableOffset(){
-    mEnableOffset = false;
+    m_EnableOffset = false;
 }
 
 void AccelerometerReader::SetAxisRotationMatrix(const nn::math::MTX34& mtx){
-    mRotateMtx = mtx;
+    m_RotateMtx = mtx;
 }
 
 }

@@ -2,6 +2,7 @@
 //
 // Project: Horizon
 
+#include <nn/cfg.h>
 #include <nn/cfg/CTR/cfg_DetailApi.h>
 #include <nn/cfg/CTR/cfg_IpcUser.h>
 #include <nn/srv/srv_API.h>
@@ -15,8 +16,8 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 namespace{
-    static int sInitializeCount;
-    static bool sIsInitialized;
+    int  s_InitializeCount;
+    bool s_IsInitialized;
 }
 
 Result InitializeBase(Handle* pSession, const char* name){
@@ -28,24 +29,25 @@ Result InitializeBase(Handle* pSession, const char* name){
     else{
         res = srv::GetServiceHandle(pSession, name);
         if(res.IsSuccess() == 0){
-            return (Result)0xd92103fb;
+            return ResultCancelRequested();
         }
     }
     return res;
 }
 
 Result Initialize(){
-    Result res;
-    if(!sInitializeCount){
-        res = InitializeBase(&IpcUser::sSession,PORT_NAME_USER);
+    if(!s_InitializeCount){
+        Result res = InitializeBase(&IpcUser::s_Session,PORT_NAME_USER);
         if(res.IsSuccess()){
-            sIsInitialized = true;
-        } 
-        else if(res == Result(0xd92103fb)){
+            s_IsInitialized = true;
+        }
+
+        else if(res == ResultCancelRequested()){
             return res;
         }
     }
-    ++sInitializeCount;
+
+    ++s_InitializeCount;
     return ResultSuccess();
 }
 
@@ -85,12 +87,14 @@ Result FinalizeBase(Handle* pSession){
 }
 
 void Finalize(){
-    if(sInitializeCount > 0)
-        sInitializeCount--;
-    if((sInitializeCount == 0)){
-        if(sIsInitialized){
-            sIsInitialized = false;
-            FinalizeBase(&IpcUser::sSession);
+    if(s_InitializeCount > 0){
+        --s_InitializeCount;
+    }
+
+    if(s_InitializeCount == 0){
+        if(s_IsInitialized){
+            s_IsInitialized = false;
+            detail::FinalizeBase(&detail::IpcUser::s_Session);
         }
     }
 }
@@ -116,7 +120,7 @@ void FinalizeProperPort(IPCPortType portType){
 }
 
 CfgRegionCode GetRegion(){
-    if(!detail::IpcUser::sSession.IsValid()){
+    if(!detail::IpcUser::s_Session.IsValid()){
         NN_TLOG_("[WARN] nn::cfg is not initialized.\n");
     }
     nn::cfg::CTR::CfgRegionCode region = CFG_REGION_JAPAN;
@@ -134,6 +138,14 @@ Result GetConfig(void* pData, size_t size, bit32 key){
     res = IpcUser::GetConfig(pData,size,key);
     return res;
 }
+
+Result GetTransferableId(bit32 uniqueId, bit64* transferableId){
+    if(!detail::IpcUser::s_Session.IsValid()){
+        NN_TLOG_("[WARN] nn::cfg is not initialized.\n");
+    }
+    return IpcUser::GetTransferableId(uniqueId, transferableId);
+}
+
 }
 }
 }

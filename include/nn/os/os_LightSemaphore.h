@@ -45,9 +45,9 @@ private:
         }
     };
 
-    WaitableCounter mCounter;
-    fnd::InterlockedVariable<s16> mNumWaiting;
-    s16 mMax;
+    WaitableCounter m_Counter;
+    fnd::InterlockedVariable<s16> m_NumWaiting;
+    s16 m_Max;
 public:
     LightSemaphore() {}
     LightSemaphore(s32 initialCount, s32 maxCount) { this->Initialize(initialCount, maxCount); }
@@ -61,23 +61,25 @@ public:
         NN_MIN_TASSERT_(maxCount, 1);
         NN_MAX_TASSERT_(initialCount, maxCount);
         NN_MAX_TASSERT_(maxCount, MAX_MAX_COUNT);
-        *mCounter = initialCount;
-        mNumWaiting = 0;
-        mMax = maxCount;
+        *m_Counter = initialCount;
+        m_NumWaiting = 0;
+        m_Max = maxCount;
     }
 
     void Finalize() {}
 
     bool TryAcquire(){
         DecrementIfPositive updater;
-        return this->mCounter->AtomicUpdateConditional(updater);
+        return this->m_Counter->AtomicUpdateConditional(updater);
     }
 
     void Acquire(){
         while(!this->TryAcquire()){
-            ++this->mNumWaiting;
-            this->mCounter.WaitIfLessThan(1);
-            --mNumWaiting;
+            ++this->m_NumWaiting;
+            
+            this->m_Counter.WaitIfLessThan(1);
+
+            --this->m_NumWaiting;
         }
     }
 

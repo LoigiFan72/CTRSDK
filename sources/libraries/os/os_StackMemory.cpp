@@ -10,16 +10,17 @@
 
 namespace nn{
 namespace os{
-extern nnosAddressSpaceManager sSpaceManager;
+
+nnosAddressSpaceManager s_SpaceManager;
 
 namespace detail{
 
 void InitializeStackMemory(){
-    nnosAddressSpaceManagerInitialize(&os::sSpaceManager,0xe000000, 0x2000000);
+    nnosAddressSpaceManagerInitialize(&s_SpaceManager,0xe000000, 0x2000000);
 }
 
 void Switch(nnosMemoryBlockBase* pTo, nnosMemoryBlockBase* pFrom){
-    nnosAddressSpaceManagerSwitch(&os::sSpaceManager,pTo,pFrom);
+    nnosAddressSpaceManagerSwitch(&s_SpaceManager,pTo,pFrom);
 }
 
 }

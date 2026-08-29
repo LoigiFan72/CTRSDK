@@ -10,8 +10,7 @@ namespace detail{
 
 class PtmIpc{
 public:
-
-    static nn::Handle sSession;
+    static nn::Handle s_Session;
 
     static Result GetStepHistory(u16* pStepCounts, s32 numHours, fnd::DateTime start);
 };

@@ -19,17 +19,17 @@ namespace internal{
 class VoiceManager{
 public:
     static VoiceManager& GetInstance(){ return internal::sVoiceManager; }
-public:
-    bit32 mUsedVoiceBits;
-    Voice* mMostPriorVoice;
-    Voice* mMostInferiorVoice;
-    short mAllocatedVoiceCount;
-    util::SizedEnum1<VoiceDropMode> mVoiceDropMode;
+private:
+    bit32  m_UsedVoiceBits;
+    Voice* m_MostPriorVoice;
+    Voice* m_MostInferiorVoice;
+    short  m_AllocatedVoiceCount;
+    util::SizedEnum1<VoiceDropMode> m_VoiceDropMode;
     s8 pad1;
-    os::InterCoreCriticalSection mCriticalSection;
-    u8 mVoiceBuffer[2592];
-    u8 mVoiceImplBuffer[2976];
-    Voice* mpVoice[24];
+    os::InterCoreCriticalSection    m_CriticalSection;
+    u8 m_VoiceBuffer[2592];
+    u8 m_VoiceImplBuffer[2976];
+    Voice* mp_Voice[24];
 
 public:
     VoiceManager();
@@ -43,10 +43,10 @@ public:
     Voice* GetAvaliableVoice();
     void Initialize();
     void InsertVoiceToPriorityList(Voice* pVoice, s32 priority);
-    bool IsAllocated(Voice* pVoice){ return (1 << (pVoice->GetId() & 0xff) & this->mUsedVoiceBits) != 0; }
+    bool IsAllocated(Voice* pVoice){ return (1 << (pVoice->GetId() & 0xff) & m_UsedVoiceBits) != 0; }
     void RemoveVoiceFromPriorityList(Voice* pVoice);
-    void SetMostInferiorVoice(Voice* pVoice){ pVoice->mInferiorVoice = 0; this->mMostInferiorVoice = pVoice; }
-    void SetMostPriorVoice(Voice* pVoice){ pVoice->mPriorVoice = 0; this->mMostPriorVoice = pVoice; }
+    void SetMostInferiorVoice(Voice* pVoice);
+    void SetMostPriorVoice(Voice* pVoice);
     void SetPriority(Voice* pVoice, s32 priority);
     void SetVoiceDropMode(VoiceDropMode mode);
     void UpdateParams();

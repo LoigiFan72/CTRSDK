@@ -11,7 +11,7 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 
-Handle IpcUser::sSession;
+Handle IpcUser::s_Session;
 
 Result IpcUser::GetConfig(void* pData, size_t size, bit32 key){
     MessageBuffer ipcMsg(GetMessageBuffer());
@@ -21,7 +21,7 @@ Result IpcUser::GetConfig(void* pData, size_t size, bit32 key){
     ipcMsg.SetReceive(3, pData, size);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -34,12 +34,28 @@ Result IpcUser::GetRegion(CfgRegionCode* regionCode){
     ipcMsg.SetHeader(2, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
 
-    *regionCode = ipcMsg.GetRaw<nn::cfg::CTR::CfgRegionCode>(2);
+    *regionCode = ipcMsg.GetRaw<CfgRegionCode>(2);
+
+    return ipcMsg.GetRaw<Result>(1);
+}
+
+Result IpcUser::GetTransferableId(bit32 uniqueId, bit64* transferableId){
+    MessageBuffer ipcMsg(GetMessageBuffer());
+    ipcMsg.SetHeader(3, 1, 0, 0);
+    ipcMsg.SetRaw(1, uniqueId);
+
+
+    Result ipcResult = SendSyncRequest(s_Session);
+    if(ipcResult.IsFailure()){
+        return ipcResult;
+    }
+
+    *transferableId = ipcMsg.GetRaw<bit64>(2);
 
     return ipcMsg.GetRaw<Result>(1);
 }

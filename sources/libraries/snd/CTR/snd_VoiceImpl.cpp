@@ -70,7 +70,7 @@ void VoiceImpl::AppendWaveBuffer(WaveBuffer* pBuffer){
     pBuffer->status = WaveBuffer::STATUS_WAIT;
 
     {
-        os::CriticalSection::ScopedLock lock(this->mCriticalSection);
+        os::InterCoreCriticalSection::ScopedLock lock(this->mCriticalSection);
 
         WaveBuffer* pWaveBuffer = mpWaveBuffer;
 
@@ -169,7 +169,7 @@ void VoiceImpl::Initialize(){
 
 void VoiceImpl::ReleaseWaveBuffer(){
     {
-        os::CriticalSection::ScopedLock lock(mCriticalSection);
+        os::InterCoreCriticalSection::ScopedLock lock(mCriticalSection);
 
         WaveBuffer* pWaveBuffer = mpWaveBuffer;
 
@@ -188,7 +188,7 @@ void VoiceImpl::ReleaseWaveBuffer(){
 }
 
 void VoiceImpl::SendWaveBuffer(){
-    os::CriticalSection::ScopedLock lock(this->mCriticalSection);
+    os::InterCoreCriticalSection::ScopedLock lock(this->mCriticalSection);
 
     if (mWaveBufferModifiedFlag){
         Dspsnd::GetInstance().ResetChannelNextBuffer(this->mId);
@@ -382,24 +382,26 @@ void VoiceImpl::UpdateWaveBufferList(){
 }
 
 void VoiceImpl::UpdateWaveBufferStatus(ushort currentBufferId, ushort lastBufferId){
-    os::CriticalSection::ScopedLock lock(this->mCriticalSection);
+    os::InterCoreCriticalSection::ScopedLock lock(this->mCriticalSection);
 
     if (mpWaveBuffer == NULL) return;
 
-    WaveBuffer* pNext = SearchPlayingBuffer(currentBufferId, lastBufferId, mpWaveBuffer, mSentBufferCount);
+    WaveBuffer* pNext = SearchPlayingBuffer(currentBufferId, lastBufferId, mp_WaveBuffer, m_SentBufferCount);
     if (pNext == NULL) 
-        NN_TASSERT_(mSentBufferCount == 0);
+        NN_TASSERT_(m_SentBufferCount == 0);
 
-    mpWaveBuffer = pNext;
+    mp_WaveBuffer = pNext;
 }
 
 void VoiceImpl::Pause(){
-    Dspsnd::GetInstance().SetChannelPlayStop(this->mId);
+    Dspsnd::GetInstance().SetChannelPlayStop(m_Id);
 }
 
 ushort VoiceImpl::SelectCoefficient(){
-    if(mSampleRateRatio == 1.3333334 || mSampleRateRatio < 1.3333334 != (mSampleRateRatio)){
-        if(mSampleRateRatio <= 1.0){
+    if(m_SampleRateRatio == 1.3333334 || m_SampleRateRatio < 1.3333334 != (m_SampleRateRatio))
+    {
+        if(m_SampleRateRatio <= 1.0)
+        {
             return 2;
         }
     }
@@ -409,42 +411,42 @@ ushort VoiceImpl::SelectCoefficient(){
 
 void VoiceImpl::SetInterpolationType(InterpolationType type){
     NN_TASSERT_(type == INTERPOLATION_TYPE_POLYPHASE || type == INTERPOLATION_TYPE_LINEAR || type ==  INTERPOLATION_TYPE_NONE);
-    mInterpolationType = type;
-    mModifiedParamFlag |= 0x20;
+    m_InterpolationType = type;
+    m_ModifiedParamFlag |= 0x20;
 }
 
 void VoiceImpl::SetMixParam(const MixParam& mixParam){
-    memcpy(&this->mMixParam, &mixParam, 0x30);
-    mModifiedParamFlag |= 1;
+    memcpy(m_MixParam, &mixParam, 0x30);
+    m_ModifiedParamFlag |= 1;
 }
 
 void VoiceImpl::SetPitch(f32 pitch){
     NN_TASSERT_(0.0f <= pitch);
-    mPitch = math::Max(pitch,0.0);
-    mModifiedParamFlag |= 2;
+    m_Pitch = math::Max(pitch,0.0);
+    m_ModifiedParamFlag |= 2;
 }
 
 void VoiceImpl::SetSampleFormat(SampleFormat format){
     NN_TASSERT_(format == SAMPLE_FORMAT_PCM16 || format == SAMPLE_FORMAT_PCM8 || format == SAMPLE_FORMAT_ADPCM);
-    mSampleInfo &= 0xfff3 | (format & 3) << 2;
+    m_SampleInfo &= 0xfff3 | (format & 3) << 2;
 }
 
 void VoiceImpl::SetSampleRate(s32 sampleRate){
     NN_TASSERT_(0 <= sampleRate);
-    mSampleRate = math::Max(sampleRate, 0);
-    mModifiedParamFlag |= 2;
+    m_SampleRate = math::Max(sampleRate, 0);
+    m_ModifiedParamFlag |= 2;
 }
 
 void VoiceImpl::SetVolume(f32 volume){
-    mVolume = volume;
-    mModifiedParamFlag |= 1;
+    m_Volume =          volume;
+    m_ModifiedParamFlag |= 1;
 }
 
 void VoiceImpl::SetTimer(){
-    mSampleRateRatio = this->CalcFsRatio();
-    Dspsnd::GetInstance().SetChannelTimer(this->mId, this->mSampleRateRatio);
-    if(mInterpolationType == INTERPOLATION_TYPE_POLYPHASE){
-        mModifiedParamFlag |= 0x20;
+    m_SampleRateRatio = this->CalcFsRatio();
+    Dspsnd::GetInstance().SetChannelTimer(m_Id, m_SampleRateRatio);
+    if(m_InterpolationType == INTERPOLATION_TYPE_POLYPHASE){
+        m_ModifiedParamFlag |= 0x20;
     }
 }
 
@@ -452,7 +454,7 @@ void VoiceImpl::UpdateInterpolationType(){
     u16 srcSelect = 2;
     u16 coefSelect = 1;
 
-    switch (mInterpolationType){
+    switch (m_InterpolationType){
     case INTERPOLATION_TYPE_POLYPHASE:
         srcSelect = 0;
         coefSelect = this->SelectCoefficient();
@@ -462,7 +464,7 @@ void VoiceImpl::UpdateInterpolationType(){
         srcSelect = 1;
         break;
     }
-    Dspsnd::GetInstance().SetChannelRIM(this->mId,srcSelect,coefSelect);
+    Dspsnd::GetInstance().SetChannelRIM(m_Id,srcSelect,coefSelect);
 }
 
 }

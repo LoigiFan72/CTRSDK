@@ -32,7 +32,7 @@ namespace{
 
         struct DecrementIfNegativeUpdater{
             bool operator()(s32& x){
-            if( x < 0 ){
+            if(x < 0){
                 --x;
                 return true;
             }
@@ -44,7 +44,7 @@ namespace{
 
         struct ReverseAndIncrementIfPositiveUpdater{
             bool operator()(s32& x){
-            if( x > 0 ){
+            if(x > 0){
                 x = -x + 1;
                 return true;
                 }
@@ -56,14 +56,14 @@ namespace{
 }
 
 void SimpleLock::Initialize(void) {
-    *this->mCounter = 1; // ultimate ASM this creates lmao
+    *this->m_Counter = 1; // ultimate ASM this creates lmao
 }
 
 void SimpleLock::LockImpl(){
     for(;;){
         DecrementIfNegativeUpdater incrementNumWaiterIfLocked;
 
-        if(this->mCounter->AtomicUpdateConditional(incrementNumWaiterIfLocked)){
+        if(this->m_Counter->AtomicUpdateConditional(incrementNumWaiterIfLocked)){
             break;
         }
 
@@ -73,11 +73,11 @@ void SimpleLock::LockImpl(){
     }
 
     for(;;){
-        this->mCounter.WaitIfLessThan(0);
+        this->m_Counter.WaitIfLessThan(0);
 
         ReverseAndIncrementIfPositiveUpdater decrementNumWaiterAndLockIfUnlocked;
 
-        if(this->mCounter->AtomicUpdateConditional(decrementNumWaiterAndLockIfUnlocked)){
+        if(this->m_Counter->AtomicUpdateConditional(decrementNumWaiterAndLockIfUnlocked)){
             break;
         }
     }
@@ -91,15 +91,15 @@ void SimpleLock::Lock(){
 
 bool SimpleLock::TryLock(){
     ReverseIfPositiveUpdater updater;
-    return this->mCounter->AtomicUpdateConditional(updater);
+    return this->m_Counter->AtomicUpdateConditional(updater);
 }
 
 void SimpleLock::Unlock(){
     ReverseUpdater updater;
-    this->mCounter->AtomicUpdateConditional(updater);
+    this->m_Counter->AtomicUpdateConditional(updater);
 
     if(updater.afterUpdate > 1){
-        this->mCounter.Signal(1);
+        this->m_Counter.Signal(1);
     }
 }
 

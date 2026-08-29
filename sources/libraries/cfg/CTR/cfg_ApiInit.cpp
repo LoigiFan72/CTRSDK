@@ -2,12 +2,13 @@
 //
 // Project: Horizon
 
+#include <nn/cfg.h>
 #include <nn/cfg/CTR/cfg_ApiInit.h>
 #include <nn/cfg/CTR/cfg_DetailApi.h>
 #include <nn/cfg/CTR/cfg_IpcInit.h>
 #include <nn/cfg/CTR/cfg_IpcUser.h>
 #include <nn/cfg/CTR/cfg_IpcSys.h>
-#include <nn/srv/srv_Api.h>
+#include <nn/srv/srv_API.h>
 
 #include <string.h>
 
@@ -16,38 +17,36 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 namespace{
-    static int sInitializeInitCount;
+    int s_InitializeInitCount = 0;
 }
 
 Result InitializeInit(){
-    Result res;
-    if(sInitializeInitCount == 0){
-        res = detail::InitializeBase(&IpcInit::sSession,CTR::PORT_NAME_INIT);
+    if(s_InitializeInitCount == 0){
+        Result res = detail::InitializeBase(&IpcInit::s_Session,CTR::PORT_NAME_INIT);
         if(res.IsSuccess()){
-            IpcSys::sSession = IpcInit::sSession;
-            IpcUser::sSession = IpcInit::sSession;
+            IpcSys::s_Session = IpcInit::s_Session;
+            IpcUser::s_Session = IpcInit::s_Session;
         } 
-        else {
-            if(res == (Result)0xd92103fb){
-                return res;
-            }
+
+        else if(res == ResultCancelRequested()){
+            return res;
         }
     }
-    sInitializeInitCount++;
+    s_InitializeInitCount++;
     return ResultSuccess();
 }
 
 void FinalizeInit(){
-    if(sInitializeInitCount > 0){
-        sInitializeInitCount--;
+    if(s_InitializeInitCount > 0){
+        s_InitializeInitCount--;
     }
-    if(sInitializeInitCount != 0){
-        return;
-    }
-    Result res = FinalizeBase(&IpcInit::sSession);
-    if(res.IsSuccess()){
-        IpcSys::sSession = INVALID_HANDLE_VALUE;
-        IpcUser::sSession = INVALID_HANDLE_VALUE;
+
+    if(s_InitializeInitCount == 0){
+        nn::Result result = detail::FinalizeBase(&detail::IpcInit::s_Session);
+        if(result.IsSuccess()){
+            IpcUser::s_Session = INVALID_HANDLE_VALUE;
+            IpcSys::s_Session  = INVALID_HANDLE_VALUE;
+        }
     }
 }
 

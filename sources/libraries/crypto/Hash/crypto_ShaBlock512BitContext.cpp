@@ -10,7 +10,7 @@ extern "C" void nnnstdMemCpy(void* pOut, const void* scrp, size_t size);
 namespace nn{
 namespace crypto{
 namespace{
-    u8 sPadding[64] ={
+    u8 s_Padding[64] ={
         0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 }
@@ -55,7 +55,7 @@ void ShaBlock512BitContext::AddPadding(){
         size = 0x38 - pool;
     else
         size = 0x78 - pool;
-    this->Update(sPadding,size);
+    this->Update(s_Padding,size);
     this->Update(footer,8);
 }
 }

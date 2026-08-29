@@ -8,7 +8,7 @@ namespace nn{
 namespace srv{
 namespace detail{
 
-Handle Manager::sSession = nn::WithoutInitialize();
+Handle Manager::s_Session = nn::WithoutInitialize();
 
 }
 }

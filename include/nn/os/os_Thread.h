@@ -59,7 +59,7 @@ private:
     Result PostStartUsingAutoStack(Result result, uptr stackBottom);
 
 public:
-    Thread() : mCanFinalize(true) {}
+    Thread() : m_CanFinalize(true) {}
     ~Thread();
     void FinalizeImpl();
     void Finalize();
@@ -74,16 +74,16 @@ public:
     bit32 GetId() const;
     static bit32 GetCurrentId();
 
-    static Thread& GetMainThread() { return sMainThread; }
+    static Thread& GetMainThread() { return s_MainThread; }
     
     /* Paramaters */
     typedef AutoStackManager AutoStackManager;
 
-    bool mCanFinalize;
-    bool mUsingAutoStack;
+    bool m_CanFinalize;
+    bool m_UsingAutoStack;
 
-    static Thread sMainThread;
-    static AutoStackManager* spAutoStackManager;
+    static Thread s_MainThread;
+    static AutoStackManager* s_pAutoStackManager;
 private:
     Thread(const InitializeAsCurrentTag&);
     static void ThreadStart(uptr p);
@@ -217,7 +217,7 @@ inline void Thread::Finalize(){
 
 inline void Thread::Join(){
     this->WaitOne();
-    this->mCanFinalize = true;
+    this->m_CanFinalize = true;
 }
 
 inline s32 Thread::GetPriority() const{

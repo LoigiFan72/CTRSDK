@@ -8,7 +8,7 @@ namespace detail{
 
 class Manager{
 public:
-    static Handle sSession;
+    static Handle s_Session;
 };
 
 }

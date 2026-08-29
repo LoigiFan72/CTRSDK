@@ -18,13 +18,11 @@ class FileSystemBaseImpl : public CTR::MPCore::detail::UserFileSystem{
 
 class FileSystemBase{
 protected:
-    FileSystemBaseImpl* mpImpl;
+    FileSystemBaseImpl* m_pImpl;
 public:
-    FileSystemBase() : mpImpl(NULL){}
-    void Initialize(FileSystemBaseImpl& impl){
-        NN_TASSERT_(!mpImpl);
-        *mpImpl = impl;
-    }
+    FileSystemBase() : m_pImpl(NULL){}
+    void Initialize(FileSystemBaseImpl& impl);
+    void CreateFile(const wchar_t* pathName, s64 size);
 };
 
 inline void ConvertMbsToWcs(wchar_t* dst0, size_t dstLength, const char* src0){
@@ -53,9 +51,24 @@ inline void ConvertMbsToWcs(wchar_t* dst0, size_t dstLength, const char* src0){
     }
 }
 
-void RegisterGlobalFileSystemBase(detail::FileSystemBase& base);
-extern detail::FileSystemBase* spGlobalFileSystemBase;
-
+inline void FileSystemBase::Initialize(FileSystemBaseImpl& impl){
+    NN_TASSERT_(!m_pImpl);
+    *m_pImpl = impl;
 }
+
+inline void FileSystemBase::CreateFile(const wchar_t* pathName, s64 size){
+    NN_ERR_THROW_FATAL_ALL(m_pImpl->TryCreateFile(pathName, size));
+}
+
+void RegisterGlobalFileSystemBase(detail::FileSystemBase& base);
+FileSystemBase& GetGlobalFileSystemBase();
+extern detail::FileSystemBase* s_pGlobalFileSystemBase;
+
+} // namespace detail
+
+inline void CreateFile(const wchar_t* pathName, s64 size){
+    detail::GetGlobalFileSystemBase().CreateFile(pathName,size);
+}
+
 }
 }

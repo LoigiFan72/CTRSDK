@@ -17,15 +17,15 @@ namespace err{
 namespace CTR{
 namespace{
     
-static FatalErrInfo sFatalErrInfo;
-Handle sFatalErrSession = INVALID_HANDLE_VALUE;
-os::CriticalSection sLock = nn::WithInitialize();
+static FatalErrInfo s_FatalErrInfo;
+Handle s_FatalErrSession = INVALID_HANDLE_VALUE;
+os::CriticalSection s_Lock = nn::WithInitialize();
 
 
 Result InitializeFatalErrSession(){
     Result res;
-    if(!sFatalErrSession.IsValid()){
-        res = svc::ConnectToPort(&sFatalErrSession,PORT_NAME_ERR_F);
+    if(!s_FatalErrSession.IsValid()){
+        res = svc::ConnectToPort(&s_FatalErrSession,PORT_NAME_ERR_F);
         if(!res.IsSuccess()){
             return res;
         }
@@ -34,9 +34,9 @@ Result InitializeFatalErrSession(){
 }
 
 void FinalizeFatalErrSession(){
-    if(sFatalErrSession.IsValid()){
-        svc::CloseHandle(sFatalErrSession);
-        sFatalErrSession = INVALID_HANDLE_VALUE;
+    if(s_FatalErrSession.IsValid()){
+        svc::CloseHandle(s_FatalErrSession);
+        s_FatalErrSession = INVALID_HANDLE_VALUE;
     }
 }
 
@@ -47,16 +47,16 @@ void FinalizeFatalErrSession(){
 namespace{
     NN_NOINLINE void Throw(FatalErrInfo& info){
         for(;;){
-            os::CriticalSection::ScopedLock lock(sLock);
+            os::CriticalSection::ScopedLock lock(s_Lock);
             Result res = InitializeFatalErrSession();
             if(res.IsSuccess()){
-                svc::GetProcessId(&info.mProcessId, PSEUDO_HANDLE_CURRENT_PROCESS);
-                FatalErr fe(sFatalErrSession);
+                svc::GetProcessId(&info.processId, PSEUDO_HANDLE_CURRENT_PROCESS);
+                FatalErr fe(s_FatalErrSession);
                 fe.FatalErr::Throw(info);
                 FinalizeFatalErrSession();
             }
             else if (res == Result(0xd0401834)){
-                if(info.mType == NN_ERR_FATAL_TYPE_CARD_EJECTION){
+                if(info.type == NN_ERR_FATAL_TYPE_CARD_EJECTION){
                     os::Thread::Sleep(fnd::TimeSpan::FromMilliSeconds(5));
                     continue;
                 }
@@ -66,7 +66,7 @@ namespace{
             }
             break;
         }
-        if (info.mType != NN_ERR_FATAL_TYPE_CARD_EJECTION && info.mType != NN_ERR_FATAL_TYPE_LOG_ONLY ){
+        if (info.type != NN_ERR_FATAL_TYPE_CARD_EJECTION && info.type != NN_ERR_FATAL_TYPE_LOG_ONLY){
             os::LightEvent infiniteLock(true);
             infiniteLock.Wait();
         } 
@@ -80,13 +80,13 @@ namespace{
         NN_DBG_PRINT_RESULT(result);
 
         {
-            FatalErrInfo& fei = sFatalErrInfo;
-            sFatalErrInfo.mRevisionHi = 0;
-            sFatalErrInfo.mRevisionLo = 0xc449;
-            sFatalErrInfo.mType = type;
-            sFatalErrInfo.mResult = result;
-            sFatalErrInfo.mPc = pc;
-            Throw(sFatalErrInfo);
+            FatalErrInfo& fei = s_FatalErrInfo;
+            s_FatalErrInfo.revisionHi = 0;
+            s_FatalErrInfo.revisionLo = 0xc449;
+            s_FatalErrInfo.type = type;
+            s_FatalErrInfo.result = result;
+            s_FatalErrInfo.pc = pc;
+            Throw(s_FatalErrInfo);
         }
     }
 
@@ -104,18 +104,18 @@ namespace{
 #else
 namespace{
     void Throw(FatalErrInfo& info){
-        os::CriticalSection::ScopedLock lock(sLock);
+        os::CriticalSection::ScopedLock lock(s_Lock);
         Result res = InitializeFatalErrSession();
         if(res.IsSuccess()){
-            svc::GetProcessId(&info.mProcessId, PSEUDO_HANDLE_CURRENT_PROCESS);
-            FatalErr fe(sFatalErrSession);
+            svc::GetProcessId(&info.processId, PSEUDO_HANDLE_CURRENT_PROCESS);
+            FatalErr fe(s_FatalErrSession);
             fe.FatalErr::Throw(info);
             FinalizeFatalErrSession();
         }
         else{
             NN_DBG_PRINT_RESULT(res);
         }
-        if (info.mType != NN_ERR_FATAL_TYPE_CARD_EJECTION){
+        if (info.type != NN_ERR_FATAL_TYPE_CARD_EJECTION){
             os::LightEvent infiniteLock(true);
             infiniteLock.Wait();
         }
@@ -123,13 +123,13 @@ namespace{
 }
     void ThrowFatalErr(Result result, nnerrFatalErrType type, uint pc){
         {
-            FatalErrInfo& fei = sFatalErrInfo;
-            sFatalErrInfo.mRevisionHi = 0;
-            sFatalErrInfo.mRevisionLo = 0xa037;
-            sFatalErrInfo.mType = type;
-            sFatalErrInfo.mResult = result;
-            sFatalErrInfo.mPc = pc;
-            Throw(sFatalErrInfo);
+            FatalErrInfo& fei = s_FatalErrInfo;
+            s_FatalErrInfo.revisionHi = 0;
+            s_FatalErrInfo.revisionLo = 0xa037;
+            s_FatalErrInfo.type = type;
+            s_FatalErrInfo.result = result;
+            s_FatalErrInfo.pc = pc;
+            Throw(s_FatalErrInfo);
         }
     }
 

@@ -16,7 +16,7 @@
 #define NN_DBG_PRINTF_BUFFER_LENGTH  256
 #define NN_DBG_TPRINTF_BUFFER_LENGTH 128
 
-NN_MAKE_MODULE(sUsePutDebugString, "NINTENDO", "DebugPrint");
+NN_MAKE_MODULE(s_UsePutDebugString, "NINTENDO", "DebugPrint");
 
 namespace nn{
 namespace dbg{

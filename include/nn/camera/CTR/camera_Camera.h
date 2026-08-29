@@ -19,7 +19,7 @@ public:
     static Result GetSleepCamera(CameraSelect* pSelect);
     static Result SetSleepCamera(CameraSelect camera);
 
-    static nn::Handle sSession;
+    static nn::Handle s_Session;
 };
 
 }

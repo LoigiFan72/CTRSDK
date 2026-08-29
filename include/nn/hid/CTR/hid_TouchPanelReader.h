@@ -14,11 +14,15 @@ namespace CTR{
 
 class TouchPanelReader : private nn::util::ADLFireWall::NonCopyable<TouchPanelReader>{
 protected:
-    TouchPanel& mTouchPanel;
-    s32 mIndexOfRead;
-    s64 mTickOfRead;
+    TouchPanel& m_TouchPanel;
+    s32 m_IndexOfRead;
+    s64 m_TickOfRead;
 public:
-    TouchPanelReader(TouchPanel& touchPanel = CTR::GetTouchPanel( )) : mTouchPanel(touchPanel), mIndexOfRead(-1), mTickOfRead(-1){ };
+    TouchPanelReader(TouchPanel& touchPanel = CTR::GetTouchPanel( )): 
+        m_TouchPanel(touchPanel), 
+        m_IndexOfRead(-1), 
+        m_TickOfRead(-1)
+    { };
     void Read(TouchPanelStatus* pBufs, s32* pReadLen, s32 bufLen);
     bool ReadLatest(TouchPanelStatus* status);
 

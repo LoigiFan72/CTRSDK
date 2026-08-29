@@ -31,7 +31,7 @@ static size_t GetPageAlignedSize(size_t size) {
 void InitializeMemoryBlock(uptr begin, size_t size);
 
 namespace{
-bool sIsMemoryBlockEnabled;
+bool s_IsMemoryBlockEnabled;
 
 } // namespace
 }

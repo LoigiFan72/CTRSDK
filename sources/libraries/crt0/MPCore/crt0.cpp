@@ -14,10 +14,10 @@
 
 namespace{
 #if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
-    NN_MAKE_MODULE(sDebugIndicator,  "NINTENDO", "DEBUG");
+    NN_MAKE_MODULE(s_DebugIndicator,  "NINTENDO", "DEBUG");
 #endif
-    NN_MAKE_MODULE(sSdkVersion,      "NINTENDO", NN_CURRENT_SDK_VERSION);
-    NN_MAKE_MODULE(sFirmwareVersion, "NINTENDO", NN_CURRENT_FIRMWARE_VERSION);
+    NN_MAKE_MODULE(s_SdkVersion,      "NINTENDO", NN_CURRENT_SDK_VERSION);
+    NN_MAKE_MODULE(s_FirmwareVersion, "NINTENDO", NN_CURRENT_FIRMWARE_VERSION);
 }
 
 extern "C"{
@@ -47,10 +47,10 @@ asm void __ctr_start(){
 
 void nninitLocale(){
 #if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
-    NN_REFER_MODULE(sDebugIndicator);
+    NN_REFER_MODULE(s_DebugIndicator);
 #endif
-    NN_REFER_MODULE(sSdkVersion);
-    NN_REFER_MODULE(sFirmwareVersion);
+    NN_REFER_MODULE(s_SdkVersion);
+    NN_REFER_MODULE(s_FirmwareVersion);
 
     bit32* p = __rt_locale();
     *(p + 1) = (bit32)_get_lc_ctype(0, 0) + 1;

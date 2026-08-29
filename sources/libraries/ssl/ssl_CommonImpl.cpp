@@ -8,7 +8,7 @@ namespace nn{
 namespace ssl{
 namespace detail{
 
-LibManager sLibManager;
+LibManager s_LibManager;
 
 }
 }

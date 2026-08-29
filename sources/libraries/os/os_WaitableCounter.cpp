@@ -9,16 +9,22 @@
 namespace nn{
 namespace os{
 
-nnHandle WaitableCounter::sHandle = {0};
+// me: no sti, roll back to kitchen
+//
+// sti : aww :(
 
+nnHandle WaitableCounter::s_Handle = {0}; 
 
-void WaitableCounter::Initialize(){
-    if(sHandle.value == INVALID_HANDLE_VALUE.value){
+void WaitableCounter::Initialize()
+{
+    if(s_Handle.value == INVALID_HANDLE_VALUE.value)
+    {
         Handle h;
         Result ret = nn::svc::CreateAddressArbiter(&h);
         NN_TASSERT_(ret.IsSuccess());
-        if(ret.IsSuccess()){
-            sHandle = h;
+        if(ret.IsSuccess())
+        {
+            s_Handle = h;
         }
     }
 }

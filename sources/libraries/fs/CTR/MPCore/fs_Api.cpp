@@ -15,32 +15,32 @@
 namespace nn{
 namespace fs{
 namespace{
-    nn::Handle sFileServerSession = INVALID_HANDLE_VALUE;
-    detail::FileSystemBase sFileSystemBase;
-    detail::FileSystemBaseImpl sFileSystemBaseImpl;
+    nn::Handle s_FileServerSession = INVALID_HANDLE_VALUE;
+    detail::FileSystemBase s_FileSystemBase;
+    detail::FileSystemBaseImpl s_FileSystemBaseImpl;
 
-    nn::srv::LightEventNotificationHandler sNotificationCardInsertedHandler;
-    nn::srv::LightEventNotificationHandler sNotificationCardEjectedHandler;
-    nn::srv::LightEventNotificationHandler sNotificationSdmcInsertedHandler;
-    nn::srv::LightEventNotificationHandler sNotificationSdmcEjectedHandler;
+    nn::srv::LightEventNotificationHandler s_NotificationCardInsertedHandler;
+    nn::srv::LightEventNotificationHandler s_NotificationCardEjectedHandler;
+    nn::srv::LightEventNotificationHandler s_NotificationSdmcInsertedHandler;
+    nn::srv::LightEventNotificationHandler s_NotificationSdmcEjectedHandler;
 }
 
 namespace detail{
     inline ipc::FileSystem GetIpcFileSystem(){
         Result res;
-        if(fs::sFileServerSession.IsValid())
+        if(fs::s_FileServerSession.IsValid()){
             NN_ERR_THROW_FATAL_ALL(res);
-        return ipc::FileSystem(sFileServerSession);
+        }
+        return ipc::FileSystem(s_FileServerSession);
     }
 }
 
 bool IsInitialized(){
-    return sFileServerSession.IsValid();
+    return s_FileServerSession.IsValid();
 }
 
 inline Result SetPriority(s32 pri){
-    ipc::FileSystem sys = detail::GetIpcFileSystem();
-    Result res = sys.SetPriority(pri);
+    return detail::GetIpcFileSystem().SetPriority(pri);
 }
 
 void Initialize(){
@@ -48,10 +48,10 @@ void Initialize(){
         Result res = srv::Initialize();
         if(res != nn::srv::ResultAlreadyInitialized())
             NN_ERR_THROW_FATAL_ALL(res);
-        NN_ERR_THROW_FATAL_ALL(srv::GetServiceHandle(&sFileServerSession, detail::PORT_NAME_USER));
-        sFileSystemBaseImpl.Initialize(sFileServerSession);
-        sFileSystemBase.Initialize(sFileSystemBaseImpl);
-        detail::RegisterGlobalFileSystemBase(sFileSystemBase);
+        NN_ERR_THROW_FATAL_ALL(srv::GetServiceHandle(&s_FileServerSession, detail::PORT_NAME_USER));
+        s_FileSystemBaseImpl.Initialize(s_FileServerSession);
+        s_FileSystemBase.Initialize(s_FileSystemBaseImpl);
+        detail::RegisterGlobalFileSystemBase(s_FileSystemBase);
         #if NN_VERSION_MAJOR > 2
             NN_ERR_THROW_FATAL_ALL(SetPriority(0));
         #endif
@@ -59,8 +59,8 @@ void Initialize(){
 }
 
 void RegisterSdmcEjectedEvent(os::LightEvent* p){
-    sNotificationSdmcEjectedHandler.Initialize(p);
-    NN_ERR_THROW_FATAL_ALL(nn::srv::RegisterNotificationHandler(&sNotificationSdmcEjectedHandler, 521));
+    s_NotificationSdmcEjectedHandler.Initialize(p);
+    NN_ERR_THROW_FATAL_ALL(nn::srv::RegisterNotificationHandler(&s_NotificationSdmcEjectedHandler, 521));
     NN_ERR_THROW_FATAL_ALL(nn::srv::Subscribe(521));
 }
 

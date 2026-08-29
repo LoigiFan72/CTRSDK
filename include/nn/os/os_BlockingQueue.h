@@ -30,24 +30,24 @@ protected:
     uptr GetFront() const;
     bool TryGetFront(uptr* pOut) const;
     
-    s32 GetWaitingEnqueueCount() const{ return mWaitingEnqueueCount; }
-    s32 GetWaitingDequeueCount() const{ return mWaitingDequeueCount; }
-    s32 GetSize() const{ return mSize; }
-    s32 GetUsedCount() const{ return mUsedCount; }
-    s32 GetFirstIndex() const{ return mFirstIndex; }
+    s32 GetWaitingEnqueueCount() const{ return m_WaitingEnqueueCount; }
+    s32 GetWaitingDequeueCount() const{ return m_WaitingDequeueCount; }
+    s32 GetSize() const{ return m_Size; }
+    s32 GetUsedCount() const{ return m_UsedCount; }
+    s32 GetFirstIndex() const{ return m_FirstIndex; }
 
 private:
     typedef typename Locker::ScopedLock ScopedLock;
     
-    uptr*                   mppBuffer;
-    mutable LightSemaphore  mEnqueueSemaphore;
-    mutable LightSemaphore  mDequeueSemaphore;
-    mutable Locker          mCs;
-    size_t                  mSize;
-    s32                     mFirstIndex;
-    s32                     mUsedCount;
-    mutable nn::fnd::InterlockedVariable<s32> mWaitingEnqueueCount;
-    mutable nn::fnd::InterlockedVariable<s32> mWaitingDequeueCount;
+    uptr*                   m_ppBuffer;
+    mutable LightSemaphore  m_EnqueueSemaphore;
+    mutable LightSemaphore  m_DequeueSemaphore;
+    mutable Locker          m_Cs;
+    size_t                  m_Size;
+    s32                     m_FirstIndex;
+    s32                     m_UsedCount;
+    mutable nn::fnd::InterlockedVariable<s32> m_WaitingEnqueueCount;
+    mutable nn::fnd::InterlockedVariable<s32> m_WaitingDequeueCount;
 
     void NotifyEnqueue() const;
     void NotifyDequeue() const;

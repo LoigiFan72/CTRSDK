@@ -13,15 +13,15 @@
 namespace nn{
 namespace cfg{
 namespace CTR{
-u8 GetFsLatencyEmulationParam(){
-    Result res;
-    DebugParamCfgData debugParam;
-    detail::_IPCPortType portType;
 
+u8 GetFsLatencyEmulationParam(){
+    nn::Result res;
+    DebugParamCfgData debugParam;
     if (!os::IsRunOnDevelopmentHardWare()){
         return 0U;
     }
 
+    detail::_IPCPortType portType;
     res = detail::InitializeProperPort(&portType);
     if (res.IsFailure()) {
         NN_ERR_THROW_FATAL_ALL(res);
@@ -31,8 +31,7 @@ u8 GetFsLatencyEmulationParam(){
     void* pData = &debugParam;
     NN_ERR_THROW_FATAL_ALL(detail::IpcUser::GetConfig(pData, 4, 0x130000));
 
-    detail::_IPCPortType pt = portType;
-    detail::FinalizeProperPort(pt);
+    detail::FinalizeProperPort(portType);
 
     return debugParam.fsLatencyParam;
 }
@@ -40,12 +39,12 @@ u8 GetFsLatencyEmulationParam(){
 bool IsDebugMode(){
     Result res;
     DebugParamCfgData debugParam;
-    detail::_IPCPortType portType;
 
     if (!os::IsRunOnDevelopmentHardWare()){
         return false;
     }
 
+    detail::_IPCPortType portType;
     res = detail::InitializeProperPort(&portType);
     if (res.IsFailure()) {
         NN_ERR_THROW_FATAL_ALL(res);
@@ -55,14 +54,13 @@ bool IsDebugMode(){
     void* pData = &debugParam;
     NN_ERR_THROW_FATAL_ALL(detail::IpcUser::GetConfig(pData, 4, 0x130000));
 
-    detail::_IPCPortType pt = portType;
-    detail::FinalizeProperPort(pt);
+    detail::FinalizeProperPort(portType);
     bool isMode;
-    if((debugParam.param.flags1 & 1) == 0){
-        return isMode = false;
+    if(debugParam.param.flags1 & 1){
+        return true;
     } 
     else{
-        return isMode = true;
+        return false;
     }
 }
 

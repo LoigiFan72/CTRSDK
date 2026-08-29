@@ -12,7 +12,7 @@ namespace{
         f32 exp_val;
         f32 exp_delta;
     };
-    struct ExpTbl sExpTbl[32+1] ={
+    struct ExpTbl s_ExpTbl[32+1] ={
         { 0.500000000f, 0.022136891f },
         { 0.522136891f, 0.023116975f },     // Exp(-0.649825482)    = Exp(ln2 * (-15)/16)
         { 0.545253866f, 0.024140451f },     // Exp(-0.606503783)

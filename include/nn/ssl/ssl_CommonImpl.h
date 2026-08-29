@@ -10,9 +10,9 @@ namespace detail{
     
 class LibManager{
 protected:
-    os::CriticalSection mCriticalSection;
-    s32 mReferenceCount;
-    os::ipc::Session mIpcSessionObj;
+    os::CriticalSection m_CriticalSection;
+    s32 m_ReferenceCount;
+    os::ipc::Session m_IpcSessionObj;
 public:
     virtual ~LibManager(){}
 };

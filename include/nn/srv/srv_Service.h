@@ -9,7 +9,7 @@ namespace detail{
     
 class Service{
 public:
-    static Handle sSession;
+    static Handle s_Session;
 
     static Result EnableNotication(Handle* pSemaphore); 
     static Result GetServiceHandle(Handle* pOut, const char* name, s32 nameLen, u32 flags);

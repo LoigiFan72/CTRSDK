@@ -15,8 +15,8 @@ namespace{
             nn::svc::ExitProcess();
         }
     };
-    bool sUsingStartUpDefault = false;
-    ExitHandler sExitHandler;
+    bool s_UsingStartUpDefault = false;
+    ExitHandler s_ExitHandler;
 }
 
 extern "C" {
@@ -30,15 +30,15 @@ void nninitStartUpDefault(){
     const size_t heapSize  = available - DEVICE_MEMORY_SIZE;
 
     nn::os::SetupHeapForMemoryBlock(heapSize);
-    NN_UTIL_PANIC_IF_FAILED(nn::os::SetDeviceMemorySize( DEVICE_MEMORY_SIZE));
+    NN_UTIL_PANIC_IF_FAILED(nn::os::SetDeviceMemorySize(DEVICE_MEMORY_SIZE));
 
     nn::init::InitializeAllocator(8 * 1024 * 1024);
 
-    sUsingStartUpDefault = true;
+    s_UsingStartUpDefault = true;
 }
 
 bool nninitIsStartUpDefaultUsing(){
-    return sUsingStartUpDefault;
+    return s_UsingStartUpDefault;
 }
 
 void nninitSetupDefault(){

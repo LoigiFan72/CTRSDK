@@ -30,6 +30,8 @@ void FinalizeProperPort(IPCPortType portType);
 CfgRegionCode GetRegion();
 Result GetConfig(void* pData, size_t size, bit32 key);
 
+Result GetTransferableId(bit32 uniqueId, bit64* transferableId);
+
 }
 }
 }

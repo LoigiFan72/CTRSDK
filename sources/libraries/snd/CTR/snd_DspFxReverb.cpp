@@ -16,7 +16,7 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-DspFxReverb::FilterSize DspFxReverb::sDefaultFilterSize ={
+DspFxReverb::FilterSize DspFxReverb::s_DefaultFilterSize ={
     19 * NN_SND_SAMPLES_PER_FRAME,
     23 * NN_SND_SAMPLES_PER_FRAME,
     13 * NN_SND_SAMPLES_PER_FRAME
@@ -28,7 +28,7 @@ DspFxReverb::Param::Param():
     mPreDelayTime(100),
     mColoration(0.5f),
     mDamping(0.4f),
-    mpFilterSize(&sDefaultFilterSize ),
+    mpFilterSize(&s_DefaultFilterSize ),
     mEarlyGain(0.6f),
     mFusedGain(0.4f),
     mUseHpfDamping(false)
@@ -158,7 +158,7 @@ bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) {
     f32 fused_time_sec = static_cast<f32>(_param.mFusedTime) / 1000.f;
     NN_TASSERT_(fused_time_sec != 0.f);
 
-    FilterSize* pFilterSize = (_param.mpFilterSize ? _param.mpFilterSize : &sDefaultFilterSize);
+    FilterSize* pFilterSize = (_param.mpFilterSize ? _param.mpFilterSize : &s_DefaultFilterSize);
     params.combFrames[0] = static_cast<s32>(pFilterSize->mComb0 / NN_SND_SAMPLES_PER_FRAME);
     params.combFrames[1] = static_cast<s32>(pFilterSize->mComb1 / NN_SND_SAMPLES_PER_FRAME);
 
@@ -239,7 +239,7 @@ size_t DspFxReverb::GetRequiredMemorySize(const DspFxReverb::Param& _param) {
     s32 preDelayFrames = (_param.mPreDelayTime * 1000) / NN_SND_USECS_PER_FRAME;
     preDelayFrames = math::Max(preDelayFrames, 1);
 
-    FilterSize* pFilterSize = (_param.mpFilterSize ? _param.mpFilterSize : &sDefaultFilterSize);
+    FilterSize* pFilterSize = (_param.mpFilterSize ? _param.mpFilterSize : &s_DefaultFilterSize);
     s32 delayLength  = (earlyDelayFrames + preDelayFrames) * NN_SND_SAMPLES_PER_FRAME;
     s32 filterLength = pFilterSize->mComb0 + pFilterSize->mComb1 + pFilterSize->mAllPass;
 

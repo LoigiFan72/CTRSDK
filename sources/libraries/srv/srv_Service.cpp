@@ -10,14 +10,14 @@ namespace nn{
 namespace srv{
 namespace detail{
 
-Handle Service::sSession = nn::WithoutInitialize();
+Handle Service::s_Session = nn::WithoutInitialize();
 
 Result Service::EnableNotication(Handle* pSemaphore){
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(2, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -35,7 +35,7 @@ Result Service::GetServiceHandle(Handle* pOut, const char* name, s32 nameLen, u3
     ipcMsg.SetRaw(4, flags);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -50,7 +50,7 @@ Result Service::ReceiveNotification(bit32 *pOut){
     ipcMsg.SetHeader(0xB, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -66,7 +66,7 @@ Result Service::RegisterClient(){
     ipcMsg.SetProcessIdHeader(1);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -80,7 +80,7 @@ Result Service::Subscribe( bit32 message ){
     ipcMsg.SetRaw(1, message);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }
@@ -88,13 +88,13 @@ Result Service::Subscribe( bit32 message ){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Service::Subscribe(bit32 message){
+Result Service::Unsubscribe(bit32 message){
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xA, 1, 0, 0);
     ipcMsg.SetRaw(1, message);
 
 
-    Result ipcResult = SendSyncRequest(sSession);
+    Result ipcResult = SendSyncRequest(s_Session);
     if(ipcResult.IsFailure()){
         return ipcResult;
     }

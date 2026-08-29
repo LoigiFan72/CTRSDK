@@ -35,8 +35,9 @@ Result InterruptRelayQueueRx::TryDequeue(nngxlowInterrupt* pSrc){
         
         result = ResultSuccess();
         
-        if (mpBody->control.status == detail::QUEUE_ERR_FULL)
+        if (mpBody->control.status == detail::QUEUE_ERR_FULL){
             result = ResultQueueFull();
+        }
     }
     
     return result;
@@ -86,6 +87,7 @@ void InterruptReceiver::Initialize(void){
     void* pBody;
     this->mSharedWorkMem.Initialize(hSharedWorkMem);
 
+    // RelayQ
     pBody = reinterpret_cast<void*>(this->mSharedWorkMem.GetBufferForRelayQueue(index));
     this->mRelayQ.Initialize(this->mRxEvent.GetHandle(), pBody);
     

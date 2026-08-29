@@ -6,17 +6,16 @@ namespace nn{
 namespace os{
 namespace ARM{
 
-struct ExceptionBuffer{
-};
+struct ExceptionBuffer{ };
 
 struct ExceptionContext{
-    bit32 mResult[16];
-    bit32 mCpsr;
+    bit32 r[16];
+    bit32 cpsr;
 };
 
 struct ExceptionInfo{
-    s8 mType;
-    s8 unk[3];
+    s8 type;
+    s8 pad[3];
     bit32 fsr;
     bit32 far;
     bit32 fpexc;

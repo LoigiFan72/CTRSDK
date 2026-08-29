@@ -15,17 +15,17 @@ namespace analysis{
 
 #if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
 
-bool sAnalysisLog = false;
-nn::os::CriticalSection sAnalysisLogLock = nn::os::CriticalSection(nn::WithInitialize());
+bool s_AnalysisLog = false;
+nn::os::CriticalSection s_AnalysisLogLock = nn::os::CriticalSection(nn::WithInitialize());
 
 bool IsAnalysisLogEnabled(){
-    return sAnalysisLog;
+    return s_AnalysisLog;
 } 
 
 void FsAnalysisLog(nn::Result result, nn::os::Tick tickStart, const char* fmt, ...){
     NN_TASSERT_(nn::fs::analysis::IsAnalysisLogEnabled());
 
-    nn::os::CriticalSection::ScopedLock lock(sAnalysisLogLock);
+    nn::os::CriticalSection::ScopedLock lock(s_AnalysisLogLock);
 
     static char buffer[1024];
     std::memset(buffer, 0, sizeof(buffer));

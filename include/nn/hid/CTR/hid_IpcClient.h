@@ -17,7 +17,7 @@ public:
     static Result GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient);
     static Result GetIPCHandles(Handle *pSharedMemoryHandle,Handle *pPadEvent,Handle *pTouchPanelEvent,Handle *pAccelerometerEvent,Handle *pGyroscopeLowEvent,Handle *pDebugPadEvent);
 
-    static nn::Handle sSession;
+    static nn::Handle s_Session;
 };
 
 }

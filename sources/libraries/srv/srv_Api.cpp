@@ -26,23 +26,23 @@ namespace detail {
     
 class HandlerManager{
 public:
-    nn::fnd::IntrusiveLinkedList<NotificationHandler> mHandlers;
+    nn::fnd::IntrusiveLinkedList<NotificationHandler> m_Handlers;
 
     Result Register(NotificationHandler* pHandler, u32 message) {
         NN_POINTER_TASSERT_(pHandler);
         NN_TASSERT_(message != 0);
         NN_TASSERT_(!pHandler->mAttachedMessage == 0);
 
-        pHandler->mAttachedMessage = message;
-        this->mHandlers.PushBack(pHandler);
+        pHandler->m_AttachedMessage = message;
+        this->m_Handlers.PushBack(pHandler);
         return ResultSuccess();
     }
     NotificationHandler* Find(bit32 message){
         NN_TASSERT_(message != 0);
 
         NotificationHandler *i;
-        for(i = this->mHandlers.GetFront(); i != NULL; i = this->mHandlers.GetNext(i)){
-            if(i->mAttachedMessage == message){
+        for(i = this->m_Handlers.GetFront(); i != NULL; i = this->m_Handlers.GetNext(i)){
+            if(i->m_AttachedMessage == message){
                 break;
             }
         }
@@ -54,8 +54,8 @@ public:
 
         NotificationHandler* p = Find(message);
         if(p != NULL){
-            mHandlers.Erase(p);
-            p->mAttachedMessage = NULL;
+            m_Handlers.Erase(p);
+            p->m_AttachedMessage = NULL;
         }
 
         return p;
@@ -65,13 +65,13 @@ public:
 } // detail
 
 namespace{
-    bool sInitialized = false;
-    s32 sInitializeCount = 0;
-    os::CriticalSection sInitializeLock;
-    os::Semaphore sNotificationSemaphore;
-    os::Thread sNotificationDispatcher;
-    detail::HandlerManager sHandlerManager;
-    os::CriticalSection sManagerLock;
+    bool s_Initialized = false;
+    s32 s_InitializeCount = 0;
+    os::CriticalSection s_InitializeLock;
+    os::Semaphore s_NotificationSemaphore;
+    os::Thread s_NotificationDispatcher;
+    detail::HandlerManager s_HandlerManager;
+    os::CriticalSection s_ManagerLock;
 
     os::StackBuffer<DISPATCHER_STACK_SIZE> sStack;
 
@@ -79,7 +79,7 @@ namespace{
     void DispatcherThread() {
         Result result;
         for(;;){
-            sNotificationSemaphore.Acquire();
+            s_NotificationSemaphore.Acquire();
             result = DispatchNotification();
             NN_UTIL_PANIC_IF_FAILED(result);
         }
@@ -87,7 +87,7 @@ namespace{
 } // namespace
 
 namespace detail{
-    bool IsInitialized() { return sInitializeCount > 0; }
+    bool IsInitialized() { return s_InitializeCount > 0; }
 
     NN_NOINLINE Result Connect(const char* name) {
         Result res;
@@ -101,17 +101,17 @@ namespace detail{
         }
         if (res.IsSuccess()) {
             res = Service::RegisterClient();
-            sInitializeCount++;
+            s_InitializeCount++;
         }
         return res;
     }
-} // detail
+} // namespace detail
 
 Result Initialize() {
-    os::CriticalSection::ScopedLock lock(sInitializeLock);
+    os::CriticalSection::ScopedLock lock(s_InitializeLock);
     NN_MIN_TASSERT_(sInitializeCount, 0);
-    if (srv::sInitializeCount > 0) {
-        sInitializeCount++;
+    if (srv::s_InitializeCount > 0) {
+        s_InitializeCount++;
         return MakeInfoResult(Result::SUMMARY_NOTHING_HAPPENED, Result::MODULE_NN_SRV, Result::DESCRIPTION_ALREADY_INITIALIZED);
     }
     else{ 
@@ -120,9 +120,9 @@ Result Initialize() {
 }
 
 Result StartNotification() {
-    Result res = EnableNotification(&sNotificationSemaphore);
+    Result res = EnableNotification(&s_NotificationSemaphore);
     if (res.IsSuccess()) {
-        sNotificationDispatcher.Start(&DispatcherThread, sStack, NN_NOTIFICATION_PRIORITY);
+        s_NotificationDispatcher.Start(&DispatcherThread, sStack, NN_NOTIFICATION_PRIORITY);
     }
 }
 
@@ -143,7 +143,7 @@ Result DispatchNotification() {
         return res;
     }
 
-    NotificationHandler* pHandler = sHandlerManager.Find(message);
+    NotificationHandler* pHandler = s_HandlerManager.Find(message);
     if (pHandler != NULL) {
         pHandler->HandleNotification(message);
         return ResultSuccess();
@@ -154,12 +154,12 @@ Result DispatchNotification() {
 }
 
 Result RegisterNotificationHandler(NotificationHandler* pHandler, u32 message) {
-    return sHandlerManager.Register(pHandler, message);
+    return s_HandlerManager.Register(pHandler, message);
 }
 
 NotificationHandler* UnregisterNotificationHandler(bit32 message){
-    nn::os::CriticalSection::ScopedLock lock(sManagerLock);
-    return sHandlerManager.Unregister(message);
+    nn::os::CriticalSection::ScopedLock lock(s_ManagerLock);
+    return s_HandlerManager.Unregister(message);
 }
 
 Result GetServiceHandle(nn::Handle* pOut, const char* pName, s32 nameLen, bit32 flags) {

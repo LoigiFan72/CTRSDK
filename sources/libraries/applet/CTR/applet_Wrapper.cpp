@@ -24,11 +24,11 @@ namespace applet{
 namespace CTR{
 namespace{
     bool sleepEnable;
-    int homeButtonCallback;
-    int requestMemoryCallback;
-    int receiveMessageCallback;
-    int dspSleepCallback;
-    int dspWakeUpCallback;
+    AppletHomeButtonCallback homeButtonCallback;
+    AppletRequestMemoryCallback requestMemoryCallback;
+    AppletMessageCallback receiveMessageCallback;
+    AppletDspSleepCallback dspSleepCallback;
+    AppletDspWakeUpCallback dspWakeUpCallback;
     AppletSleepQueryCallback sleepQueryCallback;
     int sleepCanceledCallback;
     int sleepAcceptedCallback;
@@ -37,9 +37,9 @@ namespace{
     int powerButtonCallback;
     int transitionCallback;
     int closeCallback;
-    int releaseMemoryCallback;
+    AppletReleaseMemoryCallback releaseMemoryCallback;
     int closeAppletCallback;
-    int commandCallback;
+    AppletCommandCallback commandCallback;
     int homeButtonCallbackArg;
     int requestMemoryCallbackArg;
     int receiveMessageCallbackArg;
@@ -56,42 +56,43 @@ namespace{
     int releaseMemoryCallbackArg;
     int closeAppletCallbackArg;
     int commandCallbackArg;
-
 }
+    SysSleepAcceptedCallbackInfo* SysSleepAcceptedCallbackInfo::s_pHead = NULL;
+    SysSleepAcceptedCallbackInfo* SysSleepAcceptedCallbackInfo::s_pTail = NULL;
 namespace{
-    static os::CriticalSection sSleepAcceptedCriticalSection = nn::WithInitialize();
+    nn::os::CriticalSection s_SleepAcceptedCriticalSection = nn::WithInitialize();
 }
 
 namespace{
     u8 paramBuffer[4096];
 }
 
-void SetCommandCallback(int callback, uptr arg){
+void SetCommandCallback(AppletCommandCallback callback, uptr arg){
     commandCallback = callback;
     commandCallbackArg = arg;
 }
 
-void SetHomeButtonCallback(int callback, uptr arg){
+void SetHomeButtonCallback(AppletHomeButtonCallback callback, uptr arg){
     homeButtonCallback = callback;
     homeButtonCallbackArg = arg;
 }
 
-void SetReceiveMessageCallback(int callback, uptr arg){
+void SetReceiveMessageCallback(AppletMessageCallback callback, uptr arg){
     receiveMessageCallback = callback;
     receiveMessageCallbackArg = arg;
 }
 
-void SetRequestMemoryCallback(int callback, uptr arg){
+void SetRequestMemoryCallback(AppletRequestMemoryCallback callback, uptr arg){
     requestMemoryCallback = callback;
     requestMemoryCallbackArg = arg;
 }
 
-void SetDspSleepCallback(int callback, uptr arg){
+void SetDspSleepCallback(AppletDspSleepCallback callback, uptr arg){
     dspSleepCallback = callback;
     dspSleepCallbackArg = arg;
 }
 
-void SetDspWakeUpCallback(int callback, uptr arg){
+void SetDspWakeUpCallback(AppletDspWakeUpCallback callback, uptr arg){
     dspWakeUpCallback = callback;
     dspWakeUpCallbackArg = arg;
 }
@@ -166,55 +167,111 @@ bool IsExpectedToCloseApplication();
 /* Inlines */
 
 bool ProcessHomeButtonCommand(){
-    AppletHomeButtonState state;
-    int callback;
-    bool active = detail::IsActive();
-    state = detail::GetAbsoluteHomeButtonState();
+    bool isActive = detail::IsActive();
+
+    HomeButtonState state = detail::GetAbsoluteHomeButtonState();
     detail::ClearAbsoluteHomeButtonState();
-    callback = 1;
-    if(homeButtonCallback != 0){
-        callback = reinterpret_cast<int(*)(int,int,int)>(homeButtonCallback)(homeButtonCallbackArg,active,state);
+    bool callback = true;
+    if(homeButtonCallback){
+        callback = reinterpret_cast<int(*)(int,int,int)>(homeButtonCallback)(homeButtonCallbackArg,isActive,state);
     }
-    if(((callback != 0) && (active)) && (GetHomeButtonState() == HOME_BUTTON_NONE)){
-        SetHomeButtonState(state);
-        if(GetHomeButtonState() != HOME_BUTTON_SINGLE_PRESSED){
-            GetHomeButtonState();
+
+    if(callback){
+        if(isActive && (GetHomeButtonState() == HOME_BUTTON_NONE)){
+            SetHomeButtonState(state);
+            if (GetHomeButtonState() == HOME_BUTTON_SINGLE_PRESSED)
+            {
+            }
+            else if (GetHomeButtonState() == HOME_BUTTON_DOUBLE_PRESSED)
+            {
+            }
         }
     }
     return false;
 }
 
-inline void CallTransitionCallback(){
+void CallTransitionCallback(){
     if(transitionCallback != 0){
         reinterpret_cast<void(*)(int)>(transitionCallback)(transitionCallbackArg);
     }    
 }
 
-inline void ProcessShutdownCommand(){
+void ProcessShutdownCommand(){
     if(shutdownCallback != 0){
         reinterpret_cast<void(*)(int)>(shutdownCallback)(shutdownCallbackArg);
     }
 }
 
-inline void ProcessSleepQueryCommand(){
+Result SendCaptureBuffer(AppletId id, nn::Handle memBlockHandle){
+    Result result = detail::Send(id, COMMAND_RESPONSE, NULL, 0, memBlockHandle);
+    return result;
+}
+
+bool ProcessRequestMemoryCommand(AppletId senderId, u8* paramBuffer, size_t paramSize, nn::Handle h){
+    CaptureBufferInfo* pCInfo = reinterpret_cast<CaptureBufferInfo*>( paramBuffer );
+
+    nn::Handle handle       = nn::Handle();
+    size_t     requiredSize = (paramSize >= sizeof(CaptureBufferInfo))? pCInfo->size: 0;
+
+    if (requestMemoryCallback ){
+        requestMemoryCallback(requestMemoryCallbackArg, requiredSize, &handle );
+    }
+
+    detail::CancelParameter(true, senderId);
+    SendCaptureBuffer(senderId, handle);
+
+    return false;
+}
+
+bool ProcessReceiveMessageCommand( AppletId senderId, u8* paramBuffer, size_t paramSize, nn::Handle h ){
+    CancelParameter(true, senderId);
+
+    if (receiveMessageCallback){
+        receiveMessageCallback( receiveMessageCallbackArg, senderId, paramBuffer, paramSize, h );
+    }
+
+    return false;
+}
+
+bool ProcessDspSleepCommand(){
+    if (dspSleepCallback){
+        dspSleepCallback(dspSleepCallbackArg);
+    }
+
+    AssignDspRight(false);
+    return false;
+}
+
+bool ProcessDspWakeUpCommand(){
+    AssignDspRight(true);
+    if (dspWakeUpCallback){
+        dspWakeUpCallback(dspWakeUpCallbackArg);
+    }
+    return false;
+}
+
+void ProcessSleepQueryCommand(){
     AppletQueryReply Callback;
     if(!IsExpectedToCloseApplication()){
-            if(sleepQueryCallback != 0)
-                Callback = reinterpret_cast<AppletQueryReply(*)(int)>(sleepQueryCallback)(sleepQueryCallbackArg);
-            if(!IsEnableSleep() && detail::IsActive())
-                Callback = REPLY_REJECT;
+        if(sleepQueryCallback != 0){
+            Callback = reinterpret_cast<AppletQueryReply(*)(int)>(sleepQueryCallback)(sleepQueryCallbackArg);
+        }
+
+        if(!IsEnableSleep() && detail::IsActive()){
+            Callback = REPLY_REJECT;
+        }
     }
     ReplySleepQuery(Callback);
 }
 
-inline void ProcessSleepCanceledCommand(){
+void ProcessSleepCanceledCommand(){
     if(sleepCanceledCallback){
         if(!IsExpectedToCloseApplication())
             reinterpret_cast<void(*)(int)>(sleepCanceledCallback)(sleepCanceledCallbackArg);
     }
 }
 
-inline void ProcessSleepAcceptedCommand(){
+void ProcessSleepAcceptedCommand(){
     SetSleepNotificationState(NOTIFY_SLEEP_ACCEPTED);
     if(sleepAcceptedCallback != 0){
         reinterpret_cast<void(*)(int)>(sleepAcceptedCallback)(sleepAcceptedCallbackArg);
@@ -223,15 +280,15 @@ inline void ProcessSleepAcceptedCommand(){
     detail::ReplySleepNotificationCompleteToManager();
 }
 
-inline void ProcessAwakeCommand(){
-    //dsp::CTR::Awake();
+void ProcessAwakeCommand(){
+    dsp::CTR::Awake();
     if(awakeCallback != 0){
         reinterpret_cast<void(*)(int)>(awakeCallback)(awakeCallbackArg);
     }
     SetSleepNotificationState(NOTIFY_AWAKE);
 }
 
-inline void ProcessCloseCommand(){
+void ProcessCloseCommand(){
     if (closeCallback != 0){
         reinterpret_cast<void(*)(int)>(closeCallback)(closeCallbackArg);
     }
@@ -293,15 +350,14 @@ bool ProcessPowerButtonAndWait(){
     }
 }
 
-NN_NOINLINE s8 IsToCallShutdownCallback(){
-    return sIsToCallPowerButtonCallback;
-}
-
 bool ReceiveCallbackForCommands(uptr callback){
-    AppletHomeButtonState hbState;
-    AppletSleepSysState sleepState;
+    static const int PARAM_BUFFER_SIZE = 4096;
+    static       u8  paramBuffer[PARAM_BUFFER_SIZE];
 
-    hbState = detail::GetAbsoluteHomeButtonState();
+    bool bSignal = true;
+
+    AppletHomeButtonState hbState = detail::GetAbsoluteHomeButtonState();
+
     if(IsToCallShutdownCallback()){
         ProcessShutdownCommand();
         ClearShutdownCallbackFlag();
@@ -314,9 +370,9 @@ bool ReceiveCallbackForCommands(uptr callback){
     else if(hbState == HOME_BUTTON_SINGLE_PRESSED || hbState == HOME_BUTTON_DOUBLE_PRESSED){
         return ProcessHomeButtonCommand();
     }
-    else if(detail::GetSleepSysState()){
-        sleepState = detail::GetSleepSysState();
-        switch(sleepState){
+    else if(detail::GetSleepSysState() != SLEEP_SYS_STATE_NONE){
+
+        switch(detail::GetSleepSysState()){
         case SLEEP_SYS_STATE_QUERY:
             ProcessSleepQueryCommand();
             break;
@@ -338,27 +394,45 @@ bool ReceiveCallbackForCommands(uptr callback){
         ClearPowerButtonCallbackFlag();
     }
     else{
-        s32 *pReadLena;
-        s32 *pReadLen;
         Handle h;
+        AppletCommand command;
         s32 readLen;
-        u32 command;
-        nn::applet::CTR::AppletId senderId;
+        AppletId senderId;
 
-        Result res = detail::Glance(&senderId,&command, paramBuffer, 0x1000u, &readLen, &h);
+        bool bResult = true;
+
+        Result res = detail::Glance(&senderId,&command, paramBuffer, PARAM_BUFFER_SIZE, &readLen, &h);
         NN_ERR_THROW_FATAL(res);
         switch(command){
-            case 2:
-                
+        case COMMAND_MESSAGE:
+            bResult = ProcessReceiveMessageCommand(senderId, &paramBuffer[0], readLen, h);
+            break;
+        case COMMAND_REQUEST:
+            bResult = ProcessRequestMemoryCommand(senderId, &paramBuffer[0], readLen, h);
+            break;
+        case COMMAND_DSP_SLEEP:
+            bResult = ProcessDspSleepCommand();
+            break;
+        case COMMAND_DSP_WAKEUP:
+            bResult = ProcessDspWakeUpCommand();
+            break;
         }
+
+        if (h.IsValid()){
+            svc::CloseHandle(h);
+        }
+
+        bSignal = bResult;
     }
+
+    return bSignal;
 }
 
 bool ProcessHomeButton(){
     if(IsExpectedToProcessHomeButton()){
         SetExpectationToJumpToHome(false);
-        AppletAttr attr = GetAppletType();
-        if((attr == HOME_BUTTON) || (attr = GetAppletType(), attr == MII_SELECT)){
+
+        if(GetAppletType() == TYPE_APP || GetAppletType() == TYPE_SYS){
             detail::CancelLibraryAppletIfRegistered(false);
             CallTransitionCallback();
         }
@@ -407,85 +481,58 @@ bool IsExpectedToCloseApplication(){
 }
 
 bool IsExpectedToProcessHomeButton(){
-    bool Homemenu = IsExpectedToJumpToHomeMenu();
-    HomeButtonState hbState;
-    if((Homemenu != 0) || (hbState = GetHomeButtonState(), hbState != HOME_BUTTON_NONE)){
-        hbState = HOME_BUTTON_SINGLE_PRESSED;
-    }
-    return hbState;
+    return (IsExpectedToJumpToHomeMenu() || (GetHomeButtonState() != HOME_BUTTON_NONE) ? true : false);
 }
 
 void CloseAppletHook(){
     if (releaseMemoryCallback != 0){
-        reinterpret_cast<void(*)(int)>(releaseMemoryCallback)(releaseMemoryCallbackArg);
+        releaseMemoryCallback(releaseMemoryCallbackArg);
     }
 
-    if (closeAppletCallback == 0)
-        return;
-
-    reinterpret_cast<void(*)(int)>(closeAppletCallback)(closeAppletCallbackArg);
+    if (closeAppletCallback != 0){
+        reinterpret_cast<void(*)(int)>(closeAppletCallback)(closeAppletCallbackArg);
+    }
 }
 
 //
 // SysSleepAcceptedCallbackInfo 
 //
 
-SysSleepAcceptedCallbackInfo* SysSleepAcceptedCallbackInfo::spHead = NULL;
-SysSleepAcceptedCallbackInfo* SysSleepAcceptedCallbackInfo::spTail = NULL;
-
-void SysSleepAcceptedCallbackInfo::Unregister(){
-    nn::os::CriticalSection::ScopedLock lock(sSleepAcceptedCriticalSection);
-    SysSleepAcceptedCallbackInfo* p = spHead;
-    while (p){
-        if (p == this){
-            SysSleepAcceptedCallbackInfo* prev = p->mPrev;
-            SysSleepAcceptedCallbackInfo* next = p->mNext;
-
-            if (!prev)
-                spHead = next;
-            else
-                prev->mNext = next;
-            if (!next)
-                spTail = prev;
-            else
-                next->mPrev = prev;
-
-            p->mPrev = NULL;
-            p->mNext = NULL;
-            return;
-        }
-        p = p->mNext;
-    }
-}
-
 void SysSleepAcceptedCallbackInfo::Register(){
-    os::CriticalSection::ScopedLock lock(sSleepAcceptedCriticalSection);
-    if (GetPrev() || GetNext() || spHead == this ){
+    os::CriticalSection::ScopedLock lock(s_SleepAcceptedCriticalSection);
+    if (GetPrev() || GetNext() || s_pHead == this)
+    {
         return;
     }
 
-    SysSleepAcceptedCallbackInfo* p = spHead;
+    SysSleepAcceptedCallbackInfo* p = SysSleepAcceptedCallbackInfo::GetHead();
 
     NN_ASSERT_(MIN_PRIORITY <= GetPriority() && GetPriority() <= MAX_PRIORITY);
-    if (!p){
-        spHead = this;
-        spTail = this;
-        this->SetPrev(NULL);
-        this->SetNext(NULL);
+
+    if (!p)
+    {
+        s_pHead = this;
+        s_pTail = this;
+        SetPrev(NULL);
+        SetNext(NULL);
         return;
     }
 
-    for (; p; p=p->GetNext()){
+    for (; p; p=p->GetNext())
+    {
          NN_TASSERT_(p != this);
 
-        if (p->mPriority > mPriority){
-            this->SetPrev(p->GetPrev());
-            this->SetNext(p);
+        if (p->GetPriority() > m_Priority)
+        {
+            SetPrev(p->GetPrev());
+            SetNext(p);
 
-            if (p->GetPrev() == NULL){
-                spHead = this;
+            if (p->GetPrev() == NULL)
+            {
+                s_pHead = this;
             }
-            else{
+            else
+            {
                 p->GetPrev()->SetNext(this);
             }
             p->SetPrev(this);
@@ -493,15 +540,53 @@ void SysSleepAcceptedCallbackInfo::Register(){
         }
     }
 
-    spTail->SetNext(this);
-    SetPrev(spTail);
+    s_pTail->SetNext(this);
+    SetPrev(s_pTail);
     SetNext(NULL);
-    spTail = this;
+    s_pTail = this;
 }
 
-inline void SysSleepAcceptedCallbackInfo::CallCallbacks(){
-    os::CriticalSection::ScopedLock locker(sSleepAcceptedCriticalSection);
-    for(SysSleepAcceptedCallbackInfo* p = spHead; p; p = p->GetNext()){
+void SysSleepAcceptedCallbackInfo::Unregister(){
+    nn::os::CriticalSection::ScopedLock lock(s_SleepAcceptedCriticalSection);
+
+    SysSleepAcceptedCallbackInfo* p = SysSleepAcceptedCallbackInfo::GetHead();
+    for(; p; p=p->GetNext())
+    {
+        if (p == this)
+        {
+            SysSleepAcceptedCallbackInfo* prev = p->GetPrev();
+            SysSleepAcceptedCallbackInfo* next = p->GetNext();
+
+            if (!prev)
+            {
+                s_pHead = next;
+            }
+            else
+            {
+                prev->SetNext(next);
+            }
+
+            if (!next)
+            {
+                s_pTail = prev;
+            }
+            else
+            {
+                next->SetPrev(prev);
+            }
+
+            p->SetPrev(NULL);
+            p->SetNext(NULL);
+            return;
+        }
+    }
+}
+
+void SysSleepAcceptedCallbackInfo::CallCallbacks()
+{
+    os::CriticalSection::ScopedLock locker(s_SleepAcceptedCriticalSection);
+    for(SysSleepAcceptedCallbackInfo* p = GetHead(); p; p = p->GetNext())
+    {
         p->Call();
     }
 }
@@ -516,7 +601,7 @@ bool IsAppletPreloaded(AppletId id){
     bool isUsed;
     bool isPreloaded;
     bool r = GetAppletInfo( id, NULL, NULL, &isUsed, &isPreloaded, NULL );
-    return ( r && isUsed && isPreloaded )? true: false;
+    return (r && isUsed && isPreloaded) ? true : false;
 }
 
 void WaitForAppletPreloaded( AppletId id ){
@@ -524,9 +609,11 @@ void WaitForAppletPreloaded( AppletId id ){
     if (e){
         DisableSleep(REPLY_REJECT_IF_LATER);
     }
+
     while(!IsAppletPreloaded(id)){
         nn::os::Thread::Sleep(nn::fnd::TimeSpan::FromMilliSeconds(10));
     }
+
     if (e){
         EnableSleep(SLEEP_IF_SHELL_CLOSED);
     }
@@ -547,7 +634,7 @@ Result ReceiveCommand(bool* pIsToDo, AppletId* pSenderId, AppletCommand* pComman
 
     if (res.IsSuccess()){
         if (commandCallback){
-            reinterpret_cast<void (*)(uptr, u32, u32, void*, u32, u32, Handle)>(commandCallback)(commandCallbackArg,senderId,command,pParam,paramSize,readLen,handle);
+            callbackResult = commandCallback(commandCallbackArg, senderId, command, pParam, paramSize, readLen, handle);
         }
     }
 
@@ -771,6 +858,7 @@ Result CaptureScreenForSystemApplet(AppletId id){
 
     return ResultSuccess();
 }
+
 }
 }
 }

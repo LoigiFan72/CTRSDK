@@ -8,7 +8,6 @@ namespace applet{
 namespace CTR{
 namespace detail{
 namespace{
-
     const char PORT_NAME_SYSTEM[] = "APT:S"; // APPLET SYSTEM
     const char PORT_NAME_USER[] = "APT:U"; // APPLET USER
 }

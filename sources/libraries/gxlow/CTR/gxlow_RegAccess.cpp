@@ -25,12 +25,12 @@ namespace{
     };
     const detail::CmdReq* DefaultCmdReq = reinterpret_cast<const detail::CmdReq*>(DefaultCmdReqPacket);
     
-    bool sSyncMode = true;
+    bool s_SyncMode = true;
 
 }
 
 void SetSyncMode(bool mode){
-    sSyncMode = mode;
+    s_SyncMode = mode;
 }
 
 
@@ -115,7 +115,7 @@ void SetTextureCopy(void* pSrc,void* pDst,u32 dmaSize,u16 srcIntv,u16 srcIntiv,u
     {
         detail::CmdReq  req = *DefaultCmdReq;
         
-        req.sync                  = sSyncMode;
+        req.sync                  = s_SyncMode;
         req.param.ctx.srcAddr     = reinterpret_cast<uptr>(pSrc);
         req.param.ctx.dstAddr     = reinterpret_cast<uptr>(pDst);
         req.param.ctx.dmaSize     = dmaSize;
@@ -153,7 +153,7 @@ void SetCommandlist(void* pCmdBuf,size_t size,bool flushCache,bool autoGasAcc){
         if (result.IsSuccess()){
             req = *DefaultCmdReq;
             req.id                   = detail::REQ_ID_3D_CMD;
-            req.sync                 = sSyncMode;
+            req.sync                 = s_SyncMode;
             req.param.ren.addr       = reinterpret_cast<uptr>(pCmdBuf);
             req.param.ren.size       = size;
             req.param.ren.control    = autoGasAcc;
@@ -175,7 +175,7 @@ void SetDisplayTransfer(void* pSrc,u16 srcWidth,u16 srcHeight,void* pDst,u16 dst
         detail::CmdReq  req = *DefaultCmdReq;
         
         req.id                   = detail::REQ_ID_DISP_COPY;
-        req.sync                 = sSyncMode;
+        req.sync                 = s_SyncMode;
         req.param.pf.srcAddr     = reinterpret_cast<uptr>(pSrc);
         req.param.pf.dstAddr     = reinterpret_cast<uptr>(pDst);
         req.param.pf.srcSize     = (srcHeight << 16) | srcWidth;
@@ -204,7 +204,7 @@ void SetMemoryFill(void* startAddr0,void* endAddr0,bit32 data0,bit32 ctrl0,void*
         detail::CmdReq  req = *DefaultCmdReq;
         
         req.id               = detail::REQ_ID_MEM_FILL;
-        req.sync             = sSyncMode;
+        req.sync             = s_SyncMode;
         req.param.mf.start0  = reinterpret_cast<uptr>(startAddr0);
         req.param.mf.data0   = data0;
         req.param.mf.end0    = reinterpret_cast<uptr>(endAddr0);
@@ -234,7 +234,7 @@ void RequestDma(void* pDst, const void* pSrc, size_t size, bool flushCache, bool
         detail::CmdReq  req = *DefaultCmdReq;
         
         req.id                   = detail::REQ_ID_DMA;
-        req.sync                 = sSyncMode;
+        req.sync                 = s_SyncMode;
         req.param.dma.srcAddr    = reinterpret_cast<uptr>(pSrc);
         req.param.dma.dstAddr    = reinterpret_cast<uptr>(pDst);
         req.param.dma.size       = size;

@@ -8,73 +8,67 @@
 namespace nn{
 namespace os{
 
-#if NN_VERSION_MAJOR > 2 || \
-        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
-        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
+#if NN_VERSION_MAJOR > 2 || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) ||  (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
 void LightEvent::Initialize(bool pIsManualReset){
-    this->mLock.Initialize();
-    *this->mCounter = pIsManualReset ? NOT_RESETED_MANUAL: NOT_RESETED_AUTO;
+    this->m_Lock.Initialize();
+    *this->m_Counter = pIsManualReset ? NOT_RESETED_MANUAL: NOT_RESETED_AUTO;
 }
 #endif
 
 void LightEvent::ClearSignal(){
-    if(*this->mCounter == RESETED_MANUAL){
+    if(*this->m_Counter == RESETED_MANUAL){
 
-    #if NN_VERSION_MAJOR > 2 || \
-        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
-        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
-        SimpleLock::ScopedLock lock(this->mLock);
+    #if NN_VERSION_MAJOR > 2 || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
+        SimpleLock::ScopedLock lock(this->m_Lock);
     #endif
-        *this->mCounter = NOT_RESETED_MANUAL;
+        *this->m_Counter = NOT_RESETED_MANUAL;
     }
-    else if(*this->mCounter == RESETED_AUTO){
-        *this->mCounter = NOT_RESETED_AUTO;
+    else if(*this->m_Counter == RESETED_AUTO){
+        *this->m_Counter = NOT_RESETED_AUTO;
     }
 }
 
 void LightEvent::Wait(){
     for(;;){
-    switch (*this->mCounter){
+    switch (*this->m_Counter){
         case NOT_RESETED_MANUAL:
-            this->mCounter.WaitIfLessThan(0);
+            this->m_Counter.WaitIfLessThan(0);
             return;
         case RESETED_MANUAL:
             return;
         case NOT_RESETED_AUTO:
             break;
         case RESETED_AUTO:
-            if (this->mCounter->CompareAndSwap (RESETED_AUTO, NOT_RESETED_AUTO) == RESETED_AUTO) {
+            if (this->m_Counter->CompareAndSwap (RESETED_AUTO, NOT_RESETED_AUTO) == RESETED_AUTO) {
                 return;
             }
             break;
     }
-        this->mCounter.WaitIfLessThan (0);
+        this->m_Counter.WaitIfLessThan (0);
     }
 }
 
 void LightEvent::Signal(){
-    if(*this->mCounter == NOT_RESETED_AUTO){
-        *this->mCounter = RESETED_AUTO;
-        this->mCounter.Signal(1);
+    if(*this->m_Counter == NOT_RESETED_AUTO){
+        *this->m_Counter = RESETED_AUTO;
+        this->m_Counter.Signal(1);
     }
-    else if(*this->mCounter == NOT_RESETED_MANUAL){
-    #if NN_VERSION_MAJOR > 2 || \
-        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || \
-        (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)
+    else if(*this->m_Counter == NOT_RESETED_MANUAL){
 
-        SimpleLock::ScopedLock lock(this->mLock);
+    #if NN_VERSION_MAJOR > 2 || (NN_VERSION_MAJOR == 2 && NN_VERSION_MICRO > 1)
+        SimpleLock::ScopedLock lock(this->m_Lock);
     #endif
-        *this->mCounter = RESETED_MANUAL;
-        this->mCounter.SignalAll();
+        *this->m_Counter = RESETED_MANUAL;
+        this->m_Counter.SignalAll();
     }
 }
 
 bool LightEvent::TryWait(){
-    if(*this->mCounter == RESETED_MANUAL ){
+    if(*this->m_Counter == RESETED_MANUAL ){
         return true;
     }
     else{
-        return this->mCounter->CompareAndSwap(RESETED_AUTO, NOT_RESETED_AUTO) == RESETED_AUTO;
+        return this->m_Counter->CompareAndSwap(RESETED_AUTO, NOT_RESETED_AUTO) == RESETED_AUTO;
     }
 }
 

@@ -16,94 +16,103 @@ namespace applet {
 namespace CTR {
 namespace detail{
 namespace{
-    static bool sIsThreadEnd;
-    static AppletReceiveCallback sReceiveCallback;
-    static uptr sReceiveCallbackParam;
+    nn::os::Event             s_Event[3];
+    nn::os::Thread            s_Thread;
+    nn::os::StackBuffer<4096> s_StackBuffer;
+    bool                      s_IsThreadEnd;
+    AppletReceiveCallback     s_ReceiveCallback;
+    uptr                      s_ReceiveCallbackParam;
+    nn::os::LightEvent        s_ControlEventLight;
 }
-namespace{
-    nn::os::StackBuffer<4096> sBuffer;
-}
-    static os::Event sEvent[3];
-    static os::Thread sThread;
-    static os::LightEvent sControlLight;
 
 void ThreadFunc(int param);
 
 void InitializeClientThread(s32 threadPriority, Handle hControl, Handle hMessage){
-    sEvent[1].Initialize(false);
-    sEvent[1].Finalize();
-    sEvent[1].SetHandle(hMessage);
-    sEvent[2].Initialize(false);
-    sControlLight.Initialize(true);
-    sIsThreadEnd = false;
-    sThread.Start(ThreadFunc,0,sBuffer,threadPriority);
+    s_Event[1].Initialize(false);
+    s_Event[1].Finalize();
+    s_Event[1].SetHandle(hMessage);
+
+    s_Event[0].Initialize(false);
+    s_Event[0].Finalize();
+    s_Event[0].SetHandle(hMessage);
+
+    s_Event[2].Initialize(false);
+
+    s_ControlEventLight.Initialize(true);
+    s_IsThreadEnd = false;
+    s_Thread.Start(ThreadFunc,0,s_StackBuffer,threadPriority);
 }
 
-void FinalizeClientThread(){
-    sIsThreadEnd = true;
-    sEvent[0].Signal();
-    sThread.Join();
-    sThread.Finalize();
-    sControlLight.Finalize();
-    for(int i = 0; i < 3; i++){
-        sEvent[i].Finalize();
+void FinalizeClientThread()
+{
+    s_IsThreadEnd = true;
+    s_Event[0].Signal();
+    s_Thread.Join();
+    s_Thread.Finalize();
+    s_ControlEventLight.Finalize();
+
+    for(int i = 0; i < 3; i++)
+    {
+        s_Event[i].Finalize();
     }
 }
 
 void SetReceiveCallback(AppletReceiveCallback callback,uptr parameter){
-    sReceiveCallback = callback;
-    sReceiveCallbackParam = parameter;
+    s_ReceiveCallback = callback;
+    s_ReceiveCallbackParam = parameter;
 }
 
 void WaitForControlEvent(){
-    sControlLight.Wait();
+    s_ControlEventLight.Wait();
 }
 
 bool TryWaitForControlEvent(){
-    return sControlLight.TryWait();
+    return s_ControlEventLight.TryWait();
 }
 
 void ClearControlEvent(){
-    sControlLight.ClearSignal();
+    s_ControlEventLight.ClearSignal();
 }
 
 void ThreadFunc(int param){
     NN_UNUSED_VAR(param);
 
     Handle handles[3];
-    for (int i = 0; i < 3; ++i){
-        handles[i] = sEvent[i].GetHandle();
+
+    for (int i = 0; i < 3; ++i)
+    {
+        handles[i] = s_Event[i].GetHandle();
     }
 
-    while(!sIsThreadEnd){
+    while(!s_IsThreadEnd){
         s32 index;
         Result result = nn::svc::WaitSynchronizationN(&index, handles, 3, false, nn::os::WAIT_INFINITE);
         NN_ERR_THROW_FATAL(result);
 
-        if (sIsThreadEnd){
+        if (s_IsThreadEnd){
             break;
         }
 
-        if (sControlLight.TryWait()){
+        if (s_ControlEventLight.TryWait()){
             WaitBySleep(10);
-            sEvent[index].Signal();
+            s_Event[index].Signal();
             continue;
         }
 
-        sEvent[index].ClearSignal();
+        s_Event[index].ClearSignal();
 
         if (index == 2){
             SetMessageCommand(COMMAND_WAKEUP_BY_CANCEL);
 
-            sControlLight.Signal();
+            s_ControlEventLight.Signal();
         }
         else if (index == 1){
             bool bSignal = true;
-            if (sReceiveCallback){
-                bSignal = sReceiveCallback(sReceiveCallbackParam);
+            if (s_ReceiveCallback){
+                bSignal = sReceiveCallback(s_ReceiveCallbackParam);
             }
             if (bSignal){
-                sControlLight.Signal();
+                s_ControlLight.Signal();
             }
         }
         else if (index == 0){
@@ -124,13 +133,13 @@ void ThreadFunc(int param){
                     }
 
                     bool bSignal = true;
-                    if (sReceiveCallback){
-                        bSignal = sReceiveCallback(sReceiveCallbackParam);
+                    if (s_ReceiveCallback){
+                        bSignal = s_ReceiveCallback(s_ReceiveCallbackParam);
                     }
 
                     if (bSignal){
                         SetMessageCommand((notification == NOTIFICATION_HOME_BUTTON_1) ? COMMAND_HOME_BUTTON_SINGLE : COMMAND_HOME_BUTTON_DOUBLE );
-                        sControlLight.Signal();
+                        s_ControlEventLight.Signal();
                     }
                 }
                 break;
@@ -154,8 +163,8 @@ void ThreadFunc(int param){
                         break;
                     }
 
-                    if (sReceiveCallback){
-                        (void)sReceiveCallback(sReceiveCallbackParam);
+                    if (s_ReceiveCallback){
+                        (void)s_ReceiveCallback(s_ReceiveCallbackParam);
                     }
                 }
                 break;
@@ -166,8 +175,8 @@ void ThreadFunc(int param){
 
                 SetOrderToCloseState(ORDER_TO_CLOSE_STATE_RECEIVED);
 
-                if (sReceiveCallback){
-                        (void)sReceiveCallback(sReceiveCallbackParam);
+                if (s_ReceiveCallback){
+                        (void)s_ReceiveCallback(s_ReceiveCallbackParam);
                     }
                 }
                 break;
@@ -176,8 +185,8 @@ void ThreadFunc(int param){
                     SetPowerButtonCallbackFlag();
                     SetPowerButtonState( POWER_BUTTON_STATE_CLICK );
 
-                    if (sReceiveCallback){
-                        (void)sReceiveCallback(sReceiveCallbackParam);
+                    if (s_ReceiveCallback){
+                        (void)s_ReceiveCallback(s_ReceiveCallbackParam);
                     }
                 }
                 break;

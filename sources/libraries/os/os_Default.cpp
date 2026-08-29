@@ -22,25 +22,25 @@ class DefaultAutoStackManager : public os::AutoStackManager{
 protected:
     static const size_t DESTRUCTOR_STACK_SIZE = 512;
 
-    os::Mutex mDestructorMutex;
-    bool mInitialized;
+    os::Mutex m_DestructorMutex;
+    bool m_Initialized;
     s8 rev[3];
     s32 rev2;
-    os::StackBuffer<DESTRUCTOR_STACK_SIZE>  mDestructorStack;
+    os::StackBuffer<DESTRUCTOR_STACK_SIZE>  m_DestructorStack;
 public:
     DefaultAutoStackManager():
         mInitialized(false)
     {}
 
     virtual ~DefaultAutoStackManager(){
-        if (mInitialized){
-            this->mDestructorMutex.Finalize();
-            mInitialized = false;
+        if (m_Initialized){
+            this->m_DestructorMutex.Finalize();
+            m_Initialized = false;
         }
     }
 
     virtual void* Construct(size_t stackSize){
-        if (!mInitialized){
+        if (!m_Initialized){
             this->Initialize();
         }
                     
@@ -63,14 +63,14 @@ public:
             this->FreeStack(reinterpret_cast<nnosStackMemoryBlock*>(pStackBottom));
         }
         else{
-            this->mDestructorMutex.Lock();
-            this->InvokeOnOtherStack(this->mDestructorStack.GetStackBottom(), &FreeStack, pStackBottom, __return_address());
+            this->m_DestructorMutex.Lock();
+            this->InvokeOnOtherStack(m_DestructorStack.GetStackBottom(), &FreeStack, pStackBottom, __return_address());
         }
     }
 private:
     void Initialize(void){
-        this->mDestructorMutex.Initialize(false);
-        mInitialized = true;
+        this->m_DestructorMutex.Initialize(false);
+        m_Initialized = true;
     }
     static void FreeStack(void* pStackBottom){
         nnosStackMemoryBlock* pBlockOnStack = reinterpret_cast<nnosStackMemoryBlock*>(pStackBottom);

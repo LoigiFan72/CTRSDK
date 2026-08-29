@@ -24,20 +24,20 @@ enum ClampMode{
     STICK_CLAMP_MODE_MINIMUM
 };
 protected:
-    short mMinOfStickClampCircle;
-    short mMinOfStickClampCross;
-    short mMinOfStickClampMinimum;
-    short mMaxOfStickClampCircle;
-    short mMaxOfStickClampCross;
-    short mMaxOfStickClampMinimum;
-    SizedEnum1<ClampMode> mStickClampMode;
+    short m_MinOfStickClampCircle;
+    short m_MinOfStickClampCross;
+    short m_MinOfStickClampMinimum;
+    short m_MaxOfStickClampCircle;
+    short m_MaxOfStickClampCross;
+    short m_MaxOfStickClampMinimum;
+    SizedEnum1<ClampMode> m_StickClampMode;
     s8 rev;
-    short mThreshold;
-    f32 mScale;
-    f32 mStroke;
-    f32 mStrokeVelocity;
-    f32 mLastLength;
-    f32 mLastDiff;
+    short m_Threshold;
+    f32 m_Scale;
+    f32 m_Stroke;
+    f32 m_StrokeVelocity;
+    f32 m_LastLength;
+    f32 m_LastDiff;
 public:
     AnalogStickClamper();
     ~AnalogStickClamper(){ }
@@ -58,27 +58,28 @@ public:
 };
 
 inline void AnalogStickClamper::GetStickClamp(s16* pMin, s16* pMax) const{
-    if (this->mStickClampMode == STICK_CLAMP_MODE_CIRCLE){
-       *pMin = mMinOfStickClampCircle;
-       *pMax = mMaxOfStickClampCircle;
+    if (this->m_StickClampMode == STICK_CLAMP_MODE_CIRCLE){
+       *pMin = m_MinOfStickClampCircle;
+       *pMax = m_MaxOfStickClampCircle;
     }
-    else if (this->mStickClampMode == STICK_CLAMP_MODE_CROSS){
-       *pMin = mMinOfStickClampCross;
-       *pMax = mMaxOfStickClampCross;
+    else if (this->m_StickClampMode == STICK_CLAMP_MODE_CROSS){
+       *pMin = m_MinOfStickClampCross;
+       *pMax = m_MaxOfStickClampCross;
     }
     else{
-        *pMin = mMinOfStickClampMinimum;
-        *pMax = mMaxOfStickClampMinimum;
+        *pMin = m_MinOfStickClampMinimum;
+        *pMax = m_MaxOfStickClampMinimum;
     }
 }
 
 inline AnalogStickClamper::ClampMode AnalogStickClamper::GetStickClampMode() const{
-    return mStickClampMode;
+    return m_StickClampMode;
 }
 
 inline void AnalogStickClamper::SetStickClampMode(ClampMode mode){
-    mStickClampMode = mode;
+    m_StickClampMode = mode;
 }
+
 }
 }
 }

@@ -14,21 +14,21 @@ struct HandleManager{
 
 class HandleObject : util::ADLFireWall::NonCopyable<HandleObject>{
 public:
-    Handle mHandle;
+    Handle m_Handle;
 public:
     HandleObject() {}
     ~HandleObject(){ Close(); }
-    Handle GetHandle() const{ return mHandle; }
-    bool IsValid() const{ return mHandle.IsValid(); }
+    Handle GetHandle() const{ return m_Handle; }
+    bool IsValid() const{ return m_Handle.IsValid(); }
     void SetHandle(nn::Handle handle);
     void Close(){
         if (IsValid()) {
-            nn::svc::CloseHandle(mHandle);
-            mHandle = Handle();
+            nn::svc::CloseHandle(m_Handle);
+            m_Handle = Handle();
         }
     }
     void Finalize(){ Close(); }
-    void ClearHandle(){ mHandle = Handle(); }
+    void ClearHandle(){ m_Handle = Handle(); }
 
     Handle DetachHandle();
 };
@@ -36,7 +36,7 @@ public:
 inline void HandleObject::SetHandle(nn::Handle handle){
     NN_TASSERTMSG_(!IsValid(), "current handle(=%08X) is active\n", mHandle.GetPrintableBits());
     NN_TASSERT_(handle.IsValid());
-    this->mHandle = handle;
+    m_Handle = handle;
 }
 
 inline Handle HandleObject::DetachHandle(){

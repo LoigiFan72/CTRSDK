@@ -17,8 +17,8 @@ class MasterManager;
 class MasterManagerImpl;
 
 namespace internal{
-    extern CTR::MasterManager sMasterManager;
-    extern CTR::MasterManagerImpl sMasterManagerImpl;
+    extern CTR::MasterManager s_MasterManager;
+    extern CTR::MasterManagerImpl s_MasterManagerImpl;
 }
 
 class MasterManagerImpl{
@@ -66,7 +66,7 @@ public:
     void SetSystemMasterVolume(f32 volume);
     void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos);
     void SetIsHeadsetConnected(bool flag);
-    static MasterManagerImpl& GetInstance(){ return internal::sMasterManagerImpl; }
+    static MasterManagerImpl& GetInstance(){ return internal::s_MasterManagerImpl; }
 };
 
 class MasterManager{
@@ -118,7 +118,7 @@ public:
     void SetIsHeadsetConnected(bool flag);
 
     MasterManagerImpl* GetImpl() { return &(MasterManagerImpl::GetInstance()); }
-    static MasterManager& GetInstance(){ return internal::sMasterManager; }
+    static MasterManager& GetInstance(){ return internal::s_MasterManager; }
 };
 
 }

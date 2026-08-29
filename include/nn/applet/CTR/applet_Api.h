@@ -55,7 +55,7 @@ namespace detail{
     Result PrepareToJumpToHomeMenu();
 
     //--- Paremater
-    bool CancelParemater(bool isSenderCheck, AppletId senderId, bool isReceiverCheck, AppletId receiverId);
+    bool CancelParameter(bool isSenderCheck, AppletId senderId, bool isReceiverCheck = false, AppletId receiverId = 0);
 
     //--- Application Info
     void GetAppletManInfo(AppletPos requestPos,AppletPos *pCurrentPos,AppletId *pRequestedId,AppletId *pHomeMenuId,AppletId *pCurrentId);
@@ -69,7 +69,7 @@ namespace detail{
 
     //--- Sending Parameter IDS
     Result TrySend(AppletId receiverId, u32 command, const u8* pParam, size_t paramSize, Handle handle);
-    Result Send(AppletId receiverId,u32 command,const u8 *pParam,size_t paramSize,Handle handle,fnd::TimeSpan timeout);
+    Result Send(AppletId receiverId, u32 command=COMMAND_NONE, const u8* pParam=NULL, size_t paramSize=0, nn::Handle handle=NN_APPLET_HANDLE_NONE, nn::fnd::TimeSpan timeout=WAIT_INFINITE);
 
     //--- Sleep Query Manager
     void ReplySleepQueryToManager(QueryReply);
@@ -88,6 +88,10 @@ namespace detail{
     //--- Receiving Parameter IDS
     Result TryReceive(AppletId *pSenderId,u32 *pCommand,u8 *pParam,size_t paramSize,s32 *pReadLen, Handle *pHandle,bool isTry);
     Result Receive(AppletId *pSenderId,u32 *pCommand,u8 *pParam,size_t paramSize,s32 *pReadLen,Handle *pHandle,fnd::TimeSpan timeout);
+
+    //--- Wrap for PI
+    Result Wrap(void* pWrappedBuffer, const void* pData, size_t dataSize, s32 idOffset, size_t idSize);
+    Result Unwrap(void* pData, const void* pWrapped, size_t wrappedSize, s32 idOffset, size_t idSize);
 
     struct LockTransitionParam{
         u32 action;

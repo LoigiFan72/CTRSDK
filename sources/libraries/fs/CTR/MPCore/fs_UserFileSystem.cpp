@@ -24,17 +24,17 @@
 namespace nn{
 namespace fs{
     
-nn::Handle gFileServerHandle = INVALID_HANDLE_VALUE;
-nn::os::CriticalSection gMountLock = nn::WithInitialize();
+nn::Handle g_FileServerHandle = INVALID_HANDLE_VALUE;
+nn::os::CriticalSection g_MountLock = nn::WithInitialize();
 
 namespace CTR{
 namespace MPCore{
 namespace detail{
 
-Handle& GetFileServerHandle(){ return fs::gFileServerHandle; }
+Handle& GetFileServerHandle(){ return fs::g_FileServerHandle; }
 
 namespace{
-    fnd::UnitHeapBase sArchiveHeap = *(fnd::UnitHeapBase*)0;
+    fnd::UnitHeapBase s_ArchiveHeap = *(fnd::UnitHeapBase*)0;
 
     const wchar_t* GetArchivePath(const wchar_t* path){
         while (true){
@@ -121,11 +121,11 @@ private:
     friend class Directory;
 
 private:
-    static nn::util::aligned_storage<sizeof(FileServerArchive::File) * 32, 8>::type sFileServerFileBuffer;
-    static nn::util::aligned_storage<sizeof(FileServerArchive::Directory) * 16, 8>::type sFileServerDirectoryBuffer;
-    static nn::fnd::ThreadSafeUnitHeap sArchiveHeap;
-    static nn::fnd::ThreadSafeUnitHeap sFileHeap;
-    static nn::fnd::ThreadSafeUnitHeap sDirectoryHeap;
+    static nn::util::aligned_storage<sizeof(FileServerArchive::File) * 32, 8>::type s_FileServerFileBuffer;
+    static nn::util::aligned_storage<sizeof(FileServerArchive::Directory) * 16, 8>::type s_FileServerDirectoryBuffer;
+    static nn::fnd::ThreadSafeUnitHeap s_ArchiveHeap;
+    static nn::fnd::ThreadSafeUnitHeap s_FileHeap;
+    static nn::fnd::ThreadSafeUnitHeap s_DirectoryHeap;
 
     ArchiveHandle mArchiveHandle;
 public:
@@ -144,9 +144,8 @@ public:
     static IFile* OpenDirect(Handle handle);
 
     static Result Create(IArchive** pOut, Handle handle, ArchiveHandle archiveHandle){
-        *pOut = new (sArchiveHeap.Allocate()) FileServerArchive(handle, archiveHandle);
-        if (!*pOut)
-        {
+        *pOut = new (s_ArchiveHeap.Allocate()) FileServerArchive(handle, archiveHandle);
+        if (!*pOut){
             return nn::fs::ResultOutOfMemory();
         }
         return ResultSuccess();
@@ -235,19 +234,19 @@ public:
 
     virtual void DeleteObject(){
         this->~FileServerArchive();
-        sArchiveHeap.Free(this);
+        s_ArchiveHeap.Free(this);
     }
 };
 
-nn::util::aligned_storage<sizeof(FileServerArchive) * 16, 8>::type sFileServerArchiveBuffer;
-nn::util::aligned_storage<sizeof(FileServerArchive::File) * 32, 8>::type FileServerArchive::sFileServerFileBuffer;
-nn::util::aligned_storage<sizeof(FileServerArchive::Directory) * 16, 8>::type FileServerArchive::sFileServerDirectoryBuffer;
-nn::fnd::ThreadSafeUnitHeap FileServerArchive::sArchiveHeap(sizeof(FileServerArchive), reinterpret_cast<uptr>(&sFileServerArchiveBuffer), sizeof(sFileServerArchiveBuffer));
-nn::fnd::ThreadSafeUnitHeap FileServerArchive::sFileHeap(sizeof(FileServerArchive::File), reinterpret_cast<uptr>(&sFileServerFileBuffer), sizeof(sFileServerFileBuffer));
-nn::fnd::ThreadSafeUnitHeap FileServerArchive::sDirectoryHeap(sizeof(FileServerArchive::Directory), reinterpret_cast<uptr>(&sFileServerDirectoryBuffer), sizeof(sFileServerDirectoryBuffer));
+nn::util::aligned_storage<sizeof(FileServerArchive) * 16, 8>::type s_FileServerArchiveBuffer;
+nn::util::aligned_storage<sizeof(FileServerArchive::File) * 32, 8>::type FileServerArchive::s_FileServerFileBuffer;
+nn::util::aligned_storage<sizeof(FileServerArchive::Directory) * 16, 8>::type FileServerArchive::s_FileServerDirectoryBuffer;
+nn::fnd::ThreadSafeUnitHeap FileServerArchive::s_ArchiveHeap(sizeof(FileServerArchive), reinterpret_cast<uptr>(&s_FileServerArchiveBuffer), sizeof(s_FileServerArchiveBuffer));
+nn::fnd::ThreadSafeUnitHeap FileServerArchive::s_FileHeap(sizeof(FileServerArchive::File), reinterpret_cast<uptr>(&s_FileServerFileBuffer), sizeof(s_FileServerFileBuffer));
+nn::fnd::ThreadSafeUnitHeap FileServerArchive::s_DirectoryHeap(sizeof(FileServerArchive::Directory), reinterpret_cast<uptr>(&s_FileServerDirectoryBuffer), sizeof(s_FileServerDirectoryBuffer));
 
 IFile* FileServerArchive::OpenDirect(Handle handle){
-    return new (sFileHeap.Allocate()) File(handle);
+    return new (s_FileHeap.Allocate()) File(handle);
 }
 
 void FileServerArchive::File::Close(){
@@ -255,7 +254,7 @@ void FileServerArchive::File::Close(){
         GetIpcObject().Close();
     }
     this->~File();
-    sFileHeap.Free(this);
+    s_FileHeap.Free(this);
 }
 
 void FileServerArchive::Directory::Close(){
@@ -263,7 +262,7 @@ void FileServerArchive::Directory::Close(){
         GetIpcObject().Close();
     }
     this->~Directory();
-    sDirectoryHeap.Free(this);
+    s_DirectoryHeap.Free(this);
 }
 
 Result FileServerArchive::OpenFile(IFile** pOut, const Path& path, bit32 mode){
@@ -273,7 +272,7 @@ Result FileServerArchive::OpenFile(IFile** pOut, const Path& path, bit32 mode){
 
     Handle handle;
     NN_UTIL_RETURN_IF_FAILED(GetIpcObject().OpenFile(&handle, nn::fs::Transaction(),this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize(),mode, fs::Attributes()));
-    *pOut = new (sFileHeap.Allocate()) File(handle);
+    *pOut = new (s_FileHeap.Allocate()) File(handle);
     if (!(*pOut)){
         nn::svc::CloseHandle(handle);
         return fs::ResultOutOfMemory();
@@ -288,7 +287,7 @@ Result FileServerArchive::OpenDirectory(IDirectory** pOut, const Path& path){
 
     Handle handle;
     NN_UTIL_RETURN_IF_FAILED(GetIpcObject().OpenDirectory(&handle,this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize()));
-    *pOut = new (sDirectoryHeap.Allocate()) Directory(handle);
+    *pOut = new (s_DirectoryHeap.Allocate()) Directory(handle);
     if (!(*pOut)){
         nn::svc::CloseHandle(handle);
         return nn::fs::ResultOutOfMemory();
@@ -299,7 +298,7 @@ Result FileServerArchive::OpenDirectory(IDirectory** pOut, const Path& path){
 class ContentRomFsArchive : public RomFsArchive{
 private:
     static void* AllocateBuffer();
-    static nn::fnd::ThreadSafeUnitHeap* sArchiveHeap;
+    static nn::fnd::ThreadSafeUnitHeap* s_ArchiveHeap;
 
 private:
     virtual Result OpenDirect(IFile** pOut, Handle handle){
@@ -373,26 +372,26 @@ public:
 
     virtual void DeleteObject(){
         this->~ContentRomFsArchive();
-        sArchiveHeap->Free(this);
+        s_ArchiveHeap->Free(this);
     }
 
     virtual ~ContentRomFsArchive(){}
 };
 
-nn::fnd::ThreadSafeUnitHeap* ContentRomFsArchive::sArchiveHeap = 0;
+nn::fnd::ThreadSafeUnitHeap* ContentRomFsArchive::s_ArchiveHeap = 0;
 
 void* ContentRomFsArchive::AllocateBuffer(){
-    nn::os::CriticalSection::ScopedLock lk(gMountLock);
+    nn::os::CriticalSection::ScopedLock lk(g_MountLock);
 
-    static nn::util::aligned_storage<sizeof(ContentRomFsArchive) * 16, 8>::type sContentRomFsArchiveBuffer;
-    static nn::fnd::ThreadSafeUnitHeap heap(sizeof(ContentRomFsArchive), reinterpret_cast<uptr>(&sContentRomFsArchiveBuffer), sizeof(sContentRomFsArchiveBuffer));
-    sArchiveHeap = &heap;
+    static nn::util::aligned_storage<sizeof(ContentRomFsArchive) * 16, 8>::type s_ContentRomFsArchiveBuffer;
+    static nn::fnd::ThreadSafeUnitHeap heap(sizeof(ContentRomFsArchive), reinterpret_cast<uptr>(&s_ContentRomFsArchiveBuffer), sizeof(s_ContentRomFsArchiveBuffer));
+    s_ArchiveHeap = &heap;
     return heap.Allocate();
 }
 
-static bool sIsEmulateEndurance = false;
-static bool sIsLatencyEmulationEnable = false;
-static s64 sConstantWait = 0;
+static bool s_IsEmulateEndurance = false;
+static bool s_IsLatencyEmulationEnable = false;
+static s64 s_ConstantWait = 0;
 
 typedef void (*File)(void*);
 
@@ -523,14 +522,15 @@ Result UserFileSystem::TryFlush(void* p){
 void LatencyEmulation( bool isRead){
     u16 latencyTime = 0;
     u16 latencyParameter = (isRead)? (100) : (380);
-    if(latencyParameter && sIsLatencyEmulationEnable){
-        if(detail::sIsEmulateEndurance){
+    if(latencyParameter && s_IsLatencyEmulationEnable){
+        if(detail::s_IsEmulateEndurance){
             s64 sysTick = nn::svc::GetSystemTick();
             if(sysTick & 0x10){
                 latencyTime = latencyParameter / (static_cast<u16>(sysTick & 0xF) + 1);
             }
         }
-        latencyTime += static_cast<u16>(sConstantWait);
+
+        latencyTime += static_cast<u16>(s_ConstantWait);
         if(latencyTime > 0){
             nn::os::Thread::Sleep(nn::fnd::TimeSpan::FromMilliSeconds(latencyTime));
         }
@@ -542,31 +542,32 @@ void LatencyEmulation( bool isRead){
 } // detail
 
 void InitializeLatencyEmulation(){
-    CTR::MPCore::detail::sConstantWait = cfg::CTR::GetFsLatencyEmulationParam() * 10;
+    CTR::MPCore::detail::s_ConstantWait = cfg::CTR::GetFsLatencyEmulationParam() * 10;
+
     if(cfg::CTR::IsDebugMode()){
-        CTR::MPCore::detail::sIsLatencyEmulationEnable = true;
+        CTR::MPCore::detail::s_IsLatencyEmulationEnable = true;
     }
 
-    if((CTR::MPCore::detail::sIsLatencyEmulationEnable) || (CTR::MPCore::detail::sConstantWait != 0)){
-        CTR::MPCore::detail::sIsEmulateEndurance = true;
+    if((CTR::MPCore::detail::s_IsLatencyEmulationEnable) || (CTR::MPCore::detail::s_ConstantWait != 0)){
+        CTR::MPCore::detail::s_IsEmulateEndurance = true;
     }
 }
 
 void ForceDisableLatencyEmulation(){
-    CTR::MPCore::detail::sIsLatencyEmulationEnable = false;
+    CTR::MPCore::detail::s_IsLatencyEmulationEnable = false;
 }
 
 using namespace CTR::MPCore::detail;
 
 namespace{
-    IArchive* gSaveDataArchive = 0;
+    IArchive* g_SaveDataArchive = 0;
 }
 
 Result MountSaveData(const char* archive) {
     IArchive* p;
     Result result;
 
-    if (gSaveDataArchive != 0) {
+    if (g_SaveDataArchive != 0) {
         return Result(0xc92044e7);
     }
 
@@ -579,7 +580,7 @@ Result MountSaveData(const char* archive) {
             p->DeleteObject();
         } 
         else{
-            gSaveDataArchive = p;
+            g_SaveDataArchive = p;
         }
     }
     return result;
@@ -635,8 +636,8 @@ Result Unmount(const char* archiveName){
         if (!isAlias){
             p->DeleteObject();
 
-            if (p == gSaveDataArchive){
-                gSaveDataArchive = 0;
+            if (p == g_SaveDataArchive){
+                g_SaveDataArchive = 0;
             }
         }
 

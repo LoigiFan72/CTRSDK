@@ -30,39 +30,39 @@ public:
     void GetNormalizeStickScaleSettings(f32* scale, s16* threshold) const;
 
     f32 NormalizeExtraStick(s16 x){
-        return this->mExtraStickClamper.NormalizeStick(x);
+        return this->m_ExtraStickClamper.NormalizeStick(x);
     }
     void NormalizeExtraStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y){
-        return this->mExtraStickClamper.NormalizeStickWithScale(normalized_x,normalized_y,x,y);
+        return this->m_ExtraStickClamper.NormalizeStickWithScale(normalized_x,normalized_y,x,y);
     }
 
     void SetExtraStickClamp(s16 min, s16 max){
-        return this->mExtraStickClamper.SetStickClamp(min,max);
+        return this->m_ExtraStickClamper.SetStickClamp(min,max);
     }
     void GetExtraStickClamp(s16* pMin, s16* pMax) const{
-        return this->mExtraStickClamper.GetStickClamp(pMin,pMax);
+        return this->m_ExtraStickClamper.GetStickClamp(pMin,pMax);
     }
     void SetExtraStickClampMode(StickClampMode mode){
-        return this->mExtraStickClamper.SetStickClampMode(PadReader::ClamperClampMode((PadReader::StickClampMode)mode));
+        return this->m_ExtraStickClamper.SetStickClampMode(PadReader::ClamperClampMode((PadReader::StickClampMode)mode));
     }
     void SetNormalizeExtraStickScaleSettings(f32 scale, s16 threshold){
-        return this->mExtraStickClamper.SetNormalizeStickScaleSettings(scale,threshold);
+        return this->m_ExtraStickClamper.SetNormalizeStickScaleSettings(scale,threshold);
     }
     void GetNormalizeExtraStickScaleSettings(f32* scale, s16* threshold) const{
-        return this->mExtraStickClamper.GetNormalizeStickScaleSettings(scale,threshold);
+        return this->m_ExtraStickClamper.GetNormalizeStickScaleSettings(scale,threshold);
     }
 
 protected:
     s32 rev;
-    AnalogStickClamper mExtraStickClamper;
-    AnalogStickClamper mStickClamper;
-    s32 mIndexOfRead;
-    bit32 mLatestHold;
-    PadReader mPadReader;
-    bool mIsReadLatestFirst;
+    AnalogStickClamper m_ExtraStickClamper;
+    AnalogStickClamper m_StickClamper;
+    s32 m_IndexOfRead;
+    bit32 m_LatestHold;
+    PadReader m_PadReader;
+    bool m_IsReadLatestFirst;
     s8 rev2[3];
     s32 rev3;
-    s64 mTickOfRead;
+    s64 m_TickOfRead;
 };
 
 }

@@ -31,7 +31,7 @@ public:
     void GetStickClamp(s16* pMin, s16* pMax) const
 #ifdef NN_VERSION > 2
     {
-        this->mStickClamper.GetStickClamp(pMin,pMax);
+        this->m_StickClamper.GetStickClamp(pMin,pMax);
     }
 #else
     ;
@@ -39,7 +39,7 @@ public:
     void SetStickClampMode(StickClampMode mode)
 #if NN_MAJOR_VERSION > 2
     {
-        this->mStickClamper.SetStickClampMode(ClamperClampMode(mode));
+        this->m_StickClamper.SetStickClampMode(ClamperClampMode(mode));
     }
 #else
     ;
@@ -63,72 +63,67 @@ public:
         padStatus->stick.y = 0;
     }
 protected:
-    Pad& mPad;
-    s32 mIndexOfRead;
-    bit32 mLatestHold;
+    Pad& m_Pad;
+    s32 m_IndexOfRead;
+    bit32 m_LatestHold;
     #if NN_VERSION_MAJOR > 2
-        AnalogStickClamper mStickClamper;
+        AnalogStickClamper m_StickClamper;
     #else
-        short mMinOfStickClampCircle;
-        short mMinOfStickClampCross;
-        short mMinOfStickClampMinimum;
-        short mMaxOfStickClampCircle;
-        short mMaxOfStickClampCross;
-        short mMaxOfStickClampMinimum;
-        SizedEnum1<AnalogStickClamper::ClampMode> mStickClampMode;
+        short m_MinOfStickClampCircle;
+        short m_MinOfStickClampCross;
+        short m_MinOfStickClampMinimum;
+        short m_MaxOfStickClampCircle;
+        short m_MaxOfStickClampCross;
+        short m_MaxOfStickClampMinimum;
+        SizedEnum1<AnalogStickClamper::ClampMode> m_StickClampMode;
         s8 rev;
-        short mThreshold;
-        f32 mScale;
-        f32 mStroke;
-        f32 mStrokeVelocity;
-        f32 mLastLength;
-        f32 mLastDiff;
+        short m_Threshold;
+        f32 m_Scale;
+        f32 m_Stroke;
+        f32 m_StrokeVelocity;
+        f32 m_LastLength;
+        f32 m_LastDiff;
     #endif 
-    bool mIsReadLatestFirst;
+    bool m_IsReadLatestFirst;
     s8 rev[3];
     s32 rev2;
-    s64 mTickOfRead;
+    s64 m_TickOfRead;
 
 public:
     static AnalogStickClamper::ClampMode  ClamperClampMode(const StickClampMode mode){ return (AnalogStickClamper::ClampMode)mode; }
 };
 
-
-namespace{
-    bool sIsEnableSelect;
-}
-
 #if NN_VERSION_MAJOR <= 2
 
 inline void PadReader::ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y){
-    switch (this->mStickClampMode) {
+    switch (this->m_StickClampMode) {
     case STICK_CLAMP_MODE_CIRCLE:
-        hidlow::ClampStickCircle(pOutX, pOutY, x, y, this->mMinOfStickClampCircle, this->mMaxOfStickClampCircle);
+        hidlow::ClampStickCircle(pOutX, pOutY, x, y, this->m_MinOfStickClampCircle, this->m_MaxOfStickClampCircle);
         break;
     case STICK_CLAMP_MODE_CROSS:
-        hidlow::ClampStickCross(pOutX, pOutY, x, y, this->mMinOfStickClampCross, this->mMaxOfStickClampCross);
+        hidlow::ClampStickCross(pOutX, pOutY, x, y, this->m_MinOfStickClampCross, this->m_MaxOfStickClampCross);
         break;
     case STICK_CLAMP_MODE_MINIMUM:
-        hidlow::ClampStickMinimum(pOutX, pOutY, x, y, this->mMinOfStickClampMinimum, this->mMaxOfStickClampMinimum);
+        hidlow::ClampStickMinimum(pOutX, pOutY, x, y, this->m_MinOfStickClampMinimum, this->m_MaxOfStickClampMinimum);
         break;
     }
 }
 
 inline void PadReader::ClampValueOfClamp(){
-  if (mMinOfStickClampCircle < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
-    mMinOfStickClampCircle = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
+  if (m_MinOfStickClampCircle < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
+    m_MinOfStickClampCircle = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
     
-  if (mMinOfStickClampCross < MIN_OF_STICK_CLAMP_MODE_CROSS)
-    mMinOfStickClampCross = MIN_OF_STICK_CLAMP_MODE_CROSS;
+  if (m_MinOfStickClampCross < MIN_OF_STICK_CLAMP_MODE_CROSS)
+    m_MinOfStickClampCross = MIN_OF_STICK_CLAMP_MODE_CROSS;
     
-  if (mMaxOfStickClampCircle > LIMIT_OF_STICK_CLAMP_MAX)
-    mMaxOfStickClampCircle = LIMIT_OF_STICK_CLAMP_MAX;
+  if (m_MaxOfStickClampCircle > LIMIT_OF_STICK_CLAMP_MAX)
+    m_MaxOfStickClampCircle = LIMIT_OF_STICK_CLAMP_MAX;
     
-  if (mMaxOfStickClampCross > LIMIT_OF_STICK_CLAMP_MAX)
-    mMaxOfStickClampCross = LIMIT_OF_STICK_CLAMP_MAX;
+  if (m_MaxOfStickClampCross > LIMIT_OF_STICK_CLAMP_MAX)
+    m_MaxOfStickClampCross = LIMIT_OF_STICK_CLAMP_MAX;
     
-  if (mMaxOfStickClampMinimum > LIMIT_OF_STICK_CLAMP_MAX)
-    mMaxOfStickClampMinimum = LIMIT_OF_STICK_CLAMP_MAX;
+  if (m_MaxOfStickClampMinimum > LIMIT_OF_STICK_CLAMP_MAX)
+    m_MaxOfStickClampMinimum = LIMIT_OF_STICK_CLAMP_MAX;
 }
 
 #endif

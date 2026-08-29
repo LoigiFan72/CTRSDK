@@ -9,31 +9,31 @@ namespace applet{
 namespace CTR { 
 namespace detail {
 namespace {
-    bool sIsInitialParamValid = false;
-    AppletId sInitialSenderId;
-    u8 sInitializeParamBuffer[4096];
-    s32 sInitialParamBufferSize;
-    AppletWakeupState sInitialWakeupState;
+    bool              s_IsInitialParamValid = false;
+    AppletId          s_InitialSenderId;
+    u8                s_InitializeParamBuffer[4096];
+    s32               s_InitialParamBufferSize;
+    AppletWakeupState s_InitialWakeupState;
 }
 
 u8* GetInitialParamBuffer(){
-    return (u8*)sInitializeParamBuffer;
+    return s_InitializeParamBuffer;
 }
 
 void SetInitialParamSenderId(AppletId id){
-    sInitialSenderId = id;
+    s_InitialSenderId = id;
 }
 
 void SetInitialParamSenderSize(s32 size){
-    sInitialParamBufferSize = size;
+    s_InitialParamBufferSize = size;
 }
 
 void SetInitialParamValid(){
-    sIsInitialParamValid = true;
+    s_IsInitialParamValid = true;
 }
 
 void SetInitialWakeupState(WakeupState state){
-    sInitialWakeupState = state;
+    s_InitialWakeupState = state;
 }
 
 }

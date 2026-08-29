@@ -15,10 +15,10 @@ namespace srv {
 class NotificationHandler;
 
 struct NotificationHandler : public fnd::IntrusiveLinkedList<NotificationHandler>::Item{
-    bit32 mAttachedMessage;
+    bit32 m_AttachedMessage;
 
     NotificationHandler(): 
-        mAttachedMessage(0)
+        m_AttachedMessage(0)
     { }
     virtual ~NotificationHandler(){ }
     virtual void HandleNotification(u32 message) = 0;
@@ -28,21 +28,21 @@ template <typename T>
 class EventNotificationHandlerBase : public NotificationHandler{
 public:
     EventNotificationHandlerBase(): 
-        mpEvent(NULL) 
+        m_pEvent(NULL) 
     { }
     EventNotificationHandlerBase(T* p): 
-        mpEvent(p) 
+        m_pEvent(p) 
     { }
 
     void Initialize(T* p){
         NN_POINTER_TASSERT_(p);
         mpEvent = p;
     }
-    T* mpEvent;
+    T* m_pEvent;
 
     virtual void HandleNotification(bit32 mMessage){
-        NN_POINTER_TASSERT_(this->mpEvent);
-        this->mpEvent->Signal();
+        NN_POINTER_TASSERT_(this->m_pEvent);
+        this->m_pEvent->Signal();
     }
 };
 

@@ -7,7 +7,7 @@
 #include <nn/cfg/CTR/detail/cfg_Default.h>
 #include <nn/cfg/CTR/cfg_IpcUser.h>
 #include <nn/cfg/CTR/detail/cfg_Default.h>
-#include <nn/os/CTR/os_Environment.h>
+#include <nn/os.h>
 #include <nn/Result.h>
 #include <nn/err/CTR/err_Api.h>
 
@@ -43,6 +43,18 @@ CfgLanguageCode GetLanguage(){
     res = detail::IpcUser::GetConfig(&languageCode,sizeof(CfgLanguageCode),0xa0002);
     NN_ERR_THROW_FATAL_ALL(res);
     return (CfgLanguageCode)languageCode.code;
+}
+
+bit64 GetTransferableId(bit32 uniqueId){
+    nn::Result result;
+    bit64 transferableId;
+    result = detail::GetTransferableId(uniqueId, &transferableId);
+    NN_ERR_THROW_FATAL_ALL(result);
+    return transferableId;
+}
+
+namespace{
+    nn::os::CriticalSection s_CriticalSection = nn::WithInitialize();
 }
 
 }

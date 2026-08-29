@@ -9,7 +9,7 @@ namespace detail{
 
 class IpcSys{
 public:
-    static nn::Handle sSession;
+    static nn::Handle s_Session;
 };
 
 }
