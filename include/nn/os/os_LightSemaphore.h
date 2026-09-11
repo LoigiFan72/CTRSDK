@@ -13,8 +13,10 @@ public:
     static const s32 MAX_MAX_COUNT  = 0x7fff;
 
 private:
-    struct DecrementIfPositive{
-        bool operator()(s32& x){
+    struct DecrementIfPositive
+    {
+        bool operator()(s32& x)
+        {
             if(x > 0){
                 --x;
                 return true;
@@ -25,12 +27,14 @@ private:
             }
         }
     };
-    struct LimitedAdd{
+    struct LimitedAdd
+    {
         s32 max;
         s32 value;
         s32 beforeUpdate;
 
-        bool operator()(s32& x){
+        bool operator()(s32& x)
+        {
             beforeUpdate = x;
 
             if(x > max - value){
@@ -49,14 +53,29 @@ private:
     fnd::InterlockedVariable<s16> m_NumWaiting;
     s16 m_Max;
 public:
-    LightSemaphore() {}
-    LightSemaphore(s32 initialCount, s32 maxCount) { this->Initialize(initialCount, maxCount); }
-    LightSemaphore(s32 initialCount) { this->Initialize(initialCount); }
-    ~LightSemaphore(){ this->Finalize(); }
+    LightSemaphore() 
+    {
+    }
+    LightSemaphore(s32 initialCount, s32 maxCount) 
+    {
+        this->Initialize(initialCount, maxCount); 
+    }
+    LightSemaphore(s32 initialCount)
+    { 
+        this->Initialize(initialCount); 
+    }
+    ~LightSemaphore()
+    { 
+        Finalize(); 
+    }
 
-    void Initialize(s32 initialCount) { Initialize(initialCount, MAX_MAX_COUNT); }
+    void Initialize(s32 initialCount) 
+    { 
+        Initialize(initialCount, MAX_MAX_COUNT); 
+    }
 
-    void Initialize(s32 initialCount, s32 maxCount){
+    void Initialize(s32 initialCount, s32 maxCount)
+    {
         NN_MIN_TASSERT_(initialCount, 0);
         NN_MIN_TASSERT_(maxCount, 1);
         NN_MAX_TASSERT_(initialCount, maxCount);
@@ -66,15 +85,20 @@ public:
         m_Max = maxCount;
     }
 
-    void Finalize() {}
+    void Finalize()
+    {
+    }
 
-    bool TryAcquire(){
+    bool TryAcquire()
+    {
         DecrementIfPositive updater;
         return this->m_Counter->AtomicUpdateConditional(updater);
     }
 
-    void Acquire(){
-        while(!this->TryAcquire()){
+    void Acquire()
+    {
+        while(!this->TryAcquire())
+        {
             ++this->m_NumWaiting;
             
             this->m_Counter.WaitIfLessThan(1);

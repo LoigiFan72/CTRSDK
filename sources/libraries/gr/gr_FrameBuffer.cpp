@@ -9,14 +9,16 @@ namespace nn{
 namespace gr{
 namespace CTR{
 
-bit32* FrameBuffer::ColorBuffer::MakeRenderBlockModeCommand( bit32* command ) const{
+bit32* FrameBuffer::ColorBuffer::MakeRenderBlockModeCommand(bit32* command) const
+{
     *command++ = blockSize;
     *command++ = PICA_CMD_HEADER_SINGLE( PICA_REG_RENDER_BLOCK_FORMAT );
                 
     return command;
 }
 
-bit32* FrameBuffer::ColorBuffer::MakeCommand(bit32* command, bool isAddRenderBlockModeCommand) const{
+bit32* FrameBuffer::ColorBuffer::MakeCommand(bit32* command, bool isAddRenderBlockModeCommand) const
+{
     *command++ =  PICA_CMD_DATA_RENDER_BUFFER_COLOR_MODE(((format == PICA_DATA_COLOR_RGBA8_OES) || (format == PICA_DATA_COLOR_GAS_DMP)) ? PICA_DATA_COLOR_PIXEL_SIZE32 : PICA_DATA_COLOR_PIXEL_SIZE16, format);
     *command++ = PICA_CMD_HEADER_SINGLE(PICA_REG_RENDER_BUFFER_COLOR_MODE);
 
@@ -36,13 +38,15 @@ FrameBuffer::ColorBuffer::ColorBuffer(const FrameBuffer& frameBuffer_):
     blockSize(BLOCK_SIZE8),
     width(240), 
     height(400),  
-    mFrameBuffer(frameBuffer_){
+    mFrameBuffer(frameBuffer_)
+    {
     for (u32 index = 0; index < 4; index++){
         clearColor[index] = 0.0f;
     }
 }
 
-bit32* FrameBuffer::DepthStencilBuffer::MakeCommand(bit32* command) const{
+bit32* FrameBuffer::DepthStencilBuffer::MakeCommand(bit32* command) const
+{
     *command++ = PICA_CMD_DATA_RENDER_BUFFER_DEPTH_MODE(format);
     *command++ = PICA_CMD_HEADER_SINGLE(PICA_REG_RENDER_BUFFER_DEPTH_MODE);
 
@@ -60,18 +64,23 @@ FrameBuffer::DepthStencilBuffer::DepthStencilBuffer(const FrameBuffer& frameBuff
     clearDepth(1.0f),
     clearStencil(0),
     mFrameBuffer(frameBuffer_)
-{}
+{
+}
 
-bit32* FrameBuffer::FrameBuffer::MakeCommand(bit32* command, const u32 bufferBit, bool isClearCache) const{   
-    if (isClearCache){
+bit32* FrameBuffer::FrameBuffer::MakeCommand(bit32* command, const u32 bufferBit, bool isClearCache) const
+{   
+    if (isClearCache)
+    {
         command = MakeClearCacheCommand(command);
     }
 
-    if (bufferBit & COLOR_BUFFER_BIT){
+    if (bufferBit & COLOR_BUFFER_BIT)
+    {
         command = this->colorBuffer.MakeCommand(command);
     }
 
-    if ((bufferBit & DEPTH_BUFFER_BIT) || (bufferBit & STENCIL_BUFFER_BIT)){
+    if ((bufferBit & DEPTH_BUFFER_BIT) || (bufferBit & STENCIL_BUFFER_BIT))
+    {
         command = this->depthStencilBuffer.MakeCommand(command);
     }
 
@@ -86,7 +95,8 @@ bit32* FrameBuffer::FrameBuffer::MakeCommand(bit32* command, const u32 bufferBit
     return command;
 }
 
-bit32* FrameBuffer::MakeClearCacheCommand(bit32* command){
+bit32* FrameBuffer::MakeClearCacheCommand(bit32* command)
+{
     *command++ = 0x1;
     *command++ = PICA_CMD_HEADER_SINGLE(PICA_REG_COLOR_DEPTH_BUFFER_CLEAR1);
 
@@ -101,7 +111,8 @@ FrameBuffer::FrameBuffer():
     depthStencilBuffer(*this),
     width(240), 
     height(400)
-{}
+{
+}
 
 }
 }

@@ -27,10 +27,13 @@ public:
     void Finalize();
     void CalculateMatrices(MTX44 *projL,MTX34 *viewL,MTX44 *projR,MTX34 *viewR, MTX44 *projOriginal,MTX34 *viewOriginal,const f32 depthLevel,const f32 factor, const nn::math::PivotDirection pivot = nn::math::PIVOT_UPSIDE_TO_TOP);
     void CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34* viewL,nn::math::MTX44* projR, nn::math::MTX34* viewR, const f32 depthLevel, const f32 factor, const nn::math::PivotDirection pivot = nn::math::PIVOT_UPSIDE_TO_TOP);
+    void SetLimitParallax(const f32 limit);
     void SetBaseFrustum(const MTX44 *proj);
+    void SetBaseFrustum(const f32 left, const f32 right, const f32 bottom, const f32 top, const f32 near, const f32 far);
     void SetBaseCamera(const MTX34 *view);
     f32 GetCoefficientForParallax() const;
     f32 GetMaxParallax() const;
+    f32 GetParallax(const f32 distance) const;
     f32 GetLimitParallax() const { return m_LimitParallax; }
     f32 GetDistanceToLevel() const { return m_DepthLevel; }
     f32 GetDistanceToNearClip() const { return m_DistanceToNearClip; }

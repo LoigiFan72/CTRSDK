@@ -113,9 +113,12 @@ public:
     void SetMasterVolume(float fVolume);
     void SetOutputBufferCount(s32 outputBufferCount);
     bool SetSurroundDepth(f32 depth);
-    void UpdateDroppedSoundFrameCount();
+    bool SetSoundOutputMode(OutputMode mode);
     void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos);
     void SetIsHeadsetConnected(bool flag);
+    void ClearAuxCallback(AuxBusId busId);
+    void RegisterAuxCallback(AuxBusId busId, AuxCallback callback, uptr userData);
+    void UpdateDroppedSoundFrameCount();
 
     MasterManagerImpl* GetImpl() { return &(MasterManagerImpl::GetInstance()); }
     static MasterManager& GetInstance(){ return internal::s_MasterManager; }

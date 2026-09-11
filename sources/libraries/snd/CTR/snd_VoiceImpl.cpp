@@ -25,13 +25,17 @@ WaveBuffer* SearchPlayingBuffer(ushort currentBufferId, ushort lastBufferId, Wav
 
     s32 nBuffersToBeReleased = 0;
     WaveBuffer* pBuffersToBeReleased[1 + NN_SND_NEXT_BUFFER_NUM];
-    while (sentBufferCount){
-        if (currentBufferId == pWaveBuffer->bufferId){
+    while (sentBufferCount)
+    {
+        if (currentBufferId == pWaveBuffer->bufferId)
+        {
             pWaveBuffer->status = WaveBuffer::STATUS_PLAY;
             break;
         }
-        else{
-            if (--sentBufferCount){
+        else
+        {
+            if (--sentBufferCount)
+            {
                 NN_NULL_TASSERT_(pWaveBuffer->next);
             }
             pBuffersToBeReleased[nBuffersToBeReleased++] = pWaveBuffer;
@@ -41,13 +45,15 @@ WaveBuffer* SearchPlayingBuffer(ushort currentBufferId, ushort lastBufferId, Wav
         }
     }
 
-    if (currentBufferId == 0){
+    if (currentBufferId == 0)
+    {
         sentBufferCount = NULL;
     }
 
     NN_TASSERT_(nBuffersToBeReleased <= 1 + NN_SND_NEXT_BUFFER_NUM);
     os::ARM::DataMemoryBarrier();
-    for (s32 i = 0; i < nBuffersToBeReleased; i++){
+    for (s32 i = 0; i < nBuffersToBeReleased; i++)
+    {
         pBuffersToBeReleased[i]->status = WaveBuffer::STATUS_DONE;
     }
 
@@ -56,12 +62,14 @@ WaveBuffer* SearchPlayingBuffer(ushort currentBufferId, ushort lastBufferId, Wav
 
 }
 
-void VoiceImpl::AppendWaveBuffer(WaveBuffer* pBuffer){
+void VoiceImpl::AppendWaveBuffer(WaveBuffer* pBuffer)
+{
     NN_TASSERT_(buffer->status == WaveBuffer::STATUS_FREE);
     NN_NULL_TASSERT_(buffer->bufferAddress);
     NN_TASSERTMSG_(reinterpret_cast<uptr>(pBuffer->bufferAddress) >= nn::os::GetDeviceMemoryAddress() && reinterpret_cast<uptr>(pBuffer->bufferAddress) < nn::os::GetDeviceMemoryAddress() + nn::os::GetDeviceMemorySize(), "pBuffer->bufferAddress must be in device memory area.");
 
-    if (pBuffer->sampleLength == 0){
+    if (pBuffer->sampleLength == 0)
+    {
         pBuffer->status = WaveBuffer::STATUS_DONE;
         return;
     }
@@ -70,86 +78,89 @@ void VoiceImpl::AppendWaveBuffer(WaveBuffer* pBuffer){
     pBuffer->status = WaveBuffer::STATUS_WAIT;
 
     {
-        os::InterCoreCriticalSection::ScopedLock lock(this->mCriticalSection);
+        os::InterCoreCriticalSection::ScopedLock lock(this->m_CriticalSection);
 
-        WaveBuffer* pWaveBuffer = mpWaveBuffer;
+        WaveBuffer* pWaveBuffer = m_pWaveBuffer;
 
-        if (pWaveBuffer){
+        if (pWaveBuffer)
+        {
             NN_TASSERT_(pWaveBuffer != pBuffer);
-            while (pWaveBuffer->next){
+            while (pWaveBuffer->next)
+            {
                 pWaveBuffer = pWaveBuffer->next;
                 NN_TASSERT_(pWaveBuffer != pBuffer);
             }
             pWaveBuffer->next = pBuffer;
         }
-        else{
-            mpWaveBuffer = pBuffer;
+        else
+        {
+            m_pWaveBuffer = pBuffer;
         }
 
-        if (mBufferId == 0) mBufferId++;
-        pBuffer->bufferId = mBufferId++;
+        if (m_BufferId == 0) m_BufferId++;
+        pBuffer->bufferId = m_BufferId++;
     }
 }
 
 void VoiceImpl::SetBiquadFilterCoefficients(const BiquadFilterCoefficients& coeff){
-    mBiquadFilterCoeffs = coeff;
-    mModifiedParamFlag |= 16;
+    m_BiquadFilterCoeffs = coeff;
+    m_ModifiedParamFlag |= 16;
 }
 
 void VoiceImpl::SetMonoFilterCoefficients(const MonoFilterCoefficients& coeff){
-    mMonoFilterCoeffs = coeff;
-    mModifiedParamFlag |= 8;
+    m_MonoFilterCoeffs = coeff;
+    m_ModifiedParamFlag |= 8;
 }
 
 void VoiceImpl::SetFilterType(FilterType type){ 
-    mFilterType = type; 
-    mModifiedParamFlag |= 4;
+    m_FilterType = type; 
+    m_ModifiedParamFlag |= 4;
 }
 
 void VoiceImpl::SetFrontBypassFlag(bool flag){
-    DspsndAudioInfo* pSampleInfo = reinterpret_cast<DspsndAudioInfo*>((u16*)&this->mSampleInfo);
+    DspsndAudioInfo* pSampleInfo = reinterpret_cast<DspsndAudioInfo*>((u16*)&this->m_SampleInfo);
     pSampleInfo->isFrontBypass = flag;
 }
 
 void VoiceImpl::SetChannelCount(s32 channelCount){
     NN_TASSERT_(channelCount == 1 || channelCount == 2); 
-    this->mSampleInfo &= 0xfffc | channelCount & 3; 
+    m_SampleInfo &= 0xfffc | channelCount & 3; 
 }
 
 f32 VoiceImpl::CalcFsRatio(){ 
-    return (mSampleRate * mPitch) / 32728.0;
+    return (m_SampleRate * m_Pitch) / 32728.0;
 }
 
 s32 VoiceImpl::GetCycle() const{
-    return mDspCycles;
+    return m_DspCycles;
 }
 
 s32 VoiceImpl::GetPlayPosition() const{
-    return mPlayPosition;
+    return m_PlayPosition;
 }
 
 void VoiceImpl::CalculateDspCycle(){
-    mModifiedParamFlag = -1;
+    m_ModifiedParamFlag = -1;
     this->UpdateParams();
 }
 
 void VoiceImpl::ForceUpdateParams(){
-    mModifiedParamFlag = 0xffff;
+    m_ModifiedParamFlag = 0xffff;
     this->UpdateParams();
 }
 
 void VoiceImpl::Initialize(){
-    mState = Voice::STATE_PAUSE;
-    mPlaying = false;
-    mPlayPosition = 0;
-    mIsFirstWaveBufferForAdpcm = false;
-    mWaveBufferModifiedFlag = 0;
+    m_State = Voice::STATE_PAUSE;
+    m_Playing = false;
+    m_PlayPosition = 0;
+    m_IsFirstWaveBufferForAdpcm = false;
+    m_WaveBufferModifiedFlag = 0;
 
-    mSampleInfo &= 0xfffc | 1;
-    mSampleInfo &= 0xfff3 | 4;
-    mSampleInfo &= 0xffef;
-    mSampleInfo &= 0xffdf;
-    mSampleInfo &= 0xffbf;
+    m_SampleInfo &= 0xfffc | 1;
+    m_SampleInfo &= 0xfff3 | 4;
+    m_SampleInfo &= 0xffef;
+    m_SampleInfo &= 0xffdf;
+    m_SampleInfo &= 0xffbf;
 
     this->SetVolume(1.0);
     MixParam mixParam;
@@ -158,54 +169,59 @@ void VoiceImpl::Initialize(){
     this->SetPitch(1.0);
     this->SetInterpolationType(INTERPOLATION_TYPE_POLYPHASE);
     this->SetFilterType(FILTER_TYPE_NONE);
-    memset(&this->mMonoFilterCoeffs,0,4);
-    memset(&this->mBiquadFilterCoeffs,0,10);
-    mDspCycles = 0;
-    mpWaveBuffer = NULL;
-    mSentBufferCount = 0;
-    mNextBufferIndex = 0;
-    mBufferId = 0;
+    memset(&this->m_MonoFilterCoeffs,0,4);
+    memset(&this->m_BiquadFilterCoeffs,0,10);
+    m_DspCycles = 0;
+    m_pWaveBuffer = NULL;
+    m_SentBufferCount = 0;
+    m_NextBufferIndex = 0;
+    m_BufferId = 0;
 }
 
 void VoiceImpl::ReleaseWaveBuffer(){
     {
-        os::InterCoreCriticalSection::ScopedLock lock(mCriticalSection);
+        os::InterCoreCriticalSection::ScopedLock lock(m_CriticalSection);
 
-        WaveBuffer* pWaveBuffer = mpWaveBuffer;
+        WaveBuffer* pWaveBuffer = m_pWaveBuffer;
 
-        while (pWaveBuffer){
+        while (pWaveBuffer)
+        {
             pWaveBuffer->status = WaveBuffer::STATUS_DONE;
             pWaveBuffer = pWaveBuffer->next;
         }
 
-        mpWaveBuffer = NULL;
-        mSentBufferCount = 0;
-        mNextBufferIndex = 0;
+        m_pWaveBuffer = NULL;
+        m_SentBufferCount = 0;
+        m_NextBufferIndex = 0;
     }
 
-    mSyncCount++;
-    mModifiedParamFlag |= 0x8000;
+    m_SyncCount++;
+    m_ModifiedParamFlag |= 0x8000;
 }
 
 void VoiceImpl::SendWaveBuffer(){
-    os::InterCoreCriticalSection::ScopedLock lock(this->mCriticalSection);
+    os::InterCoreCriticalSection::ScopedLock lock(this->m_CriticalSection);
 
-    if (mWaveBufferModifiedFlag){
-        Dspsnd::GetInstance().ResetChannelNextBuffer(this->mId);
+    if (m_WaveBufferModifiedFlag)
+    {
+        Dspsnd::GetInstance().ResetChannelNextBuffer(this->m_Id);
 
-        if (mpWaveBuffer && mpWaveBuffer->status == WaveBuffer::STATUS_TO_BE_DELETED){
-            mSentBufferCount = 0;
+        if (m_pWaveBuffer && m_pWaveBuffer->status == WaveBuffer::STATUS_TO_BE_DELETED)
+        {
+            m_SentBufferCount = 0;
         }
-        else if (mSentBufferCount > 0){
-            Dspsnd::GetInstance().UpdateChannelNextBuffer(this->mId, this->mpWaveBuffer);
-            mSentBufferCount = 1;
+        else if (m_SentBufferCount > 0)
+        {
+            Dspsnd::GetInstance().UpdateChannelNextBuffer(this->m_Id, this->m_pWaveBuffer);
+            m_SentBufferCount = 1;
         }
-        mNextBufferIndex = 0;
+        m_NextBufferIndex = 0;
 
-        if (mWaveBufferModifiedFlag | 1){
-            WaveBuffer* pWaveBuffer = mpWaveBuffer;
+        if (m_WaveBufferModifiedFlag | 1){
+            WaveBuffer* pWaveBuffer = m_pWaveBuffer;
 
-            while (pWaveBuffer && pWaveBuffer->status == WaveBuffer::STATUS_TO_BE_DELETED){
+            while (pWaveBuffer && pWaveBuffer->status == WaveBuffer::STATUS_TO_BE_DELETED)
+            {
                 WaveBuffer* pNext = pWaveBuffer->next;
                 WaveBuffer* pTmp = pWaveBuffer;
                 pWaveBuffer = pNext;
@@ -213,88 +229,103 @@ void VoiceImpl::SendWaveBuffer(){
                 pTmp->status = WaveBuffer::STATUS_DONE;
             }
 
-            mpWaveBuffer = pWaveBuffer;
+            m_pWaveBuffer = pWaveBuffer;
 
-            while (pWaveBuffer){
+            while (pWaveBuffer)
+            {
                 WaveBuffer* pNext = pWaveBuffer->next;
-                if (pNext && pNext->status == WaveBuffer::STATUS_TO_BE_DELETED){
+                if (pNext && pNext->status == WaveBuffer::STATUS_TO_BE_DELETED)
+                {
                     pWaveBuffer->next = pNext->next;
                     os::ARM::DataMemoryBarrier();
                     pNext->status = WaveBuffer::STATUS_DONE;
                 }
-                else{
+                else
+                {
                     pWaveBuffer = pNext;
                 }
             }
         }
 
-        mWaveBufferModifiedFlag = 0;
+        m_WaveBufferModifiedFlag = 0;
     }
 
-    WaveBuffer * pWaveBuffer = mpWaveBuffer;
+    WaveBuffer * pWaveBuffer = m_pWaveBuffer;
 
-    for(s32 i = mSentBufferCount ; i && pWaveBuffer != NULL ; --i){
+    for(s32 i = m_SentBufferCount ; i && pWaveBuffer != NULL ; --i){
         pWaveBuffer = pWaveBuffer->next;
     }
 
-    for(s32 i = mSentBufferCount ; i < 1 + NN_SND_NEXT_BUFFER_NUM ; i++){
-        if(pWaveBuffer != NULL){
-            if (mSentBufferCount == 0){
-                mNextBufferIndex = 0;
-                Dspsnd::GetInstance().ResetChannelNextBuffer(this->mId);
+    for(s32 i = m_SentBufferCount ; i < 1 + NN_SND_NEXT_BUFFER_NUM ; i++)
+    {
+        if(pWaveBuffer != NULL)
+        {
+            if (m_SentBufferCount == 0)
+            {
+                m_NextBufferIndex = 0;
+                Dspsnd::GetInstance().ResetChannelNextBuffer(this->m_Id);
 
-                DspsndAudioInfo* pSampleInfo = reinterpret_cast<DspsndAudioInfo*>((u16*)&this->mSampleInfo);
+                DspsndAudioInfo* pSampleInfo = reinterpret_cast<DspsndAudioInfo*>((u16*)&this->m_SampleInfo);
 
                 pWaveBuffer->status = WaveBuffer::STATUS_PLAY;
 
-                if (pSampleInfo->format == 8){
-                    if (mIsFirstWaveBufferForAdpcm == false && pWaveBuffer->pAdpcmContext == NULL){
+                if (pSampleInfo->format == 8)
+                {
+                    if (m_IsFirstWaveBufferForAdpcm == false && pWaveBuffer->pAdpcmContext == NULL)
+                    {
                         NN_TASSERTMSG_(false, "AdpcmContext is required for the first WaveBuffer!!\n");
                     }
 
-                    else{
-                        mIsFirstWaveBufferForAdpcm = true;
+                    else
+                    {
+                        m_IsFirstWaveBufferForAdpcm = true;
                     }
                 }
 
-                Dspsnd::GetInstance().AssignPCM(this->mId,pWaveBuffer,*pSampleInfo);
+                Dspsnd::GetInstance().AssignPCM(this->m_Id,pWaveBuffer,*pSampleInfo);
             }
             else{
-                Dspsnd::GetInstance().AppendChannelNextBuffer(this->mId,pWaveBuffer,this->mNextBufferIndex);
+                Dspsnd::GetInstance().AppendChannelNextBuffer(this->m_Id,pWaveBuffer,this->m_NextBufferIndex);
 
-                if (++mNextBufferIndex >= NN_SND_NEXT_BUFFER_NUM){
-                    mNextBufferIndex = 0;
+                if (++m_NextBufferIndex >= NN_SND_NEXT_BUFFER_NUM)
+                {
+                    m_NextBufferIndex = 0;
                 }
             }
 
             pWaveBuffer = pWaveBuffer->next;
-            ++mSentBufferCount;
+            ++m_SentBufferCount;
         }
     }
 }
 
-void VoiceImpl::SetMixVolume(){
-    MixParam mix = mMixParam;
+void VoiceImpl::SetMixVolume()
+{
+    MixParam mix = m_MixParam;
     register f32 tmp[3][CHANNEL_INDEX_NUM];
 
-    for (s32 i = 0; i < CHANNEL_INDEX_NUM; i++){
-        tmp[0][i] = mix.mainBus[i] * mVolume;
-        tmp[1][i] = mix.auxBusA[i] * mVolume;
-        tmp[2][i] = mix.auxBusB[i] * mVolume;
+    for (s32 i = 0; i < CHANNEL_INDEX_NUM; i++)
+    {
+        tmp[0][i] = mix.mainBus[i] * m_Volume;
+        tmp[1][i] = mix.auxBusA[i] * m_Volume;
+        tmp[2][i] = mix.auxBusB[i] * m_Volume;
     }
-    for (s32 i = 0; i < CHANNEL_INDEX_NUM; i++){
+    for (s32 i = 0; i < CHANNEL_INDEX_NUM; i++)
+    {
         mix.mainBus[i] = tmp[0][i];
         mix.auxBusA[i] = tmp[1][i];
         mix.auxBusB[i] = tmp[2][i];
     }
 
-    Dspsnd::GetInstance().SetChannelMix(this->mId,&mix);
+    Dspsnd::GetInstance().SetChannelMix(this->m_Id,&mix);
 }
 
-void VoiceImpl::SetState(Voice::State state){
+void VoiceImpl::SetState(Voice::State state)
+{
     NN_TASSERT_(state == Voice::STATE_PLAY || state == Voice::STATE_STOP || state == Voice::STATE_PAUSE);
-    mState = state;
-    switch (state){
+    m_State = state;
+    switch (state)
+    {
     case Voice::STATE_PLAY:
         break;
 
@@ -308,89 +339,103 @@ void VoiceImpl::SetState(Voice::State state){
     }
 }
 
-void VoiceImpl::SetSyncCount(){
-    if(mModifiedParamFlag & 0x8000){
-        Dspsnd::GetInstance().SetChannelSyncCount(this->mId, this->mSyncCount);
-        mModifiedParamFlag &= 0x7fff;
+void VoiceImpl::SetSyncCount()
+{
+    if(m_ModifiedParamFlag & 0x8000){
+        Dspsnd::GetInstance().SetChannelSyncCount(this->m_Id, this->m_SyncCount);
+        m_ModifiedParamFlag &= 0x7fff;
     }
 }
 
-void VoiceImpl::Start(){
-    Dspsnd::GetInstance().SetChannelPlayStart(this->mId);
-    mPlaying = true;
+void VoiceImpl::Start()
+{
+    Dspsnd::GetInstance().SetChannelPlayStart(this->m_Id);
+    m_Playing = true;
 }
 
-void VoiceImpl::Stop(){
-    Dspsnd::GetInstance().SetChannelPlayStop(this->mId);
-    mPlaying = false;
-    Dspsnd::GetInstance().InitializeChannelParameters(this->mId);
+void VoiceImpl::Stop()
+{
+    Dspsnd::GetInstance().SetChannelPlayStop(this->m_Id);
+    m_Playing = false;
+    Dspsnd::GetInstance().InitializeChannelParameters(this->m_Id);
 }
 
-void VoiceImpl::UpdateParams(){
+void VoiceImpl::UpdateParams()
+{
     bool isNeedToCalculateDspCycle = false;
-    if(mModifiedParamFlag & 1){
+    if(m_ModifiedParamFlag & 1)
+    {
         this->SetMixVolume();
         isNeedToCalculateDspCycle = true;
     }
-    if(mModifiedParamFlag & 2){
+    if(m_ModifiedParamFlag & 2)
+    {
         this->SetTimer();
         isNeedToCalculateDspCycle = true;
     }
-    if(mModifiedParamFlag & 4){
-        Dspsnd::GetInstance().SetChannelIiRFilterType(this->mId,this->mFilterType);
+    if(m_ModifiedParamFlag & 4)
+    {
+        Dspsnd::GetInstance().SetChannelIiRFilterType(this->m_Id,this->m_FilterType);
         isNeedToCalculateDspCycle = true;
     }
-    if(mModifiedParamFlag & 8){
-        Dspsnd::GetInstance().SetChannelIIRFilter_Mono(this->mId,this->mMonoFilterCoeffs.n0,this->mMonoFilterCoeffs.d1);
+    if(m_ModifiedParamFlag & 8)
+    {
+        Dspsnd::GetInstance().SetChannelIIRFilter_Mono(this->m_Id,this->m_MonoFilterCoeffs.n0,this->m_MonoFilterCoeffs.d1);
     }
-    if(mModifiedParamFlag & 0x10){
-        s16 d1 = mBiquadFilterCoeffs.d1;
-        s16 d2 = mBiquadFilterCoeffs.d2;
-        s16 n0 = mBiquadFilterCoeffs.n0;
-        s16 n1 = mBiquadFilterCoeffs.n1;
-        s16 n2 = mBiquadFilterCoeffs.n2;
-        Dspsnd::GetInstance().SetChannelIIRFilter_Biquad(this->mId, n0, n1, n2, d1, d2);
+    if(m_ModifiedParamFlag & 0x10)
+    {
+        s16 d1 = m_BiquadFilterCoeffs.d1;
+        s16 d2 = m_BiquadFilterCoeffs.d2;
+        s16 n0 = m_BiquadFilterCoeffs.n0;
+        s16 n1 = m_BiquadFilterCoeffs.n1;
+        s16 n2 = m_BiquadFilterCoeffs.n2;
+        Dspsnd::GetInstance().SetChannelIIRFilter_Biquad(this->m_Id, n0, n1, n2, d1, d2);
     }
-    if(mModifiedParamFlag & 0x20){
+    if(m_ModifiedParamFlag & 0x20)
+    {
         this->UpdateInterpolationType();
         isNeedToCalculateDspCycle = true;
     }
-    if(isNeedToCalculateDspCycle){
+    if(isNeedToCalculateDspCycle)
+    {
         this->CalculateDspCycle();
     }
-    mModifiedParamFlag &= 0x8000;
+    m_ModifiedParamFlag &= 0x8000;
 }
 
 void VoiceImpl::UpdateStatus(const void * ptr){
     const DspsndChannelPlayVars* pVars = reinterpret_cast<const DspsndChannelPlayVars*>(ptr);
 
-    if (pVars->syncCount == mSyncCount){
-        mPlayPosition = NN_DSP_32BIT_TO_ARM(pVars->plypos);
+    if (pVars->syncCount == m_SyncCount)
+    {
+        m_PlayPosition = NN_DSP_32BIT_TO_ARM(pVars->plypos);
 
-        if(pVars->isBufJumped){
+        if(pVars->isBufJumped)
+        {
             this->UpdateWaveBufferStatus(pVars->currentBufferId, pVars->lastBufferId);
         }
     }
 
-    mPlaying = (pVars->playState == 1);
+    m_Playing = (pVars->playState == 1);
 }
 
 void VoiceImpl::UpdateWaveBufferList(){
-    if(mState == Voice::STATE_PLAY){
+    if(m_State == Voice::STATE_PLAY)
+    {
         this->SendWaveBuffer();
     }
 }
 
 void VoiceImpl::UpdateWaveBufferStatus(ushort currentBufferId, ushort lastBufferId){
-    os::InterCoreCriticalSection::ScopedLock lock(this->mCriticalSection);
+    os::InterCoreCriticalSection::ScopedLock lock(this->m_CriticalSection);
 
-    if (mpWaveBuffer == NULL) return;
+    if (m_pWaveBuffer == NULL) return;
 
-    WaveBuffer* pNext = SearchPlayingBuffer(currentBufferId, lastBufferId, mp_WaveBuffer, m_SentBufferCount);
+    WaveBuffer* pNext = SearchPlayingBuffer(currentBufferId, lastBufferId, m_pWaveBuffer, m_SentBufferCount);
     if (pNext == NULL) 
         NN_TASSERT_(m_SentBufferCount == 0);
 
-    mp_WaveBuffer = pNext;
+    m_pWaveBuffer = pNext;
 }
 
 void VoiceImpl::Pause(){
@@ -416,7 +461,7 @@ void VoiceImpl::SetInterpolationType(InterpolationType type){
 }
 
 void VoiceImpl::SetMixParam(const MixParam& mixParam){
-    memcpy(m_MixParam, &mixParam, 0x30);
+    m_MixParam = mixParam;
     m_ModifiedParamFlag |= 1;
 }
 

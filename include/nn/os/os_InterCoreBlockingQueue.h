@@ -1,22 +1,22 @@
 #pragma once
 
-#include <nn/os/os_LightSemaphore.h>
-#include <nn/os/os_Mutex.h>
-#include <nn/os/os_CriticalSection.h>
-#include <nn/fnd/fnd_InterlockedVariable.h>
-#include <nn/util/util_NonCopyable.h>
-
+#include <nn/os/os_BlockingQueue.h>
+#include <nn/os/os_InterCoreCriticalSection.h>
 
 namespace nn{ 
 namespace os{
 namespace detail{
 
+#if NN_VERSION_MAJOR > 2
+    typedef BlockingQueue InterCoreBlockingQueue;
+#else
+
 template <class Locker>
-class BlockingQueueBase : private nn::util::ADLFireWall::NonCopyable<BlockingQueueBase<Locker> >{
+class InterCoreBlockingQueueBase : private nn::util::ADLFireWall::NonCopyable<InterCoreBlockingQueueBase<Locker> >{
 protected:
-    BlockingQueueBase() {}
-    BlockingQueueBase(uptr buffer[], size_t size) { Initialize(buffer, size); }
-    ~BlockingQueueBase();
+    InterCoreBlockingQueueBase() {}
+    InterCoreBlockingQueueBase(uptr buffer[], size_t size) { Initialize(buffer, size); }
+    ~InterCoreBlockingQueueBase();
     void Initialize(uptr buffer[], size_t size);
     nn::Result TryInitialize(uptr buffer[], size_t size);
     void Finalize();
@@ -40,6 +40,7 @@ private:
     typedef typename Locker::ScopedLock ScopedLock;
     
     uptr*                   m_ppBuffer;
+    // InterCoreLightSemaphore
     mutable LightSemaphore  m_EnqueueSemaphore;
     mutable LightSemaphore  m_DequeueSemaphore;
     mutable Locker          m_cs;
@@ -55,15 +56,15 @@ private:
 
 } // namespace detail
 
-class BlockingQueue : private os::detail::BlockingQueueBase<nn::os::CriticalSection>{
+class InterCoreBlockingQueue : private os::detail::InterCoreBlockingQueueBase<nn::os::InterCoreCriticalSection>{
 private:
-    typedef os::detail::BlockingQueueBase<nn::os::CriticalSection> Base;
+    typedef os::detail::InterCoreBlockingQueueBase<nn::os::InterCoreCriticalSection> Base;
 public:
-    BlockingQueue() {}
-    BlockingQueue(uptr buffer[], size_t size): 
+    InterCoreBlockingQueue() {}
+    InterCoreBlockingQueue(uptr buffer[], size_t size): 
         Base(buffer, size) 
     {}
-    ~BlockingQueue() { this->Finalize(); }
+    ~InterCoreBlockingQueue() { this->Finalize(); }
 
     void Initialize(uptr buffer[], size_t size) { Base::Initialize(buffer, size); }
     Result TryInitialize(uptr buffer[], size_t size) { return Base::TryInitialize(buffer, size); }
@@ -86,6 +87,8 @@ public:
     using Base::GetUsedCount;
     using Base::GetFirstIndex;
 };
+
+#endif
 
 } // namespace os
 } // namespace nn

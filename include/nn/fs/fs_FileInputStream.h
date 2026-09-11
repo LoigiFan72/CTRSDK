@@ -66,7 +66,9 @@ public:
     virtual int Read(void* buf, size_t size){ // 0x2C
         return detail::FileBase::Read(buf, size);
     }
-
 };
+
+typedef FileInputStream FileReader;
+
 }
 }

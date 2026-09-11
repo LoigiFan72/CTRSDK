@@ -18,7 +18,10 @@ namespace math{
 class MTX44;
 
 MTX44* MTX44Copy(MTX44* pOut, const MTX44* m);
-inline MTX44* MTX44Copy(MTX44* pOut, const MTX44& m) { return MTX44Copy( pOut, &m ); }
+inline MTX44* MTX44Copy(MTX44* pOut, const MTX44& m) { return MTX44Copy(pOut, &m); }
+MTX44* MTX44Mult(MTX44* pOut, const MTX44* __restrict p1, const MTX44* __restrict p2);
+inline MTX44* MTX44Mult(MTX44* pOut, const MTX44& m1, const MTX44& m2) { return MTX44Mult(pOut, &m1, &m2); }
+
 class MTX44_{
 public:
     struct BaseData{
@@ -49,6 +52,8 @@ public:
 
 class MTX44 : public MTX44_{
 public:
+    typedef MTX44 self_type;
+
     MTX44() {}
     explicit MTX44(const f32* p) { (void)MTX44Copy(this, (MTX44*)p); }
     explicit MTX44(const MTX34& rhs){
@@ -65,6 +70,7 @@ public:
 
     operator f32*() { return this->a; }
     operator const f32*() const { return this->a; }
+    self_type& operator *= (const self_type& rhs) { return *MTX44Mult(this, this, &rhs); }
 
     static const int ROW_COUNT = 4; //
     static const int COLUMN_COUNT = 4; //
@@ -80,15 +86,22 @@ inline MTX44* MTX44Identity(MTX44* pOut){
     return pOut;
 }
 
+}
+}
+
+namespace nn{
+namespace math{
 namespace ARMv6{
-void MTX44MultAsm(nn::math::MTX44 *,nn::math::MTX44 const*,nn::math::MTX44 const*);
 
-void MTX44MultScaleAsm(nn::math::MTX44 *,nn::math::MTX44 const*,nn::math::VEC3 const*);
+MTX44* MTX44MultAsm(MTX44* pOut, const MTX44*  p1, const MTX44* p2);
 
-void MTX44MultTranslateAsm(nn::math::MTX44 *,nn::math::VEC3 const*,nn::math::MTX44 const*);
+void MTX44MultScaleAsm(MTX44* pOut, MTX44 const* p1, VEC3 const* p2);
+
+void MTX44MultTranslateAsm(MTX44 * pOut, VEC3 const* p1, MTX44 const* p2);
 
 namespace {
-    inline void SwapF(f32 &a, f32 &b){
+    inline void SwapF(f32 &a, f32 &b)
+    {
         f32 tmp;
         tmp = a;
         a = b;
@@ -96,7 +109,8 @@ namespace {
     }
 }
 
-inline u32 MTX44InverseC(MTX44* pOut, const MTX44* p){
+inline u32 MTX44InverseC(MTX44* pOut, const MTX44* p)
+{
     MTX44 mTmp;
     f32 (*src)[4];
     f32 (*inv)[4];
@@ -108,11 +122,13 @@ inline u32 MTX44InverseC(MTX44* pOut, const MTX44* p){
     src = mTmp.matrix;
     inv = pOut->matrix;
     
-    for (int i = 0; i < 4; ++i){
+    for (int i = 0; i < 4; ++i)
+    {
         f32 max = 0.0f;
         s32 swp = i;
 
-        for(int k = i ; k < 4 ; k++ ){
+        for(int k = i ; k < 4 ; k++)
+        {
             f32 ftmp;
             ftmp = ::std::fabs(src[k][i]);
             if (ftmp > max){
@@ -121,12 +137,15 @@ inline u32 MTX44InverseC(MTX44* pOut, const MTX44* p){
             }
         }
         
-        if (max == 0.0f){
+        if (max == 0.0f)
+        {
             return 0;
         }
 
-        if (swp != i){
-            for (int k = 0; k < 4; k++){
+        if (swp != i)
+        {
+            for (int k = 0; k < 4; k++)
+            {
                 SwapF(src[i][k], src[swp][k]);
                 SwapF(inv[i][k], inv[swp][k]);
             }
@@ -134,7 +153,8 @@ inline u32 MTX44InverseC(MTX44* pOut, const MTX44* p){
 
         
         w = 1.0f / src[i][i];
-        for (int j = 0; j < 4; ++j){
+        for (int j = 0; j < 4; ++j)
+        {
             src[i][j] *= w;
             inv[i][j] *= w;
         }
@@ -155,7 +175,9 @@ inline u32 MTX44InverseC(MTX44* pOut, const MTX44* p){
     
     return 1;
 }
-inline u32 MTX44InverseC_FAST(MTX44* pOut, const MTX44* p){
+
+inline u32 MTX44InverseC_FAST(MTX44* pOut, const MTX44* p)
+{
     const f32 (*src)[4];
     f32 (*inv)[4];
 
@@ -300,6 +322,14 @@ inline u32 MTX44Inverse(MTX44* pOut, const MTX44* p){
         ARMv6::MTX44InverseC(pOut,p);
     #else
         ARMv6::MTX44InverseC_FAST(pOut,p);
+    #endif
+}
+
+inline MTX44* MTX44Mult(MTX44* pOut, const MTX44* __restrict p1, const MTX44* __restrict p2){
+    #ifdef NN_BUILD_DEBUG
+        ARMv6:MTX44MultC(pOut, p1, p2);
+    #else
+        ARMv6::MTX44MultAsm(pOut, p1, p2);
     #endif
 }
 

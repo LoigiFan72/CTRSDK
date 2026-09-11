@@ -55,7 +55,8 @@ public:
 
     static const s8 MAX_READ_NUM = 7;
     
-    static void HideKeyInfo(PadStatus* padStatus){
+    static void HideKeyInfo(PadStatus* padStatus)
+    {
         padStatus->hold = 0;
         padStatus->release = 0;
         padStatus->trigger = 0;

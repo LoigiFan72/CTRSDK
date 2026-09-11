@@ -17,10 +17,10 @@ namespace detail { struct ArchiveHandleTag {}; }
     static const size_t MAX_FILE_PATH_LENGTH = MAX_ARCHIVE_NAME_LENGTH + 1 + MAX_SUB_PATH_LENGTH;
     
     struct Attributes{
-        bool mIsDirectory;
-        bool mIsHidden;
-        bool mIsArchive;
-        bool mIsReadOnly;
+        bool isDirectory;
+        bool isHidden;
+        bool isArchive;
+        bool isReadOnly;
     };
 
     enum StorageAttribute{
@@ -56,8 +56,17 @@ namespace detail { struct ArchiveHandleTag {}; }
     };
 
     struct ProgramDataPath{
-        int mTag;
-        util::Int64<ProgramDataPath> mId;
+        enum Tag{
+            TAG_ROMFS_DEFAULT,
+            TAG_EXEFS,
+            TAG_SYSTEM_MENU_DATA,
+            TAG_SAVE_DATA,
+            TAG_CONTENT,
+            TAG_ROMFS_EXTRA
+        };
+
+        util::SizedEnum4<Tag> tag;
+        util::Int64<bit64> id;
     };
 
     struct TitleDataSpecifier{
@@ -74,7 +83,7 @@ namespace detail { struct ArchiveHandleTag {}; }
         }
 
         void CopyTo(TitleDataSpecifier* p) const{
-            p->id = this->id;
+            p->id =    this->id;
             p->media = this->media;
         }
     };
@@ -101,7 +110,7 @@ namespace detail { struct ArchiveHandleTag {}; }
 
     struct TitleDataSpecificer{
         TitleId mId;
-        s8 mMedia;
+        MediaType mMedia;
         s8 unkpad_1[3];
         int unkflag1;
     };
@@ -113,20 +122,24 @@ namespace detail { struct ArchiveHandleTag {}; }
     };
 
     struct WriteOption{
-        bool mFlush;
-        bool mUpdateTimeStampOld;
-        bool mUpdateTimeStamp;
-        s8 mDestroySignature;
+        bool flush;
+        bool updateTimeStampOld;
+        bool updateTimeStamp;
 
-        WriteOption(bool flush, bool updateTimeStamp){
-            mFlush = flush;
-            mUpdateTimeStampOld = false;
-            mUpdateTimeStamp = updateTimeStamp;
+        struct{
+            bit8 destroySignature:1;
+            bit8 reserved3:7;
+        } system;
+        bit8 reserved3;
+
+        WriteOption(bool flush, bool updateTimeStamp):
+        flush(flush), updateTimeStampOld(false), updateTimeStamp(updateTimeStamp)
+        {
         }
     };
 
     struct Transaction{
-        bit32 mDummy;
+        bit32 dummy;
     };
 
     enum PositionBase{

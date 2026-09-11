@@ -120,12 +120,20 @@ bool SetSurroundDepth(f32 depth){
     return MasterManager::GetInstance().SetSurroundDepth(depth);
 }
 
+void RegisterAuxCallback(AuxBusId busId, AuxCallback cb, uptr userData){
+    return MasterManager::GetInstance().RegisterAuxCallback(busId, cb, userData);
+}
+
 void SetAuxReturnVolume(AuxBusId id, f32 fVolume){
-    MasterManager::GetInstance().SetAuxReturnVolume(id, fVolume);
+    return MasterManager::GetInstance().SetAuxReturnVolume(id, fVolume);
+}
+
+OutputMode GetSoundOutputMode(){
+    return MasterManager::GetInstance().GetSoundOutputMode();
 }
 
 void ClearEffect(AuxBusId busId){
-    MasterManager::GetInstance().ClearEffect(busId);
+    return MasterManager::GetInstance().ClearEffect(busId);
 }
 
 void SetOutputBufferCount(s32 outputBufferCount){
@@ -134,6 +142,13 @@ void SetOutputBufferCount(s32 outputBufferCount){
 
 void SetMasterVolume(f32 fVolume){
     return MasterManager::GetInstance().SetMasterVolume(fVolume);
+}
+bool SetEffect(AuxBusId busId, FxDelay* fx){
+    return MasterManager::GetInstance().SetEffect(busId, fx);
+}
+
+bool SetEffect(AuxBusId busId, FxReverb* fx){
+    return MasterManager::GetInstance().SetEffect(busId, fx);
 }
 
 void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos){
@@ -232,6 +247,14 @@ void GetAuxCallback(AuxBusId busId, AuxCallback* pcb, uptr* pUserData){
 
 Result StartSoundThread(const ThreadParameter* mainThreadParam,void (*mainThreadCallback)(uptr),uptr mainThreadArg,const ThreadParameter* userThreadParam,void (*userThreadCallback)(uptr),uptr userThreadArg,s32 coreNo){
     return ThreadManager::GetInstance().StartSoundThread(mainThreadParam, mainThreadCallback, mainThreadArg,userThreadParam, userThreadCallback, userThreadArg,coreNo);
+}
+
+bool SetSoundOutputMode(OutputMode mode){
+    return MasterManager::GetInstance().SetSoundOutputMode(mode);
+}
+
+void ClearAuxCallback(AuxBusId busId){
+    return MasterManager::GetInstance().ClearAuxCallback(busId);
 }
 
 void FinalizeSoundThread(){

@@ -29,7 +29,7 @@ private:
     os::InterCoreCriticalSection    m_CriticalSection;
     u8 m_VoiceBuffer[2592];
     u8 m_VoiceImplBuffer[2976];
-    Voice* mp_Voice[24];
+    Voice* m_pVoice[24];
 
 public:
     VoiceManager();

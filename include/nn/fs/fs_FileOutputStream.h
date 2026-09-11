@@ -77,5 +77,7 @@ public:
         return detail::FileBase::TrySetSize(size);
     }
 };
+
+typedef FileOutputStream FileWriter;
 }
 }

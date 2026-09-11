@@ -16,6 +16,67 @@ namespace internal{
     CTR::MasterManager s_MasterManager;
 }
 
+void MasterManager::Initialize(){
+    if(mInitialized) 
+        return;
+    mInitialized = true;
+    this->GetImpl()->Initialize();
+
+    mMasterVolume = 1.0f;
+    mSystemMasterVolume = 1.0f;
+    mAuxVolume[0] = 1.0f;
+    mAuxVolume[1] = 1.0f;
+    mAuxCallback[AUX_BUS_A] = NULL;
+    mAuxCallback[AUX_BUS_B] = NULL;
+    mAuxUserData[AUX_BUS_A] = 0;
+    mAuxUserData[AUX_BUS_B] = 0;
+    mAuxFrontBypass[AUX_BUS_A] = false;
+    mAuxFrontBypass[AUX_BUS_B] = false;
+    mRearRadio = 1.0f;
+    mSurroundDepth = 1.0f;
+    mClippingMode = CLIPPING_MODE_SOFT;
+
+    this->GetImpl()->InitializeParam();
+
+    nn::cfg::CTR::detail::SoundSettingCfgData soundSettingCfgData;
+    cfg::CTR::Initialize();
+    Result res = cfg::CTR::detail::GetConfig(&soundSettingCfgData,1,0x70001);
+    cfg::CTR::Finalize();
+
+    OutputMode mode = OUTPUT_MODE_STEREO;
+    if(res.IsSuccess()){
+        nn::cfg::CTR::CfgSoundOutputMode nandMode = static_cast<nn::cfg::CTR::CfgSoundOutputMode>(soundSettingCfgData.soundOutputMode);
+        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_MONO){
+            mode = OUTPUT_MODE_MONO;
+        }
+        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_STEREO){
+            mode = OUTPUT_MODE_STEREO;
+        }
+        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_SURROUND){
+            mode = OUTPUT_MODE_3DSURROUND;
+        }
+    }
+    else{
+        mode = OUTPUT_MODE_STEREO;
+    }
+    mOutputMode = mode;
+    this->GetImpl()->SetSoundOutputMode(mode);
+    mDroppedFrameCount = 0;
+    for(int i = 0; i < AUX_BUS_NUM; i++){
+        mFxSet[i].mpFxDelay = NULL;
+        mFxSet[i].mpFxReverb = NULL;
+    }
+    this->mFxCriticalSection.Initialize();
+}
+
+void MasterManager::Finalize(){
+    if(mInitialized){
+        this->GetImpl()->Finalize();
+        this->mFxCriticalSection.Finalize();
+        mInitialized = false;
+    }
+}
+
 void MasterManager::AuxUserCallback(AuxBusId busId, uptr data){
     NN_TASSERT_((busId != AUX_BUS_A) && (busId != AUX_BUS_B));
     if(this->mInitialized){
@@ -39,6 +100,15 @@ void MasterManager::ExecuteEffect(AuxBusId busId, uptr data){
     else if (mFxSet[busId].mpFxReverb != NULL){
         this->mFxSet[busId].mpFxReverb->UpdateBuffer(reinterpret_cast<uptr>(&auxBusData));
     }
+}
+
+void MasterManager::RegisterAuxCallback( AuxBusId busId, AuxCallback callback, uptr userData ){
+    NN_TASSERT_(busId == AUX_BUS_A || busId == AUX_BUS_B);
+
+    mAuxCallback[busId] = callback;
+    mAuxUserData[busId] = userData;
+
+    GetImpl()->RegisterAuxCallback(busId, callback, userData);
 }
 
 bool MasterManager::SetEffect(AuxBusId busId, FxDelay* fx){
@@ -93,12 +163,18 @@ void MasterManager::ClearEffect(AuxBusId busId){
     this->GetImpl()->EnableFx(busId, false);
 }
 
-void MasterManager::Finalize(){
-    if(this->mInitialized){
-        this->GetImpl()->Finalize();
-        this->mFxCriticalSection.Finalize();
-        mInitialized = false;
-    }
+bool MasterManager::SetSoundOutputMode(OutputMode mode){
+    NN_TASSERT_(mode == OUTPUT_MODE_MONO ||mode == OUTPUT_MODE_STEREO ||mode == OUTPUT_MODE_3DSURROUND);
+
+    mOutputMode = mode;
+
+    return GetImpl()->SetSoundOutputMode(mode);
+}
+
+void MasterManager::ClearAuxCallback(AuxBusId busId){
+    mAuxCallback[busId] = 0;
+    mAuxUserData[busId] = 0;
+    GetImpl()->RegisterAuxCallback(busId, 0, 0);
 }
 
 s32 MasterManager::GetDspCycles(){
@@ -134,59 +210,6 @@ s32 MasterManager::GetDspCycles(){
 void MasterManager::GetAuxCallback( AuxBusId busId, AuxCallback* pCallback, uptr* pUserData ){
     *pCallback = mAuxCallback[busId];
     *pUserData = mAuxUserData[busId];
-}
-
-void MasterManager::Initialize(){
-    if(mInitialized) 
-        return;
-    mInitialized = true;
-    this->GetImpl()->Initialize();
-
-    mMasterVolume = 1.0f;
-    mSystemMasterVolume = 1.0f;
-    mAuxVolume[0] = 1.0f;
-    mAuxVolume[1] = 1.0f;
-    mAuxCallback[AUX_BUS_A] = NULL;
-    mAuxCallback[AUX_BUS_B] = NULL;
-    mAuxUserData[AUX_BUS_A] = 0;
-    mAuxUserData[AUX_BUS_B] = 0;
-    mAuxFrontBypass[AUX_BUS_A] = false;
-    mAuxFrontBypass[AUX_BUS_B] = false;
-    mRearRadio = 1.0f;
-    mSurroundDepth = 1.0f;
-    mClippingMode = CLIPPING_MODE_SOFT;
-
-    this->GetImpl()->InitializeParam();
-
-    nn::cfg::CTR::detail::SoundSettingCfgData soundSettingCfgData;
-    cfg::CTR::Initialize();
-    Result res = cfg::CTR::detail::GetConfig(&soundSettingCfgData,1,0x70001);
-    cfg::CTR::Finalize();
-
-    OutputMode mode = OUTPUT_MODE_STEREO;
-    if(res.IsSuccess()){
-        nn::cfg::CTR::CfgSoundOutputMode nandMode = static_cast<nn::cfg::CTR::CfgSoundOutputMode>(soundSettingCfgData.soundOutputMode);
-        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_MONO){
-            mode = OUTPUT_MODE_MONO;
-        }
-        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_STEREO){
-            mode = OUTPUT_MODE_STEREO;
-        }
-        if (nandMode == nn::cfg::CTR::CFG_SOUND_OUTPUT_MODE_SURROUND){
-            mode = OUTPUT_MODE_3DSURROUND;
-        }
-    }
-    else{
-        mode = OUTPUT_MODE_STEREO;
-    }
-    mOutputMode = mode;
-    this->GetImpl()->SetSoundOutputMode(mode);
-    mDroppedFrameCount = 0;
-    for(int i = 0; i < AUX_BUS_NUM; i++){
-        mFxSet[i].mpFxDelay = NULL;
-        mFxSet[i].mpFxReverb = NULL;
-    }
-    this->mFxCriticalSection.Initialize();
 }
 
 void MasterManager::SetOutputBufferCount(s32 outputBufferCount){

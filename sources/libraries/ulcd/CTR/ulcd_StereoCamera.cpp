@@ -17,7 +17,8 @@ namespace ulcd{
 namespace CTR{
 namespace{
 
-void GetProjectionParameters(MTX44 *proj,f32 *left,f32 *right,f32 *bottom,f32 *top,f32 *near,f32 *far){
+void GetProjectionParameters(MTX44 *proj,f32 *left,f32 *right,f32 *bottom,f32 *top,f32 *near,f32 *far)
+{
     f32 pos;
     *near = proj->matrix[2][3] / proj->matrix[2][2];
     *far = proj->matrix[2][3] / (proj->matrix[2][2] - 1.0f);
@@ -32,16 +33,20 @@ void GetProjectionParameters(MTX44 *proj,f32 *left,f32 *right,f32 *bottom,f32 *t
     *top = (proj->matrix[1][2] - 1.0f) * pos;
 }
 
-float GetSliderVolume(){
-    if (os::GetWritableSharedInfo().displayModeLockFlag){
+float GetSliderVolume()
+{
+    if (os::GetWritableSharedInfo().displayModeLockFlag)
+    {
         return 0.0f;
     }
-    else{
+    else
+    {
         return os::GetWritableSharedInfo().svr2Volume;
     }
 }
 
-void GetLookPose(const nn::math::MTX34 *view, nn::math::VEC3 *pos, Direction *dir){
+void GetLookPose(const nn::math::MTX34 *view, nn::math::VEC3 *pos, Direction *dir)
+{
     MTX34 im;
     math::MTX34Inverse(&im, view);
     pos->x = im.matrix[0][3];
@@ -67,12 +72,15 @@ void GetLookPose(const nn::math::MTX34 *view, nn::math::VEC3 *pos, Direction *di
 
 }
 
-namespace{
-    static bool sIsInitialized;
+namespace
+{
+    static bool s_IsInitialized;
 }
 
-namespace{
-    struct cfgdata{
+namespace
+{
+    struct cfgdata
+    {
         void* cfgData;
         f32 far;
         f32 near;
@@ -83,20 +91,25 @@ namespace{
     cfgdata s_CfgData;
 }
 
-StereoCamera::StereoCamera(){
+StereoCamera::StereoCamera()
+{
     m_DepthLevel = 0.0f;
     m_CameraInterval = 0.0f;
 }
 
-StereoCamera::~StereoCamera(){ this->Finalize(); }
+StereoCamera::~StereoCamera()
+{ 
+    Finalize(); 
+}
 
-void StereoCamera::Initialize(){
-    if(!sIsInitialized){
+void StereoCamera::Initialize()
+{
+    if(!s_IsInitialized){
         cfg::CTR::Initialize();
         Result res = cfg::CTR::detail::GetConfig(&s_CfgData,0x20,0x50005);
         NN_UTIL_PANIC_IF_FAILED(res);
         cfg::CTR::Finalize();
-        sIsInitialized = true;
+        s_IsInitialized = true;
     }
 
     m_LimitParallax        = s_CfgData.limit;
@@ -117,16 +130,21 @@ void StereoCamera::Initialize(){
     m_BaseCamera.posTarget = math::VEC3(0.0f, 0.0f, 0.0f);
 }
 
-void StereoCamera::Finalize(){ }
+void StereoCamera::Finalize()
+{
+}
 
-void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *viewL,nn::math::MTX44 *projR,nn::math::MTX34 *viewR, nn::math::MTX44 *projOriginal,nn::math::MTX34 *viewOriginal,const f32 depthLevel,const f32 factor,const math::PivotDirection pivot){
-    NN_ASSERT_(sIsInitialized);
+void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *viewL,nn::math::MTX44 *projR,nn::math::MTX34 *viewR, nn::math::MTX44 *projOriginal,nn::math::MTX34 *viewOriginal,const f32 depthLevel,const f32 factor,const math::PivotDirection pivot)
+{
+    NN_ASSERT_(s_IsInitialized);
     NN_NULL_ASSERT_(projL);
     NN_NULL_ASSERT_(viewL);
     NN_NULL_ASSERT_(projR);
     NN_NULL_ASSERT_(viewR);
     NN_ASSERT_(nn::math::PIVOT_NONE <= pivot && pivot < nn::math::PIVOT_NUM);
-    if (!(0.0f <= factor && factor <= 1.0f)) {
+
+    if (!(0.0f <= factor && factor <= 1.0f)) 
+    {
         NN_TPANIC_("factor must be [0,1].");
     }
     CameraInfo infoL, infoR;
@@ -136,7 +154,8 @@ void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *vie
         m_DepthLevel = depthLevel;
         f32 heightDiff = m_LimitParallax;
         heightDiff *= math::FAbs(this->m_BaseCamera.top - this->m_BaseCamera.bottom) * m_DepthLevel / (m_BaseCamera.near * s_CfgData.level);
-        if (m_BaseCamera.far > m_DepthLevel) {
+        if (m_BaseCamera.far > m_DepthLevel)
+        {
             m_CameraInterval = heightDiff * (this->m_BaseCamera.far / (this->m_BaseCamera.far - this->m_DepthLevel));
         } 
         else {
@@ -167,7 +186,7 @@ void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *vie
         nn::math::VEC3Add(&infoR.position, &m_BaseCamera.position, &infoR.position);
         nn::math::VEC3Add(&infoR.posTarget, &infoR.position, &m_BaseCamera.posTarget);
         infoR.posRight = m_BaseCamera.posRight;
-        infoR.posUp =    m_BaseCamera.posUp;
+        infoR.posUp    = m_BaseCamera.posUp;
 
         m_DistanceToNearClip = m_BaseCamera.near;
         m_DistanceToFarClip  = m_BaseCamera.far;
@@ -183,16 +202,19 @@ void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *vie
     math::MTX34LookAt(viewR, &infoR.position, &infoR.posUp, &infoR.posTarget);
 }
 
-void StereoCamera::CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34* viewL,nn::math::MTX44* projR, nn::math::MTX34* viewR, const f32 depthLevel, const f32 factor, const nn::math::PivotDirection pivot){
-    NN_ASSERT_(sIsInitialized);
+void StereoCamera::CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34* viewL,nn::math::MTX44* projR, nn::math::MTX34* viewR, const f32 depthLevel, const f32 factor, const nn::math::PivotDirection pivot)
+{
+    NN_ASSERT_(s_IsInitialized);
     NN_NULL_ASSERT_(projL);
     NN_NULL_ASSERT_(viewL);
     NN_NULL_ASSERT_(projR);
     NN_NULL_ASSERT_(viewR);
     NN_ASSERT_(nn::math::PIVOT_NONE <= pivot && pivot < nn::math::PIVOT_NUM);
-    if (!(0.0f <= factor && factor <= 1.0f)) {
+    if (!(0.0f <= factor && factor <= 1.0f)) 
+    {
         NN_TPANIC_("factor must be [0,1].");
     }
+
     CameraInfo infoL, infoR;
     
     {
@@ -208,11 +230,13 @@ void StereoCamera::CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34
         newN = m_DepthLevel - (depthLevel - m_BaseCamera.near);
         newF = m_DepthLevel + (m_BaseCamera.far - depthLevel);
 
-        if (newN <= 0.0f){
+        if (newN <= 0.0f)
+        {
             newN = m_DepthLevel * 0.01f;
         }
 
-        if (newF <= newN){
+        if (newF <= newN)
+        {
             newF = newN * 2.0f;
         }
 
@@ -232,11 +256,11 @@ void StereoCamera::CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34
 
         m_CameraInterval *= GetSliderVolume() * 0.5f;
         
-        infoL.left  = newL + m_CameraInterval * newN / m_DepthLevel;
-        infoL.right = newR + m_CameraInterval * newN / m_DepthLevel;
+        infoL.left   = newL + m_CameraInterval * newN / m_DepthLevel;
+        infoL.right  = newR + m_CameraInterval * newN / m_DepthLevel;
         
-        infoR.right = newR - m_CameraInterval * newN / m_DepthLevel;
-        infoR.left  = newL - m_CameraInterval * newN / m_DepthLevel;
+        infoR.right  = newR - m_CameraInterval * newN / m_DepthLevel;
+        infoR.left   = newL - m_CameraInterval * newN / m_DepthLevel;
         
         infoL.bottom = infoR.bottom = newB;
         infoL.top    = infoR.top    = newT;
@@ -276,15 +300,27 @@ void StereoCamera::CalculateMatricesReal(nn::math::MTX44* projL, nn::math::MTX34
     math::MTX34LookAt(viewR, &infoR.position, &infoR.posUp, &infoR.posTarget);
 }
 
-f32 StereoCamera::GetCoefficientForParallax(void) const{
+f32 StereoCamera::GetCoefficientForParallax(void) const
+{
     m_CameraInterval / m_LevelWidth;
 }
 
-f32 StereoCamera::GetMaxParallax(void) const{
+f32 StereoCamera::GetParallax(const f32 distance) const
+{
+    if (distance <= 0.0f)
+    {
+        return 0.0f;
+    }
+    return (m_CameraInterval * (distance - m_DepthLevel) / distance) / m_LevelWidth;
+}
+
+f32 StereoCamera::GetMaxParallax(void) const
+{
     return m_LimitParallax / s_CfgData.near * 0.5f * GetSliderVolume();
 }
 
-void StereoCamera::SetBaseCamera(const nn::math::MTX34 *view){
+void StereoCamera::SetBaseCamera(const nn::math::MTX34 *view)
+{
     NN_NULL_ASSERT_(view);
     Direction direction;
     GetLookPose(view, &this->m_BaseCamera.position, &direction);
@@ -294,7 +330,8 @@ void StereoCamera::SetBaseCamera(const nn::math::MTX34 *view){
     m_BaseCamera.posTarget = direction.target;
 }
 
-void StereoCamera::SetBaseFrustum(const nn::math::MTX44 *proj){
+void StereoCamera::SetBaseFrustum(const nn::math::MTX44 *proj)
+{
     m_BaseCamera.near = proj->matrix[2][3] / proj->matrix[2][2];
     m_BaseCamera.far = proj->matrix[2][3] / (proj->matrix[2][2] - 1.0f);
 
@@ -305,6 +342,16 @@ void StereoCamera::SetBaseFrustum(const nn::math::MTX44 *proj){
     m_BaseCamera.right = (proj->matrix[0][2] + 1.0f) * inverseProjX;
     m_BaseCamera.top = (proj->matrix[1][2] + 1.0f) * inverseProjY;
     m_BaseCamera.bottom = (proj->matrix[1][2] - 1.0f) * inverseProjY;
+}
+
+void StereoCamera::SetBaseFrustum(const f32 left, const f32 right, const f32 bottom, const f32 top, const f32 near, const f32 far)
+{
+    m_BaseCamera.left   = left;
+    m_BaseCamera.right  = right;
+    m_BaseCamera.bottom = bottom;
+    m_BaseCamera.top    = top;
+    m_BaseCamera.near   = near;
+    m_BaseCamera.far    = far;
 }
 
 }

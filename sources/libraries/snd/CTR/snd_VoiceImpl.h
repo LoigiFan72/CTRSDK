@@ -9,30 +9,30 @@ namespace CTR{
 
 class VoiceImpl{
 public:
-    s32 mId;
-    s16 mSyncCount;
-    u16 mBufferId;
-    s32 mPlayPosition;
-    bool mPlaying;
-    Voice::State mState;
-    InterpolationType mInterpolationType;
-    FilterType mFilterType;
-    MonoFilterCoefficients mMonoFilterCoeffs;
-    BiquadFilterCoefficients mBiquadFilterCoeffs;
-    u16 mSampleInfo;
-    s32 mSampleRate;
-    f32 mPitch;
-    f32 mSampleRateRatio;
-    u32 mDspCycles;
-    WaveBuffer* mpWaveBuffer;
-    s16 mSentBufferCount;
-    s16 mNextBufferIndex;
-    MixParam mMixParam;
-    f32 mVolume;
-    bit16 mModifiedParamFlag;
-    bool mIsFirstWaveBufferForAdpcm;
-    bit8 mWaveBufferModifiedFlag;
-    os::InterCoreCriticalSection mCriticalSection;
+    s32 m_Id;
+    s16 m_SyncCount;
+    u16 m_BufferId;
+    s32 m_PlayPosition;
+    bool m_Playing;
+    Voice::State m_State;
+    InterpolationType m_InterpolationType;
+    FilterType m_FilterType;
+    MonoFilterCoefficients m_MonoFilterCoeffs;
+    BiquadFilterCoefficients m_BiquadFilterCoeffs;
+    u16 m_SampleInfo;
+    s32 m_SampleRate;
+    f32 m_Pitch;
+    f32 m_SampleRateRatio;
+    u32 m_DspCycles;
+    WaveBuffer* m_pWaveBuffer;
+    s16 m_SentBufferCount;
+    s16 m_NextBufferIndex;
+    MixParam m_MixParam;
+    f32 m_Volume;
+    bit16 m_ModifiedParamFlag;
+    bool m_IsFirstWaveBufferForAdpcm;
+    bit8 m_WaveBufferModifiedFlag;
+    os::InterCoreCriticalSection m_CriticalSection;
 
 public:
     VoiceImpl(){ }
@@ -71,8 +71,8 @@ public:
     void UpdateWaveBufferStatus(ushort currentBufferId, ushort lastBufferId);
 public:
     s32 GetCycle() const;
-    bool IsPlaying () const{ return mPlaying; }
-    Voice::State VoiceImpl::GetState() const{ return mState; }
+    bool IsPlaying () const{ return m_Playing; }
+    Voice::State VoiceImpl::GetState() const{ return m_State; }
 };
 
 }

@@ -32,24 +32,24 @@ public:
     };
 
 private:
-    const s32 mId;
-    util::SizedEnum1<Voice::State> mState;
-    util::SizedEnum1<InterpolationType> mInterpolationType;
+    const s32 m_Id;
+    util::SizedEnum1<Voice::State> m_State;
+    util::SizedEnum1<InterpolationType> m_InterpolationType;
     s8 rev;
-    util::SizedEnum1<FilterType> mFilterType;
-    MonoFilterCoefficients mMonoFilterCoeffs;
-    BiquadFilterCoefficients mBiquadFilterCoeffs;
+    util::SizedEnum1<FilterType> m_FilterType;
+    MonoFilterCoefficients m_MonoFilterCoeffs;
+    BiquadFilterCoefficients m_BiquadFilterCoeffs;
     s8 rev2[2];
-    s32 mSampleRate;
-    f32 mPitch;
-    s32 mPriority;
-    Voice* mPriorVoice;
-    Voice* mInferiorVoice;
-    VoiceDropCallbackFunc mCallback;
-    uptr mUserArg;
-    MixParam mMixParam;
-    f32 mVolume;
-    VoiceImpl* mpImpl;
+    s32 m_SampleRate;
+    f32 m_Pitch;
+    s32 m_Priority;
+    Voice* m_PriorVoice;
+    Voice* m_InferiorVoice;
+    VoiceDropCallbackFunc m_Callback;
+    uptr m_UserArg;
+    MixParam m_MixParam;
+    f32 m_Volume;
+    VoiceImpl* m_pImpl;
 
     void Initialize();
     void UpdateStatus(const void* pVars);
@@ -84,10 +84,10 @@ public:
 
     bool SetupBcwav(uptr addrBcwav, WaveBuffer* pWaveBuffer0, WaveBuffer* pWaveBuffer1, Bcwav::ChannelIndex channelIndex = Bcwav::CHANNEL_INDEX_L);
 public:
-    s32 GetId() const { return mId; }
-    VoiceImpl* GetImpl() const { return mpImpl; }
-    s32 GetPriority() const { return mPriority; }
-    Voice::State GetState() const { return mState; }
+    s32 GetId() const { return m_Id; }
+    VoiceImpl* GetImpl() const { return m_pImpl; }
+    s32 GetPriority() const { return m_Priority; }
+    Voice::State GetState() const { return m_State; }
 };
 
 Voice* AllocVoice(s32 priority, VoiceDropCallbackFunc callback, uptr userArg);

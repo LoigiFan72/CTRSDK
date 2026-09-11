@@ -14,34 +14,34 @@ namespace snd {
 namespace CTR {
 
 Voice::Voice(s32 id): 
-    mId(id)
+    m_Id(id)
 {}
 
 Voice::~Voice(){}
 
 void Voice::Initialize(){
-    mState = STATE_PAUSE;
+    m_State = STATE_PAUSE;
 
-    mSampleRate = NN_SND_HW_I2S_CLOCK_32KHZ;
-    mPitch = 1.0f;
-    mInterpolationType = INTERPOLATION_TYPE_POLYPHASE;
+    m_SampleRate = NN_SND_HW_I2S_CLOCK_32KHZ;
+    m_Pitch = 1.0f;
+    m_InterpolationType = INTERPOLATION_TYPE_POLYPHASE;
 
     mFilterType = FILTER_TYPE_NONE;
     ::std::memset(&this->mMonoFilterCoeffs, 0, sizeof(MonoFilterCoefficients));
     ::std::memset(&this->mBiquadFilterCoeffs, 0, sizeof(BiquadFilterCoefficients));
 
-    mVolume = 1.0f;
+    m_Volume = 1.0f;
     MixParam mixParam;
     mixParam.mainBus[CHANNEL_INDEX_FRONT_LEFT ] = 1.0f;
     mixParam.mainBus[CHANNEL_INDEX_FRONT_RIGHT] = 1.0f;
-    mMixParam = mixParam;
+    m_MixParam = mixParam;
 
-    mPriority = 0;
-    mPriorVoice = 0;
-    mInferiorVoice = 0;
+    m_Priority = 0;
+    m_PriorVoice = 0;
+    m_InferiorVoice = 0;
 
-    mCallback = NULL;
-    mUserArg = 0;
+    m_Callback = NULL;
+    m_UserArg = 0;
 
     this->GetImpl()->Initialize();
 }
@@ -50,14 +50,14 @@ void Voice::SetPriority(s32 priority){
     NN_TASSERT_(0 <= priority && priority <= VOICE_PRIORITY_NODROP);
     priority = math::Max(math::Min(priority, VOICE_PRIORITY_NODROP), 0);
 
-    mPriority = priority;
+    m_Priority = priority;
 
     VoiceManager::GetInstance().SetPriority(this, priority);
 }
 
 void Voice::SetPitch(f32 pitch){
     NN_TASSERT_(0.0f <= pitch);
-    mPitch = math::Max(pitch, 0.0f);
+    m_Pitch = math::Max(pitch, 0.0f);
     this->GetImpl()->SetPitch(pitch);
 }
 
@@ -71,7 +71,7 @@ void Voice::SetChannelCount(s32 channelCount){
 }
 
 void Voice::SetMixParam(const MixParam& mixParam){
-    mMixParam = mixParam;
+    m_MixParam = mixParam;
     this->GetImpl()->SetMixParam(mixParam);
 }
 
@@ -82,42 +82,44 @@ void Voice::SetSampleFormat(SampleFormat format){
 
 void Voice::SetSampleRate(s32 sampleRate){
     NN_TASSERT_(0 <= sampleRate);
-    mSampleRate = math::Max(sampleRate, 0);
+    m_SampleRate = math::Max(sampleRate, 0);
     this->GetImpl()->SetSampleRate(sampleRate);
 }
 
 void Voice::SetState(State state){
     NN_TASSERT_(state == STATE_PLAY || state == STATE_STOP || state == STATE_PAUSE);
     ::std::memcpy(&this->mState, &state, 1);
-    if(state == STATE_STOP){
+
+    if(state == STATE_STOP)
+    {
         this->GetImpl()->ReleaseWaveBuffer();
     }
     this->GetImpl()->SetState(state);
 }
 
 void Voice::SetVolume(f32 volume){
-    mVolume = volume;
+    m_Volume = volume;
     this->GetImpl()->SetVolume(volume);
 }
 
 void Voice::SetBiquadFilterCoefficients(const BiquadFilterCoefficients* pCoeff){
-    mBiquadFilterCoeffs = *pCoeff;
-    this->GetImpl()->SetBiquadFilterCoefficients(mBiquadFilterCoeffs);
+    m_BiquadFilterCoeffs = *pCoeff;
+    this->GetImpl()->SetBiquadFilterCoefficients(m_BiquadFilterCoeffs);
 }
 
 void Voice::SetBiquadFilterCoefficients(const BiquadFilterCoefficients& coeff){
-    mBiquadFilterCoeffs = coeff;
-    this->GetImpl()->SetBiquadFilterCoefficients(this->mBiquadFilterCoeffs);
+    m_BiquadFilterCoeffs = coeff;
+    this->GetImpl()->SetBiquadFilterCoefficients(this->m_BiquadFilterCoeffs);
 }
 
 void Voice::SetMonoFilterCoefficients(const MonoFilterCoefficients* pCoeff){
-    mMonoFilterCoeffs = *pCoeff;
-    this->GetImpl()->SetMonoFilterCoefficients(mMonoFilterCoeffs);
+    m_MonoFilterCoeffs = *pCoeff;
+    this->GetImpl()->SetMonoFilterCoefficients(m_MonoFilterCoeffs);
 }
 
 void Voice::SetMonoFilterCoefficients(const MonoFilterCoefficients& coeff){
-    mMonoFilterCoeffs = coeff;
-    this->GetImpl()->SetMonoFilterCoefficients(mMonoFilterCoeffs);
+    m_MonoFilterCoeffs = coeff;
+    this->GetImpl()->SetMonoFilterCoefficients(m_MonoFilterCoeffs);
 }
 
 void Voice::SetFrontBypassFlag(bool flag){
@@ -126,7 +128,7 @@ void Voice::SetFrontBypassFlag(bool flag){
 
 void Voice::SetInterpolationType(InterpolationType type){
     NN_TASSERT_(type == INTERPOLATION_TYPE_POLYPHASE || type == INTERPOLATION_TYPE_LINEAR || type == INTERPOLATION_TYPE_NONE);
-    mInterpolationType = type;
+    m_InterpolationType = type;
     this->GetImpl()->SetInterpolationType(type);
 }
 
@@ -135,24 +137,28 @@ s32 Voice::GetPlayPosition() const{
 }
 
 void Voice::EnableMonoFilter(bool enable){
-    if (enable){
-        mFilterType = static_cast<FilterType>(static_cast<bit32>(mFilterType) | FILTER_TYPE_MONOPOLE);
+    if (enable)
+    {
+        m_FilterType = static_cast<FilterType>(static_cast<bit32>(m_FilterType) | FILTER_TYPE_MONOPOLE);
     }
 
-    else{
-        mFilterType = static_cast<FilterType>(static_cast<bit32>(mFilterType) & ~FILTER_TYPE_MONOPOLE);
+    else
+    {
+        mFilterType = static_cast<FilterType>(static_cast<bit32>(m_FilterType) & ~FILTER_TYPE_MONOPOLE);
     }
     
-    this->GetImpl()->SetFilterType(this->mFilterType);
+    this->GetImpl()->SetFilterType(this->m_FilterType);
 }
 
 void Voice::EnableBiquadFilter(bool enable){
-    if (enable){
-        mFilterType = static_cast<FilterType>(static_cast<bit32>(mFilterType) | FILTER_TYPE_BIQUAD);
+    if (enable)
+    {
+        m_FilterType = static_cast<FilterType>(static_cast<bit32>(m_FilterType) | FILTER_TYPE_BIQUAD);
     }
 
-    else{
-        mFilterType = static_cast<FilterType>(static_cast<bit32>(mFilterType) & ~FILTER_TYPE_BIQUAD);
+    else
+    {
+        m_FilterType = static_cast<FilterType>(static_cast<bit32>(m_FilterType) & ~FILTER_TYPE_BIQUAD);
     }
 
     this->GetImpl()->SetFilterType(mFilterType);

@@ -8,6 +8,9 @@
 namespace nn {
 namespace snd {
 namespace CTR {
+    class FxDelay;
+    class FxReverb;
+
     static const s32 NN_SND_DSP_MAXIMUM_CYCLES = 622535;
 
     Result Initialize();
@@ -32,6 +35,13 @@ namespace CTR {
     void FinalizeSoundThread();
     os::Tick GetSoundThreadTick();
     void EnableSoundThreadTickCounter(bool enable);
+    void GetAuxCallback(AuxBusId busId, AuxCallback* pcb, uptr* pUserData);
+    void RegisterAuxCallback(AuxBusId busId, AuxCallback cb, uptr userData);
+    OutputMode GetSoundOutputMode();
+    bool SetEffect(AuxBusId busId, FxDelay* fx);
+    bool SetEffect(AuxBusId busId, FxReverb* fx);
+    bool SetSoundOutputMode(OutputMode mode);
+    void ClearAuxCallback(AuxBusId busId);
 } // namespace CTR
 } // namespace snd
 } // namespace nn

@@ -7,10 +7,11 @@ namespace nn{
 namespace gr{
 namespace CTR{
 
-class FrameBuffer{
+class FrameBuffer
+{
 public:
-
-    enum BlockSize{
+    enum BlockSize
+    {
         BLOCK_SIZE8,
         BLOCK_SIZE32
     };
@@ -20,7 +21,8 @@ public:
     static const u32 STENCIL_BUFFER_BIT       = 0x4;
     static const u32 DEPTH_STENCIL_BUFFER_BIT = DEPTH_BUFFER_BIT | STENCIL_BUFFER_BIT;
 
-    class ColorBuffer{
+    class ColorBuffer
+    {
     public:
         uptr virtualAddr;
         PicaDataColor format;
@@ -37,7 +39,8 @@ public:
         const FrameBuffer& mFrameBuffer;
     };
 
-    class DepthStencilBuffer{
+    class DepthStencilBuffer
+    {
     public:
         uptr  virtualAddr;
         PicaDataDepth format;
@@ -62,6 +65,7 @@ public:
     explicit FrameBuffer();
     static bit32* MakeClearCacheCommand(bit32* command);
     bit32* MakeCommand(bit32* command, const u32 bufferBit, bool isClearCache = true) const;
+    void MakeClearRequest( const u32 bufferBit, bool isAddSplitDrawCmdlist = true );
 };
 
 }
