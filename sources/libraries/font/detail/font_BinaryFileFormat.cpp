@@ -12,10 +12,12 @@ namespace nn {
 namespace font {
 namespace detail {
 
-bool IsValidBinaryFile(const BinaryFileHeader* pHeader,u32 signature, u32 version, u16 minBlocks  /* = 1 */){
+bool IsValidBinaryFile(const BinaryFileHeader* pHeader,u32 signature, u32 version, u16 minBlocks  /* = 1 */)
+{
     NN_POINTER_ASSERT(pHeader);
 
-    if (pHeader->signature != signature){
+    if (pHeader->signature != signature)
+    {
         NN_WARNING_(false, "Signature check failed ('%c%c%c%c' must be '%c%c%c%c').",
                    math::GetBits<char>(pHeader->signature, 24, 8),
                    math::GetBits<char>(pHeader->signature, 16, 8),
@@ -29,7 +31,8 @@ bool IsValidBinaryFile(const BinaryFileHeader* pHeader,u32 signature, u32 versio
         return false;
     }
 
-    if (pHeader->byteOrder != BYTE_ORDER_MARK){
+    if (pHeader->byteOrder != BYTE_ORDER_MARK)
+    {
         NN_WARNING_(false, "Unsupported byte order.");
         return false;
     }
@@ -48,12 +51,14 @@ bool IsValidBinaryFile(const BinaryFileHeader* pHeader,u32 signature, u32 versio
         return false;
     }
 
-    if(pHeader->fileSize < sizeof(BinaryFileHeader) + sizeof(BinaryBlockHeader) * minBlocks){
+    if(pHeader->fileSize < sizeof(BinaryFileHeader) + sizeof(BinaryBlockHeader) * minBlocks)
+    {
         NN_WARNING_(false, "Too small file size(=%d).", pHeader->fileSize);
         return false;
     }
 
-    if(pHeader->dataBlocks < minBlocks){
+    if(pHeader->dataBlocks < minBlocks)
+    {
         NN_WARNING_(false, "Too small number of data blocks(=%d).", pHeader->dataBlocks);
         return false;
     }

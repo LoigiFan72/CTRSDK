@@ -2,25 +2,29 @@
 //
 // Project: Horizon
 
-#include <nn/os/os_AddressSpaceManager.h>
 #include <nn/os/os_MemoryBlock.h>
 #include <nn/os/os_CriticalSection.h>
 #include <nn/fnd/fnd_Intrusive.h>
 #include <nn/dbg/dbg_Break.h>
 #include <nn/Assert.h>
 
+#include "os_AddressSpaceManager.h"
+
 namespace nn{
 namespace os{
 
-void AddressSpaceManager::Initialize(uptr begin, size_t size){
-    if (m_SpaceBegin == 0 && m_SpaceEnd == 0){
+void AddressSpaceManager::Initialize(uptr begin, size_t size)
+{
+    if (m_SpaceBegin == 0 && m_SpaceEnd == 0)
+    {
         m_Lock.Initialize();
         m_SpaceBegin = begin;
         m_SpaceEnd = begin + size;
     }
 }
 
-uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t skipSize){
+uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t skipSize)
+{
     NN_NULL_TASSERT_(pBlock);
     NN_ALIGN_TASSERT_(size, NN_OS_MEMORY_PAGE_SIZE);
     NN_ALIGN_TASSERT_(skipSize, NN_OS_MEMORY_PAGE_SIZE);
@@ -29,22 +33,27 @@ uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t 
     MemoryBlockBase* pPrev = FindSpace(size, skipSize);
     uptr allocatedAddress;
 
-    if(pPrev != NULL){
+    if(pPrev != NULL)
+    {
         allocatedAddress = pPrev->GetAddress() + pPrev->GetSize() + skipSize;
         MemoryBlockBase* pNext = m_BlockList.GetNext(pPrev);
 
-        if(pNext != NULL){
+        if(pNext != NULL)
+        {
             m_BlockList.Insert(pNext, pBlock);
         }
-        else{
+        else
+        {
             m_BlockList.PushBack(pBlock);
         }
     }
-    else{
+    else
+    {
         allocatedAddress = m_SpaceBegin;
         MemoryBlockBase* pNext = m_BlockList.GetFront();
 
-        if(pNext != NULL){
+        if(pNext != NULL)
+        {
             const uptr allocatedEnd = allocatedAddress + size;
             const uptr nextBegin    = pNext->GetAddress();
 
@@ -54,10 +63,12 @@ uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t 
 
             m_BlockList.Insert(pNext, pBlock);
         }
-        else{
+        else
+        {
             const uptr allocatedEnd = allocatedAddress + size;
 
-            if(m_SpaceEnd < allocatedEnd){
+            if(m_SpaceEnd < allocatedEnd)
+            {
                 return NULL;
             }
             m_BlockList.PushBack(pBlock);
@@ -68,13 +79,15 @@ uptr AddressSpaceManager::Allocate(MemoryBlockBase* pBlock, size_t size, size_t 
     return allocatedAddress;
 }
 
-void AddressSpaceManager::Free(MemoryBlockBase *pBlock){
+void AddressSpaceManager::Free(MemoryBlockBase *pBlock)
+{
     Lock::ScopedLock scopedLock(this->m_Lock);
     this->m_BlockList.Erase(pBlock);
     pBlock->SetAddressAndSize(NULL, 0);
 }
 
-void AddressSpaceManager::Switch(MemoryBlockBase *pTo,MemoryBlockBase *pFrom){
+void AddressSpaceManager::Switch(MemoryBlockBase *pTo,MemoryBlockBase *pFrom)
+{
     Lock::ScopedLock scopedLock(this->m_Lock);
 
     pTo->SetAddressAndSize(pFrom->GetAddress(), pFrom->GetSize());
@@ -84,15 +97,18 @@ void AddressSpaceManager::Switch(MemoryBlockBase *pTo,MemoryBlockBase *pFrom){
     this->m_BlockList.Erase(pFrom);
 }
 
-MemoryBlockBase* AddressSpaceManager::FindSpace(size_t size, size_t skipSize){
+MemoryBlockBase* AddressSpaceManager::FindSpace(size_t size, size_t skipSize)
+{
     MemoryBlockBase* pItem = this->m_BlockList.GetBack();
     uptr end = m_SpaceEnd;
 
-    while(pItem != NULL){
+    while(pItem != NULL)
+    {
         const uptr nextBegin = pItem->GetAddress();
         const uptr nextEnd = nextBegin + pItem->GetSize();
         const size_t spaceSize = end - nextEnd;
-        if(spaceSize >= size + skipSize){
+        if(spaceSize >= size + skipSize)
+        {
             return pItem;
         }
 
@@ -109,15 +125,18 @@ using namespace nn::os;
 
 // TODO: Remake these.
 
-extern "C" {
+extern "C" 
+{
 
-void nnosAddressSpaceManagerInitialize(nnosAddressSpaceManager* p, uptr begin, size_t size){
+void nnosAddressSpaceManagerInitialize(nnosAddressSpaceManager* p, uptr begin, size_t size)
+{
     AddressSpaceManager* pThis = new (p) AddressSpaceManager();
     pThis->Initialize(begin, size);
 }
 
 // Pointer to -> AddressSpaceMan::Switch
-void nnosAddressSpaceManagerSwitch(nnosAddressSpaceManager* p, nnosMemoryBlockBase* p2, nnosMemoryBlockBase* p3){
+void nnosAddressSpaceManagerSwitch(nnosAddressSpaceManager* p, nnosMemoryBlockBase* p2, nnosMemoryBlockBase* p3)
+{
     nn::os::AddressSpaceManager* pThis = reinterpret_cast<nn::os::AddressSpaceManager*>(p);
     nn::os::MemoryBlockBase* pTo = reinterpret_cast<nn::os::MemoryBlockBase*>(p2);
     nn::os::MemoryBlockBase* pFrom = reinterpret_cast<nn::os::MemoryBlockBase*>(p3);

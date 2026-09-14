@@ -7,11 +7,14 @@ namespace nn{
 namespace gr{
 namespace CTR{
 
-class Combiner{
+class Combiner
+{
 public:
-    class Stage{
+    class Stage
+    {
     public:
-        struct CombineFunction{
+        struct CombineFunction
+        {
             PicaDataTexEnvCombine combine;
             PicaDataTexEnvOperand operand[3];
             PicaDataTexEnvSrc source[3];
@@ -21,7 +24,9 @@ public:
 
         protected:
             friend class Stage;
-            explicit CombineFunction(){};
+            explicit CombineFunction()
+            {
+            };
         };
 
         CombineFunction rgb;
@@ -53,7 +58,7 @@ public:
             friend class Combiner;
             explicit Stage(){};
         };
-public :
+public:
     static const u32 COMBINER_STAGE_MAX = 6;
     Stage stage[COMBINER_STAGE_MAX];
 

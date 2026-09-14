@@ -15,7 +15,8 @@ extern "C" void* __ARM_exceptions_buffer_init(void);
 
 typedef void (*handler)(void);
 
-struct __cxa_eh_globals{
+struct __cxa_eh_globals
+{
     uint32_t uncaughtExceptions;
     std::unexpected_handler unexpectedHandler;
     std::terminate_handler terminateHandler;
@@ -27,15 +28,18 @@ struct __cxa_eh_globals{
     void* emergency_buffer;
 };
 
-bool IsArmExceptionsBufferNotRequired(){
+bool IsArmExceptionsBufferNotRequired()
+{
     return &__ARM_exceptions_buffer_required == NULL;
 }
 
-void DefaultTerminateHandler(){
+void DefaultTerminateHandler()
+{
     std::abort();
 }
 
-void DefaultUnexpectedHandler(){
+void DefaultUnexpectedHandler()
+{
     std::terminate();
 }
 
@@ -45,7 +49,8 @@ namespace nn{
 namespace os{
 namespace CTR{
 
-__weak void SetupThreadCppExceptionEnvironment(){
+__weak void SetupThreadCppExceptionEnvironment()
+{
     CTR::ThreadLocalRegion* pTlr = os::CTR::GetThreadLocalRegion();
     pTlr->ehGlobalsAddr = pTlr->ehGlobals;
 
@@ -59,7 +64,6 @@ __weak void SetupThreadCppExceptionEnvironment(){
     ceg.propagatingExceptions = NULL;
     ceg.emergency_buffer = IsArmExceptionsBufferNotRequired() ? NULL: __ARM_exceptions_buffer_init();
 }
-
 
 }
 }

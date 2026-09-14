@@ -24,7 +24,8 @@ namespace{
     const char const PORT_NAME_SPVR[] = "hid:SPVR";
 }
 
-class HidDevices{
+class HidDevices
+{
 public:
     Pad pad;
     TouchPanel touchPanel;

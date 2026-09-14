@@ -12,7 +12,8 @@ namespace os{
 namespace detail{
 
 template <class Locker>
-class BlockingQueueBase : private nn::util::ADLFireWall::NonCopyable<BlockingQueueBase<Locker> >{
+class BlockingQueueBase : private nn::util::ADLFireWall::NonCopyable<BlockingQueueBase<Locker> >
+{
 protected:
     BlockingQueueBase() {}
     BlockingQueueBase(uptr buffer[], size_t size) { Initialize(buffer, size); }
@@ -55,7 +56,8 @@ private:
 
 } // namespace detail
 
-class BlockingQueue : private os::detail::BlockingQueueBase<nn::os::CriticalSection>{
+class BlockingQueue : private os::detail::BlockingQueueBase<nn::os::CriticalSection>
+{
 private:
     typedef os::detail::BlockingQueueBase<nn::os::CriticalSection> Base;
 public:

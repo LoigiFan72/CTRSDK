@@ -18,11 +18,13 @@ void nnnstdMemCpy (void* pOut, const void* pIn, u32 size);
 namespace nn { 
 namespace nstd {
 namespace ARMv6{
-    inline void MemCpy(void *dstp, const void *srcp, size_t size){
+    inline void MemCpy(void *dstp, const void *srcp, size_t size)
+    {
         nnnstdMemCpy(dstp, srcp, size);
     }
 
-    inline void MemMove(void *dstp, const void *srcp, size_t size){
+    inline void MemMove(void *dstp, const void *srcp, size_t size)
+    {
         nnnstdMemMove(dstp, srcp, size);
     }
 }

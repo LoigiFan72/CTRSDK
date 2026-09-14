@@ -7,7 +7,8 @@ namespace hid{
 namespace CTR{
 namespace detail{
 
-class Ipc{
+class Ipc
+{
 public:
     static Result EnableAccelerometer();
     static Result DisableAccelerometer();

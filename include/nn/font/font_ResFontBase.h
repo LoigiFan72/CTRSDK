@@ -6,30 +6,32 @@
 namespace nn{
 namespace font{
 namespace internal{
-    inline u32 GetCellsInASheet(const FontTextureGlyph& tg){
+    inline u32 GetCellsInASheet(const FontTextureGlyph& tg)
+    {
         return static_cast<u32>(tg.sheetRow * tg.sheetLine);
     }
 
 }
-class ResFontBase : public Font{
+class ResFontBase : public Font
+{
 protected:
     typedef ushort GlyphIndex;
     static const GlyphIndex GLYPH_INDEX_NOT_FOUND = 0;
 
-    void* mpResource;
-    FontInformation* mpFontInfo;
-    internal::TextureObject* mpTexObjs;
-    u32 mWrapFilter;
-    mutable CharCode mLastCharCode;
-    mutable GlyphIndex mLastGlyphIndex;
+    void* m_pResource;
+    FontInformation* m_pFontInfo;
+    internal::TextureObject* m_pTexObjs;
+    u32 m_WrapFilter;
+    mutable CharCode m_LastCharCode;
+    mutable GlyphIndex m_LastGlyphIndex;
 
-    bool IsManaging(const void* ptr) const { return mpResource == ptr; }
+    bool IsManaging(const void* ptr) const { return m_pResource == ptr; }
 
-    internal::TextureObject* GetTextureObjectsBufferPtr() {return mpTexObjs;}
-    void SetTextureObjectsBufferPtr(void* buffer){mpTexObjs = static_cast<internal::TextureObject*>(buffer);}
+    internal::TextureObject* GetTextureObjectsBufferPtr() {return m_pTexObjs;}
+    void SetTextureObjectsBufferPtr(void* buffer){ m_pTexObjs = static_cast<internal::TextureObject*>(buffer); }
 
-    const internal::TextureObject*GetTextureObjectsBufferPtr() const{return mpTexObjs;}
-    const internal::TextureObject* GetTextureObject(int index) const{return &GetTextureObjectsBufferPtr()[index];}
+    const internal::TextureObject*GetTextureObjectsBufferPtr() const{ return m_pTexObjs; }
+    const internal::TextureObject* GetTextureObject(int index) const{ return &GetTextureObjectsBufferPtr()[index]; }
 public:
     ResFontBase();
     virtual ~ResFontBase();

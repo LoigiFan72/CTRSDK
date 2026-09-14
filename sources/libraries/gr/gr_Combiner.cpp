@@ -8,15 +8,17 @@ namespace nn{
 namespace gr{
 namespace CTR{
 
-bit32* Combiner::MakeCommand(bit32* command) const{
+bit32* Combiner::MakeCommand(bit32* command) const
+{
     for (int stage_index = 0; stage_index < COMBINER_STAGE_MAX; ++ stage_index){
         command = stage[stage_index].MakeCommand(command);
     }
                 
-    return MakeCombinerBufferCommand( command );
+    return MakeCombinerBufferCommand(command);
 }
 
-bit32* Combiner::MakeCombinerBufferCommand( bit32* command ) const{
+bit32* Combiner::MakeCombinerBufferCommand(bit32* command) const
+{
     *command++ =PICA_CMD_SET_TEX_ENV_BUFFER_INPUT(stage[1].rgb.bufferInput, stage[1].alpha.bufferInput,stage[2].rgb.bufferInput, stage[2].alpha.bufferInput,
                     stage[3].rgb.bufferInput, stage[3].alpha.bufferInput,stage[4].rgb.bufferInput, stage[4].alpha.bufferInput);
     *command++ = PICA_CMD_HEADER_SINGLE_BE(PICA_REG_TEX_ENV_BUFFER_INPUT, 0x2);
@@ -26,7 +28,8 @@ bit32* Combiner::MakeCombinerBufferCommand( bit32* command ) const{
     return command;
 }
 
-void Combiner::Stage::SetupPrimary(){
+void Combiner::Stage::SetupPrimary()
+{
     rgb.combine = PICA_DATA_TEX_ENV_COMBINE_REPLACE;
     rgb.operand[0] = PICA_DATA_OPE_RGB_SRC_COLOR;
     rgb.operand[1] = PICA_DATA_OPE_RGB_SRC_COLOR;
@@ -48,7 +51,8 @@ void Combiner::Stage::SetupPrimary(){
     alpha.bufferInput = PICA_DATA_TEX_ENV_BUFFER_INPUT_PREVIOUS_BUFFER_DMP;
 }
 
-void Combiner::Stage::SetupPrevious(){
+void Combiner::Stage::SetupPrevious()
+{
     rgb.combine = PICA_DATA_TEX_ENV_COMBINE_REPLACE;
     rgb.operand[0] = PICA_DATA_OPE_RGB_SRC_COLOR;
     rgb.operand[1] = PICA_DATA_OPE_RGB_SRC_COLOR;
@@ -70,7 +74,8 @@ void Combiner::Stage::SetupPrevious(){
     alpha.bufferInput = PICA_DATA_TEX_ENV_BUFFER_INPUT_PREVIOUS_BUFFER_DMP;
 }
 
-void Combiner::Stage::SetupTexture0(){
+void Combiner::Stage::SetupTexture0()
+{
     rgb.combine = PICA_DATA_TEX_ENV_COMBINE_REPLACE;
     rgb.operand[0] = PICA_DATA_OPE_RGB_SRC_COLOR;
     rgb.operand[1] = PICA_DATA_OPE_RGB_SRC_COLOR;
@@ -92,7 +97,8 @@ void Combiner::Stage::SetupTexture0(){
     alpha.bufferInput = PICA_DATA_TEX_ENV_BUFFER_INPUT_PREVIOUS_BUFFER_DMP;
 }
 
-void Combiner::Stage::SetupPrimaryModulateTexture0(){
+void Combiner::Stage::SetupPrimaryModulateTexture0()
+{
     rgb.combine = PICA_DATA_TEX_ENV_COMBINE_MODULATE;
     rgb.operand[0] = PICA_DATA_OPE_RGB_SRC_COLOR;
     rgb.operand[1] = PICA_DATA_OPE_RGB_SRC_COLOR;
@@ -118,8 +124,10 @@ Combiner::Combiner():
     bufferColorR(0),
     bufferColorG(0),
     bufferColorB(0),
-    bufferColorA(0){
-    for (int stage_index = 0; stage_index < COMBINER_STAGE_MAX; ++stage_index){
+    bufferColorA(0)
+{
+    for (int stage_index = 0; stage_index < COMBINER_STAGE_MAX; ++stage_index)
+    {
         stage[stage_index] = Stage(stage_index);
     }
 }
@@ -130,8 +138,10 @@ Combiner::Stage::Stage(const int stage_index):
     constColorR(0),
     constColorG(0),
     constColorB(0),
-    constColorA(0){
-    switch(stage_index){
+    constColorA(0)
+{
+    switch(stage_index)
+    {
     case 0: 
         headRegister = PICA_REG_TEX_ENV0; break;
     case 1: 
@@ -147,11 +157,11 @@ Combiner::Stage::Stage(const int stage_index):
     }
 }
 
-Combiner::Stage::CombineFunction::CombineFunction( const u8 stage_index, bool is_rgb ): 
+Combiner::Stage::CombineFunction::CombineFunction(const u8 stage_index, bool is_rgb): 
     combine(PICA_DATA_TEX_ENV_COMBINE_REPLACE),
     scale(PICA_DATA_TEX_ENV_SCALE_1),
-    bufferInput(PICA_DATA_TEX_ENV_BUFFER_INPUT_PREVIOUS_BUFFER_DMP){
-        
+    bufferInput(PICA_DATA_TEX_ENV_BUFFER_INPUT_PREVIOUS_BUFFER_DMP)
+{
     operand[0] = operand[1] = operand[2] = (is_rgb) ? PICA_DATA_OPE_RGB_SRC_COLOR : PICA_DATA_OPE_ALPHA_SRC_ALPHA;
     source[0] = source[1] = source[2] = (stage_index == 0) ? PICA_DATA_TEX_ENV_SRC_RGBA_CONSTANT : PICA_DATA_TEX_ENV_SRC_RGBA_PREVIOUS;
 }

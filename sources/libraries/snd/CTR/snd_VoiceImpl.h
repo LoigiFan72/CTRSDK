@@ -7,7 +7,8 @@ namespace nn{
 namespace snd{
 namespace CTR{
 
-class VoiceImpl{
+class VoiceImpl
+{
 public:
     s32 m_Id;
     s16 m_SyncCount;
@@ -35,7 +36,9 @@ public:
     os::InterCoreCriticalSection m_CriticalSection;
 
 public:
-    VoiceImpl(){ }
+    VoiceImpl()
+    { 
+    }
     VoiceImpl(s32 id);
     void AppendWaveBuffer(WaveBuffer* buffer);
     f32 CalcFsRatio();

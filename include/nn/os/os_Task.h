@@ -5,20 +5,25 @@
 
 namespace nn{
 namespace os{
-class ITask{
+class ITask
+{
 public:
 };
 
-class ITaskInvoker{
+class ITaskInvoker
+{
 public:
 };
 
-class IWaitTaskInvoker : public ITaskInvoker{
+class IWaitTaskInvoker : public ITaskInvoker
+{
 public:
 };
 
-class QueueableTask : public ITask, public fnd::IntrusiveQueue::Item{
+class QueueableTask : public ITask, public fnd::IntrusiveQueue::Item
+{
 public:
 };
+
 }
 }

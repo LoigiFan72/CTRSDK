@@ -12,7 +12,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-Result MakeResultAlreadyInitialized(){
+Result MakeResultAlreadyInitialized()
+{
     return nn::MakeUsageResult(Result::SUMMARY_INVALID_STATE, Result::Module::MODULE_NN_HID, Result::Description::DESCRIPTION_ALREADY_INITIALIZED);
 }
 
@@ -20,9 +21,12 @@ HidDevices s_Devices;
 bool isInitialized;
 
 
-HidDevices::~HidDevices(){ }
+HidDevices::~HidDevices()
+{ 
+}
 
-Result HidDevices::Initialize(const char* portName){
+Result HidDevices::Initialize(const char* portName)
+{
     Handle hSharedMemory;
     Result res;
     Handle padEventHandle;

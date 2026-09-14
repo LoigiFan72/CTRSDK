@@ -12,13 +12,15 @@ namespace detail{
 
 Handle Service::s_Session = nn::WithoutInitialize();
 
-Result Service::EnableNotication(Handle* pSemaphore){
+Result Service::EnableNotication(Handle* pSemaphore)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(2, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -27,7 +29,8 @@ Result Service::EnableNotication(Handle* pSemaphore){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Service::GetServiceHandle(Handle* pOut, const char* name, s32 nameLen, u32 flags){
+Result Service::GetServiceHandle(Handle* pOut, const char* name, s32 nameLen, u32 flags)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(5, 4, 0, 0);
     ipcMsg.SetRawArray(1, name, sizeof(*name) * 8);
@@ -36,7 +39,8 @@ Result Service::GetServiceHandle(Handle* pOut, const char* name, s32 nameLen, u3
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -45,13 +49,15 @@ Result Service::GetServiceHandle(Handle* pOut, const char* name, s32 nameLen, u3
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Service::ReceiveNotification(bit32 *pOut){
+Result Service::ReceiveNotification(bit32 *pOut)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xB, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -60,42 +66,48 @@ Result Service::ReceiveNotification(bit32 *pOut){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Service::RegisterClient(){
+Result Service::RegisterClient()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(1, 0, 2, 0);
     ipcMsg.SetProcessIdHeader(1);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Service::Subscribe( bit32 message ){
+Result Service::Subscribe(bit32 message)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(9, 1, 0, 0);
     ipcMsg.SetRaw(1, message);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Service::Unsubscribe(bit32 message){
+Result Service::Unsubscribe(bit32 message)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xA, 1, 0, 0);
     ipcMsg.SetRaw(1, message);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

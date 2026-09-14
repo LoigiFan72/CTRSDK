@@ -33,14 +33,17 @@ namespace{
     SyncState s_SyncState;
 }
 
-bool UpdateHeadphoneStatus(){
+bool UpdateHeadphoneStatus()
+{
     s_IsHeadphoneConnected = nn::os::GetWritableSharedInfo().isHeadphoneInserted;
     MasterManager::GetInstance().SetIsHeadsetConnected(s_IsHeadphoneConnected);
     return s_IsHeadphoneConnected;
 }
 
-Result Initialize(){
-    if(s_Initialized){
+Result Initialize()
+{
+    if(s_Initialized)
+    {
         return ResultAlreadyInitialized();
     }
 
@@ -60,8 +63,10 @@ Result Initialize(){
     return ResultSuccess();
 }
 
-Result Finalize(){
-    if(!s_Initialized){
+Result Finalize()
+{
+    if(!s_Initialized)
+    {
         return ResultSuccess();
     }
 
@@ -71,15 +76,18 @@ Result Finalize(){
     MasterManager::GetInstance().Finalize();
     VoiceManager::GetInstance().Finalize();
 
-    if(!s_IsWaitingForFinalize){
+    if(!s_IsWaitingForFinalize)
+    {
         Dspsnd::GetInstance().Finalize(false);
     }
 
     return ResultSuccess();
 }
 
-void Sleep(){
-    if(s_Initialized && !s_IsSleeping){
+void Sleep()
+{
+    if(s_Initialized && !s_IsSleeping)
+    {
         s_SleepEvent.Initialize(true);
         s_IsSleepPrepare = true;
         Dspsnd::GetInstance().Finalize(true);
@@ -87,8 +95,10 @@ void Sleep(){
     }
 }
 
-void WakeUp(){
-    if (s_Initialized && s_IsSleeping){
+void WakeUp()
+{
+    if (s_Initialized && s_IsSleeping)
+    {
         Dspsnd::GetInstance().Initialize(true);
         UpdateHeadphoneStatus();
         s_IsSleeping = false;
@@ -98,8 +108,10 @@ void WakeUp(){
     }
 }
 
-void OrderToWaitForFinalize(){
-    if(s_Initialized && s_IsSleeping){
+void OrderToWaitForFinalize()
+{
+    if(s_Initialized && s_IsSleeping)
+    {
         s_IsWaitingForFinalize = true;
         s_IsSleeping = false;
         s_IsSleepPrepare = false;
@@ -108,85 +120,107 @@ void OrderToWaitForFinalize(){
     }
 }
 
-bool GetHeadphoneStatus(){
+bool GetHeadphoneStatus()
+{
     return s_IsHeadphoneConnected;
 }
 
-f32 GetSystemMasterVolume(){
-    return MasterManager::GetInstance().mMasterVolume;
+f32 GetSystemMasterVolume()
+{
+    return MasterManager::GetInstance().m_MasterVolume;
 }
 
-bool SetSurroundDepth(f32 depth){
+bool SetSurroundDepth(f32 depth)
+{
     return MasterManager::GetInstance().SetSurroundDepth(depth);
 }
 
-void RegisterAuxCallback(AuxBusId busId, AuxCallback cb, uptr userData){
+void RegisterAuxCallback(AuxBusId busId, AuxCallback cb, uptr userData)
+{
     return MasterManager::GetInstance().RegisterAuxCallback(busId, cb, userData);
 }
 
-void SetAuxReturnVolume(AuxBusId id, f32 fVolume){
+void SetAuxReturnVolume(AuxBusId id, f32 fVolume)
+{
     return MasterManager::GetInstance().SetAuxReturnVolume(id, fVolume);
 }
 
-OutputMode GetSoundOutputMode(){
+OutputMode GetSoundOutputMode()
+{
     return MasterManager::GetInstance().GetSoundOutputMode();
 }
 
-void ClearEffect(AuxBusId busId){
+void ClearEffect(AuxBusId busId)
+{
     return MasterManager::GetInstance().ClearEffect(busId);
 }
 
-void SetOutputBufferCount(s32 outputBufferCount){
+void SetOutputBufferCount(s32 outputBufferCount)
+{
     return MasterManager::GetInstance().SetOutputBufferCount(outputBufferCount);
 }
 
-void SetMasterVolume(f32 fVolume){
+void SetMasterVolume(f32 fVolume)
+{
     return MasterManager::GetInstance().SetMasterVolume(fVolume);
 }
-bool SetEffect(AuxBusId busId, FxDelay* fx){
+bool SetEffect(AuxBusId busId, FxDelay* fx)
+{
     return MasterManager::GetInstance().SetEffect(busId, fx);
 }
 
-bool SetEffect(AuxBusId busId, FxReverb* fx){
+bool SetEffect(AuxBusId busId, FxReverb* fx)
+{
     return MasterManager::GetInstance().SetEffect(busId, fx);
 }
 
-void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos){
+void SetSurroundSpeakerPosition(SurroundSpeakerPosition pos)
+{
     return MasterManager::GetInstance().SetSurroundSpeakerPosition(pos);
 }
 
-void WaitForDspSync(){
+void WaitForDspSync()
+{
     NN_TASSERT_(sInitialized);
     NN_TASSERT_(sSyncState == SYNC_STATE_SEND);
-    if (s_IsSleepPrepare){
-        if (Dspsnd::GetInstance().WaitPipe(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME * 2))){
+    if (s_IsSleepPrepare)
+    {
+        if (Dspsnd::GetInstance().WaitPipe(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME * 2)))
+        {
             Dspsnd::GetInstance().SyncFrameData();
             s_SyncState = SYNC_STATE_WAIT;
             return;
         }
-        else{
+        else
+        {
             s_IsSleeping = true;
         }
     }
-    if (s_IsSleeping == true){
+    if (s_IsSleeping == true)
+    {
         s_SleepEvent.Wait();
         s_SleepEvent.ClearSignal();
         s_SleepEvent.Finalize();
     }
-    if (s_IsWaitingForFinalize){
+    if (s_IsWaitingForFinalize)
+    {
         nn::os::Thread::Sleep(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME));
     }
-    else{
+    else
+    {
         Dspsnd::GetInstance().WaitPipe();
         Dspsnd::GetInstance().SyncFrameData();
         s_SyncState = SYNC_STATE_WAIT;
     }
 }
 
-void SendParameterToDsp(){
+void SendParameterToDsp()
+{
     NN_TASSERT_(s_Initialized);
-    if((!s_IsSleeping) && (!s_IsWaitingForFinalize)){
-        if(s_SyncState){
+    if((!s_IsSleeping) && (!s_IsWaitingForFinalize))
+    {
+        if(s_SyncState)
+        {
             WaitForDspSync();
         }
         UpdateHeadphoneStatus();
@@ -195,28 +229,35 @@ void SendParameterToDsp(){
     }
 }
 
-void WaitForDspSync(nn::os::Tick* pTick){
-    if (s_IsSleepPrepare){
-        if (Dspsnd::GetInstance().WaitPipe(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME*2))){
+void WaitForDspSync(nn::os::Tick* pTick)
+{
+    if (s_IsSleepPrepare)
+    {
+        if (Dspsnd::GetInstance().WaitPipe(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME*2)))
+        {
             nn::os::Tick tick = nn::os::Tick::GetSystemCurrent();
             Dspsnd::GetInstance().SyncFrameData();
             s_SyncState = SYNC_STATE_WAIT;
             *pTick = nn::os::Tick::GetSystemCurrent() - tick;
             return;
         }
-        else{
+        else
+        {
             s_IsSleeping = true;
         }
     }
-    if (s_IsSleeping == true){
+    if (s_IsSleeping == true)
+    {
         s_SleepEvent.Wait();
         s_SleepEvent.ClearSignal();
         s_SleepEvent.Finalize();
     }
-    if (s_IsWaitingForFinalize){
+    if (s_IsWaitingForFinalize)
+    {
         nn::os::Thread::Sleep(nn::fnd::TimeSpan::FromMicroSeconds(NN_SND_USECS_PER_FRAME));
     }
-    else{
+    else
+    {
         Dspsnd::GetInstance().WaitPipe();
         nn::os::Tick tick = nn::os::Tick::GetSystemCurrent();
         Dspsnd::GetInstance().SyncFrameData();
@@ -225,47 +266,57 @@ void WaitForDspSync(nn::os::Tick* pTick){
     }
 }
 
-Voice* AllocVoice(s32 priority, VoiceDropCallbackFunc callback, uptr userArg){
+Voice* AllocVoice(s32 priority, VoiceDropCallbackFunc callback, uptr userArg)
+{
     NN_TASSERT_(s_Initialized);
     return VoiceManager::GetInstance().AllocVoice(priority,callback,userArg);
 }
 
-void FreeVoice(Voice* pVoice){
+void FreeVoice(Voice* pVoice)
+{
     NN_TASSERT_(s_Initialized);
     VoiceManager::GetInstance().FreeVoice(pVoice);
 }
 
-void InitializeWaveBuffer(WaveBuffer * pWaveBuffer){
+void InitializeWaveBuffer(WaveBuffer * pWaveBuffer)
+{
     ::std::memset(pWaveBuffer, 0, sizeof(WaveBuffer));
 
     pWaveBuffer->status = WaveBuffer::STATUS_FREE;
 }
 
-void GetAuxCallback(AuxBusId busId, AuxCallback* pcb, uptr* pUserData){
+void GetAuxCallback(AuxBusId busId, AuxCallback* pcb, uptr* pUserData)
+{
     return MasterManager::GetInstance().GetAuxCallback(busId, pcb, pUserData);
 }
 
-Result StartSoundThread(const ThreadParameter* mainThreadParam,void (*mainThreadCallback)(uptr),uptr mainThreadArg,const ThreadParameter* userThreadParam,void (*userThreadCallback)(uptr),uptr userThreadArg,s32 coreNo){
+Result StartSoundThread(const ThreadParameter* mainThreadParam,void (*mainThreadCallback)(uptr),uptr mainThreadArg,const ThreadParameter* userThreadParam,void (*userThreadCallback)(uptr),uptr userThreadArg,s32 coreNo)
+{
     return ThreadManager::GetInstance().StartSoundThread(mainThreadParam, mainThreadCallback, mainThreadArg,userThreadParam, userThreadCallback, userThreadArg,coreNo);
 }
 
-bool SetSoundOutputMode(OutputMode mode){
+bool SetSoundOutputMode(OutputMode mode)
+{
     return MasterManager::GetInstance().SetSoundOutputMode(mode);
 }
 
-void ClearAuxCallback(AuxBusId busId){
+void ClearAuxCallback(AuxBusId busId)
+{
     return MasterManager::GetInstance().ClearAuxCallback(busId);
 }
 
-void FinalizeSoundThread(){
+void FinalizeSoundThread()
+{
     ThreadManager::GetInstance().FinalizeSoundThread();
 }
 
-void EnableSoundThreadTickCounter(bool enable){
+void EnableSoundThreadTickCounter(bool enable)
+{
     ThreadManager::GetInstance().EnableSoundThreadTickCounter(enable);
 }
 
-os::Tick GetSoundThreadTick(){
+os::Tick GetSoundThreadTick()
+{
     return ThreadManager::GetInstance().GetSoundThreadTick();
 }
 

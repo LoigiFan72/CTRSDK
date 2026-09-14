@@ -9,19 +9,23 @@
 #include <nn/srv/srv_API.h>
 
 namespace{
-    class ExitHandler : public nn::srv::NotificationHandler{
+    class ExitHandler : public nn::srv::NotificationHandler
+    {
     public:
-        virtual void HandleNotification(bit32 message){
+        virtual void HandleNotification(bit32 message)
+        {
             nn::svc::ExitProcess();
         }
     };
+
     bool s_UsingStartUpDefault = false;
     ExitHandler s_ExitHandler;
 }
 
 extern "C" {
     
-void nninitStartUpDefault(){
+void nninitStartUpDefault()
+{
     const size_t assingment = nn::os::GetAppMemorySize();
     const size_t currentUsing = nn::os::GetUsingMemorySize();
 
@@ -37,11 +41,13 @@ void nninitStartUpDefault(){
     s_UsingStartUpDefault = true;
 }
 
-bool nninitIsStartUpDefaultUsing(){
+bool nninitIsStartUpDefaultUsing()
+{
     return s_UsingStartUpDefault;
 }
 
-void nninitSetupDefault(){
+void nninitSetupDefault()
+{
     nn::srv::Initialize();
     nn::srv::StartNotification();
 }

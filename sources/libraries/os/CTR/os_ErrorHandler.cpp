@@ -15,13 +15,16 @@ namespace detail{
 
 static s8 s_PreferFatal;
 
-void SetInternalErrorHandlingMode(bool preferFatal){
+void SetInternalErrorHandlingMode(bool preferFatal)
+{
     nn::os::CTR::detail::s_PreferFatal = preferFatal;
 }
 
-void HandleInternalError(Result result, const char* fileName, int lineNo){
+void HandleInternalError(Result result, const char* fileName, int lineNo)
+{
     Result::Level level = result.GetLevel();
-    if((IsRunOnDevelopmentHardWare()) && (s_PreferFatal == 0)){
+    if((IsRunOnDevelopmentHardWare()) && (s_PreferFatal == 0))
+    {
         if(level == Result::LEVEL_FATAL) err::CTR::ThrowFatalErr(result, NN_ERR_FATAL_TYPE_SYSTEM_COMMON);
 
         nndbgBreakWithResultTMessage_(NN_DBG_BREAK_REASON_PANIC,(nnResult)result, fileName, lineNo, "Unexpected Result Failure.");
@@ -30,9 +33,11 @@ void HandleInternalError(Result result, const char* fileName, int lineNo){
     else if((level != Result::LEVEL_STATUS) && (level != Result::LEVEL_INFO)) err::CTR::ThrowFatalErr(result, NN_ERR_FATAL_TYPE_SYSTEM_COMMON);
 }
 
-void HandleInternalError(Result result){
+void HandleInternalError(Result result)
+{
     Result::Level level = result.GetLevel();
-    if((IsRunOnDevelopmentHardWare()) && (s_PreferFatal == 0)){
+    if((IsRunOnDevelopmentHardWare()) && (s_PreferFatal == 0))
+    {
         if(level == Result::LEVEL_FATAL) err::CTR::ThrowFatalErr(result, NN_ERR_FATAL_TYPE_SYSTEM_COMMON, __return_address());
 
         NN_TPANIC_WITH_RESULT_(result, "");

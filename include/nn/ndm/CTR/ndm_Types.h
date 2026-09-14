@@ -4,7 +4,8 @@ namespace nn {
 namespace ndm {
 namespace CTR {
 
-enum ExclusiveMode{
+enum ExclusiveMode
+{
     EM_NONE,
     EM_INFRA,
     EM_LOCAL,
@@ -12,7 +13,8 @@ enum ExclusiveMode{
     EM_INTENT_CEC
 };
 
-enum DaemonName{
+enum DaemonName
+{
     DN_CEC,
     DN_BOSS,
     DN_NIM,
@@ -20,7 +22,8 @@ enum DaemonName{
     NUM_OF_DAEMONS
 };
 
-enum DaemonMask{
+enum DaemonMask
+{
     DM_CEC = 1 << DN_CEC,
     DM_BOSS = 1 << DN_BOSS,
     DM_NIM = 1 << DN_NIM,

@@ -10,7 +10,8 @@
 namespace nn {
 namespace fnd {
 
-class IAllocator{
+class IAllocator
+{
 public:
     virtual void* Allocate(size_t size, s32 alignment) = 0;
     virtual void  Free(void* p) = 0;
@@ -18,7 +19,8 @@ public:
 };
 
 template <typename Allocator, typename Tag>
-class StdAllocatorAdapterHolder {
+class StdAllocatorAdapterHolder
+{
 public:
     static void      SetAllocator(Allocator allocator) { sAllocator = allocator; }
     static Allocator GetAllocator()                    { return sAllocator; }
@@ -27,7 +29,8 @@ protected:
 };
 
 template <typename Allocator, typename T, typename Tag = void>
-class StdAllocatorAdapter : public StdAllocatorAdapterHolder<Allocator, Tag> {
+class StdAllocatorAdapter : public StdAllocatorAdapterHolder<Allocator, Tag>
+{
 public:
     typedef size_t    size_type;
     typedef sptr      difference_type;
@@ -41,41 +44,52 @@ public:
 
     StdAllocatorAdapter()throw(){}
     StdAllocatorAdapter(const StdAllocatorAdapter&) throw(){}
-    template <class U> StdAllocatorAdapter(const StdAllocatorAdapter<Allocator, U, Tag>&) throw(){}
+    template <class U> StdAllocatorAdapter(const StdAllocatorAdapter<Allocator, U, Tag>&) throw()
+    {
+    }
+
     ~StdAllocatorAdapter() throw() {}
 
     pointer       address(reference& x)       const { return &x; }
     const_pointer address(const_reference& x) const { return &x; }
 
-    pointer allocate(size_type n, void* = 0) {
+    pointer allocate(size_type n, void* = 0) 
+    {
         return static_cast<T*>(StdAllocatorAdapterHolder<Allocator, Tag>::GetAllocator()->Allocate(n * sizeof(T), nn::util::alignment_of<T>::value));
     }
 
-    void deallocate(pointer p, size_type) {
+    void deallocate(pointer p, size_type) 
+    {
         StdAllocatorAdapterHolder<Allocator, Tag>::GetAllocator()->Free(static_cast<void*>(p));
     }
 
-    size_type max_size() const throw() { 
+    size_type max_size() const throw() 
+    { 
         return ::std::numeric_limits<size_type>::max() / sizeof(T); 
     }
 
-    void construct(pointer p, const T& val) {
+    void construct(pointer p, const T& val) 
+    {
         new (static_cast<void*>(p)) T(val); 
     }
 
-    void destroy(pointer p) {
+    void destroy(pointer p) 
+    {
         p->~T();
     }
 
 };
 
 template <typename Allocator, typename T, typename Tag = void>
-class StdUnitAllocatorAdapter {
+class StdUnitAllocatorAdapter 
+{
 public:
-    static void SetAllocator(Allocator allocator) {
+    static void SetAllocator(Allocator allocator) 
+    {
         sAllocator = allocator; 
     }
-    static Allocator GetAllocator(){
+    static Allocator GetAllocator()
+    {
         return sAllocator; 
     }
 
@@ -94,10 +108,12 @@ public:
     template <class U> StdUnitAllocatorAdapter(const StdUnitAllocatorAdapter<Allocator, U, Tag>&) throw() {}
     ~StdUnitAllocatorAdapter() throw() {}
 
-    pointer address(reference& x) { 
+    pointer address(reference& x) 
+    { 
         return &x; 
     }
-    const_pointer address(const_reference& x) const {
+    const_pointer address(const_reference& x) const 
+    {
         return &x; 
     }
 

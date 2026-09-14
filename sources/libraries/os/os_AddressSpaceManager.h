@@ -6,7 +6,8 @@
 
 namespace nn{
 namespace os{
-class AddressSpaceManager{
+class AddressSpaceManager
+{
 public:
     typedef fnd::IntrusiveLinkedList<MemoryBlockBase> BlockList;
     typedef os::CriticalSection Lock;

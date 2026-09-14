@@ -9,7 +9,8 @@ namespace ndm{
 namespace CTR{
 namespace detail{
 
-class Interface{
+class Interface
+{
 public:
     static nn::Handle s_Session;
 

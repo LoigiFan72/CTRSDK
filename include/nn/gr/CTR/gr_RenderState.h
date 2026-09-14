@@ -6,9 +6,11 @@ namespace nn{
 namespace gr{
 namespace CTR{
 
-class RenderState{
+class RenderState
+{
 public:
-    enum ColorMask{
+    enum ColorMask
+    {
         COLOR_MASK_R    = 1 << 0,
         COLOR_MASK_G    = 1 << 1,
         COLOR_MASK_B    = 1 << 2,
@@ -16,7 +18,8 @@ public:
         COLOR_MASK_RGBA = COLOR_MASK_R | COLOR_MASK_G | COLOR_MASK_B | COLOR_MASK_A 
     };
 
-    class AlphaTest{
+    class AlphaTest
+    {
     public:
         bool isEnable;
         u8 refValue;
@@ -29,7 +32,8 @@ public:
         const RenderState& mRenderState;
     };
 
-    class Blend{
+    class Blend
+    {
     public:
         bool isEnable;
         PicaDataBlendEquation eqRgb;
@@ -51,7 +55,8 @@ public:
         const RenderState& mRenderState;
     };
 
-    class LogicOp{
+    class LogicOp
+    {
     public:
         bool isEnable;
         PicaDataLogicOp opCode;
@@ -65,7 +70,8 @@ public:
         const RenderState& mRenderState;
     };
 
-    class ShadowMap{
+    class ShadowMap
+    {
     public:
         explicit ShadowMap(const RenderState& renderState_);
         bit32* MakeCommand(bit32* command,bool isUpdateFBAccess = true,bool isAddDummyCommand = true) const;
@@ -85,7 +91,8 @@ public:
         const RenderState& mRenderState;
     };
 
-    class StencilTest{
+    class StencilTest
+    {
     public:
         bool isEnable;
         bit8 maskOp;
@@ -106,7 +113,8 @@ public:
         const RenderState& mRenderState;
     };
 
-    class DepthTest{
+    class DepthTest
+    {
     public:
         bool             isEnable;
         bool             isEnableWrite;
@@ -120,7 +128,8 @@ public:
         const RenderState& mRenderState;
     };
 
-    class WBuffer{
+    class WBuffer
+    {
     public:
         f32 wScale;
         bool isEnablePolygonOffset;
@@ -135,18 +144,21 @@ public:
         bit32* MakeCommand(bit32* command) const;
     };
 
-    class Culling{
+    class Culling
+    {
     public:
         bool isEnable;
 
-        enum FrontFace{
+        enum FrontFace
+        {
             FRONT_FACE_CW, 
             FRONT_FACE_CCW
         };
 
         FrontFace frontFace;
 
-        enum CullFace{
+        enum CullFace
+        {
             CULL_FACE_FRONT,
             CULL_FACE_BACK
         };
@@ -155,14 +167,15 @@ public:
         s8 rev;
 
         explicit Culling(const RenderState& renderState_);
-        bit32* MakeCommand( bit32* command, bool isUpdateFBAccess = true ) const;
+        bit32* MakeCommand(bit32* command, bool isUpdateFBAccess = true) const;
 
     protected:
         const RenderState& mRenderState;
     };
 
 
-    class FBAccess{
+    class FBAccess
+    {
     public:
         explicit FBAccess(const RenderState& renderState_);
         bit32* MakeCommand(bit32* command, bool isClearFrameBufferCache = true) const;
@@ -187,7 +200,7 @@ public:
 
     explicit RenderState();
     bit32* MakeCommand(bit32* command, bool isClearFrameBufferCache = true) const;
-    static bit32* MakeDisableCommand( bit32* command, bool isClearFrameBufferCache = true );
+    static bit32* MakeDisableCommand(bit32* command, bool isClearFrameBufferCache = true);
 };
 
 }

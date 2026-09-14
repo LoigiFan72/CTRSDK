@@ -12,7 +12,8 @@ namespace detail{
 #else
 
 template <class Locker>
-class InterCoreBlockingQueueBase : private nn::util::ADLFireWall::NonCopyable<InterCoreBlockingQueueBase<Locker> >{
+class InterCoreBlockingQueueBase : private nn::util::ADLFireWall::NonCopyable<InterCoreBlockingQueueBase<Locker> >
+{
 protected:
     InterCoreBlockingQueueBase() {}
     InterCoreBlockingQueueBase(uptr buffer[], size_t size) { Initialize(buffer, size); }
@@ -56,7 +57,8 @@ private:
 
 } // namespace detail
 
-class InterCoreBlockingQueue : private os::detail::InterCoreBlockingQueueBase<nn::os::InterCoreCriticalSection>{
+class InterCoreBlockingQueue : private os::detail::InterCoreBlockingQueueBase<nn::os::InterCoreCriticalSection>
+{
 private:
     typedef os::detail::InterCoreBlockingQueueBase<nn::os::InterCoreCriticalSection> Base;
 public:

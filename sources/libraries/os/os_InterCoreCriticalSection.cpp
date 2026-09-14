@@ -11,10 +11,14 @@
 namespace nn{ 
 namespace os{
 
-void InterCoreCriticalSection::EnterImpl(){
-    for(;;){
-        if(*m_Counter > 0){
-            if(this->TryEnterImpl()){
+void InterCoreCriticalSection::EnterImpl()
+{
+    for(;;)
+    {
+        if(*m_Counter > 0)
+        {
+            if(this->TryEnterImpl())
+            {
                 break;
             }
         }

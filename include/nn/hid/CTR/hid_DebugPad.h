@@ -10,7 +10,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class DebugPad : public HidBase{
+class DebugPad : public HidBase
+{
 private:
     DebugPad() {}
     ~DebugPad() {}

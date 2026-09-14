@@ -10,7 +10,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class Pad : public HidBase{
+class Pad : public HidBase
+{
 private:
     Pad() {}
     ~Pad() {}

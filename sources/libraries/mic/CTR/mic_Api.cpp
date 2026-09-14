@@ -19,20 +19,24 @@ namespace {
     bool isInitialized = false;
 }
     
-Result InitializeBase(Handle* pSession, const char* name){
+Result InitializeBase(Handle* pSession, const char* name)
+{
     if(isInitialized){
         return ResultAlreadyInitialized();
     }
 
     Result result = nn::srv::Initialize();
-    if (result.GetDescription() != nn::Result::DESCRIPTION_ALREADY_INITIALIZED ){
+    if (result.GetDescription() != nn::Result::DESCRIPTION_ALREADY_INITIALIZED)
+    {
         NN_UTIL_PANIC_IF_FAILED(result);
     }
 
     result = nn::srv::GetServiceHandle(pSession, name);
 
-    if(result.IsFailure()){
-        if (result == nn::os::ResultOverPortCapacity() ){
+    if(result.IsFailure())
+    {
+        if (result == nn::os::ResultOverPortCapacity())
+        {
             return ResultUsingOtherProcess();
         }
         NN_UTIL_PANIC_IF_FAILED(result);
@@ -41,8 +45,10 @@ Result InitializeBase(Handle* pSession, const char* name){
     return result;
 }
 
-Result FinalizeBase(Handle* pSession){
-    if(!isInitialized){
+Result FinalizeBase(Handle* pSession)
+{
+    if(!isInitialized)
+    {
         return ResultNotInitialized();
     }
     StopSampling();
@@ -61,7 +67,8 @@ namespace{
     SamplingRate s_SamplingRate;
     size_t user_size;
 
-	const nn::codec::CTR::IirFilterParamMic MicLpfParam[4] ={
+	const nn::codec::CTR::IirFilterParamMic MicLpfParam[4] =
+    {
 		{
 			{ 0x7fff, 0x0000, 0x0000, 0x0000, 0x0000 },
 			{ 0x7fff, 0x0000, 0x0000, 0x0000, 0x0000 },
@@ -95,60 +102,73 @@ namespace{
 		}
 	};
 
-	Result SetLowPassFilterCore( SamplingRate rate ){
-		return detail::Mic::SetIirFilterMic( reinterpret_cast<const u8*>(&MicLpfParam[rate]), sizeof(nn::codec::CTR::IirFilterParamMic) );
+	Result SetLowPassFilterCore(SamplingRate rate)
+    {
+		return detail::Mic::SetIirFilterMic(reinterpret_cast<const u8*>(&MicLpfParam[rate]), sizeof(nn::codec::CTR::IirFilterParamMic));
 	}
 }
 
-Result Initialize()  { return detail::InitializeBase(&detail::Mic::sSession, PORT_NAME_USER); }
-Result Finalize()    { return detail::FinalizeBase(&detail::Mic::sSession); }
+Result Initialize()  { return detail::InitializeBase(&detail::Mic::s_Session, PORT_NAME_USER); }
+Result Finalize()    { return detail::FinalizeBase(&detail::Mic::s_Session); }
 
-Result StartSampling(SamplingType type, SamplingRate rate, s32 offset, size_t size, bool loop){
+Result StartSampling(SamplingType type, SamplingRate rate, s32 offset, size_t size, bool loop)
+{
 	nn::Result result;
 		
-    if (!s_IsBufferInitialized){
+    if (!s_IsBufferInitialized)
+    {
         return ResultNotInitialized();
     }
 
-    if ((size & 0x1) || (offset & 0x1)){
+    if ((size & 0x1) || (offset & 0x1))
+    {
         return ResultMisalignedSize();
     }
 
-    if (offset + size > user_size){
+    if (offset + size > user_size)
+    {
         return ResultOutOfMemory();
     }
 
-    if (s_IsLpfEnable){
-		result = SetLowPassFilterCore( rate );
-	    if (result.IsFailure()){
+    if (s_IsLpfEnable)
+    {
+		result = SetLowPassFilterCore(rate);
+	    if (result.IsFailure())
+        {
 			return result;
 		}
 	}
 
-	result = detail::Mic::StartSampling( type, rate, offset, size, loop );
-    if (result.IsSuccess()){
+	result = detail::Mic::StartSampling(type, rate, offset, size, loop);
+    if (result.IsSuccess())
+    {
 		s_SamplingRate = rate; 
 	}
 
     return result;
 }
 
-Result StopSampling(){
+Result StopSampling()
+{
     return detail::Mic::StopSampling();
 }
 
-Result IsSampling(bool* pSampling){
-    return detail::Mic::IsSampling( pSampling );
+Result IsSampling(bool* pSampling)
+{
+    return detail::Mic::IsSampling(pSampling);
 }
 
-Result SetBuffer(void* p, size_t size){
+Result SetBuffer(void* p, size_t size)
+{
     Result result;
 
-    if (s_IsBufferInitialized){
+    if (s_IsBufferInitialized)
+    {
         return ResultAlreadyInitialized();
     }
 
-    if (size & 0xFFF){
+    if (size & 0xFFF)
+    {
         return ResultMisalignedSize();
     }
 
@@ -156,22 +176,25 @@ Result SetBuffer(void* p, size_t size){
         return ResultMisalignedAddress();
     }
 
-    //sSharedMemory.Initialize(p, size, os::MEMORY_PERMISSION_READ_WRITE);
+    s_SharedMemory.Initialize(p, size, os::MEMORY_PERMISSION_READ_WRITE);
     result = detail::Mic::AllocateBuffer(s_SharedMemory.GetHandle(), size);
 
     user_size = size -sizeof(Header);
-    if (result.IsSuccess()){ 
+    if (result.IsSuccess())
+    { 
         s_IsBufferInitialized = true;
     }
 
     return result;
 }
 
-Result ResetBuffer(){
+Result ResetBuffer()
+{
     // TODO
 }
 
-Result GetSamplingBufferSize(uint size){
+Result GetSamplingBufferSize(uint size)
+{
     // TODO
 }
 

@@ -21,11 +21,15 @@ DspFxDelay::DspFxDelay():
     mAuxBusId(AUX_BUS_NULL),
     mIsEnabled(false),
     mProcessCount(0)
-{}
+{
+}
 
-DspFxDelay::~DspFxDelay(){ }
+DspFxDelay::~DspFxDelay()
+{
+}
 
-bool DspFxDelay::Initialize(uptr buffer, size_t size){
+bool DspFxDelay::Initialize(uptr buffer, size_t size)
+{
     if (mIsInitialized || buffer == NULL || size == 0)
         return false;
 
@@ -36,15 +40,18 @@ bool DspFxDelay::Initialize(uptr buffer, size_t size){
     return ret;
 }
 
-void DspFxDelay::Finalize() {
-    if(mIsInitialized){
+void DspFxDelay::Finalize() 
+{
+    if(mIsInitialized)
+    {
         this->Detach();
         this->ReleaseWorkBuffer();
         mIsInitialized = false;
     }
 }
 
-bool DspFxDelay::Attach(AuxBusId id){
+bool DspFxDelay::Attach(AuxBusId id)
+{
     NN_TASSERTMSG_(mIsInitialized,"DspFxDelay is not initialized\n");
     NN_TASSERTMSG_(mAuxBusId, "DspFxDelay is already attached\n");
     NN_TASSERT_(id == AUX_BUS_A || id == AUX_BUS_B);
@@ -63,13 +70,15 @@ bool DspFxDelay::Attach(AuxBusId id){
     return ret;
 }
 
-void DspFxDelay::ReleaseWorkBuffer(){ 
+void DspFxDelay::ReleaseWorkBuffer()
+{ 
     mBuffer = 0; 
     mBufferPhysical = 0; 
     mBufferSize = 0; 
 }
 
-void DspFxDelay::Detach() {
+void DspFxDelay::Detach() 
+{
     if((!mIsInitialized) && ((mAuxBusId != AUX_BUS_A)  && (mAuxBusId != AUX_BUS_B))){
         return;
     }
@@ -78,7 +87,8 @@ void DspFxDelay::Detach() {
     mAuxBusId = AUX_BUS_NULL;
 }
 
-bool DspFxDelay::Enable(bool enable){
+bool DspFxDelay::Enable(bool enable)
+{
     NN_TASSERTMSG_((mAuxBusId == AUX_BUS_A || mAuxBusId == AUX_BUS_B) &&mBuffer != NULL && mBufferSize > 0, "DspFxDelay is not initialized\n");
 
     if ((mAuxBusId != AUX_BUS_A) && (mAuxBusId != AUX_BUS_B))
@@ -94,11 +104,12 @@ bool DspFxDelay::Enable(bool enable){
     if (ret || enable == false)
         mIsEnabled = enable;
     if (mIsEnabled == false)
-        mProcessCount = Dspsnd::GetInstance().mProcessCount;
+        mProcessCount = Dspsnd::GetInstance().m_ProcessCount;
     return ret;
 }
 
-size_t DspFxDelay::GetRequiredMemorySize(const DspFxDelay::Param& param) {
+size_t DspFxDelay::GetRequiredMemorySize(const DspFxDelay::Param& param) 
+{
     u32 delayFrames = (param.mDelayTime * 1000) / NN_SND_USECS_PER_FRAME;
     if (delayFrames == 0)
         delayFrames = 1;
@@ -108,7 +119,8 @@ size_t DspFxDelay::GetRequiredMemorySize(const DspFxDelay::Param& param) {
     return (sizeof(s32) * NN_SND_SAMPLES_PER_FRAME * channels * delayFrames);
 }
 
-bool DspFxDelay::SetParam(const DspFxDelay::Param& param){
+bool DspFxDelay::SetParam(const DspFxDelay::Param& param)
+{
     NN_TASSERTMSG_((mAuxBusId == AUX_BUS_A || mAuxBusId == AUX_BUS_B) &&mBuffer != NULL && mBufferSize > 0,"DspFxDelay is not initialized\n");
 
     if ((mAuxBusId != AUX_BUS_A) && (mAuxBusId != AUX_BUS_B))

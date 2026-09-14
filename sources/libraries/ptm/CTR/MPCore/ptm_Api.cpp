@@ -13,8 +13,10 @@ namespace ptm{
 namespace CTR{
 
 
-Result Initialize(){
-    if(!detail::PtmIpc::s_Session.IsValid()){
+Result Initialize()
+{
+    if(!detail::PtmIpc::s_Session.IsValid())
+    {
         NN_UTIL_RETURN_IF_FAILED(srv::GetServiceHandle(&detail::PtmIpc::s_Session, PORT_NAME_PTM_USER));
     }
     return ResultSuccess();
@@ -22,8 +24,10 @@ Result Initialize(){
 
 
 
-Result Finalize(){
-    if(detail::PtmIpc::s_Session.IsValid()){
+Result Finalize()
+{
+    if(detail::PtmIpc::s_Session.IsValid())
+    {
         NN_UTIL_RETURN_IF_FAILED(svc::CloseHandle(detail::PtmIpc::s_Session));
         detail::PtmIpc::s_Session = INVALID_HANDLE_VALUE;
     }

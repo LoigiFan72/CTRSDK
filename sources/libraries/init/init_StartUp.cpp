@@ -15,24 +15,29 @@ extern "C" nninitStaticInitFunc Image$$STATIC_INIT$$RO$$Limit[];
 
 extern "C"{
 
-__weak void nninitSystem(){
+__weak void nninitSystem()
+{
     nn::os::Initialize();
-#ifdef NN_HAS_MMU
+#if NN_PLATFORM_HAS_MMU
     nn::srv::Initialize();
 #endif
 }
 
-__weak void nninitSetupDameons(){
+__weak void nninitSetupDameons()
+{
     nn::ndm::SetupDaemonsDefault();
 }
 
-void nninitCallStaticInitializers(){
-    for(nninitStaticInitFunc* f = Image$$STATIC_INIT$$RO$$Base; f < Image$$STATIC_INIT$$RO$$Limit; ++f){
+void nninitCallStaticInitializers()
+{
+    for(nninitStaticInitFunc* f = Image$$STATIC_INIT$$RO$$Base; f < Image$$STATIC_INIT$$RO$$Limit; ++f)
+    {
         (*f)();
     }
 }
 
-void nninitSetup(){
+void nninitSetup()
+{
     nninitSetupDefault();
     nn::os::CTR::detail::SetInternalErrorHandlingMode(false);
     nn::applet::CTR::detail::Initialize(0);

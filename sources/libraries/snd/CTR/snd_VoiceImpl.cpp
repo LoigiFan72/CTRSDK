@@ -21,8 +21,8 @@ namespace snd{
 namespace CTR{
 namespace{
 
-WaveBuffer* SearchPlayingBuffer(ushort currentBufferId, ushort lastBufferId, WaveBuffer* pWaveBuffer, short& sentBufferCount){
-
+WaveBuffer* SearchPlayingBuffer(ushort currentBufferId, ushort lastBufferId, WaveBuffer* pWaveBuffer, short& sentBufferCount)
+{
     s32 nBuffersToBeReleased = 0;
     WaveBuffer* pBuffersToBeReleased[1 + NN_SND_NEXT_BUFFER_NUM];
     while (sentBufferCount)
@@ -102,54 +102,65 @@ void VoiceImpl::AppendWaveBuffer(WaveBuffer* pBuffer)
     }
 }
 
-void VoiceImpl::SetBiquadFilterCoefficients(const BiquadFilterCoefficients& coeff){
+void VoiceImpl::SetBiquadFilterCoefficients(const BiquadFilterCoefficients& coeff)
+{
     m_BiquadFilterCoeffs = coeff;
     m_ModifiedParamFlag |= 16;
 }
 
-void VoiceImpl::SetMonoFilterCoefficients(const MonoFilterCoefficients& coeff){
+void VoiceImpl::SetMonoFilterCoefficients(const MonoFilterCoefficients& coeff)
+{
     m_MonoFilterCoeffs = coeff;
     m_ModifiedParamFlag |= 8;
 }
 
-void VoiceImpl::SetFilterType(FilterType type){ 
+void VoiceImpl::SetFilterType(FilterType type)
+{ 
     m_FilterType = type; 
     m_ModifiedParamFlag |= 4;
 }
 
-void VoiceImpl::SetFrontBypassFlag(bool flag){
+void VoiceImpl::SetFrontBypassFlag(bool flag)
+{
     DspsndAudioInfo* pSampleInfo = reinterpret_cast<DspsndAudioInfo*>((u16*)&this->m_SampleInfo);
     pSampleInfo->isFrontBypass = flag;
 }
 
-void VoiceImpl::SetChannelCount(s32 channelCount){
+void VoiceImpl::SetChannelCount(s32 channelCount)
+{
     NN_TASSERT_(channelCount == 1 || channelCount == 2); 
     m_SampleInfo &= 0xfffc | channelCount & 3; 
 }
 
-f32 VoiceImpl::CalcFsRatio(){ 
+f32 VoiceImpl::CalcFsRatio()
+{ 
     return (m_SampleRate * m_Pitch) / 32728.0;
 }
 
-s32 VoiceImpl::GetCycle() const{
+s32 VoiceImpl::GetCycle() const
+{
     return m_DspCycles;
 }
 
-s32 VoiceImpl::GetPlayPosition() const{
+s32 VoiceImpl::GetPlayPosition() const
+{
     return m_PlayPosition;
 }
 
-void VoiceImpl::CalculateDspCycle(){
+void VoiceImpl::CalculateDspCycle()
+{
     m_ModifiedParamFlag = -1;
     this->UpdateParams();
 }
 
-void VoiceImpl::ForceUpdateParams(){
+void VoiceImpl::ForceUpdateParams()
+{
     m_ModifiedParamFlag = 0xffff;
     this->UpdateParams();
 }
 
-void VoiceImpl::Initialize(){
+void VoiceImpl::Initialize()
+{
     m_State = Voice::STATE_PAUSE;
     m_Playing = false;
     m_PlayPosition = 0;
@@ -178,7 +189,8 @@ void VoiceImpl::Initialize(){
     m_BufferId = 0;
 }
 
-void VoiceImpl::ReleaseWaveBuffer(){
+void VoiceImpl::ReleaseWaveBuffer()
+{
     {
         os::InterCoreCriticalSection::ScopedLock lock(m_CriticalSection);
 
@@ -199,7 +211,8 @@ void VoiceImpl::ReleaseWaveBuffer(){
     m_ModifiedParamFlag |= 0x8000;
 }
 
-void VoiceImpl::SendWaveBuffer(){
+void VoiceImpl::SendWaveBuffer()
+{
     os::InterCoreCriticalSection::ScopedLock lock(this->m_CriticalSection);
 
     if (m_WaveBufferModifiedFlag)
@@ -252,7 +265,8 @@ void VoiceImpl::SendWaveBuffer(){
 
     WaveBuffer * pWaveBuffer = m_pWaveBuffer;
 
-    for(s32 i = m_SentBufferCount ; i && pWaveBuffer != NULL ; --i){
+    for(s32 i = m_SentBufferCount ; i && pWaveBuffer != NULL ; --i)
+    {
         pWaveBuffer = pWaveBuffer->next;
     }
 
@@ -284,7 +298,8 @@ void VoiceImpl::SendWaveBuffer(){
 
                 Dspsnd::GetInstance().AssignPCM(this->m_Id,pWaveBuffer,*pSampleInfo);
             }
-            else{
+            else
+            {
                 Dspsnd::GetInstance().AppendChannelNextBuffer(this->m_Id,pWaveBuffer,this->m_NextBufferIndex);
 
                 if (++m_NextBufferIndex >= NN_SND_NEXT_BUFFER_NUM)
@@ -438,11 +453,13 @@ void VoiceImpl::UpdateWaveBufferStatus(ushort currentBufferId, ushort lastBuffer
     m_pWaveBuffer = pNext;
 }
 
-void VoiceImpl::Pause(){
+void VoiceImpl::Pause()
+{
     Dspsnd::GetInstance().SetChannelPlayStop(m_Id);
 }
 
-ushort VoiceImpl::SelectCoefficient(){
+ushort VoiceImpl::SelectCoefficient()
+{
     if(m_SampleRateRatio == 1.3333334 || m_SampleRateRatio < 1.3333334 != (m_SampleRateRatio))
     {
         if(m_SampleRateRatio <= 1.0)
@@ -454,52 +471,62 @@ ushort VoiceImpl::SelectCoefficient(){
         return 0;
 }
 
-void VoiceImpl::SetInterpolationType(InterpolationType type){
+void VoiceImpl::SetInterpolationType(InterpolationType type)
+{
     NN_TASSERT_(type == INTERPOLATION_TYPE_POLYPHASE || type == INTERPOLATION_TYPE_LINEAR || type ==  INTERPOLATION_TYPE_NONE);
     m_InterpolationType = type;
     m_ModifiedParamFlag |= 0x20;
 }
 
-void VoiceImpl::SetMixParam(const MixParam& mixParam){
+void VoiceImpl::SetMixParam(const MixParam& mixParam)
+{
     m_MixParam = mixParam;
     m_ModifiedParamFlag |= 1;
 }
 
-void VoiceImpl::SetPitch(f32 pitch){
+void VoiceImpl::SetPitch(f32 pitch)
+{
     NN_TASSERT_(0.0f <= pitch);
     m_Pitch = math::Max(pitch,0.0);
     m_ModifiedParamFlag |= 2;
 }
 
-void VoiceImpl::SetSampleFormat(SampleFormat format){
+void VoiceImpl::SetSampleFormat(SampleFormat format)
+{
     NN_TASSERT_(format == SAMPLE_FORMAT_PCM16 || format == SAMPLE_FORMAT_PCM8 || format == SAMPLE_FORMAT_ADPCM);
     m_SampleInfo &= 0xfff3 | (format & 3) << 2;
 }
 
-void VoiceImpl::SetSampleRate(s32 sampleRate){
+void VoiceImpl::SetSampleRate(s32 sampleRate)
+{
     NN_TASSERT_(0 <= sampleRate);
     m_SampleRate = math::Max(sampleRate, 0);
     m_ModifiedParamFlag |= 2;
 }
 
-void VoiceImpl::SetVolume(f32 volume){
+void VoiceImpl::SetVolume(f32 volume)
+{
     m_Volume =          volume;
     m_ModifiedParamFlag |= 1;
 }
 
-void VoiceImpl::SetTimer(){
+void VoiceImpl::SetTimer()
+{
     m_SampleRateRatio = this->CalcFsRatio();
     Dspsnd::GetInstance().SetChannelTimer(m_Id, m_SampleRateRatio);
-    if(m_InterpolationType == INTERPOLATION_TYPE_POLYPHASE){
+    if(m_InterpolationType == INTERPOLATION_TYPE_POLYPHASE)
+    {
         m_ModifiedParamFlag |= 0x20;
     }
 }
 
-void VoiceImpl::UpdateInterpolationType(){
+void VoiceImpl::UpdateInterpolationType()
+{
     u16 srcSelect = 2;
     u16 coefSelect = 1;
 
-    switch (m_InterpolationType){
+    switch (m_InterpolationType)
+    {
     case INTERPOLATION_TYPE_POLYPHASE:
         srcSelect = 0;
         coefSelect = this->SelectCoefficient();

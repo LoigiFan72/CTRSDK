@@ -29,34 +29,43 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-bool Dspsnd::AppendChannelNextBuffer(u8 ch_no, WaveBuffer* pWaveBuffer, s32 index){
+bool Dspsnd::AppendChannelNextBuffer(u8 ch_no, WaveBuffer* pWaveBuffer, s32 index)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
 }
 
-bool Dspsnd::AssignPCM(u8 ch_no, WaveBuffer* pWaveBuffer, DspsndAudioInfo i){
+bool Dspsnd::AssignPCM(u8 ch_no, WaveBuffer* pWaveBuffer, DspsndAudioInfo i)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
 }
 
-bool Dspsnd::ChangePlayState(u8 ch_no, bool state){
+bool Dspsnd::ChangePlayState(u8 ch_no, bool state)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
-        if(state){
+        if(state)
+        {
             *(ushort*)&pChannelDirect->play_vars = *(ushort*)&pChannelDirect->play_vars & 0xff00 | 1;
         }
-        else{
+        else
+        {
             *(ushort*)&pChannelDirect->play_vars = *(ushort*)&pChannelDirect->play_vars & 0xff00;
         }
         pChannelDirect->ctrl |= 0x10000;
         return true;
     }
-    else{
+    else
+    {
         return false;
     }
 }
 
-bool Dspsnd::EnableAuxBus(AuxBusId busId, bool flag){
-    if(dsp::CTR::IsComponentLoaded()){
+bool Dspsnd::EnableAuxBus(AuxBusId busId, bool flag)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.isAuxEnabled[busId] = flag;
         if(busId == 0)
@@ -65,7 +74,8 @@ bool Dspsnd::EnableAuxBus(AuxBusId busId, bool flag){
             pMasterDirect->ctrl |= 0x200;
         return true;
     }
-    else{
+    else
+    {
         return false;
     }
 }
@@ -75,16 +85,17 @@ Result Dspsnd::Initialize(bool isWakeUp){
         return Result(0xC8A0A801);
 
 
-    if (mIsInitialized){
+    if (m_IsInitialized)
+    {
         return ResultSuccess();
     }
 
-    this->mEventInterrupt.Initialize(true);
+    this->m_EventInterrupt.Initialize(true);
 
-    Result result = dsp::CTR::RegisterInterruptEvents(this->mEventInterrupt.GetHandle(),2,2);
+    Result result = dsp::CTR::RegisterInterruptEvents(this->m_EventInterrupt.GetHandle(),2,2);
     
     if (result.IsFailure()){
-        this->mEventInterrupt.Finalize();
+        this->m_EventInterrupt.Finalize();
         return result;
     }
     Handle h;
@@ -94,41 +105,47 @@ Result Dspsnd::Initialize(bool isWakeUp){
         return result;
     }
     else{
-        this->mEventSemaphore.SetHandle(h);
+        this->m_EventSemaphore.SetHandle(h);
     }
 
     dsp::CTR::SetSemaphoreEventMask(0x2000);
 
-    this->mCriticalSection.Initialize();
+    this->m_CriticalSection.Initialize();
 
     this->InitializeVariables(isWakeUp);
 
-    if (isWakeUp){
+    if (isWakeUp)
+    {
         VoiceManager::GetInstance().ForceUpdateParams();
         MasterManagerImpl::GetInstance().ForceUpdateParams();
         DspFxManager::GetInstance();
         DspFxManagerImpl::GetInstance().ForceUpdateParams();
     }
-    else{
-        mIsAuxCallbackInSendParameterEnabled = true;
-        mpOutputCapture = NULL;
+    else
+    {
+        m_IsAuxCallbackInSendParameterEnabled = true;
+        m_pOutputCapture = NULL;
     }
 
     return ResultSuccess();
 }
 
-void Dspsnd::Finalize(bool isSleep){
+void Dspsnd::Finalize(bool isSleep)
+{
     SndCommand command;
-    if(isSleep){
+    if(isSleep)
+    {
         command.command = 3;
     }
-    else{
+    else
+    {
         command.command = 1;
     }
 
     dsp::CTR::WriteProcessPipe(2,reinterpret_cast<u8*>(&command),4);
 
-    for(;;){
+    for(;;)
+    {
         bool isReady;
         u16 reply = 0;
         dsp::CTR::RecvDataIsReady(0,&isReady);
@@ -142,37 +159,43 @@ void Dspsnd::Finalize(bool isSleep){
     }
 
     if (isSleep) {
-        ::std::memcpy(this->mSaveData,this->mpMasterStatusOnShare[COM_PAGE_0],0x1080);
+        ::std::memcpy(this->m_SaveData,this->m_pMasterStatusOnShare[COM_PAGE_0],0x1080);
     }
 
-    this->mCriticalSection.Enter();
-    mIsInitialized = false;
-    this->mEventInterrupt.Finalize();
-    dsp::CTR::RegisterInterruptEvents(this->mEventInterrupt.GetHandle(), 2,2);
-    svc::CloseHandle(this->mEventSemaphore.GetHandle());
-    this->mEventSemaphore.DetachHandle();
-    this->mCriticalSection.Leave();
-    this->mCriticalSection.Finalize();
+    this->m_CriticalSection.Enter();
+    m_IsInitialized = false;
+    this->m_EventInterrupt.Finalize();
+    dsp::CTR::RegisterInterruptEvents(this->m_EventInterrupt.GetHandle(), 2,2);
+    svc::CloseHandle(this->m_EventSemaphore.GetHandle());
+    this->m_EventSemaphore.DetachHandle();
+    this->m_CriticalSection.Leave();
+    this->m_CriticalSection.Finalize();
 }
 
-bool Dspsnd::InitializeChannelParameters(u8 ch_no){
+bool Dspsnd::InitializeChannelParameters(u8 ch_no)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->ctrl |= 0x20000000;
         return true;
     }
 }
 
-void Dspsnd::InitializeVariables(bool isWakeUp){
-    if (mIsInitialized == false){
+void Dspsnd::InitializeVariables(bool isWakeUp)
+{
+    if (m_IsInitialized == false)
+    {
         SndCommand command;
-        if (isWakeUp){
+        if (isWakeUp)
+        {
             command.command = 2;
-            ::std::memcpy(mpMasterStatusOnShare[0], mSaveData, 0x1080);
+            ::std::memcpy(m_pMasterStatusOnShare[0], m_SaveData, 0x1080);
             os::ARM::DataSynchronizationBarrier();
         }
-        else{
+        else
+        {
             command.command = 0;
         }
         dsp::CTR::WriteProcessPipe(2, reinterpret_cast<u8*>(&command), sizeof(command));
@@ -196,68 +219,76 @@ void Dspsnd::InitializeVariables(bool isWakeUp){
         DspsndChannelOption * pChannelOptionOnShareTemp[COM_PAGE_NUM];
         s32 * pAuxBusOnShareTemp [COM_PAGE_NUM];
 
-        uptr * addressesOnCpu[] ={
-            reinterpret_cast<uptr*>(&mpDirectIdOnShare [COM_PAGE_0]),
+        uptr * addressesOnCpu[] =
+        {
+            reinterpret_cast<uptr*>(&m_pDirectIdOnShare [COM_PAGE_0]),
             reinterpret_cast<uptr*>(&pChannelDirectOnShareTemp[COM_PAGE_0]),
             reinterpret_cast<uptr*>(&pChannelStatusOnShareTemp[COM_PAGE_0]),
             reinterpret_cast<uptr*>(&pChannelOptionOnShareTemp[COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpMasterDirectOnShare [COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpMasterStatusOnShare [COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpMixBusOnShare [COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pMasterDirectOnShare [COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pMasterStatusOnShare [COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pMixBusOnShare [COM_PAGE_0]),
             reinterpret_cast<uptr*>(&pAuxBusOnShareTemp [COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpCompressorTableOnShare[COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpDspCyclesOnShare [COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpSpacialCoeffsOnShare[COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpDirectionCoeffsSpOnShare[COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpDirectionCoeffsHpOnShare[COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpSurroundIirCoeffsSpOnShare[COM_PAGE_0]),
-            reinterpret_cast<uptr*>(&mpSurroundIirCoeffsHpOnShare[COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pCompressorTableOnShare[COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pDspCyclesOnShare [COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pSpacialCoeffsOnShare[COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pDirectionCoeffsSpOnShare[COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pDirectionCoeffsHpOnShare[COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pSurroundIirCoeffsSpOnShare[COM_PAGE_0]),
+            reinterpret_cast<uptr*>(&m_pSurroundIirCoeffsHpOnShare[COM_PAGE_0]),
         };
 
-        for (int idx = 0 ; idx < recvCount ; idx++){
+        for (int idx = 0 ; idx < recvCount ; idx++)
+        {
             dsp::CTR::ConvertProcessAddressFromDspDram(static_cast<uptr>(recvAddresses[idx]), reinterpret_cast<uptr*>(addressesOnCpu[idx]));
             dsp::CTR::ConvertProcessAddressFromDspDram(static_cast<uptr>(recvAddresses[idx] | 0x10000), reinterpret_cast<uptr*>(addressesOnCpu[idx] + 1));
         }
 
-        for (int slot = 0 ; slot < COM_PAGE_NUM; ++slot){
-            mpAuxBusOnShare[slot][AUX_BUS_A] = pAuxBusOnShareTemp[slot];
-            mpAuxBusOnShare[slot][AUX_BUS_B] = pAuxBusOnShareTemp[slot] + NN_SND_SAMPLES_PER_FRAME * NN_SND_CHANNEL_INDEX_NUM;
+        for (int slot = 0 ; slot < COM_PAGE_NUM; ++slot)
+        {
+            m_pAuxBusOnShare[slot][AUX_BUS_A] = pAuxBusOnShareTemp[slot];
+            m_pAuxBusOnShare[slot][AUX_BUS_B] = pAuxBusOnShareTemp[slot] + NN_SND_SAMPLES_PER_FRAME * NN_SND_CHANNEL_INDEX_NUM;
         }
 
-        for (int idx = 0 ; idx < NN_SND_VOICE_NUM; idx++){
-            for (int slot = 0 ; slot < COM_PAGE_NUM; slot++){
-                mpChannelDirectOnShare[slot][idx] = pChannelDirectOnShareTemp[slot] + idx;
-                mpChannelStatusOnShare[slot][idx] = pChannelStatusOnShareTemp[slot] + idx;
-                mpChannelOptionOnShare[slot][idx] = pChannelOptionOnShareTemp[slot] + idx;
+        for (int idx = 0 ; idx < NN_SND_VOICE_NUM; idx++)
+        {
+            for (int slot = 0 ; slot < COM_PAGE_NUM; slot++)
+            {
+                m_pChannelDirectOnShare[slot][idx] = pChannelDirectOnShareTemp[slot] + idx;
+                m_pChannelStatusOnShare[slot][idx] = pChannelStatusOnShareTemp[slot] + idx;
+                m_pChannelOptionOnShare[slot][idx] = pChannelOptionOnShareTemp[slot] + idx;
             }
         }
 
         dsp::CTR::SetSemaphore(NN_SND_SYNC_SEM_MASK);
 
-        mProcessCount = 0;
+        m_ProcessCount = 0;
 
-        mDirectId = NN_SND_COM_DIRECT_ID_INIT + 1;
+        m_DirectId = NN_SND_COM_DIRECT_ID_INIT + 1;
 
-        *this->GetDirectIdAddrOnShared(this->getCurrentPage()) = mDirectId++;
-        this->mEventSemaphore.Signal();
+        *this->GetDirectIdAddrOnShared(this->getCurrentPage()) = m_DirectId++;
+        this->m_EventSemaphore.Signal();
 
-        mWritePage = this->getCurrentPage();
-        mReadPage  = this->getCurrentPage();
+        m_WritePage = this->getCurrentPage();
+        m_ReadPage  = this->getCurrentPage();
 
-        mIsInitialized = true;
+        m_IsInitialized = true;
     }
 }
 
-bool Dspsnd::ResetChannelNextBuffer(u8 ch_no){
+bool Dspsnd::ResetChannelNextBuffer(u8 ch_no)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->ctrl |= 0x10;
         return true;
     }
 }
 
-void Dspsnd::SendParameter(void){
+void Dspsnd::SendParameter(void)
+{
     if (!dsp::CTR::IsComponentLoaded()) return;
 
     MasterManager& masterManager = MasterManager::GetInstance();
@@ -266,7 +297,8 @@ void Dspsnd::SendParameter(void){
 
     uptr auxAddrA = reinterpret_cast<uptr>(this->GetAuxBusAddr(AUX_BUS_A));
     uptr auxAddrB = reinterpret_cast<uptr>(this->GetAuxBusAddr(AUX_BUS_B));
-    if (mIsAuxCallbackInSendParameterEnabled){
+    if (m_IsAuxCallbackInSendParameterEnabled)
+    {
         masterManager.AuxUserCallback(AUX_BUS_A, auxAddrA);
         masterManager.AuxUserCallback(AUX_BUS_B, auxAddrB);
     }
@@ -280,22 +312,24 @@ void Dspsnd::SendParameter(void){
     voiceManager.UpdateWaveBufferList();
 
     {
-        s32 remain = mDspCyclesLimit;
+        s32 remain = m_DspCyclesLimit;
         remain -= masterManager.GetDspCycles();
         remain -= dspFxManager.GetDspCycles();
         voiceManager.AdjustVoicePlayState(remain, this->GetDspCyclesFrame());
     }
    
-    *this->GetDirectIdAddrOnShared(mWritePage ) = mDirectId++;
-    this->mEventSemaphore.Signal();
+    *this->GetDirectIdAddrOnShared(m_WritePage) = m_DirectId++;
+    this->m_EventSemaphore.Signal();
 
-    mWritePage = getCurrentPage();
+    m_WritePage = getCurrentPage();
 
-    ++mProcessCount;
+    ++m_ProcessCount;
 }
 
-bool Dspsnd::SetAuxFrontBypass(AuxBusId busId, bool flag){
-    if(dsp::CTR::IsComponentLoaded()){
+bool Dspsnd::SetAuxFrontBypass(AuxBusId busId, bool flag)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.isFrontBypassAux[busId] = flag;
         if(busId == 0)
@@ -308,8 +342,10 @@ bool Dspsnd::SetAuxFrontBypass(AuxBusId busId, bool flag){
         return false;
 }
 
-void Dspsnd::SetAuxReturnVolume(AuxBusId busId, f32 fVolume){
-    if(dsp::CTR::IsComponentLoaded()){
+void Dspsnd::SetAuxReturnVolume(AuxBusId busId, f32 fVolume)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.volAux[busId].f32value = fVolume;
         if(busId == 0)
@@ -319,9 +355,11 @@ void Dspsnd::SetAuxReturnVolume(AuxBusId busId, f32 fVolume){
     }
 }
 
-bool Dspsnd::SetChannelAdpcmParam(u8 ch_no, AdpcmParam* pParam){
+bool Dspsnd::SetChannelAdpcmParam(u8 ch_no, AdpcmParam* pParam)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         memcpy(this->GetChannelOptionAddr(ch_no),pParam,0x20);
         pChannelDirect->ctrl |= 4;
@@ -329,9 +367,11 @@ bool Dspsnd::SetChannelAdpcmParam(u8 ch_no, AdpcmParam* pParam){
     }
 }
 
-bool Dspsnd::SetChannelIIRFilter_Biquad(u8 ch_no, short n0, short n1, short n2, short d1, short d2){
+bool Dspsnd::SetChannelIIRFilter_Biquad(u8 ch_no, short n0, short n1, short n2, short d1, short d2)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->play_param.iir_coef_biqd[0] = d2;
         pChannelDirect->play_param.iir_coef_biqd[1] = d1;
@@ -343,9 +383,11 @@ bool Dspsnd::SetChannelIIRFilter_Biquad(u8 ch_no, short n0, short n1, short n2, 
     }
 }
 
-bool Dspsnd::SetChannelIIRFilter_Mono(u8 ch_no, short n0, short d1){
+bool Dspsnd::SetChannelIIRFilter_Mono(u8 ch_no, short n0, short d1)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->play_param.iir_coef_mono[0] = n0;
         pChannelDirect->play_param.iir_coef_mono[1] = d1;
@@ -354,9 +396,11 @@ bool Dspsnd::SetChannelIIRFilter_Mono(u8 ch_no, short n0, short d1){
     }
 }
 
-bool Dspsnd::SetChannelIiRFilterType(u8 ch_no, FilterType type){
+bool Dspsnd::SetChannelIiRFilterType(u8 ch_no, FilterType type)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->play_param.iir_type = type;
         pChannelDirect->ctrl |= 0x400000;
@@ -364,9 +408,11 @@ bool Dspsnd::SetChannelIiRFilterType(u8 ch_no, FilterType type){
     }
 }
 
-bool Dspsnd::SetChannelMix(u8 ch_no, MixParam* pChannelMix){
+bool Dspsnd::SetChannelMix(u8 ch_no, MixParam* pChannelMix)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         memcpy16(&pChannelDirect->play_param,pChannelMix,0x10); // could all be wrong lmao
         memcpy16(&pChannelDirect->play_param.vol + 1,pChannelMix->auxBusA,0x10);
@@ -376,34 +422,42 @@ bool Dspsnd::SetChannelMix(u8 ch_no, MixParam* pChannelMix){
     }
 }
 
-bool Dspsnd::SetChannelPlayStart(u8 ch_no){
+bool Dspsnd::SetChannelPlayStart(u8 ch_no)
+{
     return this->ChangePlayState(ch_no, true);
 }
 
-bool Dspsnd::SetChannelPlayStop(u8 ch_no){
+bool Dspsnd::SetChannelPlayStop(u8 ch_no)
+{
     return this->ChangePlayState(ch_no, false);
 }
 
-bool Dspsnd::SetChannelRIM(u8 ch_no, DSPWord method, DSPWord coef){
+bool Dspsnd::SetChannelRIM(u8 ch_no, DSPWord method, DSPWord coef)
+{
     NN_TASSERT_(0 <= ch_no && ch_no < 24);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         NN_TASSERT_(method == 1 || method == 1 || method == 1);
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->play_param.rimSelect = pChannelDirect->play_param.rimSelect & 0xff00 | method & 0xff;
-        if(!method){
+        if(!method)
+        {
             // NN_TASSERT_(co) idk what a snd_rcf is
             pChannelDirect->play_param.rimSelect = (pChannelDirect->play_param.rimSelect & 0xff) | (coef << 8);
         }
         pChannelDirect->ctrl |= 0x20000;
         return true;
     }
-    else{
+    else
+    {
         return false;
     }
 }
 
-bool Dspsnd::SetChannelSyncCount(u8 ch_no, short synccount){
-    if(dsp::CTR::IsComponentLoaded()){
+bool Dspsnd::SetChannelSyncCount(u8 ch_no, short synccount)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         NN_TASSERT_(0 <= ch_no && ch_no < NN_SND_VOICE_NUM);
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->play_vars.syncCount = synccount;
@@ -412,8 +466,10 @@ bool Dspsnd::SetChannelSyncCount(u8 ch_no, short synccount){
     } 
 }
 
-bool Dspsnd::SetChannelTimer(u8 ch_no, f32 timer){
-    if(dsp::CTR::IsComponentLoaded()){
+bool Dspsnd::SetChannelTimer(u8 ch_no, f32 timer)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         NN_TASSERT_(timer);
         DspsndChannelDirect* pChannelDirect = this->GetChannelDirectAddr(ch_no);
         pChannelDirect->play_param.timer = timer;
@@ -423,26 +479,28 @@ bool Dspsnd::SetChannelTimer(u8 ch_no, f32 timer){
 }
 
 bool Dspsnd::SetClippingMode(ClippingMode mode){
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         NN_TASSERT_(mode == CLIPPING_MODE_NORMAL ||  mode == CLIPPING_MODE_SOFT);
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.clippingMode = mode;
         pMasterDirect->ctrl |= 0x8000000;
         return true;
     }
-    else{
-        return false;
-    }
+
+    return false;
 }
 
-bool Dspsnd::SetDspDelayEffect(AuxBusId busId, DspFxDelayParams* params){
+bool Dspsnd::SetDspDelayEffect(AuxBusId busId, DspFxDelayParams* params)
+{
     if(dsp::CTR::IsComponentLoaded()){
         DspsndMasterDirect* pDirect = GetMasterDirectAddr();
 
         if(params->ctrl & 1)
             pDirect->param.fxDelayParams[busId].enable = params->enable;
 
-        if(params->ctrl & 4){
+        if(params->ctrl & 4)
+        {
             pDirect->param.fxDelayParams[busId].channels = params->channels;
             pDirect->param.fxDelayParams[busId].delayFrames = params->delayFrames;
             pDirect->param.fxDelayParams[busId].delayFeedbackGain = params->delayFeedbackGain;
@@ -467,18 +525,22 @@ bool Dspsnd::SetDspDelayEffect(AuxBusId busId, DspFxDelayParams* params){
     }
 }
 
-bool Dspsnd::SetDspReverbEffect(AuxBusId busId, DspFxReverbParams* params){
-    if(dsp::CTR::IsComponentLoaded()){
+bool Dspsnd::SetDspReverbEffect(AuxBusId busId, DspFxReverbParams* params)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pDirect = GetMasterDirectAddr();
         if(params->ctrl & 1)
             pDirect->param.fxReverbParams[busId].enable = params->enable;
 
-        if(params->ctrl & 4){
+        if(params->ctrl & 4)
+        {
             pDirect->param.fxReverbParams[busId].channels = params->channels;
             pDirect->param.fxReverbParams[busId].earlyDelayFrames = params->earlyDelayFrames;
             pDirect->param.fxReverbParams[busId].preDelayFrames = params->preDelayFrames;
 
-            for(int i = 0; i < AUX_BUS_NUM; i++){
+            for(int i = 0; i < AUX_BUS_NUM; i++)
+            {
                 pDirect->param.fxReverbParams[busId].combFrames[i] = params->combFrames[i];
             }
 
@@ -487,16 +549,19 @@ bool Dspsnd::SetDspReverbEffect(AuxBusId busId, DspFxReverbParams* params){
             pDirect->param.fxReverbParams[busId].fusedGain = params->fusedGain;
             pDirect->param.fxReverbParams[busId].allPassCoef = params->allPassCoef;
 
-            for(int i = 0; i < AUX_BUS_NUM; i++){
+            for(int i = 0; i < AUX_BUS_NUM; i++)
+            {
                 pDirect->param.fxReverbParams[busId].aCombCoefs[i] = params->aCombCoefs[i];
             }
 
-            for(int i = 0; i < AUX_BUS_NUM; i++){
+            for(int i = 0; i < AUX_BUS_NUM; i++)
+            {
                 pDirect->param.fxReverbParams[busId].aLpfCoefs[i] = params->aLpfCoefs[i];
             }
         }
 
-        if(params->ctrl & 2){
+        if(params->ctrl & 2)
+        {
             pDirect->param.fxReverbParams[busId].earlyDelayBufferAddress = params->earlyDelayBufferAddress;
             pDirect->param.fxReverbParams[busId].preDelayBufferAddress = params->preDelayBufferAddress;
             pDirect->param.fxReverbParams[busId].combBufferAddress[0] = params->combBufferAddress[0];
@@ -505,10 +570,12 @@ bool Dspsnd::SetDspReverbEffect(AuxBusId busId, DspFxReverbParams* params){
         }
         pDirect->param.fxReverbParams[busId].ctrl = pDirect->param.fxReverbParams[busId].ctrl | params->ctrl;
 
-        if(busId == AUX_BUS_A){
+        if(busId == AUX_BUS_A)
+        {
             pDirect->ctrl = pDirect->ctrl | 0x1000;
         }
-        else if(busId == AUX_BUS_B){
+        else if(busId == AUX_BUS_B)
+        {
             pDirect->ctrl = pDirect->ctrl | 0x2000;
         }
 
@@ -518,34 +585,43 @@ bool Dspsnd::SetDspReverbEffect(AuxBusId busId, DspFxReverbParams* params){
     return false;
 }
 
-bool Dspsnd::SetIsHeadsetConnected(bool isConnected){
-    if(dsp::CTR::IsComponentLoaded()){
+bool Dspsnd::SetIsHeadsetConnected(bool isConnected)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.isHeadsetConnected = isConnected;
         pMasterDirect->ctrl |= 0x10000000;
     }
 }
 
-void Dspsnd::SetMasterVolume(f32 fVolume){
-    if(dsp::CTR::IsComponentLoaded()){
+void Dspsnd::SetMasterVolume(f32 fVolume)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.volMaster.f32value = fVolume;
         pMasterDirect->ctrl |= 0x10000;
     }
 }
 
-void Dspsnd::SetOutputBufferCount(s32 n){
+void Dspsnd::SetOutputBufferCount(s32 n)
+{
     NN_TASSERT_(n >= 2 && n <= 3);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.outputBufferCount = n;
         pMasterDirect->ctrl |= 0x8000;
     }
 }
 
-bool Dspsnd::SetRearRatio(ushort ratio){
-    if(dsp::CTR::IsComponentLoaded()){
-        if(0x8000 < ratio){
+bool Dspsnd::SetRearRatio(ushort ratio)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
+        if(0x8000 < ratio)
+        {
             ratio = 0x8000;
         }
 
@@ -558,8 +634,10 @@ bool Dspsnd::SetRearRatio(ushort ratio){
     return false;
 }
 
-bool Dspsnd::SetSoundOutputMode(OutputMode mode){
-    if(dsp::CTR::IsComponentLoaded()){
+bool Dspsnd::SetSoundOutputMode(OutputMode mode)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         NN_TASSERT_(mode == OUTPUT_MODE_MONO || mode == OUTPUT_MODE_STEREO || mode == OUTPUT_MODE_3DSURROUND);
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.outputMode = mode;
@@ -570,9 +648,12 @@ bool Dspsnd::SetSoundOutputMode(OutputMode mode){
     return false;
 }
 
-bool Dspsnd::SetSurroundDepth(ushort depth){
-    if(dsp::CTR::IsComponentLoaded()){
-        if(0x7fff < depth){
+bool Dspsnd::SetSurroundDepth(ushort depth)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
+        if(0x7fff < depth)
+        {
             depth = 0x7fff;
         }
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
@@ -584,15 +665,19 @@ bool Dspsnd::SetSurroundDepth(ushort depth){
     return false;
 }
 
-bool Dspsnd::SetSurroundSpeakerPosition(SurroundSpeakerPosition pos){
-    if(dsp::CTR::IsComponentLoaded()){
-        if((pos == SURROUND_SPEAKER_POSITION_SQUARE) || (pos == SURROUND_SPEAKER_POSITION_WIDE)){
+bool Dspsnd::SetSurroundSpeakerPosition(SurroundSpeakerPosition pos)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
+        if((pos == SURROUND_SPEAKER_POSITION_SQUARE) || (pos == SURROUND_SPEAKER_POSITION_WIDE))
+        {
             DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
             pMasterDirect->param.surroundSpPosMode = pos;
             pMasterDirect->ctrl |= 0x40000000;
             return true;
         }
-        else{
+        else
+        {
             return false;
         }
     }
@@ -600,27 +685,33 @@ bool Dspsnd::SetSurroundSpeakerPosition(SurroundSpeakerPosition pos){
     return false;
 }
 
-void Dspsnd::SetSyncMode(SyncMode mode){
-    if(dsp::CTR::IsComponentLoaded()){
+void Dspsnd::SetSyncMode(SyncMode mode)
+{
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndMasterDirect* pMasterDirect = this->GetMasterDirectAddr();
         pMasterDirect->param.syncMode = mode;
         pMasterDirect->ctrl |= 0x10000;
     }
 }
 
-void Dspsnd::SyncFrameData(){
-    if((dsp::CTR::IsComponentLoaded()) && (this->mIsInitialized)){
+void Dspsnd::SyncFrameData()
+{
+    if((dsp::CTR::IsComponentLoaded()) && (this->m_IsInitialized))
+    {
         u16* directId = this->GetDirectIdAddrOnShared(this->getNextPage());
-        if(this->UpdateSlotId(*directId)){
-    
-            for(int ch = 0; ch < NN_SND_VOICE_NUM; ch++){
+        if(this->UpdateSlotId(*directId))
+        {
+            for(int ch = 0; ch < NN_SND_VOICE_NUM; ch++)
+            {
                 DspsndChannelPlayVars * pVars = &GetChannelStatusAddr(ch)->play_vars_rps;
                 VoiceManager::GetInstance().UpdateStatus(ch,reinterpret_cast<const DspsndChannelPlayVars*>(pVars));
             }
 
-            ::std::memcpy(&mDspCycles, GetDspCyclesAddr(), sizeof(mDspCycles));
-            if(mpOutputCapture && mpOutputCapture->mIsEnabled){
-                this->mpOutputCapture->Write(this->GetMixBusAddr(),0xa0);
+            ::std::memcpy(&m_DspCycles, GetDspCyclesAddr(), sizeof(m_DspCycles));
+            if(m_pOutputCapture && m_pOutputCapture->mIsEnabled)
+            {
+                this->m_pOutputCapture->Write(this->GetMixBusAddr(),0xa0);
             }
 
             MasterManager::GetInstance().UpdateDroppedSoundFrameCount();
@@ -628,13 +719,16 @@ void Dspsnd::SyncFrameData(){
     }
 }
 
-bool Dspsnd::UpdateChannelNextBuffer(u8 channelId, WaveBuffer* pWaveBuffer){
+bool Dspsnd::UpdateChannelNextBuffer(u8 channelId, WaveBuffer* pWaveBuffer)
+{
     NN_TASSERT_(0 <= channelId && channelId < NN_SND_VOICE_NUM);
-    if(dsp::CTR::IsComponentLoaded()){
+    if(dsp::CTR::IsComponentLoaded())
+    {
         DspsndChannelDirect* pDirect = this->GetChannelDirectAddr(channelId);
         DspsndChannelStatus* pStatus = this->GetChannelStatusAddr(channelId);
 
-        if(pStatus->play_vars_rps.currentBufferId == pWaveBuffer->bufferId){
+        if(pStatus->play_vars_rps.currentBufferId == pWaveBuffer->bufferId)
+        {
             pDirect->src_inf.bufferId = pWaveBuffer->bufferId;
             pDirect->src_inf.adpcmContext.yn1 = (pDirect->src_inf.adpcmContext.yn1 & ~2) | ((pWaveBuffer->loopFlag << 1) & 2);
             pDirect->src_inf.srcIniPlayLen = (pWaveBuffer->sampleLength >> 16) | (pWaveBuffer->sampleLength << 16);
@@ -646,12 +740,13 @@ bool Dspsnd::UpdateChannelNextBuffer(u8 channelId, WaveBuffer* pWaveBuffer){
     return false;
 }
 
-void Dspsnd::WaitPipe(){
-    NN_TASSERT_(this->mEventInterrupt.IsValid());
-    os::CriticalSection::ScopedLock lock(this->mCriticalSection);
-    this->mEventInterrupt.Wait();
-    this->mEventInterrupt.ClearSignal();
-    mProcessCount++;
+void Dspsnd::WaitPipe()
+{
+    NN_TASSERT_(this->m_EventInterrupt.IsValid());
+    os::CriticalSection::ScopedLock lock(this->m_CriticalSection);
+    this->m_EventInterrupt.Wait();
+    this->m_EventInterrupt.ClearSignal();
+    m_ProcessCount++;
 }
 
 }

@@ -9,9 +9,9 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class ExtraPadReader{
+class ExtraPadReader
+{
 public:
-
     typedef enum{
         STICK_CLAMP_MODE_CIRCLE = AnalogStickClamper::STICK_CLAMP_MODE_CIRCLE,
         STICK_CLAMP_MODE_CROSS = AnalogStickClamper::STICK_CLAMP_MODE_CROSS,
@@ -29,26 +29,33 @@ public:
     void SetNormalizeStickScaleSettings(f32 scale, s16 threshold);
     void GetNormalizeStickScaleSettings(f32* scale, s16* threshold) const;
 
-    f32 NormalizeExtraStick(s16 x){
+    f32 NormalizeExtraStick(s16 x)
+    {
         return this->m_ExtraStickClamper.NormalizeStick(x);
     }
-    void NormalizeExtraStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y){
+    void NormalizeExtraStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y)
+    {
         return this->m_ExtraStickClamper.NormalizeStickWithScale(normalized_x,normalized_y,x,y);
     }
 
-    void SetExtraStickClamp(s16 min, s16 max){
+    void SetExtraStickClamp(s16 min, s16 max)
+    {
         return this->m_ExtraStickClamper.SetStickClamp(min,max);
     }
-    void GetExtraStickClamp(s16* pMin, s16* pMax) const{
+    void GetExtraStickClamp(s16* pMin, s16* pMax) const
+    {
         return this->m_ExtraStickClamper.GetStickClamp(pMin,pMax);
     }
-    void SetExtraStickClampMode(StickClampMode mode){
+    void SetExtraStickClampMode(StickClampMode mode)
+    {
         return this->m_ExtraStickClamper.SetStickClampMode(PadReader::ClamperClampMode((PadReader::StickClampMode)mode));
     }
-    void SetNormalizeExtraStickScaleSettings(f32 scale, s16 threshold){
+    void SetNormalizeExtraStickScaleSettings(f32 scale, s16 threshold)
+    {
         return this->m_ExtraStickClamper.SetNormalizeStickScaleSettings(scale,threshold);
     }
-    void GetNormalizeExtraStickScaleSettings(f32* scale, s16* threshold) const{
+    void GetNormalizeExtraStickScaleSettings(f32* scale, s16* threshold) const
+    {
         return this->m_ExtraStickClamper.GetNormalizeStickScaleSettings(scale,threshold);
     }
 

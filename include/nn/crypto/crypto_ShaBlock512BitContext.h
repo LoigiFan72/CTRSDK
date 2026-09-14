@@ -11,10 +11,10 @@ public:
     virtual void Update(const void* pData, size_t size);
     virtual void InitializeWithContext(const void*, u64) {}
 protected:
-    u8 mBlock[BLOCK_SIZE];
-    u32 mPool;
-    u32 mBlocksLow;
-    u32 mBlocksHigh;
+    u8 m_Block[BLOCK_SIZE];
+    u32 m_Pool;
+    u32 m_BlocksLow;
+    u32 m_BlocksHigh;
 
     void AddPadding();
     virtual void ProcessBlock() {}

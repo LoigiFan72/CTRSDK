@@ -5,7 +5,8 @@
 namespace nn{
 namespace os{
 
-class LightEvent : private util::ADLFireWall::NonCopyable<LightEvent>{
+class LightEvent : private util::ADLFireWall::NonCopyable<LightEvent>
+{
 private:
     WaitableCounter m_Counter;
     #if NN_VERSION_MAJOR > 2 || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR > 4) || (NN_VERSION_MAJOR == 2 && NN_VERSION_MINOR == 4 && NN_VERSION_MICRO > 1)

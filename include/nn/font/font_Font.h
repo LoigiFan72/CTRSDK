@@ -10,8 +10,10 @@ namespace font{
     class Font;
     typedef ushort TexFmt;
 
-    union TextureSize{
-        struct{
+    union TextureSize
+    {
+        struct
+        {
             u16 height;
             u16 width;
         } HW;
@@ -20,37 +22,41 @@ namespace font{
 
 namespace internal{
     void LoadTexture(u16 texWidth,u16 texHeight,TexFmt texFormat,const void* pImage,bool isSmallLinearFilter,bool isLargeLinearFilter);
-    class TextureObject{
+
+    class TextureObject
+    {
     public:
         TextureObject();
         void Set(u32 name,const Font* pFont,const void* pImage,TexFmt format,u16 width,u16 height);
-        u32 GetName() const{return this->mName;}
-        void SetName(u32 texName){this->mName = texName;}
-        const Font* GetFont() const{return this->mpFont;}
-        uptr GetImage() const{return this->mpImage;}
-        u8 GetFormat() const{return this->mFormat;}
-        const TextureSize GetSize() const{return this->mSize;}
+        u32 GetName() const{ return m_Name; }
+        void SetName(u32 texName){ m_Name = texName; }
+        const Font* GetFont() const{ return m_pFont; }
+        uptr GetImage() const{ return m_pImage; }
+        u8 GetFormat() const{ return m_Format; }
+        const TextureSize GetSize() const{ return m_Size;}
         u32 GetWrapFilter() const;
 
     private:
-        u32 mName;
-        const Font* mpFont;
-        uptr mpImage;
-        TextureSize mSize;
-        u8 mFormat;
+        u32 m_Name;
+        const Font* m_pFont;
+        uptr m_pImage;
+        TextureSize m_Size;
+        u8 m_Format;
     };
 }
 
 typedef ushort CharCode;
 
-enum Type{
+enum Type
+{
     TYPE_NULL,
     TYPE_ROM,
     TYPE_RESOURCE,
     TYPE_PAIR
 };
 
-struct Glyph{
+struct Glyph
+{
     const void* pTexture;
     CharWidths widths;
     u8 height;
@@ -65,9 +71,11 @@ struct Glyph{
     Glyph();
 };
 
-class Font{
+class Font
+{
 public:
-    enum Type{
+    enum Type
+    {
         TYPE_NULL,
         TYPE_ROM,
         TYPE_RESOURCE,

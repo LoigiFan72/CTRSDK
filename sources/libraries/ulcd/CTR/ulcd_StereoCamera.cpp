@@ -104,7 +104,8 @@ StereoCamera::~StereoCamera()
 
 void StereoCamera::Initialize()
 {
-    if(!s_IsInitialized){
+    if(!s_IsInitialized)
+    {
         cfg::CTR::Initialize();
         Result res = cfg::CTR::detail::GetConfig(&s_CfgData,0x20,0x50005);
         NN_UTIL_PANIC_IF_FAILED(res);
@@ -158,7 +159,8 @@ void StereoCamera::CalculateMatrices(nn::math::MTX44 *projL,nn::math::MTX34 *vie
         {
             m_CameraInterval = heightDiff * (this->m_BaseCamera.far / (this->m_BaseCamera.far - this->m_DepthLevel));
         } 
-        else {
+        else
+        {
             m_CameraInterval = 0.0f;
         }
         

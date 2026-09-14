@@ -16,13 +16,15 @@ namespace CTR{
     const s16 MIN_OF_STICK_CLAMP_MODE_CROSS = 36;
     const s16 LIMIT_OF_STICK_CLAMP_MAX = 145;
 
-class AnalogStickClamper{
+class AnalogStickClamper
+{
 public:
-enum ClampMode{
-    STICK_CLAMP_MODE_CIRCLE = 0,
-    STICK_CLAMP_MODE_CROSS,
-    STICK_CLAMP_MODE_MINIMUM
-};
+    typedef enum
+    {
+        STICK_CLAMP_MODE_CIRCLE,
+        STICK_CLAMP_MODE_CROSS,
+        STICK_CLAMP_MODE_MINIMUM
+    } ClampMode;
 protected:
     short m_MinOfStickClampCircle;
     short m_MinOfStickClampCross;
@@ -40,7 +42,10 @@ protected:
     f32 m_LastDiff;
 public:
     AnalogStickClamper();
-    ~AnalogStickClamper(){ }
+    ~AnalogStickClamper()
+    { 
+    }
+
     void ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y);
     void ClampValueOfClamp();
 
@@ -49,7 +54,7 @@ public:
 
     void GetStickClamp(s16* pMin, s16* pMax) const;
     ClampMode GetStickClampMode() const;
-    void GetNormalizeStickScaleSettings(f32* scale, s16* threshold ) const{}
+    void GetNormalizeStickScaleSettings(f32* scale, s16* threshold) const{}
 
     void SetStickClamp(short min, short max);
     void SetStickClampMode(ClampMode mode);
@@ -57,26 +62,32 @@ public:
     void SetNormalizeStickScaleSettings(f32 scale, s16 threshold);
 };
 
-inline void AnalogStickClamper::GetStickClamp(s16* pMin, s16* pMax) const{
-    if (this->m_StickClampMode == STICK_CLAMP_MODE_CIRCLE){
+inline void AnalogStickClamper::GetStickClamp(s16* pMin, s16* pMax) const
+{
+    if (this->m_StickClampMode == STICK_CLAMP_MODE_CIRCLE)
+    {
        *pMin = m_MinOfStickClampCircle;
        *pMax = m_MaxOfStickClampCircle;
     }
-    else if (this->m_StickClampMode == STICK_CLAMP_MODE_CROSS){
+    else if (this->m_StickClampMode == STICK_CLAMP_MODE_CROSS)
+    {
        *pMin = m_MinOfStickClampCross;
        *pMax = m_MaxOfStickClampCross;
     }
-    else{
+    else
+    {
         *pMin = m_MinOfStickClampMinimum;
         *pMax = m_MaxOfStickClampMinimum;
     }
 }
 
-inline AnalogStickClamper::ClampMode AnalogStickClamper::GetStickClampMode() const{
+inline AnalogStickClamper::ClampMode AnalogStickClamper::GetStickClampMode() const
+{
     return m_StickClampMode;
 }
 
-inline void AnalogStickClamper::SetStickClampMode(ClampMode mode){
+inline void AnalogStickClamper::SetStickClampMode(ClampMode mode)
+{
     m_StickClampMode = mode;
 }
 

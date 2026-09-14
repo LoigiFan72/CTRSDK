@@ -10,7 +10,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class ExtraPad{
+class ExtraPad
+{
 public:
     static bool IsSampling();
 

@@ -3,7 +3,6 @@
 #define VER_STR_(version) #version
 #define VER_STR(version) VER_STR_(version)
 
-#define NN_VERSION_NONE        -1
 #define NN_VERSION_CUSTOM      0
 #define NN_VERSION_MILLI4C     1
 #define NN_VERSION_REDPEPPER   2

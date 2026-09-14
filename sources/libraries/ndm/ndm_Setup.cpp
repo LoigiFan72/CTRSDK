@@ -11,19 +11,23 @@
 namespace nn{
 namespace ndm{
 
-void SetupDaemonsDefault(){
-    if(applet::CTR::IsInitialized() && !applet::CTR::GetAppletType()){
+void SetupDaemonsDefault()
+{
+    if(applet::CTR::IsInitialized() && !applet::CTR::GetAppletType())
+    {
         Result result = nn::ndm::Initialize();
         NN_UTIL_PANIC_IF_FAILED(result);
 
         result = nn::ndm::CTR::detail::Interface::OverrideDefaultDaemons(0xfu);
-        if(result.IsFailure()){
+        if(result.IsFailure())
+        {
             NN_TLOG_("Failed to override default daemons. (SDK version mismatch?)\n");
             NN_DBG_PRINT_RESULT(result);
         }
 
         result = nn::ndm::SuspendDaemons(6u);
-        if(result.IsFailure()){
+        if(result.IsFailure())
+        {
             NN_TLOG_("Failed to suspend boss daemon.\n");
             NN_DBG_PRINT_RESULT(result);
         }

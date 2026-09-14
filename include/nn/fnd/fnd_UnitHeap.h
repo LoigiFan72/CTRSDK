@@ -10,7 +10,8 @@
 
 namespace nn {
 namespace fnd {
-class UnitHeapBase : public HeapBase {
+class UnitHeapBase : public HeapBase 
+{
 public:
     static size_t GetRequiredHeapSize(size_t unit, size_t numUnit, s32 alignment = DEFAULT_ALIGNMENT);
     UnitHeapBase() : mFreeNode(0) {}

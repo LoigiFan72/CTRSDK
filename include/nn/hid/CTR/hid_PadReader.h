@@ -13,13 +13,20 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class PadReader : private nn::util::ADLFireWall::NonCopyable<PadReader>{
+class PadReader : private nn::util::ADLFireWall::NonCopyable<PadReader>
+{
 public:
-    typedef enum{
-        STICK_CLAMP_MODE_CIRCLE = AnalogStickClamper::STICK_CLAMP_MODE_CIRCLE,
-        STICK_CLAMP_MODE_CROSS = AnalogStickClamper::STICK_CLAMP_MODE_CROSS,
-        STICK_CLAMP_MODE_MINIMUM = AnalogStickClamper::STICK_CLAMP_MODE_MINIMUM
+#ifdef NN_VERSION_MAJOR > 2
+    typedef AnalogStickClamper::ClampMode StickClampMode;
+#else
+    typedef enum
+    {
+        STICK_CLAMP_MODE_CIRCLE,
+        STICK_CLAMP_MODE_CROSS,
+        STICK_CLAMP_MODE_MINIMUM
     } StickClampMode;
+#endif
+
 
     PadReader(Pad& pad=GetPad( ));
     ~PadReader() {};
@@ -36,6 +43,15 @@ public:
 #else
     ;
 #endif
+
+    StickClampMode GetStickClampMode(s16* pMin, s16* pMax) const
+    {
+#ifdef NN_VERSION > 2
+        return this->m_StickClamper.GetStickClampMode(pMin,pMax);
+#else
+        return m_StickClampMode;
+#endif
+    }
     void SetStickClampMode(StickClampMode mode)
 #if NN_MAJOR_VERSION > 2
     {
@@ -76,7 +92,7 @@ protected:
         short m_MaxOfStickClampCircle;
         short m_MaxOfStickClampCross;
         short m_MaxOfStickClampMinimum;
-        SizedEnum1<AnalogStickClamper::ClampMode> m_StickClampMode;
+        SizedEnum1<StickClampMode> m_StickClampMode;
         s8 rev;
         short m_Threshold;
         f32 m_Scale;
@@ -96,8 +112,10 @@ public:
 
 #if NN_VERSION_MAJOR <= 2
 
-inline void PadReader::ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y){
-    switch (this->m_StickClampMode) {
+inline void PadReader::ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y)
+{
+    switch (this->m_StickClampMode) 
+    {
     case STICK_CLAMP_MODE_CIRCLE:
         hidlow::ClampStickCircle(pOutX, pOutY, x, y, this->m_MinOfStickClampCircle, this->m_MaxOfStickClampCircle);
         break;
@@ -110,7 +128,8 @@ inline void PadReader::ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y){
     }
 }
 
-inline void PadReader::ClampValueOfClamp(){
+inline void PadReader::ClampValueOfClamp()
+{
   if (m_MinOfStickClampCircle < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
     m_MinOfStickClampCircle = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
     

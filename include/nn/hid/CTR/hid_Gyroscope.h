@@ -9,7 +9,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class Gyroscope : public HidBase{
+class Gyroscope : public HidBase
+{
 private:
     Gyroscope() {};
     virtual ~Gyroscope() {};

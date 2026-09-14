@@ -18,31 +18,43 @@ void Switch(nnosMemoryBlockBase* pTo, nnosMemoryBlockBase* pFrom);
 
 } // detail
 
-class MemoryBlock : public MemoryBlockBase{
-    void Initialize(size_t pSize);
+class MemoryBlock : public MemoryBlockBase
+{
+public:
+    MemoryBlock(size_t size):
+        MemoryBlockBase()
+    {
+        Initialize(size);
+    }
+
+    ~MemoryBlock()
+    {
+        Finalize();
+    }
+
+    void Initialize(size_t size);
     void Finalize();
-    ~MemoryBlock();
 };
 
-static size_t GetPageAlignedSize(size_t size) {
+static size_t GetPageAlignedSize(size_t size) 
+{
     return (size + NN_OS_MEMORY_PAGE_SIZE - 1) & ~(NN_OS_MEMORY_PAGE_SIZE - 1); 
 }
 
 void InitializeMemoryBlock(uptr begin, size_t size);
 
-namespace{
-bool s_IsMemoryBlockEnabled;
 
-} // namespace
 }
 }
 
-typedef union nnosMemoryBlock{
+typedef union nnosMemoryBlock
+{
     char buf[20];
     uint alignment_holder;
 } nnosMemoryBlock;
 
-extern "C"{
+extern "C"
+{
     void nnosMemoryBlockAllocate(nnosMemoryBlock* p, size_t size);
     uptr nnosMemoryBlockGetAddress(nnosMemoryBlock* p);
 }

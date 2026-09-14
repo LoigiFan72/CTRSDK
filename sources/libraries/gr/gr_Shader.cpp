@@ -9,22 +9,25 @@ namespace gr{
 namespace CTR{
 
 Shader::Shader():
-    mVtxShaderIndex(0),
-    mGeoShaderIndex(-1),
-    mExeImageInfoNum(0),
-    mInstructionCount(0),
-    mSwizzleCount(0),
-    mDrawMode(PICA_DATA_DRAW_TRIANGLES),
-    mVtxShaderBoolMapUniform(0),
-    mGeoShaderBoolMapUniform(0),
-    mCmdCacheOutAttrNum(0){
-    for (s32 shader_index = 0; shader_index < EXE_IMAGE_MAX; shader_index++){
-        mCmdCacheConstNumArray[shader_index] = 0;
+    m_VtxShaderIndex(0),
+    m_GeoShaderIndex(-1),
+    m_ExeImageInfoNum(0),
+    m_InstructionCount(0),
+    m_SwizzleCount(0),
+    m_DrawMode(PICA_DATA_DRAW_TRIANGLES),
+    m_VtxShaderBoolMapUniform(0),
+    m_GeoShaderBoolMapUniform(0),
+    m_CmdCacheOutAttrNum(0)
+{
+    for (s32 shader_index = 0; shader_index < EXE_IMAGE_MAX; shader_index++)
+    {
+        m_CmdCacheConstNumArray[shader_index] = 0;
     }
 }
 
-void Shader::SetupBinary(const void* shader_binary, const s32 vtx_shader_index, const s32 geo_shader_index){
-    const bit32* binary = reinterpret_cast< const bit32* >( shader_binary );
+void Shader::SetupBinary(const void* shader_binary, const s32 vtx_shader_index, const s32 geo_shader_index)
+{
+    const bit32* binary = reinterpret_cast<const bit32*>(shader_binary);
     NN_ASSERT_(binary != NULL );
 
     NN_ASSERT_(*binary == 0x424C5644);
@@ -32,15 +35,16 @@ void Shader::SetupBinary(const void* shader_binary, const s32 vtx_shader_index, 
 
     NN_ASSERT_(*binary < EXE_IMAGE_MAX);
 
-    mExeImageInfoNum = *binary;
+    m_ExeImageInfoNum = *binary;
     ++binary;
 
-    mVtxShaderBoolMapUniform = 0;
-    mGeoShaderBoolMapUniform = 0;
+    m_VtxShaderBoolMapUniform = 0;
+    m_GeoShaderBoolMapUniform = 0;
 
-    for (s32 i = 0; i < mExeImageInfoNum; ++i){
-        mExeImageInfo[i] = reinterpret_cast< const ExeImageInfo* >( (u8*)shader_binary + *binary );
-        NN_ASSERT_(mExeImageInfo[i]->signature == 0x454c5644);
+    for (s32 i = 0; i < m_ExeImageInfoNum; ++i)
+    {
+        m_ExeImageInfo[i] = reinterpret_cast< const ExeImageInfo* >( (u8*)shader_binary + *binary );
+        NN_ASSERT_(m_ExeImageInfo[i]->signature == 0x454c5644);
         ++binary;
     }
                 
@@ -49,64 +53,73 @@ void Shader::SetupBinary(const void* shader_binary, const s32 vtx_shader_index, 
     ++binary;
     ++binary;
 
-    mInstruction = reinterpret_cast< const bit32* >( (u8*)package_info + *binary );
+    m_Instruction = reinterpret_cast<const bit32*>((u8*)package_info + *binary);
     ++binary;
 
-    mInstructionCount = *binary;
+    m_InstructionCount = *binary;
     ++binary;
 
-    const bit32* swizzle = reinterpret_cast< const bit32* >( (u8*)package_info + *binary );
+    const bit32* swizzle = reinterpret_cast<const bit32*>((u8*)package_info + *binary);
     ++binary;
 
-    mSwizzleCount = *binary;
-    NN_ASSERT_(mSwizzleCount < SWIZZLE_PATTERN_MAX);
+    m_SwizzleCount = *binary;
+    NN_ASSERT_(m_SwizzleCount < SWIZZLE_PATTERN_MAX);
     ++binary;
 
-    for (s32 i = 0; i < mSwizzleCount; i++){
-        mSwizzle[i] = swizzle[i * 2];
+    for (s32 i = 0; i < m_SwizzleCount; i++)
+    {
+        m_Swizzle[i] = swizzle[i * 2];
     }
 
-    PicaDataDrawMode drawMode  = mDrawMode;
+    PicaDataDrawMode drawMode  = m_DrawMode;
 
-    this->MakeShaderConstCommandCache_();
-    this->SetShaderIndex(vtx_shader_index, geo_shader_index);
+    MakeShaderConstCommandCache_();
+    SetShaderIndex(vtx_shader_index, geo_shader_index);
                 
-    if (!this->IsEnableGeoShader() ){
-        mDrawMode = drawMode;
+    if (!this->IsEnableGeoShader())
+    {
+        m_DrawMode = drawMode;
     }
 }
 
-void Shader::SetShaderIndex(const s32 vtx_shader_index, const s32 geo_shader_index){
+void Shader::SetShaderIndex(const s32 vtx_shader_index, const s32 geo_shader_index)
+{
     this->CheckVtxShaderIndex_(vtx_shader_index);
     this->CheckGeoShaderIndex_(geo_shader_index);
                 
-    mVtxShaderIndex = vtx_shader_index;
-    mGeoShaderIndex = geo_shader_index;
+    m_VtxShaderIndex = vtx_shader_index;
+    m_GeoShaderIndex = geo_shader_index;
 
-    if(this->IsEnableGeoShader()){
-        mDrawMode = PICA_DATA_DRAW_GEOMETRY_PRIMITIVE;
+    if(this->IsEnableGeoShader())
+    {
+        m_DrawMode = PICA_DATA_DRAW_GEOMETRY_PRIMITIVE;
     }
                
     this->MakeShaderOutAttrCommandCache_();
 }
 
-void Shader::MakeShaderConstCommandCache_(){
-    for (s32 shader_index = 0; shader_index < mExeImageInfoNum; shader_index++){
-        mCmdCacheConstNumArray[shader_index] = this->MakeConstRgCommand_(mCmdCacheConstArray[shader_index], shader_index) - mCmdCacheConstArray[shader_index];
-        NN_ASSERT_(mCmdCacheConstNumArray[shader_index] <= CONST_REG_COMMAND_MAX);
+void Shader::MakeShaderConstCommandCache_()
+{
+    for (s32 shader_index = 0; shader_index < m_ExeImageInfoNum; shader_index++)
+    {
+        m_CmdCacheConstNumArray[shader_index] = this->MakeConstRgCommand_(m_CmdCacheConstArray[shader_index], shader_index) - m_CmdCacheConstArray[shader_index];
+        NN_ASSERT_(m_CmdCacheConstNumArray[shader_index] <= CONST_REG_COMMAND_MAX);
     }
 }
 
-void Shader::MakeShaderOutAttrCommandCache_(){
-    mCmdCacheOutAttrNum = this->MakeOutAttrCommand_(mCmdCacheOutAttrArray,mVtxShaderIndex,mGeoShaderIndex)- mCmdCacheOutAttrArray;
+void Shader::MakeShaderOutAttrCommandCache_()
+{
+    m_CmdCacheOutAttrNum = this->MakeOutAttrCommand_(m_CmdCacheOutAttrArray, m_VtxShaderIndex, m_GeoShaderIndex)- m_CmdCacheOutAttrArray;
 }
 
-bit32* Shader::MakeFullCommand(bit32* command) const{
+bit32* Shader::MakeFullCommand(bit32* command) const
+{
     {
         command = MakePrepareCommand(command);
     }
 
-    if (this->IsEnableGeoShader()){                     
+    if (this->IsEnableGeoShader())
+    {                     
         command = this->MakeGeoProgramCommand(command);
         command = this->MakeGeoSwizzleCommand(command);
         command = this->MakeGeoConstRgCommand(command);
@@ -127,21 +140,25 @@ bit32* Shader::MakeFullCommand(bit32* command) const{
     return command;
 }
 
-bit32* Shader::MakeDisableCommand(bit32* command){
+bit32* Shader::MakeDisableCommand(bit32* command)
+{
     const bool isEnableGeometryShader = false;
     const PicaDataDrawMode drawMode = PICA_DATA_DRAW_TRIANGLES;
 
-    command = MakeShaderModeCommand_(command,isEnableGeometryShader,drawMode);
+    command = MakeShaderModeCommand_(command, isEnableGeometryShader, drawMode);
 
     return command;
 }
 
-bit32* Shader::MakeShaderCommand(bit32* command, const bool isMakePrepareCommand) const{
-    if (isMakePrepareCommand){
+bit32* Shader::MakeShaderCommand(bit32* command, const bool isMakePrepareCommand) const
+{
+    if (isMakePrepareCommand)
+    {
         command = this->MakePrepareCommand(command);
     }
 
-    if (this->IsEnableGeoShader()){
+    if (this->IsEnableGeoShader())
+    {
         command = this->MakeGeoConstRgCommand(command);
         command = this->MakeGeoBoolMapCommand(command);
     }
@@ -158,9 +175,10 @@ bit32* Shader::MakeShaderCommand(bit32* command, const bool isMakePrepareCommand
     return command;
 }
 
-bit32* Shader::MakePrepareCommand(bit32* command) const{
+bit32* Shader::MakePrepareCommand(bit32* command) const
+{
     bool isEnableGeoShader = this->IsEnableGeoShader();
-    PicaDataDrawMode drawMode = mDrawMode;
+    PicaDataDrawMode drawMode = m_DrawMode;
 
     command = this->MakeShaderModeCommand_(command, isEnableGeoShader, drawMode);
 
@@ -181,14 +199,15 @@ bit32* Shader::MakeVtxProgramCommand(bit32* command) const{
     {
         NN_ASSERT_(0 <= shader_index && shader_index < mExeImageInfoNum);
                     
-        const ExeImageInfo* exe_info = mExeImageInfo[shader_index];
+        const ExeImageInfo* exe_info = m_ExeImageInfo[shader_index];
 
-        u32 instructionCount = mInstructionCount;
-        if (instructionCount > 512){
+        u32 instructionCount = m_InstructionCount;
+        if (instructionCount > 512)
+        {
             instructionCount = 512;
         }
 
-        command = this->MakeLoadCommand_(command, reg_load, mInstruction, mInstructionCount < 512 ? mInstructionCount : 512);
+        command = this->MakeLoadCommand_(command, reg_load, m_Instruction, m_InstructionCount < 512 ? m_InstructionCount : 512);
     }
 
     {
@@ -199,7 +218,7 @@ bit32* Shader::MakeVtxProgramCommand(bit32* command) const{
     return command;
 }
 
-bit32* Shader::MakeGeoProgramCommand( bit32* command ) const{
+bit32* Shader::MakeGeoProgramCommand(bit32* command) const{
     s32 shader_index   = this->GetGeoShaderIndex();
     bit32 reg_addr     = PICA_REG_GS_PROG_ADDR;
     bit32 reg_load     = PICA_REG_GS_PROG_DATA0;
@@ -211,13 +230,13 @@ bit32* Shader::MakeGeoProgramCommand( bit32* command ) const{
     }
 
     {
-        NN_ASSERT_((0 <= shader_index) && (shader_index < mExeImageInfoNum));
+        NN_ASSERT_((0 <= shader_index) && (shader_index < m_ExeImageInfoNum));
                         
-        const ExeImageInfo* exe_info = mExeImageInfo[shader_index];
+        const ExeImageInfo* exe_info = m_ExeImageInfo[shader_index];
 
         NN_UNUSED_VAR(exe_info);
 
-        command = this->MakeLoadCommand_(command, reg_load, this->mInstruction, this->mInstructionCount);
+        command = this->MakeLoadCommand_(command, reg_load, m_Instruction, m_InstructionCount);
     }
 
     {
@@ -228,12 +247,15 @@ bit32* Shader::MakeGeoProgramCommand( bit32* command ) const{
     return command;
 }
 
-bit32* Shader::MakeShaderModeCommand_(bit32* command, const bool isEnableGeoShader, const PicaDataDrawMode drawMode){
+bit32* Shader::MakeShaderModeCommand_(bit32* command, const bool isEnableGeoShader, const PicaDataDrawMode drawMode)
+{
     { 
-        if (isEnableGeoShader){
+        if (isEnableGeoShader)
+        {
             *command++ = PICA_DATA_DRAW_GEOMETRY_PRIMITIVE << 8;
         }
-        else{
+        else
+        {
             *command++ = drawMode << 8;
         }
 
@@ -265,15 +287,14 @@ bit32* Shader::MakeShaderModeCommand_(bit32* command, const bool isEnableGeoShad
     return command;
 }
 
-void Shader::CheckVtxShaderIndex_( const s32 vtx_shader_index ){
-    NN_UNUSED_VAR(vtx_shader_index);
-
+void Shader::CheckVtxShaderIndex_(const s32 vtx_shader_index)
+{
     NN_ASSERT_((0 <= vtx_shader_index) && (vtx_shader_index < this->GetShaderNum()));
-
     NN_ASSERT_(!mExeImageInfo[vtx_shader_index]->isGeoShader);
 }
 
-void Shader::CheckGeoShaderIndex_( const s32 geo_shader_index ){
+void Shader::CheckGeoShaderIndex_(const s32 geo_shader_index)
+{
     NN_UNUSED_VAR(geo_shader_index);
 
     NN_ASSERT_(mGeoShaderIndex < GetShaderNum());
@@ -283,22 +304,25 @@ void Shader::CheckGeoShaderIndex_( const s32 geo_shader_index ){
     }
 }
 
-bit32* Shader::MakeConstRgCommand_(bit32* command, const s32 shader_index){
+bit32* Shader::MakeConstRgCommand_(bit32* command, const s32 shader_index)
+{
     bit32  reg_float     = PICA_REG_VS_FLOAT_ADDR;
     bit32  reg_integer   = PICA_REG_VS_INT0;
-    bit32* boolMap       = &mVtxShaderBoolMapUniform;
+    bit32* boolMap       = &m_VtxShaderBoolMapUniform;
 
-    bool is_geometry_shader = mExeImageInfo[shader_index]->isGeoShader;
-    if (is_geometry_shader){
+    bool is_geometry_shader = m_ExeImageInfo[shader_index]->isGeoShader;
+    if (is_geometry_shader)
+    {
         reg_float = PICA_REG_GS_FLOAT_ADDR;
         reg_integer = PICA_REG_GS_INT0;
-        boolMap = &mGeoShaderBoolMapUniform;
+        boolMap = &m_GeoShaderBoolMapUniform;
     }
 
-    NN_ASSERT_((0 <= shader_index) && (shader_index < mExeImageInfoNum));
-    const ExeImageInfo* exe_info = mExeImageInfo[shader_index];
+    NN_ASSERT_((0 <= shader_index) && (shader_index < m_ExeImageInfoNum));
+    const ExeImageInfo* exe_info = m_ExeImageInfo[shader_index];
 
-    struct SetupInfo{
+    struct SetupInfo
+    {
         u16 type;
         u16 index;
         bit32 value[4];
@@ -306,11 +330,13 @@ bit32* Shader::MakeConstRgCommand_(bit32* command, const s32 shader_index){
 
     const SetupInfo* setupInfo = reinterpret_cast<const SetupInfo*>(reinterpret_cast<const u8*>(exe_info) + exe_info->setupOffset);
 
-    for (int i = 0; i < exe_info->setupCount; ++i){
+    for (int i = 0; i < exe_info->setupCount; ++i)
+    {
         const SetupInfo& info = setupInfo[i];
         const bit32* value = info.value;
 
-        switch (info.type){
+        switch (info.type)
+        {
         case 0:
             *boolMap |= (info.value[0] << info.index) & (1 << info.index);
             break;
@@ -320,7 +346,7 @@ bit32* Shader::MakeConstRgCommand_(bit32* command, const s32 shader_index){
              break;
         case 2:
             *command++ = info.index;
-            *command++ = PICA_CMD_HEADER_BURSTSEQ( reg_float, 4 );
+            *command++ = PICA_CMD_HEADER_BURSTSEQ(reg_float, 4);
             *command++ = (value[3] <<  8 & 0xffffff00) | (value[2] >> 16 & 0x000000ff);
             *command++ = (value[2] << 16 & 0xffff0000) | (value[1] >>  8 & 0x0000ffff);
             *command++ = (value[1] << 24 & 0xff000000) | (value[0] >>  0 & 0x00ffffff);
@@ -331,8 +357,6 @@ bit32* Shader::MakeConstRgCommand_(bit32* command, const s32 shader_index){
 
     return command;
 }
-
-
         
 }
 }

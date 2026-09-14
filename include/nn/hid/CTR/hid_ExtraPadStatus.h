@@ -7,7 +7,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-struct ExtraPadStatus{
+struct ExtraPadStatus
+{
     AnalogStickStatus stick;
     AnalogStickStatus extraStick;
     bit32 hold;

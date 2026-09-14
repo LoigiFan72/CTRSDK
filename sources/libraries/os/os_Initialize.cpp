@@ -7,7 +7,8 @@
 namespace nn{
 namespace os{
     
-void Initialize(){
+void Initialize()
+{
     WaitableCounter::Initialize();
     detail::SaveThreadLocalRegionAddress();
     detail::InitializeSharedMemory();
@@ -20,7 +21,8 @@ void Initialize(){
 
 extern "C" {
 
-void nnosInitialize(){
+void nnosInitialize()
+{
     nn::os::Initialize();
 }
 

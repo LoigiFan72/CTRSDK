@@ -12,14 +12,22 @@ namespace svc{
 
 namespace os{
 
-class Tick{
+class Tick
+{
 public:
     s64 m_Tick;
 
     static const s64 TICKS_PER_SECOND  = NN_CTR_MPCORE_TICKS_PER_SECOND;
 
-    Tick(s64 tick = 0) : m_Tick(tick) {}
-    Tick(nn::fnd::TimeSpan span);
+    Tick(s64 tick = 0): 
+        m_Tick(tick)
+    {
+    }
+
+    Tick(nn::fnd::TimeSpan span): 
+        m_Tick(nnmathMultiplyRate32(span.GetNanoSeconds(), math::MakeRate32<TICKS_PER_SECOND, 1000 * 1000 * 1000>::VALUE))
+    {
+    }
     static Tick GetSystemCurrent();
 
     operator s64() const { return m_Tick; }
@@ -29,19 +37,18 @@ public:
     nn::fnd::TimeSpan ToTimeSpan() const;
 };
 
-inline Tick Tick::GetSystemCurrent(){
+inline Tick Tick::GetSystemCurrent()
+{
     return Tick(nn::svc::GetSystemTick());
 }
 
-inline Tick::Tick(nn::fnd::TimeSpan span): 
-    m_Tick(nnmathMultiplyRate32(span.GetNanoSeconds(), math::MakeRate32<TICKS_PER_SECOND, 1000 * 1000 * 1000>::VALUE) )
-{}
-
-inline Tick::operator nn::fnd::TimeSpan() const{
+inline Tick::operator nn::fnd::TimeSpan() const
+{
     return nn::fnd::TimeSpan::FromNanoSeconds(nnmathMultiplyRate(this->m_Tick,math::MakeRate<1000 * 1000 * 1000, TICKS_PER_SECOND>::VALUE ));
 }
 
-inline nn::fnd::TimeSpan Tick::ToTimeSpan() const{
+inline nn::fnd::TimeSpan Tick::ToTimeSpan() const
+{
     return *this;
 }
 

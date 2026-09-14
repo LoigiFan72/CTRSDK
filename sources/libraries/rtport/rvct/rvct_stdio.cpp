@@ -19,7 +19,8 @@ typedef int FILEHANDLE;
 #pragma import(__use_no_semihosting)
 #pragma import(__use_no_semihosting_swi)
 
-extern "C"{
+extern "C"
+{
     const char __stdin_name[]  = "";
     const char __stdout_name[] = "";
     const char __stderr_name[] = "";
@@ -50,14 +51,18 @@ extern "C"{
     void** __rt_eh_globals_addr(){ return &nn::os::CTR::GetThreadLocalRegion()->ehGlobalsAddr; }
 }
 
-namespace std{
-    bool type_info::operator==(const type_info& rhs) const{
+namespace std
+{
+    bool type_info::operator==(const type_info& rhs) const
+    {
         return std::strcmp(this->name(), rhs.name()) == 0;
     }
-    bool type_info::operator!=(const type_info& rhs) const{
+    bool type_info::operator!=(const type_info& rhs) const
+    {
         return std::strcmp(this->name(), rhs.name()) != 0;
     }
-    bool type_info::before(const type_info& rhs) const{
+    bool type_info::before(const type_info& rhs) const
+    {
         return std::strcmp(this->name(), rhs.name()) < 0;
     }
 }

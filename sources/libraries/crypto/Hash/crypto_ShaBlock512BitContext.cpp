@@ -7,54 +7,63 @@
 #include <cstring>
 
 extern "C" void nnnstdMemCpy(void* pOut, const void* scrp, size_t size);
+
 namespace nn{
 namespace crypto{
 namespace{
-    u8 s_Padding[64] ={
+    u8 s_Padding[64] =
+    {
         0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 }
-inline void CopyBytes(const u8* pSrc, u8* pDst, size_t length){
+inline void CopyBytes(const u8* pSrc, u8* pDst, size_t length)
+{
     nstd::ARMv6::MemCpy(pDst, pSrc, length);
 }
 
-void ShaBlock512BitContext::Update(const void* pData, size_t length){
+void ShaBlock512BitContext::Update(const void* pData, size_t length)
+{
     const u8* pInput = reinterpret_cast<const u8*>(pData);
     
-    while (length > 0){
-        u32 rest = BLOCK_SIZE - mPool;
+    while (length > 0)
+    {
+        u32 rest = BLOCK_SIZE - m_Pool;
         u8 *dat;
-        if (rest > length){
+        if (rest > length)
+        {
             rest = length;
         }
-        dat = mBlock;
-        CopyBytes(pInput, &dat[this->mPool], rest);
+        dat = m_Block;
+        CopyBytes(pInput, &dat[this->m_Pool], rest);
         pInput += rest;
         length -= rest;
-        mPool  += rest;
+        m_Pool  += rest;
 
-        if (mPool >= BLOCK_SIZE){
+        if (m_Pool >= BLOCK_SIZE)
+        {
             this->ProcessBlock();
-            mPool = 0;
-            ++mBlocksLow;
-            if (!mBlocksLow){
-                ++mBlocksHigh;
+            m_Pool = 0;
+            ++m_BlocksLow;
+            if (!m_BlocksLow)
+            {
+                ++m_BlocksHigh;
             }
         }
     }
 }
 
-void ShaBlock512BitContext::AddPadding(){
+void ShaBlock512BitContext::AddPadding()
+{
     u32 size;
     u32 pool;
     u32 footer[2];
-    footer[1] = Convert32HToBE(this->mBlocksLow * 0x200 + this->mPool * 8);
-    footer[0] = Convert32HToBE(this->mBlocksHigh * 0x200 + (this->mBlocksLow >> 0x17));
-    pool = this->mPool;
-    if(pool < 0x38)
-        size = 0x38 - pool;
+    footer[1] = Convert32HToBE(this->m_BlocksLow * 0x200 + this->m_Pool * 8);
+    footer[0] = Convert32HToBE(this->m_BlocksHigh * 0x200 + (this->m_BlocksLow >> 0x17));
+    pool = this->m_Pool;
+    if(pool < 56)
+        size = 56 - pool;
     else
-        size = 0x78 - pool;
+        size = 120 - pool;
     this->Update(s_Padding,size);
     this->Update(footer,8);
 }

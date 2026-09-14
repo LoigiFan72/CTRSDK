@@ -5,14 +5,16 @@
 namespace nn{
 namespace os{
 
-struct RtcSwcInfo{
+struct RtcSwcInfo
+{
     s64 rtcBaseMilliSeconds;
     Tick rtcBaseTicks;
     s64 rtcTicksPerSecond;
     s64 rtcDiffMilliSeconds;
 };
 
-struct WritableSharedInfo{
+struct WritableSharedInfo
+{
     s32 rtcValidNumber;
     u8 targetHardware;
     u8 msuTargetInfo;
@@ -32,7 +34,8 @@ struct WritableSharedInfo{
     bool isHeadphoneInserted;
 };
 
-struct ReadOnlySharedInfo{
+struct ReadOnlySharedInfo
+{
     bit8 versionRservese;
     u8 versionMicro;
     u8 versionMinor;

@@ -21,7 +21,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class AccelerometerReader : private nn::util::ADLFireWall::NonCopyable<AccelerometerReader>{
+class AccelerometerReader : private nn::util::ADLFireWall::NonCopyable<AccelerometerReader>
+{
 protected:
     Accelerometer& m_Accelerometer;
     s16 m_Play;
@@ -59,21 +60,25 @@ private:
 
 /* Inlines */
 
-inline void AccelerometerReader::ResetOffset(){ 
+inline void AccelerometerReader::ResetOffset()
+{ 
     SetOffset(0, 0, 0); 
 }
 
-inline void AccelerometerReader::SetOffset(s16 x, s16 y, s16 z){
+inline void AccelerometerReader::SetOffset(s16 x, s16 y, s16 z)
+{
     m_OffsetAccStatus.x = x; m_OffsetAccStatus.y = y; m_OffsetAccStatus.z = z;
 }
 
-inline void AccelerometerReader::SetSensitivity(s16 play, s16 sensitivity){
+inline void AccelerometerReader::SetSensitivity(s16 play, s16 sensitivity)
+{
     NN_TASSERT_(0 <= play && MAX_OF_ACCELEROMETER_PLAY >= play && 0 <= sensitivity && MAX_OF_ACCELEROMETER_SENSITIVITY >= sensitivity);
     m_Play = play;
     m_Sensitivity = sensitivity;
 }
 
-inline void AccelerometerReader::GetSensitivity(s16* pPlay, s16* pSensitivity) const{
+inline void AccelerometerReader::GetSensitivity(s16* pPlay, s16* pSensitivity) const
+{
     *pPlay = m_Play;
     *pSensitivity = m_Sensitivity;
 }

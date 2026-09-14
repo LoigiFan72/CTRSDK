@@ -6,7 +6,8 @@
 namespace nn{
 namespace os{
 
-class ThreadLocalStorage{
+class ThreadLocalStorage
+{
 public:
     int m_Index;
 

@@ -8,7 +8,8 @@ namespace nn{
 namespace os{
 namespace ARM{
 
-__asm void SpinWaitCpuCycles(){
+__asm void SpinWaitCpuCycles()
+{
     SUBS            R0, R0, #2
     NOP
     BGT             __cpp(nn::os::ARM::SpinWaitCpuCycles)

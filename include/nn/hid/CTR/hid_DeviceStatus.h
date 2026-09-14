@@ -57,17 +57,25 @@ namespace CTR {
         f32 z;
     }AccelerationFloat;
 
-    struct Direction{
+    struct Direction
+    {
     public:
         VEC3 x;
         VEC3 y;
         VEC3 z;
     public: 
-        Direction(){ }
-        explicit Direction(const VEC3& vecx,const VEC3& vecy,const VEC3& vecz):x(vecx),y(vecy),z(vecz){}
+        Direction()
+        { 
+        }
+        
+        explicit Direction(const VEC3& vecx,const VEC3& vecy,const VEC3& vecz):x(vecx),y(vecy),z(vecz)
+        {
+        }
+
         Direction(const MTX33 &mtx33):
             x(mtx33.v[0]),y(mtx33.v[1]),z(mtx33.v[2])
-        {}
+        {
+        }
 
         MTX33 ToMTX33(){
             return MTX33(

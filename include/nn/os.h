@@ -4,7 +4,6 @@
 #include <nn/os/os_AutoStackManager.h>
 #include <nn/os/os_BlockingQueue.h>
 #include <nn/os/os_CriticalSection.h>
-#include <nn/os/os_Default.h>
 #include <nn/os/os_Event.h>
 #include <nn/os/os_Initialize.h>
 #include <nn/os/os_LightEvent.h>
@@ -16,8 +15,7 @@
 #include <nn/os/os_Mutex.h>
 #include <nn/os/os_Result.h>
 #include <nn/os/os_SharedMemory.h>
-#include <nn/os/ARM/os_SpinWait.h>
-#include <nn/os/os_StackMemory.h>
+#include <nn/os/os_StackMemoryBlock.h>
 #include <nn/os/os_Semaphore.h>
 #include <nn/os/os_Synchronization.h>
 #include <nn/os/os_Thread.h>
@@ -27,10 +25,14 @@
 #include <nn/os/os_TransferMemoryBlock.h>
 #include <nn/os/os_Types.h>
 #include <nn/os/os_WaitableCounter.h>
+#include <nn/os/ARM/os_SpinWait.h>
+#include <nn/os/ARM/os_ExceptionHandler.h>
+#include <nn/os/ARM/os_MemoryBarrier.h>
 
 #ifdef __cplusplus
 
 using namespace nn::os;
 using namespace nn::os::CTR::detail;
+using namespace nn::os::ARM;
 
 #endif

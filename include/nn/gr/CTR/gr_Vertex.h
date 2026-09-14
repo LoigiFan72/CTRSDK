@@ -6,22 +6,27 @@ namespace nn{
 namespace gr{
 namespace CTR{
     
-class Vertex{
+class Vertex
+{
 public:
     static const u32 VERTEX_ATTRIBUTE_MAX = 12;
     static const u32 VERTEX_ATTRIBUTE_DIMENSION_MAX = 4;
     static const u32 VERTEX_ENABLE_COMMAND_MAX = 12 + VERTEX_ATTRIBUTE_MAX * 6;
 
-    class InterleaveInfo{
+    class InterleaveInfo
+    {
     public:
-        InterleaveInfo(){
+        InterleaveInfo()
+        {
             dataNum = 0;
 
-            for (u32 index = 0; index < VERTEX_ATTRIBUTE_MAX; index++){
+            for (u32 index = 0; index < VERTEX_ATTRIBUTE_MAX; index++)
+            {
                 dataType[index] = PICA_DATA_SIZE_1_BYTE;
             }
 
-            for (u32 index = 0; index < VERTEX_ATTRIBUTE_MAX; index++){
+            for (u32 index = 0; index < VERTEX_ATTRIBUTE_MAX; index++)
+            {
                 symbol[index] = NULL;
             }
         }
@@ -33,31 +38,83 @@ public:
         const nn::gr::CTR::BindSymbolVSInput* symbol[VERTEX_ATTRIBUTE_MAX];    
     };
 
-    void DisableAll(){
-        mCmdCacheVertexNum = 0;
+    class IndexStream
+    {
+    public:
+        IndexStream():
+            physicalAddr(0),
+            drawVtxNum(0),
+            isUnsignedByte(false)
+        {
+        }
 
-        for (u32 index = 0; index < VERTEX_ENABLE_COMMAND_MAX; index++){
-                mCmdCacheVertex[index] = 0;
-            }
+        uptr  physicalAddr;
+        u32  drawVtxNum;
+        bool isUnsignedByte;
+        u32 pad;
+    };
 
-        for (u32 index = 0; index < 12; index++){
-            mIsEnableReg[index] = false;
-            this->mLoadArray[index].DisableAll();
-            this->mAttrConst[index].DisableAll();
+    static bit32* MakeDisableCommand(bit32* command)
+    {
+        *command++ = 0;
+        *command++ = PICA_CMD_HEADER_SINGLE(0x201);
+
+        *command++ = 0;
+        *command++ = PICA_CMD_HEADER_SINGLE(0x202);
+
+        const int size = (2 + 3 * VERTEX_ATTRIBUTE_MAX) * sizeof(bit32);
+        std::memset(command, 0, size);
+        command[1] = PICA_CMD_HEADER_BURSTSEQ(PICA_REG_LOAD_ARRAY0_ATTR_OFFSET, VERTEX_ATTRIBUTE_MAX * 3);
+        command += size / sizeof(bit32);
+                    
+        for (int i = 0; i < VERTEX_ATTRIBUTE_MAX; ++i)
+        {
+            *command++ = i;
+            *command++ = PICA_CMD_HEADER_BURSTSEQ(PICA_REG_VS_FIXED_ATTR, 4);
+
+            *command++ = 0;
+            *command++ = 0;
+
+            *command++ = 0;
+            *command++ = 0;
+        }
+
+        return command;
+    }
+
+    void DisableAll()
+    {
+        m_CmdCacheVertexNum = 0;
+
+        for (u32 index = 0; index < VERTEX_ENABLE_COMMAND_MAX; index++)
+        {
+            m_CmdCacheVertex[index] = 0;
+        }
+
+        for (u32 index = 0; index < 12; index++)
+        {
+            m_IsEnableReg[index] = false;
+            m_LoadArray[index].DisableAll();
+            m_AttrConst[index].DisableAll();
         }
     }
     void EnableInterleavedArray(const nn::gr::CTR::Vertex::InterleaveInfo& interleave_info, const uptr physical_addr);
+    void EnableAttrAsArray(const nn::gr::CTR::BindSymbolVSInput& symbol, const uptr physical_addr, const PicaDataVertexAttrType type);
+private:
+    void DisableAttr_(const bit32 bind_reg);
 public:
-    explicit Vertex(){
+    explicit Vertex()
+    {
         this->DisableAll();
     }
-
 protected:
-    class LoadArray{
+    class LoadArray
+    {
     public:
         LoadArray():
             physicalAddr(0)
-        {}
+        {
+        }
 
         uptr physicalAddr;
         PicaDataVertexAttrType type[12];
@@ -65,36 +122,41 @@ protected:
         s32 bind[12];
 
         bool IsEnable() const { return physicalAddr != 0; }
-
         void DisableAll();
+        void CheckDisable();
     };
-    class AttrConst{
+    class AttrConst
+    {
     public:
         AttrConst():
             dimension(0)
-        {}
+        {
+        }
 
         u8 dimension;
         s8 rev[3];
         f32 param[VERTEX_ATTRIBUTE_DIMENSION_MAX];
 
         bool IsEnable() const { return dimension != 0; }
+        void Disable(){ dimension = 0; }
 
-        void DisableAll(){
+        void DisableAll()
+        {
             dimension = 0;
 
-            for (u32 index = 0; index < VERTEX_ATTRIBUTE_DIMENSION_MAX; index++){
+            for (u32 index = 0; index < VERTEX_ATTRIBUTE_DIMENSION_MAX; index++)
+            {
                 param[index] = 0;
             }
         }
     };
     
-    mutable u32 mCmdCacheVertexNum;
-    mutable bit32 mCmdCacheVertex[VERTEX_ENABLE_COMMAND_MAX];
-    bool mIsEnableReg[VERTEX_ATTRIBUTE_MAX];
+    mutable u32 m_CmdCacheVertexNum;
+    mutable bit32 m_CmdCacheVertex[VERTEX_ENABLE_COMMAND_MAX];
+    bool m_IsEnableReg[VERTEX_ATTRIBUTE_MAX];
 
-    LoadArray mLoadArray[VERTEX_ATTRIBUTE_MAX];
-    AttrConst mAttrConst[VERTEX_ATTRIBUTE_MAX];
+    LoadArray m_LoadArray[VERTEX_ATTRIBUTE_MAX];
+    AttrConst m_AttrConst[VERTEX_ATTRIBUTE_MAX];
 };
 }
 }

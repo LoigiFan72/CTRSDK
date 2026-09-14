@@ -18,7 +18,8 @@
     *__cb_current_command_buffer++ = (data);                    \
     *__cb_current_command_buffer++ = (header)
 
-enum{
+enum
+{
     NW_FONT_CMD_CULL_FACE_DISABLE,
     NW_FONT_CMD_CULL_FACE_FRONT,
     NW_FONT_CMD_CULL_FACE_BACK,
@@ -29,7 +30,8 @@ enum{
 namespace nn {
 namespace font {
 
-struct ColorBufferInfo{
+struct ColorBufferInfo
+{
     u16 width;
     u16 height;
     u8 depth;

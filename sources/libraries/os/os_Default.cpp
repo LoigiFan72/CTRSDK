@@ -3,22 +3,18 @@
 // Project: Horizon
 
 #include <nn/Result.h>
-#include <nn/os/os_Default.h>
 #include <nn/os.h>
 #include <nn/math.h>
+
+#include "os_Default.h"
 
 namespace nn{
 namespace os{
 
-static AutoStackManager* spAutoStackManager;
-
-void SetDefaultAutoStackManager(){
-    Thread::SetAutoStackManager(spAutoStackManager);
-}
-
 namespace{
 
-class DefaultAutoStackManager : public os::AutoStackManager{
+class DefaultAutoStackManager : public os::AutoStackManager
+{
 protected:
     static const size_t DESTRUCTOR_STACK_SIZE = 512;
 
@@ -29,18 +25,23 @@ protected:
     os::StackBuffer<DESTRUCTOR_STACK_SIZE>  m_DestructorStack;
 public:
     DefaultAutoStackManager():
-        mInitialized(false)
-    {}
+        m_Initialized(false)
+    {
+    }
 
-    virtual ~DefaultAutoStackManager(){
-        if (m_Initialized){
+    virtual ~DefaultAutoStackManager()
+    {
+        if (m_Initialized)
+        {
             this->m_DestructorMutex.Finalize();
             m_Initialized = false;
         }
     }
 
-    virtual void* Construct(size_t stackSize){
-        if (!m_Initialized){
+    virtual void* Construct(size_t stackSize)
+    {
+        if (!m_Initialized)
+        {
             this->Initialize();
         }
                     
@@ -58,26 +59,32 @@ public:
         return reinterpret_cast<void*>(stackBottom);
     }
 
-    virtual void Destruct(void* pStackBottom, bool isError){
-        if(isError){
+    virtual void Destruct(void* pStackBottom, bool isError)
+    {
+        if(isError)
+        {
             this->FreeStack(reinterpret_cast<nnosStackMemoryBlock*>(pStackBottom));
         }
-        else{
+        else
+        {
             this->m_DestructorMutex.Lock();
             this->InvokeOnOtherStack(m_DestructorStack.GetStackBottom(), &FreeStack, pStackBottom, __return_address());
         }
     }
 private:
-    void Initialize(void){
+    void Initialize(void)
+    {
         this->m_DestructorMutex.Initialize(false);
         m_Initialized = true;
     }
-    static void FreeStack(void* pStackBottom){
+    static void FreeStack(void* pStackBottom)
+    {
         nnosStackMemoryBlock* pBlockOnStack = reinterpret_cast<nnosStackMemoryBlock*>(pStackBottom);
         nnosStackMemoryBlockFree(pBlockOnStack);
     }
 
-    static asm void InvokeOnOtherStack(uptr stackBottom,void (*f)(void*),void* param ,uptr returnAddr){
+    static asm void InvokeOnOtherStack(uptr stackBottom,void (*f)(void*),void* param ,uptr returnAddr)
+    {
         mov         sp, r0
         mov         r0, r2
         mov         lr, r3
@@ -86,8 +93,14 @@ private:
 
 };
 
-DefaultAutoStackManager sAutoStackManager;
+DefaultAutoStackManager s_AutoStackManager;
 
 }
+
+void SetDefaultAutoStackManager()
+{
+    Thread::SetAutoStackManager(&s_AutoStackManager);
+}
+
 }
 }

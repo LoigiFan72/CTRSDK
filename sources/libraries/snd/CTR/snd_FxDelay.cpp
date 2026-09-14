@@ -145,11 +145,11 @@ void FxDelay::UpdateBuffer(uptr data){
     NN_ASSERT_(mDelayFrames != 0);
 
     AuxBusData* auxData = reinterpret_cast<AuxBusData*>(data);
-    s32* input[ CHANNEL_INDEX_NUM ];
-    input[ CHANNEL_INDEX_FRONT_LEFT ]  = auxData->frontLeft;
-    input[ CHANNEL_INDEX_FRONT_RIGHT ] = auxData->frontRight;
-    input[ CHANNEL_INDEX_REAR_LEFT ]   = auxData->rearLeft;
-    input[ CHANNEL_INDEX_REAR_RIGHT ]  = auxData->rearRight;
+    s32* input[CHANNEL_INDEX_NUM];
+    input[CHANNEL_INDEX_FRONT_LEFT]  = auxData->frontLeft;
+    input[CHANNEL_INDEX_FRONT_RIGHT] = auxData->frontRight;
+    input[CHANNEL_INDEX_REAR_LEFT]   = auxData->rearLeft;
+    input[CHANNEL_INDEX_REAR_RIGHT]  = auxData->rearRight;
 
     const u32 start_pos = NN_SND_SAMPLES_PER_FRAME * mCurFrame;
 

@@ -17,14 +17,18 @@ namespace{
 const nn::fnd::TimeSpan RETRY_INTERVAL = nn::fnd::TimeSpan::FromMilliSeconds(10);
 const s32 RETRY_MAX = 100;
 
-typedef struct{
-    union{
+typedef struct
+{
+    union
+    {
         u8  cid[8];
         u64 uid;
     };
-    union{
+    union
+    {
         u32 dateTime;
-        struct{
+        struct
+        {
             u32 second:3;
             u32 minute:6;
             u32 hour:5;
@@ -43,16 +47,20 @@ static LocalBlackList sLocalBlackList[2]; // 2 Lists
 
 #ifdef NN_UBL_ENABLE_GLOBAL_BLACKLIST
 
-typedef struct{
-    union{
+typedef struct
+{
+    union
+    {
         u8  cid[8];
         u64 uid;
     };
     u32 titleId;
 } GlobalUserBlackList;
 
-typedef struct{
-    union{
+typedef struct
+{
+    union
+    {
         u8  cid[8];
         u64 did;
     };
@@ -66,7 +74,8 @@ typedef struct{
 
 #define RESERVED_LENGTH 128
 
-static struct{
+static struct
+{
     u32 version;
     u32 userSize;
     u32 dataSize;
@@ -80,7 +89,8 @@ static struct{
 const char* s_ArchiveName           = "ubl_:";
 const bit32 s_SharedExtSaveDataId   = 0xF000000B;
 
-typedef struct{
+typedef struct
+{
     wchar_t *fileName;
     s32 fileSize;
 } UBL_Setting;
@@ -115,17 +125,21 @@ Result Initialize(){
 
     result = nn::fs::MountSharedExtSaveData(s_ArchiveName, s_SharedExtSaveDataId);
 
-    if (result.IsFailure()){
+    if (result.IsFailure())
+    {
         return nn::Result(nn::Result::LEVEL_FATAL, nn::Result::SUMMARY_INTERNAL, nn::Result::MODULE_NN_NGC, nn::Result::DESCRIPTION_INVALID_RESULT_VALUE);
     }
 
-    do{
+    do
+    {
         result = fr.TryInitialize(s_SettingTable[0].fileName);
 
-        if (result.IsFailure()){
-
-            if (result <= nn::fs::ResultOperationDenied()){
-                if (++retryCount >= RETRY_MAX){
+        if (result.IsFailure())
+        {
+            if (result <= nn::fs::ResultOperationDenied())
+            {
+                if (++retryCount >= RETRY_MAX)
+                {
                     break;
                 }
                 continue;
@@ -136,11 +150,13 @@ Result Initialize(){
 
         result = fr.TryGetSize(&fileSize);
 
-        if (result.IsSuccess() && fileSize == sizeof(LocalBlackList) * MAX_LOCAL_BLACK_LIST){
+        if (result.IsSuccess() && fileSize == sizeof(LocalBlackList) * MAX_LOCAL_BLACK_LIST)
+        {
             s32 readSize;
             result = fr.TryRead(&readSize, sLocalBlackList, static_cast<size_t>(fileSize));
 
-            if (result.IsSuccess()){
+            if (result.IsSuccess())
+            {
                 isError = false;
             }
         }
@@ -149,20 +165,24 @@ Result Initialize(){
         break;
     } while (true);
 
-    if (isError){
-        for (int i = 0; i < MAX_LOCAL_BLACK_LIST; i++){
+    if (isError)
+    {
+        for (int i = 0; i < MAX_LOCAL_BLACK_LIST; i++)
+        {
             sLocalBlackList[i].uid = 0;
             sLocalBlackList[i].dateTime = NG_TIME;
         }
 
         nn::fs::CreateFile(s_SettingTable[0].fileName, s_SettingTable[0].fileSize);
         result = WriteLocalBlackList();
-        if(result.IsFailure()){
+        if(result.IsFailure())
+        {
             return nn::Result(nn::Result::LEVEL_FATAL, nn::Result::SUMMARY_INTERNAL, nn::Result::MODULE_NN_NGC, nn::Result::DESCRIPTION_NOT_AUTHORIZED);
         }
     }
 #ifdef ENABLE_GLOBAL_BLACK_LIST
-    if (!enableGlobalBlackList){
+    if (!enableGlobalBlackList)
+    {
         sGlobalBlackList.version = UBL_VERSION;
         sGlobalBlackList.userSize =
         sGlobalBlackList.dataSize = 0;
@@ -171,7 +191,8 @@ Result Initialize(){
         sGlobalBlackList.userBlackList = NULL;
         sGlobalBlackList.dataBlackList = NULL;
     }
-    else{
+    else
+    {
         s32 memSize;
 
         nn::fnd::IAllocator* pAllocator = nn::init::GetAllocator();
@@ -184,12 +205,16 @@ Result Initialize(){
             sGlobalBlackList.dataBlackList = NULL;
         }
 
-        do{
+        do
+        {
             result = fr.TryInitialize(s_SettingTable[1].fileName);
 
-            if (result.IsFailure()){
-                if (result <= nn::fs::ResultOperationDenied()){
-                    if (++retryCount >= RETRY_MAX){
+            if (result.IsFailure())
+            {
+                if (result <= nn::fs::ResultOperationDenied())
+                {
+                    if (++retryCount >= RETRY_MAX)
+                    {
                         break;
                     }
                     continue;
@@ -200,17 +225,20 @@ Result Initialize(){
 
             result = fr.TryGetSize(&fileSize);
 
-            if (result.IsSuccess() && fileSize >= RESERVED_LENGTH){
+            if (result.IsSuccess() && fileSize >= RESERVED_LENGTH)
+            {
                 s32 readSize;
 
                 result = fr.TryRead(&readSize, &sGlobalBlackList, RESERVED_LENGTH);
 
-                if (result.IsSuccess()){
+                if (result.IsSuccess())
+                {
                     isError = false;
 
-                    if (sGlobalBlackList.userSize > 0){
-
-                        if (sGlobalBlackList.userSize > MAX_GLOBAL_BLACK_USERLIST){
+                    if (sGlobalBlackList.userSize > 0)
+                    {
+                        if (sGlobalBlackList.userSize > MAX_GLOBAL_BLACK_USERLIST)
+                        {
                             sGlobalBlackList.userSize = 0;
                             sGlobalBlackList.dataSize = 0;
 
@@ -220,10 +248,12 @@ Result Initialize(){
                         memSize = sizeof(GlobalUserBlackList) * sGlobalBlackList.userSize;
                         sGlobalBlackList.userBlackList = static_cast<GlobalUserBlackList*>(pAllocator->Allocate(memSize, 4));
 
-                        if (sGlobalBlackList.userBlackList != NULL){
+                        if (sGlobalBlackList.userBlackList != NULL)
+                        {
                             result = fr.TryRead(&readSize, sGlobalBlackList.userBlackList, memSize);
 
-                            if (result.IsFailure()){
+                            if (result.IsFailure())
+                            {
                                 pAllocator->Free(sGlobalBlackList.userBlackList);
                                 sGlobalBlackList.userBlackList = NULL;
 
@@ -234,11 +264,13 @@ Result Initialize(){
                                 break;
                             }
                         }
-                        else{
+                        else
+                        {
                             sGlobalBlackList.userSize = 0;
 
                             result = fr.TrySeek(memSize, nn::fs::POSITION_BASE_CURRENT);
-                            if (result.IsFailure()){
+                            if (result.IsFailure())
+                            {
                                 sGlobalBlackList.dataSize = 0;
 
                                 fr.Finalize();
@@ -246,15 +278,16 @@ Result Initialize(){
                             }
                         }
                     }
-                    else{
+                    else
+                    {
                         sGlobalBlackList.userBlackList = NULL;
                         sGlobalBlackList.userSize = 0;
                     }
 
-                    if (sGlobalBlackList.dataSize > 0){
-
-                        if (sGlobalBlackList.dataSize > MAX_GLOBAL_BLACK_DATALIST){
-
+                    if (sGlobalBlackList.dataSize > 0)
+                    {
+                        if (sGlobalBlackList.dataSize > MAX_GLOBAL_BLACK_DATALIST)
+                        {
                             sGlobalBlackList.dataSize = 0;
 
                             fr.Finalize();
@@ -263,10 +296,12 @@ Result Initialize(){
                         memSize = sizeof(GlobalDataBlackList) * sGlobalBlackList.dataSize;
                         sGlobalBlackList.dataBlackList = static_cast<GlobalDataBlackList*>(pAllocator->Allocate(memSize, 4));
 
-                        if (sGlobalBlackList.dataBlackList != NULL){
+                        if (sGlobalBlackList.dataBlackList != NULL)
+                        {
                             result = fr.TryRead(&readSize, sGlobalBlackList.dataBlackList, memSize);
 
-                            if (result.IsFailure()){
+                            if (result.IsFailure())
+                            {
                                 pAllocator->Free(sGlobalBlackList.dataBlackList);
                                 sGlobalBlackList.dataBlackList = NULL;
 
@@ -276,17 +311,20 @@ Result Initialize(){
                                 break;
                             }
                         }
-                        else{
+                        else
+                        {
                             sGlobalBlackList.dataSize = 0;
 
                             result = fr.TrySeek(memSize, nn::fs::POSITION_BASE_CURRENT);
-                            if (result.IsFailure()){
+                            if (result.IsFailure())
+                            {
                                 fr.Finalize();
                                 break;
                             }
                         }
                     }
-                    else{
+                    else
+                    {
                         sGlobalBlackList.dataBlackList = NULL;
                         sGlobalBlackList.dataSize = 0;
                     }
@@ -295,7 +333,8 @@ Result Initialize(){
             fr.Finalize();
         } while (true);
 
-        if (isError){
+        if (isError)
+        {
             sGlobalBlackList.version = UBL_VERSION;
             sGlobalBlackList.userSize =
             sGlobalBlackList.dataSize = 0;
@@ -306,8 +345,10 @@ Result Initialize(){
     return nn::ResultSuccess();
 }
 
-void Finalize(){
-    if (isInitialized){
+void Finalize()
+{
+    if (isInitialized)
+    {
         nn::fs::Unmount(s_ArchiveName);
 #ifdef NN_UBL_ENABLE_GLOBAL_BLACKLIST
         nn::fs::Unmount(s_ArchiveName);
@@ -324,16 +365,20 @@ void Finalize(){
     }
 }
 
-bool IsExist(u64 authorId, u32 titleId, u64 dataId){
+bool IsExist(u64 authorId, u32 titleId, u64 dataId)
+{
     u32 i;
     bool found = false;
 
-    if (!isInitialized){
+    if (!isInitialized)
+    {
         return false;
     }
 
-    for (i = 0; i < MAX_LOCAL_BLACK_LIST; i++){
-        if (sLocalBlackList[i].uid == authorId && sLocalBlackList[i].dateTime != NG_TIME){
+    for (i = 0; i < MAX_LOCAL_BLACK_LIST; i++)
+    {
+        if (sLocalBlackList[i].uid == authorId && sLocalBlackList[i].dateTime != NG_TIME)
+        {
             found = true;
             break;
         }
@@ -343,16 +388,20 @@ bool IsExist(u64 authorId, u32 titleId, u64 dataId){
 
     if (found != true){
         size = sGlobalBlackList.userSize;
-        for (i = 0; i < size; i++){
-            if (sGlobalBlackList.userBlackList[i].uid == authorId && sGlobalBlackList.userBlackList[i].titleId == titleId){
+        for (i = 0; i < size; i++)
+        {
+            if (sGlobalBlackList.userBlackList[i].uid == authorId && sGlobalBlackList.userBlackList[i].titleId == titleId)
+            {
                 found = true;
                 break;
             }
         }
-        if (found != true){
+        if (found != true)
+        {
             size = sGlobalBlackList.dataSize;
             for (i = 0; i < size; i++){
-                if (sGlobalBlackList.dataBlackList[i].titleId == titleId && sGlobalBlackList.dataBlackList[i].did == dataId){
+                if (sGlobalBlackList.dataBlackList[i].titleId == titleId && sGlobalBlackList.dataBlackList[i].did == dataId)
+                {
                     found = true;
                     break;
                 }
@@ -363,17 +412,21 @@ bool IsExist(u64 authorId, u32 titleId, u64 dataId){
     return found;
 }
 
-u64 GetUserId(){
+u64 GetUserId()
+{
     return nn::cfg::CTR::GetTransferableId(0);
 }
 
 namespace{
 
-static Result WriteLocalBlackList(){
+static Result WriteLocalBlackList()
+{
     FileOutputStream fw;
     Result result = fw.TryInitialize(s_SettingTable[1].fileName, false);
-    do{
-        if(result.IsSuccess()){
+    do
+    {
+        if(result.IsSuccess())
+        {
             s32 writeSize;
             fw.TryWrite(&writeSize, sLocalBlackList, sizeof(LocalBlackList) * MAX_LOCAL_BLACK_LIST, true);
             fw.Finalize();
@@ -385,7 +438,6 @@ static Result WriteLocalBlackList(){
 }
 
 }
-
 
 }
 }

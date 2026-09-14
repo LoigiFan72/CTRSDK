@@ -13,22 +13,24 @@ namespace internal{
     CTR::VoiceManager s_VoiceManager;
 }
 
-VoiceManager::VoiceManager(){
+VoiceManager::VoiceManager()
+{
     u8* pBuffer = m_VoiceBuffer;
     u8* pImplBuffer = m_VoiceImplBuffer;
-    for (int i = 0; i < NN_SND_VOICE_NUM; i++){
-
+    for (int i = 0; i < NN_SND_VOICE_NUM; i++)
+    {
         m_pVoice[i] = new (pBuffer) Voice(i);
         NN_TASSERT_(reinterpret_cast<uptr>(this->m_pVoice[i]) == reinterpret_cast<uptr>(pBuffer));
         pBuffer += sizeof(Voice);
 
-        m_pVoice[i]->mpImpl = new (pImplBuffer) VoiceImpl(i);
+        m_pVoice[i]->m_pImpl = new (pImplBuffer) VoiceImpl(i);
         NN_TASSERT_(reinterpret_cast<uptr>(this->m_pVoice[i]->m_pImpl) == reinterpret_cast<uptr>(pImplBuffer));
         pImplBuffer += sizeof(VoiceImpl);
     }
 }
 
-void VoiceManager::Initialize(){
+void VoiceManager::Initialize()
+{
     m_MostPriorVoice      = NULL;
     m_MostInferiorVoice   = NULL;
     m_UsedVoiceBits       = 0;
@@ -38,15 +40,19 @@ void VoiceManager::Initialize(){
     this->m_CriticalSection.Initialize();
 }
 
-void VoiceManager::Finalize(){
+void VoiceManager::Finalize()
+{
     this->m_CriticalSection.Finalize();
 }
 
-void VoiceManager::AdjustVoicePlayState(s32 remain, s32 frame){
-    if (m_VoiceDropMode == VOICE_DROP_MODE_REAL_TIME){
+void VoiceManager::AdjustVoicePlayState(s32 remain, s32 frame)
+{
+    if (m_VoiceDropMode == VOICE_DROP_MODE_REAL_TIME)
+    {
         static const int DSP_CYCLES = 622535 * 100 / 95;
         int delayCycles = frame - DSP_CYCLES;
-        if (delayCycles > 0){
+        if (delayCycles > 0)
+        {
             remain -= delayCycles;
         }
     }
@@ -59,8 +65,8 @@ void VoiceManager::AdjustVoicePlayState(s32 remain, s32 frame){
 
     NN_NULL_TASSERT_(m_MostInferiorVoice);
 
-    while (pVoice){
-
+    while (pVoice)
+    {
         if (pVoice->GetImpl()->GetState() == Voice::STATE_PLAY && pVoice->GetImpl()->m_pWaveBuffer)
         {
             s32 cyclesVoice = pVoice->GetImpl()->GetCycle();
@@ -83,16 +89,17 @@ void VoiceManager::AdjustVoicePlayState(s32 remain, s32 frame){
 
                 if (pVoice->m_Callback)
                 {
-                    (*pVoice->m_Callback)(pVoice, pVoice->mUserArg);
+                    (*pVoice->m_Callback)(pVoice, pVoice->m_UserArg);
                 }
             }
         }
 
-        pVoice = pVoice->mInferiorVoice;
+        pVoice = pVoice->m_InferiorVoice;
     }
 }
 
-Voice* VoiceManager::AllocVoice(s32 priority, VoiceDropCallbackFunc callback, uptr userArg){
+Voice* VoiceManager::AllocVoice(s32 priority, VoiceDropCallbackFunc callback, uptr userArg)
+{
     Voice* pVoice = NULL;
     NN_TASSERT_(0 <= priority && priority <= VOICE_PRIORITY_NODROP);
     if(!(0 <= priority && priority <= VOICE_PRIORITY_NODROP))
@@ -100,20 +107,23 @@ Voice* VoiceManager::AllocVoice(s32 priority, VoiceDropCallbackFunc callback, up
 
     this->m_CriticalSection.Enter();
 
-    if(math::CntBit1(this->m_UsedVoiceBits) == NN_SND_VOICE_NUM){
+    if(math::CntBit1(this->m_UsedVoiceBits) == NN_SND_VOICE_NUM)
+    {
         NN_TASSERT_(m_MostInferiorVoice != NULL);
 
-        if((m_MostInferiorVoice->m_Priority == VOICE_PRIORITY_NODROP || m_MostInferiorVoice->m_Priority > priority)){
+        if((m_MostInferiorVoice->m_Priority == VOICE_PRIORITY_NODROP || m_MostInferiorVoice->m_Priority > priority))
+        {
             this->m_CriticalSection.Leave();
             return NULL;
         }
-        
-        else{
+        else
+        {
             Voice* voice = m_MostInferiorVoice;
             VoiceDropCallbackFunc _callback = voice->m_Callback;
-            uptr _userArg = voice->mUserArg;
+            uptr _userArg = voice->m_UserArg;
             FreeVoice(this->m_MostInferiorVoice);
-            if (_callback){
+            if (_callback)
+            {
                 (_callback)(voice, _userArg);
             }
         }
@@ -136,33 +146,40 @@ Voice* VoiceManager::AllocVoice(s32 priority, VoiceDropCallbackFunc callback, up
     return pVoice;
 }
 
-void VoiceManager::ForceUpdateParams(){
-    for(int i = 0; i < NN_SND_VOICE_NUM; i++){
+void VoiceManager::ForceUpdateParams()
+{
+    for(int i = 0; i < NN_SND_VOICE_NUM; i++)
+    {
         m_pVoice[i]->GetImpl()->ForceUpdateParams();
     }
 }
 
-void VoiceManager::SetMostInferiorVoice(Voice* pVoice){
-    pVoice->mInferiorVoice = 0; 
+void VoiceManager::SetMostInferiorVoice(Voice* pVoice)
+{
+    pVoice->m_InferiorVoice = 0; 
     m_MostInferiorVoice = pVoice;
 }
 
-void VoiceManager::SetMostPriorVoice(Voice* pVoice){ 
+void VoiceManager::SetMostPriorVoice(Voice* pVoice)
+{ 
     pVoice->m_PriorVoice = 0; 
     m_MostPriorVoice     = pVoice; 
 }
 
-void VoiceManager::FreeVoice(Voice* pVoice){
+void VoiceManager::FreeVoice(Voice* pVoice)
+{
     NN_TASSERT_(m_pVoice[0] <= pVoice && pVoice <= m_pVoice[NN_SND_VOICE_NUM-1]);
     NN_TASSERTMSG_(this->IsAllocated(pVoice), "Cannot free voice which is not allocated\n");
 }
 
-Voice* VoiceManager::GetAvaliableVoice(){
+Voice* VoiceManager::GetAvaliableVoice()
+{
     s32 varVoice = m_UsedVoiceBits;
     Voice * pVoice = reinterpret_cast<Voice*>(NULL);
 }
 
-void VoiceManager::InsertVoiceToPriorityList(Voice* pVoice, s32 priority){
+void VoiceManager::InsertVoiceToPriorityList(Voice* pVoice, s32 priority)
+{
     NN_TASSERT_(0 <= priority && priority <= VOICE_PRIORITY_NODROP);
     Voice* pVoiceList = m_MostPriorVoice;
 
@@ -172,14 +189,14 @@ void VoiceManager::InsertVoiceToPriorityList(Voice* pVoice, s32 priority){
 
             if(priority >= pVoiceList->GetPriority())
             {
-                Voice* pPriorVoice = pVoiceList->mPriorVoice;
+                Voice* pPriorVoice = pVoiceList->m_PriorVoice;
 
-                pVoice->mPriorVoice = pPriorVoice;
-                pVoice->mInferiorVoice = pVoiceList;
+                pVoice->m_PriorVoice = pPriorVoice;
+                pVoice->m_InferiorVoice = pVoiceList;
 
                 if(pPriorVoice)
                 {
-                    pPriorVoice->mInferiorVoice = pVoice;
+                    pPriorVoice->m_InferiorVoice = pVoice;
                 }
 
                 else
@@ -187,29 +204,30 @@ void VoiceManager::InsertVoiceToPriorityList(Voice* pVoice, s32 priority){
                     this->SetMostPriorVoice(pVoice);
                 }
 
-                pVoiceList->mPriorVoice = pVoice;
+                pVoiceList->m_PriorVoice = pVoice;
                 break;
             }
 
             else
             {
-                if(pVoiceList->mInferiorVoice)
+                if(pVoiceList->m_InferiorVoice)
                 {
-                    pVoiceList = pVoiceList->mInferiorVoice;
+                    pVoiceList = pVoiceList->m_InferiorVoice;
                 }
 
                 else
                 {
-                    pVoiceList->mInferiorVoice = pVoice;
+                    pVoiceList->m_InferiorVoice = pVoice;
 
-                    pVoice->mPriorVoice = pVoiceList;
+                    pVoice->m_PriorVoice = pVoiceList;
                     this->SetMostInferiorVoice(pVoice);
                     break;
                 }
             }
         }
     }
-    else{
+    else
+    {
         NN_TASSERT_(mMostPriorVoice == NULL && mMostInferiorVoice == NULL );
 
         this->SetMostPriorVoice(pVoice);
@@ -217,9 +235,10 @@ void VoiceManager::InsertVoiceToPriorityList(Voice* pVoice, s32 priority){
     }
 }
 
-void VoiceManager::RemoveVoiceFromPriorityList(Voice* pVoice){
-    Voice *pPriorVoice = pVoice->mPriorVoice;
-    Voice *pInfVoice = pVoice->mInferiorVoice;
+void VoiceManager::RemoveVoiceFromPriorityList(Voice* pVoice)
+{
+    Voice *pPriorVoice = pVoice->m_PriorVoice;
+    Voice *pInfVoice = pVoice->m_InferiorVoice;
 
     if(pPriorVoice == NULL && pInfVoice == NULL)
     {
@@ -249,30 +268,37 @@ void VoiceManager::RemoveVoiceFromPriorityList(Voice* pVoice){
     }
 }
 
-void VoiceManager::SetPriority(Voice* pVoice, s32 priority){
+void VoiceManager::SetPriority(Voice* pVoice, s32 priority)
+{
     NN_TASSERT_(m_pVoice[0] <= pVoice && pVoice <= m_pVoice[NN_SND_VOICE_NUM-1]);
     os::InterCoreCriticalSection::ScopedLock lock(m_CriticalSection);
     this->RemoveVoiceFromPriorityList(pVoice);
     this->InsertVoiceToPriorityList(pVoice,priority);
 }
 
-inline void VoiceManager::SetVoiceDropMode(VoiceDropMode mode){
+inline void VoiceManager::SetVoiceDropMode(VoiceDropMode mode)
+{
     NN_TASSERT_(mode == VOICE_DROP_MODE_DEFAULT || mode == VOICE_DROP_MODE_REAL_TIME);
     m_VoiceDropMode = mode;
 }
 
-void VoiceManager::UpdateParams(){
-    for(int i = 0; i < NN_SND_VOICE_NUM; i++){
+void VoiceManager::UpdateParams()
+{
+    for(int i = 0; i < NN_SND_VOICE_NUM; i++)
+    {
         m_pVoice[i]->GetImpl()->UpdateParams();
     }
 }
 
-void VoiceManager::UpdateStatus(s32 id, const DspsndChannelPlayVars* pVars){
+void VoiceManager::UpdateStatus(s32 id, const DspsndChannelPlayVars* pVars)
+{
     m_pVoice[id]->GetImpl()->UpdateStatus(pVars);
 }
 
-void VoiceManager::UpdateWaveBufferList(){
-    for(int i = 0; i < NN_SND_VOICE_NUM; i++){
+void VoiceManager::UpdateWaveBufferList()
+{
+    for(int i = 0; i < NN_SND_VOICE_NUM; i++)
+    {
         m_pVoice[i]->GetImpl()->UpdateWaveBufferList();
     }
 }

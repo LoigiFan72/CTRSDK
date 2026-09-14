@@ -12,9 +12,10 @@ namespace mic {
 namespace CTR {
 namespace detail {
 
-class Mic{
+class Mic
+{
 public:
-    static Handle sSession;
+    static Handle s_Session;
 
     static Result AllocateBuffer(Handle handle, size_t size);
     static Result FreeBuffer();

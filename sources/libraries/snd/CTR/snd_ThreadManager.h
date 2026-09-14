@@ -8,13 +8,14 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-class ThreadStack{
+class ThreadStack
+{
 private:
-    uptr mStackBottom;
+    uptr m_StackBottom;
 public:
-    ThreadStack(uptr stackBottom) { mStackBottom = stackBottom; }
+    ThreadStack(uptr stackBottom) { m_StackBottom = stackBottom; }
     ~ThreadStack() {};
-    uptr GetStackBottom() { return mStackBottom; }
+    uptr GetStackBottom() { return m_StackBottom; }
 };
 
 
@@ -41,33 +42,33 @@ public:
 
     void EnableVoiceDropCallbackOnCore1(bool enable);
 
-    void Lock(){ this->mCriticalSection.Enter(); }
+    void Lock(){ this->m_CriticalSection.Enter(); }
 
-    void Unlock(){ this->mCriticalSection.Leave(); }
+    void Unlock(){ this->m_CriticalSection.Leave(); }
 
 private:
-    os::Tick mSoundThreadTick;
-    bool mIsTickCounterEnabled;
+    os::Tick m_SoundThreadTick;
+    bool m_IsTickCounterEnabled;
 
     s8 __padding__[3];
 
-    bool mIsSoundThreadCreated;
-    bool mIsSoundThreadEnabled;
-    bool mIsUserSoundThreadCreated;
-    bool mIsUserSoundThreadEnabled;
-    os::Thread mSoundThread;
-    os::Thread mUserSoundThread;
-    void (*mNwSoundThreadCallback)(uptr);
-    uptr mArgForNw;
-    void (*mUserSoundThreadCallback)(uptr);
-    uptr mArgForUser;
-    s8   mCoreNo;
+    bool m_IsSoundThreadCreated;
+    bool m_IsSoundThreadEnabled;
+    bool m_IsUserSoundThreadCreated;
+    bool m_IsUserSoundThreadEnabled;
+    os::Thread m_SoundThread;
+    os::Thread m_UserSoundThread;
+    void (*m_NwSoundThreadCallback)(uptr);
+    uptr m_ArgForNw;
+    void (*m_UserSoundThreadCallback)(uptr);
+    uptr m_ArgForUser;
+    s8   m_CoreNo;
 
     s8 __padding2__[3];
 
-    os::CriticalSection mCriticalSection;
-    os::LightEvent mEventSystem2User;
-    os::LightEvent mEventUser2System;
+    os::CriticalSection m_CriticalSection;
+    os::LightEvent m_EventSystem2User;
+    os::LightEvent m_EventUser2System;
 };
 
 }

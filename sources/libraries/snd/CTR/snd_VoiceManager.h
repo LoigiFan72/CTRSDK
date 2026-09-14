@@ -16,7 +16,8 @@ namespace internal{
 
 
 
-class VoiceManager{
+class VoiceManager
+{
 public:
     static VoiceManager& GetInstance(){ return internal::sVoiceManager; }
 private:

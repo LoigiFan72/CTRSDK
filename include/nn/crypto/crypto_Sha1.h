@@ -12,7 +12,7 @@ public:
     static const size_t HASH_SIZE  = (160/8); // 64 bits
     
 private:
-    u32     mH[5];
+    u32     m_H[5];
     
 protected:
     virtual void ProcessBlock();

@@ -7,22 +7,21 @@
 namespace nn{
 namespace os{
 namespace detail{
-    inline uptr GetHeapAddressWithoutCheck(){
-        return 0x08000000;
-    }
+    inline uptr GetHeapAddressWithoutCheck(){ return 0x08000000; }
 }
-    uptr GetDeviceMemoryAddress();
-    size_t GetAppMemorySize();
 
-    size_t GetDeviceMemorySize();
-    Result SetDeviceMemorySize(size_t size);
-    void SetupHeapForMemoryBlock(size_t size);
-    size_t GetHeapSize();
-    uptr GetDeviceMemoryAddress();
-    uptr GetCodeRegionAddress();
-    size_t GetCodeRegionSize();
-    size_t GetUsingMemorySize();
-    uptr ConvertAddressForDevice(uptr addr, size_t length);
+uptr GetDeviceMemoryAddress();
+size_t GetAppMemorySize();
+
+size_t GetDeviceMemorySize();
+Result SetDeviceMemorySize(size_t size);
+void SetupHeapForMemoryBlock(size_t size);
+size_t GetHeapSize();
+uptr GetDeviceMemoryAddress();
+uptr GetCodeRegionAddress();
+size_t GetCodeRegionSize();
+size_t GetUsingMemorySize();
+uptr ConvertAddressForDevice(uptr addr, size_t length);
 
 }
 }

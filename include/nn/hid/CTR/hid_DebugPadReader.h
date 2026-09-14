@@ -14,7 +14,8 @@ namespace nn {
 namespace hid {
 namespace CTR {
 
-class DebugPadReader : private nn::util::ADLFireWall::NonCopyable<DebugPadReader>{
+class DebugPadReader : private nn::util::ADLFireWall::NonCopyable<DebugPadReader>
+{
 public:
     typedef enum{
         STICK_CLAMP_MODE_CIRCLE_WITH_PLAY = 0,
@@ -27,8 +28,13 @@ public:
         m_IsReadLatestFirst(true), 
         m_StickClampMode(STICK_CLAMP_MODE_CIRCLE_WITH_PLAY), 
         m_TickOfRead(-1)
-    {};
-    ~DebugPadReader( ) {};
+    {
+    }
+
+    ~DebugPadReader()
+    {
+    }
+
     bool ReadLatest(DebugPadStatus* pBuf);
     void Read(DebugPadStatus* pBufs, s32* pReadLen, s32 bufLen);
 
@@ -44,11 +50,13 @@ protected:
     s64 m_TickOfRead;
 };
 
-inline DebugPadReader::StickClampMode DebugPadReader::GetStickClampMode( ) const{
+inline DebugPadReader::StickClampMode DebugPadReader::GetStickClampMode() const
+{
     return m_StickClampMode;
 }
 
-inline void DebugPadReader::SetStickClampMode(DebugPadReader::StickClampMode mode){
+inline void DebugPadReader::SetStickClampMode(DebugPadReader::StickClampMode mode)
+{
     m_StickClampMode = mode;
 }
 

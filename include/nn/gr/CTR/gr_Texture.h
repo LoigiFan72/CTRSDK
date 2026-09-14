@@ -7,10 +7,11 @@ namespace nn{
 namespace gr{        
 namespace CTR{
 
-class Texture{
+class Texture
+{
 public:
-
-    class UnitBase{
+    class UnitBase
+    {
     public:
         uptr physicalAddr;
         u16 width;
@@ -46,7 +47,8 @@ public:
         UnitBase();
     };
 
-    class Unit0 : public UnitBase{
+    class Unit0 : public UnitBase
+    {
     public:
         PicaDataTexture0SamplerType texType;
         s8 rev[3];
@@ -64,7 +66,8 @@ public:
         const Texture& mTexture;
     };
 
-    class Unit1 : public UnitBase{
+    class Unit1 : public UnitBase
+    {
     public:
         PicaDataTexture1SamplerType texType;
         s8 rev[3];
@@ -76,7 +79,8 @@ public:
         const Texture& mTexture;
     };
 
-    class Unit2 : public UnitBase{
+    class Unit2 : public UnitBase
+    {
     public:
         PicaDataTexture2SamplerType texType;
         PicaDataTexture2TexCoord    texCoord;
@@ -89,7 +93,8 @@ public:
         const Texture& mTexture;
     };
 
-    class Unit3 : protected UnitBase{
+    class Unit3 : protected UnitBase
+    {
     public:   
         PicaDataTexture3SamplerType texType;
         PicaDataTexture3TexCoord    texCoord;

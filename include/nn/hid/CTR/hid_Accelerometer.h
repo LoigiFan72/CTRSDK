@@ -12,7 +12,8 @@ namespace CTR{
 namespace detail{
     short CalculateAccelerationTightly(short targetValue, short currentValue, short playRadius, short sensitivity);
 }
-class Accelerometer : public HidBase{
+class Accelerometer : public HidBase
+{
 private:
     Accelerometer() {}
     ~Accelerometer() {}

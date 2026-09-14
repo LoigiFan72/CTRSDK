@@ -10,7 +10,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class TouchPanel : public HidBase{
+class TouchPanel : public HidBase
+{
 private:
     TouchPanel() {}
     ~TouchPanel() {}

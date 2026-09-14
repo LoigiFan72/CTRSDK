@@ -5,11 +5,21 @@
 namespace nn{
 namespace os{
 
-class Semaphore : public InterruptEvent{
+class Semaphore : public InterruptEvent
+{
 public:
-    Semaphore(){ }
-    ~Semaphore(){ }
-    void Acquire() { this->WaitOne(); }
+    Semaphore()
+    { 
+    }
+    
+    ~Semaphore()
+    { 
+    }
+
+    void Acquire() 
+    { 
+        this->WaitOne(); 
+    }
 };
 
 }

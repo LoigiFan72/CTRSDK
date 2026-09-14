@@ -277,10 +277,10 @@ bool DspFxReverb::IsBufferInUse() {
     if (mIsEnabled){
         return true;
     }
-    if (!Dspsnd::GetInstance().mIsInitialized){
+    if (!Dspsnd::GetInstance().m_IsInitialized){
         return false;
     }
-    s8 diff = Dspsnd::GetInstance().mProcessCount - mProcessCount;
+    s8 diff = Dspsnd::GetInstance().m_ProcessCount - mProcessCount;
     if (diff > 2){
         return false;
     }

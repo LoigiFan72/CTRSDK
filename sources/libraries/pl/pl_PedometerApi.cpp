@@ -12,7 +12,8 @@ namespace nn {
 namespace pl {
 namespace CTR {
 
-void GetStepHistory(ushort* pStepCounts, s32 numHours, nn::fnd::DateTime start){
+void GetStepHistory(ushort* pStepCounts, s32 numHours, nn::fnd::DateTime start)
+{
     NN_UTIL_PANIC_IF_FAILED(nn::ptm::CTR::detail::PtmIpc::GetStepHistory(pStepCounts, numHours, start));
 }
 

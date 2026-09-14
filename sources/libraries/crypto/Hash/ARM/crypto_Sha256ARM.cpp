@@ -7,7 +7,8 @@
 
 namespace nn{
 namespace crypto{
-    u32 s_Sha256ConstantTable[64] ={
+    u32 s_Sha256ConstantTable[64] =
+    {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
         0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -44,7 +45,8 @@ How Nintendo Felt writing ProcessBlock:
 //! @note As seen comparing this in nico_nico and MLDT, this is ASM'd as unoptimized in nico_nico would produce different assembly.
 //
 //! @brief Processes a SHA-256 Block.
-asm void Sha256Context::ProcessBlock(){
+asm void Sha256Context::ProcessBlock()
+{
     push {r0,r4-r11,lr}
     sub sp,sp,#0x100
     add r4,r0,#0x4
@@ -127,59 +129,64 @@ loop_3
     pop {r4-r11,pc}
 }
 
-void Sha256Context::Initialize(){
-    mBlocksLow = 0;
-    mBlocksHigh = 0;
-    mPool = 0;
-    mH[0] = 0x6a09e667;
-    mH[1] = 0xbb67ae85;
-    mH[2] = 0x3c6ef372;
-    mH[3] = 0xa54ff53a;
-    mH[4] = 0x510e527f;
-    mH[5] = 0x9b05688c;
-    mH[6] = 0x1f83d9ab;
-    mH[7] = 0x5be0cd19;
+void Sha256Context::Initialize()
+{
+    m_BlocksLow = 0;
+    m_BlocksHigh = 0;
+    m_Pool = 0;
+    m_H[0] = 0x6a09e667;
+    m_H[1] = 0xbb67ae85;
+    m_H[2] = 0x3c6ef372;
+    m_H[3] = 0xa54ff53a;
+    m_H[4] = 0x510e527f;
+    m_H[5] = 0x9b05688c;
+    m_H[6] = 0x1f83d9ab;
+    m_H[7] = 0x5be0cd19;
 }
 
-void Sha256Context::Update(const void* pData, size_t size){
+void Sha256Context::Update(const void* pData, size_t size)
+{
     NN_TASSERT_(pData != 0);
     NN_MIN_TASSERT_(size,0);
 
     ShaBlock512BitContext::Update(pData, size);
 }
 
-void Sha256Context::GetHash(void* pOut){
+void Sha256Context::GetHash(void* pOut)
+{
     NN_TASSERT_(pOut != 0);
     NN_ALIGN_TASSERT_(pOut, 4);
 
     this->AddPadding();
     u32* out = reinterpret_cast<u32*>(pOut);
-    out[0] = Convert32HToBE(this->mH[0]);
-    out[1] = Convert32HToBE(this->mH[1]);
-    out[2] = Convert32HToBE(this->mH[2]);
-    out[3] = Convert32HToBE(this->mH[3]);
-    out[4] = Convert32HToBE(this->mH[4]);
-    out[5] = Convert32HToBE(this->mH[5]);
-    out[6] = Convert32HToBE(this->mH[6]);
-    out[7] = Convert32HToBE(this->mH[7]);
+    out[0] = Convert32HToBE(this->m_H[0]);
+    out[1] = Convert32HToBE(this->m_H[1]);
+    out[2] = Convert32HToBE(this->m_H[2]);
+    out[3] = Convert32HToBE(this->m_H[3]);
+    out[4] = Convert32HToBE(this->m_H[4]);
+    out[5] = Convert32HToBE(this->m_H[5]);
+    out[6] = Convert32HToBE(this->m_H[6]);
+    out[7] = Convert32HToBE(this->m_H[7]);
 }
 
-void Sha256Context::InitializeWithContext(const void* pContext, u64 size){
+void Sha256Context::InitializeWithContext(const void* pContext, u64 size)
+{
     size /= BLOCK_SIZE;
-    mBlocksLow = size & 0xFFFFFFFF;
-    mBlocksHigh = size >> 32;
-    mPool = 0;
-    mH[0] = Convert32HToBE(*((u32*)pContext + 0));
-    mH[1] = Convert32HToBE(*((u32*)pContext + 1));
-    mH[2] = Convert32HToBE(*((u32*)pContext + 2));
-    mH[3] = Convert32HToBE(*((u32*)pContext + 3));
-    mH[4] = Convert32HToBE(*((u32*)pContext + 4));
-    mH[5] = Convert32HToBE(*((u32*)pContext + 5));
-    mH[6] = Convert32HToBE(*((u32*)pContext + 6));
-    mH[7] = Convert32HToBE(*((u32*)pContext + 7));
+    m_BlocksLow = size & 0xFFFFFFFF;
+    m_BlocksHigh = size >> 32;
+    m_Pool = 0;
+    m_H[0] = Convert32HToBE(*((u32*)pContext + 0));
+    m_H[1] = Convert32HToBE(*((u32*)pContext + 1));
+    m_H[2] = Convert32HToBE(*((u32*)pContext + 2));
+    m_H[3] = Convert32HToBE(*((u32*)pContext + 3));
+    m_H[4] = Convert32HToBE(*((u32*)pContext + 4));
+    m_H[5] = Convert32HToBE(*((u32*)pContext + 5));
+    m_H[6] = Convert32HToBE(*((u32*)pContext + 6));
+    m_H[7] = Convert32HToBE(*((u32*)pContext + 7));
 }
 
-void CalculateSha256(void* pOut, const void* pData, size_t size){
+void CalculateSha256(void* pOut, const void* pData, size_t size)
+{
     Sha256Context context;
     context.Initialize();
     context.Update(pData, size);

@@ -108,7 +108,7 @@ void AssignDspRight(bool flag){
     if(flag){
         if(isDspSleeping){
             dsp::CTR::WakeUp();
-            sIsDspSleeping = false;
+            s_IsDspSleeping = false;
         }
     }
     else{

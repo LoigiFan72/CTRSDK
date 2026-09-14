@@ -12,12 +12,18 @@ public:
     CharStrmReader(const CharStrmReader& rhs):
         mCharStrm(rhs.mCharStrm),
         mReadFunc(rhs.mReadFunc)
-    {}
-    ~CharStrmReader() {}
-    void Set(const char* stream){
+    {
+    }
+    ~CharStrmReader() 
+    {
+    }
+
+    void Set(const char* stream)
+    {
         this->mCharStrm = stream;
     }
-    void Set(const wchar_t* stream){
+    void Set(const wchar_t* stream)
+    {
         this->mCharStrm = stream;
     }
     const void* GetCurrentPos() const { return mCharStrm; }
@@ -31,17 +37,20 @@ private:
     explicit CharStrmReader(ReadNextCharFunc func):
         mCharStrm(NULL),
         mReadFunc(func)
-    {}
+    {
+    }
 
     template<typename CharType>
-    CharType GetChar(int offset = 0) const{
-        const CharType* charStrm = reinterpret_cast<const CharType*>(mCharStrm);
+    CharType GetChar(int offset = 0) const
+    {
+        const CharType* charStrm = reinterpret_cast<const CharType*>(m_CharStrm);
         return *(charStrm + offset);
     }
 
     template<typename CharType>
-    void StepStrm(int step = 1){
-        const CharType*& charStrm = reinterpret_cast<const CharType*&>(mCharStrm);
+    void StepStrm(int step = 1)
+    {
+        const CharType*& charStrm = reinterpret_cast<const CharType*&>(m_CharStrm);
         charStrm += step;
     }
 

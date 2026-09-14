@@ -16,14 +16,16 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-enum ZeroDriftMode{
+enum ZeroDriftMode
+{
     GYROSCOPE_ZERODRIFT_LOOSE,
     GYROSCOPE_ZERODRIFT_STANDARD,
     GYROSCOPE_ZERODRIFT_TIGHT,
     GYROSCOPE_ZERODRIFT_NUM,
 };
 
-class GyroscopeReader : private nn::util::ADLFireWall::NonCopyable<GyroscopeReader>{
+class GyroscopeReader : private nn::util::ADLFireWall::NonCopyable<GyroscopeReader>
+{
 protected:
     static const s32 GYROSCOPE_LOCAL_BUFFER_SIZE = 32;
     static const u32 GYROSCOPE_DRIFT_COUNT_MAX = 256;

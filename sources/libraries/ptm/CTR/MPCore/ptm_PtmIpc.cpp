@@ -13,7 +13,8 @@ namespace detail{
 
 Handle PtmIpc::s_Session;
 
-Result PtmIpc::GetStepHistory(u16 pStepCounts[], s32 numHours, fnd::DateTime start){
+Result PtmIpc::GetStepHistory(u16 pStepCounts[], s32 numHours, fnd::DateTime start)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xB, 3, 2, 0);
     ipcMsg.SetRaw(1, numHours);
@@ -22,7 +23,8 @@ Result PtmIpc::GetStepHistory(u16 pStepCounts[], s32 numHours, fnd::DateTime sta
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

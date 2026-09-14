@@ -16,47 +16,56 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-ThreadManager& ThreadManager::GetInstance(){
+ThreadManager& ThreadManager::GetInstance()
+{
     static ThreadManager instance;
     return instance;
 }
 
 
-void SoundThreadFunc(uptr arg){
+void SoundThreadFunc(uptr arg)
+{
     ThreadManager::GetInstance().SoundThreadFuncImpl(arg);
 }
 
-void UserSoundThreadFunc(uptr arg){
+void UserSoundThreadFunc(uptr arg)
+{
     ThreadManager::GetInstance().UserSoundThreadFuncImpl(arg);
 }
 
-ThreadManager::ThreadManager(){
-    mIsSoundThreadCreated = false;
-    mIsUserSoundThreadCreated = false;
-    mIsTickCounterEnabled = false;
-    mCoreNo = 0;
+ThreadManager::ThreadManager()
+{
+    m_IsSoundThreadCreated = false;
+    m_IsUserSoundThreadCreated = false;
+    m_IsTickCounterEnabled = false;
+    m_CoreNo = 0;
 }
 
 ThreadManager::~ThreadManager(){ }
 
-void ThreadManager::SoundThreadFuncImpl(uptr){
-    mIsSoundThreadEnabled = true;
-    while (mIsSoundThreadEnabled){
+void ThreadManager::SoundThreadFuncImpl(uptr)
+{
+    m_IsSoundThreadEnabled = true;
+    while (m_IsSoundThreadEnabled)
+    {
         nn::os::Tick tick0, tick1;
 
-        if (mIsTickCounterEnabled){
+        if (m_IsTickCounterEnabled)
+        {
             WaitForDspSync(&tick0);
             tick1 = nn::os::Tick::GetSystemCurrent();
         }
-        else{
+        else
+        {
             WaitForDspSync();
         }
 
-        bool isUserSoundThreadRunning = *((volatile bool*)&mIsUserSoundThreadCreated);
-        bool isUserSoundCallbackRequired = (mUserSoundThreadCallback != NULL);
+        bool isUserSoundThreadRunning = *((volatile bool*)&m_IsUserSoundThreadCreated);
+        bool isUserSoundCallbackRequired = (m_UserSoundThreadCallback != NULL);
         bool isAuxCallbackRequired = false;
 
-        if (isUserSoundThreadRunning){
+        if (isUserSoundThreadRunning)
+        {
             AuxCallback callbackA, callbackB;
             uptr argA, argB;
             MasterManager::GetInstance().GetAuxCallback(AUX_BUS_A, &callbackA, &argA);
@@ -64,43 +73,50 @@ void ThreadManager::SoundThreadFuncImpl(uptr){
             isAuxCallbackRequired = (callbackA != NULL || callbackB != NULL);
         }
 
-        if (isUserSoundThreadRunning && (isUserSoundCallbackRequired || isAuxCallbackRequired)){
+        if (isUserSoundThreadRunning && (isUserSoundCallbackRequired || isAuxCallbackRequired))
+        {
             os::ARM::DataSynchronizationBarrier();
-            this->mEventSystem2User.Signal();
+            this->m_EventSystem2User.Signal();
         }
 
-        if (mCoreNo == 0 && mUserSoundThreadCallback){
-            this->mUserSoundThreadCallback(mArgForUser);
+        if (m_CoreNo == 0 && m_UserSoundThreadCallback)
+        {
+            this->m_UserSoundThreadCallback(m_ArgForUser);
         }
 
-        if (mNwSoundThreadCallback){
+        if (m_NwSoundThreadCallback)
+        {
             this->Lock();
-            this->mNwSoundThreadCallback(this->mArgForNw);
+            this->m_NwSoundThreadCallback(this->m_ArgForNw);
             this->Unlock();
         }
 
         if (isUserSoundThreadRunning && (isUserSoundCallbackRequired || isAuxCallbackRequired)){
-            this->mEventUser2System.Wait();
+            this->m_EventUser2System.Wait();
         }
 
         this->Lock();
         SendParameterToDsp();
         this->Unlock();
 
-        if (mIsTickCounterEnabled){
+        if (m_IsTickCounterEnabled)
+        {
             tick1 = nn::os::Tick::GetSystemCurrent() - tick1;
-            mSoundThreadTick = tick0 + tick1;
+            m_SoundThreadTick = tick0 + tick1;
         }
     }
 }
 
-void ThreadManager::UserSoundThreadFuncImpl(uptr){
-    mIsUserSoundThreadEnabled = true;
-    while (mIsUserSoundThreadEnabled){
-        mEventSystem2User.Wait();
+void ThreadManager::UserSoundThreadFuncImpl(uptr)
+{
+    m_IsUserSoundThreadEnabled = true;
+    while (m_IsUserSoundThreadEnabled)
+    {
+        m_EventSystem2User.Wait();
 
-        if (mUserSoundThreadCallback){
-            this->mUserSoundThreadCallback(this->mArgForUser);
+        if (m_UserSoundThreadCallback)
+        {
+            this->m_UserSoundThreadCallback(this->m_ArgForUser);
         }
         {
             MasterManager::GetInstance().AuxUserCallback(AUX_BUS_A, reinterpret_cast<uptr>(Dspsnd::GetInstance().GetAuxBusAddr(AUX_BUS_A)));
@@ -108,14 +124,13 @@ void ThreadManager::UserSoundThreadFuncImpl(uptr){
         }
 
         os::ARM::DataSynchronizationBarrier();
-        this->mEventUser2System.Signal();
+        this->m_EventUser2System.Signal();
     }
 }
 
-// FINISH FROM HERE
-
-Result ThreadManager::StartSoundThread(void (*callback)(uptr), uptr arg, uptr stackBuffer, size_t stackSize, s32 prio, s32 coreNo){
-    if (mIsSoundThreadCreated){
+Result ThreadManager::StartSoundThread(void (*callback)(uptr), uptr arg, uptr stackBuffer, size_t stackSize, s32 prio, s32 coreNo)
+{
+    if (m_IsSoundThreadCreated){
         return ResultAlreadyInitialized();
     }
 
@@ -130,36 +145,41 @@ Result ThreadManager::StartSoundThread(void (*callback)(uptr), uptr arg, uptr st
     }
 #endif
 
-    this->mCriticalSection.Initialize();
-    Result result = this->mSoundThread.TryStart(SoundThreadFunc,NULL,stack,prio,coreNo);
-    if (result.IsSuccess()){
-        mNwSoundThreadCallback = NULL;
-        mArgForNw = NULL;
-        mUserSoundThreadCallback = callback;
-        mArgForUser = arg;
-        mIsSoundThreadCreated = true;
+    this->m_CriticalSection.Initialize();
+    Result result = this->m_SoundThread.TryStart(SoundThreadFunc,NULL,stack,prio,coreNo);
+    if (result.IsSuccess())
+    {
+        m_NwSoundThreadCallback = NULL;
+        m_ArgForNw = NULL;
+        m_UserSoundThreadCallback = callback;
+        m_ArgForUser = arg;
+        m_IsSoundThreadCreated = true;
 
         Dspsnd::GetInstance().EnableAuxCallbackInSendParameter(coreNo == 0);
 
-        mSoundThreadTick = nn::os::Tick(0);
+        m_SoundThreadTick = nn::os::Tick(0);
 
-        mCoreNo = coreNo;
+        m_CoreNo = coreNo;
     }
-    else{
-        this->mCriticalSection.Finalize();
+    else
+    {
+        this->m_CriticalSection.Finalize();
     }
     return result;
 }
 
-Result ThreadManager::StartSoundThread(const ThreadParameter* mainThreadParam,void (*mainThreadCallback)(uptr),uptr mainThreadArg,const ThreadParameter* userThreadParam,void (*userThreadCallback)(uptr),uptr userThreadArg,s32 coreNo){
+Result ThreadManager::StartSoundThread(const ThreadParameter* mainThreadParam,void (*mainThreadCallback)(uptr),uptr mainThreadArg,const ThreadParameter* userThreadParam,void (*userThreadCallback)(uptr),uptr userThreadArg,s32 coreNo)
+{
     Result result;
     result = StartSoundThread(userThreadCallback,userThreadArg,mainThreadParam->stackBuffer,mainThreadParam->stackSize,mainThreadParam->priority,coreNo);
     NN_UTIL_RETURN_IF_FAILED(result);
-    mNwSoundThreadCallback = mainThreadCallback;
-    mArgForNw = mainThreadArg;
-    if (userThreadParam){
+    m_NwSoundThreadCallback = mainThreadCallback;
+    m_ArgForNw = mainThreadArg;
+    if (userThreadParam)
+    {
         result = StartUserSoundThread(userThreadParam->stackBuffer,userThreadParam->stackSize,userThreadParam->priority);
-        if (result.IsFailure()){
+        if (result.IsFailure())
+        {
             this->FinalizeSoundThread();
             return result;
         }
@@ -167,78 +187,89 @@ Result ThreadManager::StartSoundThread(const ThreadParameter* mainThreadParam,vo
     return ResultSuccess();
 }
 
-nn::Result ThreadManager::StartUserSoundThread(uptr stackBuffer, size_t stackSize, s32 prio){
-    if (!mIsSoundThreadCreated){
+nn::Result ThreadManager::StartUserSoundThread(uptr stackBuffer, size_t stackSize, s32 prio)
+{
+    if (!m_IsSoundThreadCreated)
+    {
         return ResultInvalidUsage();
     }
 
-    if (mIsUserSoundThreadCreated){
+    if (m_IsUserSoundThreadCreated)
+    {
         return ResultAlreadyInitialized();
     }
 
-    if (mCoreNo != 1){
+    if (m_CoreNo != 1)
+    {
         return ResultInvalidUsage();
     }
 
-    this->mEventUser2System.Initialize(false);
-    this->mEventSystem2User.Initialize(false);
+    this->m_EventUser2System.Initialize(false);
+    this->m_EventSystem2User.Initialize(false);
 
     ThreadStack stack(stackBuffer + stackSize);
-    nn::Result result = this->mUserSoundThread.TryStart(UserSoundThreadFunc,NULL,stack,prio,0);
-    mIsUserSoundThreadCreated = result.IsSuccess();
-    if (result.IsFailure()){
-        this->mEventUser2System.Finalize();
-        this->mEventSystem2User.Finalize();
+    nn::Result result = this->m_UserSoundThread.TryStart(UserSoundThreadFunc,NULL,stack,prio,0);
+    m_IsUserSoundThreadCreated = result.IsSuccess();
+    if (result.IsFailure())
+    {
+        this->m_EventUser2System.Finalize();
+        this->m_EventSystem2User.Finalize();
     }
     return result;
 }
 
-void ThreadManager::FinalizeUserSoundThread(){
-    if (!mIsUserSoundThreadCreated){
+void ThreadManager::FinalizeUserSoundThread()
+{
+    if (!m_IsUserSoundThreadCreated)
+    {
         return;
     }
 
-    mIsUserSoundThreadEnabled = false;
-    this->mUserSoundThread.Join();
-    this->mUserSoundThread.Finalize();
-    mIsUserSoundThreadCreated = false;
+    m_IsUserSoundThreadEnabled = false;
+    this->m_UserSoundThread.Join();
+    this->m_UserSoundThread.Finalize();
+    m_IsUserSoundThreadCreated = false;
 
     os::ARM::DataSynchronizationBarrier();
-    this->mEventUser2System.Signal();
-    this->mEventUser2System.Finalize();
-    this->mEventSystem2User.Finalize();
+    this->m_EventUser2System.Signal();
+    this->m_EventUser2System.Finalize();
+    this->m_EventSystem2User.Finalize();
 }
 
-void ThreadManager::FinalizeSoundThread(){
+void ThreadManager::FinalizeSoundThread()
+{
     this->FinalizeUserSoundThread();
 
-    if (!mIsSoundThreadCreated){
+    if (!m_IsSoundThreadCreated)
+    {
         return;
     }
 
-    mIsSoundThreadEnabled = false;
-    this->mSoundThread.Join();
-    this->mSoundThread.Finalize();
-    mNwSoundThreadCallback = NULL;
-    mUserSoundThreadCallback = NULL;
+    m_IsSoundThreadEnabled = false;
+    this->m_SoundThread.Join();
+    this->m_SoundThread.Finalize();
+    m_NwSoundThreadCallback = NULL;
+    m_UserSoundThreadCallback = NULL;
 
-    mCoreNo = 0;
+    m_CoreNo = 0;
 
-    this->mCriticalSection.Finalize();
+    this->m_CriticalSection.Finalize();
 
     Dspsnd::GetInstance().EnableAuxCallbackInSendParameter(true);
 
-    mIsSoundThreadCreated = false;
+    m_IsSoundThreadCreated = false;
 }
 
-void ThreadManager::EnableSoundThreadTickCounter(bool enable){
-    if (mCoreNo == 0){
-        mIsTickCounterEnabled = enable;
+void ThreadManager::EnableSoundThreadTickCounter(bool enable)
+{
+    if (m_CoreNo == 0){
+        m_IsTickCounterEnabled = enable;
     }
 }
 
-os::Tick ThreadManager::GetSoundThreadTick(){
-    return mSoundThreadTick;
+os::Tick ThreadManager::GetSoundThreadTick()
+{
+    return m_SoundThreadTick;
 }
 
 }

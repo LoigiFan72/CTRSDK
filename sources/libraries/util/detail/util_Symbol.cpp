@@ -9,7 +9,8 @@
 extern "C" {
 #endif
 
-asm void nnutilReferSymbol_(const void* sym __attribute__((unused)), ...){
+asm void nnutilReferSymbol_(const void* sym __attribute__((unused)), ...)
+{
     bx lr
 }
 

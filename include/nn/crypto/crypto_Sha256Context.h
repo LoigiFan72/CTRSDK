@@ -21,7 +21,7 @@ public:
 protected:
     virtual void ProcessBlock();
 private:
-    u32 mH[8];
+    u32 m_H[8];
 };
 
 void CalculateSha256(void* pOut, const void* pData, size_t size);

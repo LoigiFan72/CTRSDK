@@ -13,64 +13,79 @@ namespace{
     ushort s_TLSMap;
 }
     
-inline CTR::ThreadLocalRegion* GetThreadLocalBuffer(){
+inline CTR::ThreadLocalRegion* GetThreadLocalBuffer()
+{
     return CTR::GetThreadLocalRegion();
 }
 
 namespace{
     static int TLS_NUM = 16;
 
-    inline bool IsMappedIndex(s32 index){
-        if((index < 0) || (TLS_NUM <= index) ){
+    inline bool IsMappedIndex(s32 index)
+    {
+        if((index < 0) || (TLS_NUM <= index) )
+        {
             return false;
         }
 
         return ((s_TLSMap >> index) & 1) == 1;
     }
 
-    s32 FreeTLSIndex(int index){
-        if(!IsMappedIndex(index)){
+    s32 FreeTLSIndex(int index)
+    {
+        if(!IsMappedIndex(index))
+        {
             return -1;
         }
         return s_TLSMap &= ~(1 << index);
     }
 }
 
-ThreadLocalStorage::~ThreadLocalStorage(){
-    if(IsMappedIndex(m_Index)){
+ThreadLocalStorage::~ThreadLocalStorage()
+{
+    if(IsMappedIndex(m_Index))
+    {
         this->Finalize();
     }
 }
 
-void ThreadLocalStorage::Finalize(){
+void ThreadLocalStorage::Finalize()
+{
     NN_TASSERT_(m_Index >= 0 && m_Index < TLS_NUM);
     NN_TASSERT_(IsMappedIndex(this->m_Index));
 
     FreeTLSIndex(this->m_Index);
 }
 
-void ThreadLocalStorage::ClearAllSlots(){
+void ThreadLocalStorage::ClearAllSlots()
+{
     CTR::ThreadLocalRegion& tlr = *CTR::GetThreadLocalRegion();
-    for(int i = 0; i < TLS_NUM; ++i){
+    for(int i = 0; i < TLS_NUM; ++i)
+    {
         tlr.tls[i] = 0;
     }
 }
 
-uptr ThreadLocalStorage::GetValue() const{
+uptr ThreadLocalStorage::GetValue() const
+{
     NN_TASSERT_(m_Index >= 0 && m_Index < TLS_NUM);
     NN_TASSERT_(IsMappedIndex(m_Index));
-    if (IsMappedIndex(this->m_Index)){
+    if (IsMappedIndex(this->m_Index))
+    {
         return GetThreadLocalBuffer()->tls[m_Index];
     }
-    else{
+    else
+    {
         return 0;
     }
 }
 
-void ThreadLocalStorage::SetValue(uptr value){
+void ThreadLocalStorage::SetValue(uptr value)
+{
     NN_TASSERT_(m_Index >= 0 && m_Index < TLS_NUM);
     NN_TASSERT_(IsMappedIndex(m_Index));
-    if (IsMappedIndex(m_Index)){
+    if (IsMappedIndex(m_Index))
+    {
         GetThreadLocalBuffer()->tls[m_Index] = value;
     }
 }

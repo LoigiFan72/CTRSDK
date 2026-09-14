@@ -1,14 +1,16 @@
 #pragma once
 
-#include <nn/os/os_WaitableCounter.h>
-#include <nn/assert.h>
-#include <nn/WithInitialize.h>
-#include <nn/util/util_NonCopyable.h>
+#include <nn/os/os_LightSemaphore.h>
+#include <nn/os/ARM/os_MemoryBarrier.h>
 
 namespace nn { 
 namespace os {
 
-class LightSemaphore : private util::ADLFireWall::NonCopyable<LightSemaphore>
+#if NN_VERSION_MAJOR > 2
+    typedef LightSemaphore InterCoreLightSemaphore;
+#else
+
+class InterCoreLightSemaphore : private util::ADLFireWall::NonCopyable<LightSemaphore>
 {
 public:
     static const s32 MAX_MAX_COUNT  = 0x7fff;
@@ -54,18 +56,18 @@ private:
     fnd::InterlockedVariable<s16> m_NumWaiting;
     s16 m_Max;
 public:
-    LightSemaphore() 
+    InterCoreLightSemaphore() 
     {
     }
-    LightSemaphore(s32 initialCount, s32 maxCount) 
+    InterCoreLightSemaphore(s32 initialCount, s32 maxCount) 
     {
         Initialize(initialCount, maxCount); 
     }
-    LightSemaphore(s32 initialCount)
+    InterCoreLightSemaphore(s32 initialCount)
     { 
         Initialize(initialCount); 
     }
-    ~LightSemaphore()
+    ~InterCoreLightSemaphore()
     { 
         Finalize(); 
     }
@@ -93,7 +95,9 @@ public:
     bool TryAcquire()
     {
         DecrementIfPositive updater;
-        return this->m_Counter->AtomicUpdateConditional(updater);
+        bool ret = m_Counter->AtomicUpdateConditional(updater);
+        ARM::DataSynchronizationBarrier();
+        return ret;
     }
 
     void Acquire()
@@ -110,4 +114,6 @@ public:
 };
 
 }
+
+#endif
 }

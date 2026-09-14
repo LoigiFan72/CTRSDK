@@ -18,10 +18,15 @@ struct Direction{
 
 }
 
-class StereoCamera{
+class StereoCamera
+{
 public:
     StereoCamera();
-    StereoCamera(const WithInitialize&){ this->Initialize(); }
+    StereoCamera(const WithInitialize&)
+    { 
+        this->Initialize(); 
+    }
+
     ~StereoCamera();
     void Initialize();
     void Finalize();
@@ -39,7 +44,8 @@ public:
     f32 GetDistanceToNearClip() const { return m_DistanceToNearClip; }
     f32 GetDistanceToFarClip() const { return m_DistanceToFarClip; }
 private:
-    struct CameraInfo{
+    struct CameraInfo
+    {
         f32 left;
         f32 right;
         f32 bottom;

@@ -27,7 +27,8 @@ namespace{
 namespace nn{
 namespace init{
 
-void InitializeAllocator(uptr addr, size_t size){
+void InitializeAllocator(uptr addr, size_t size)
+{
     const size_t alignment = nn::util::alignment_of<SystemExpHeap>::value;
     uptr heapAddr = (((addr - 1) / alignment) + 1) * alignment;
     uptr headAddr = heapAddr + sizeof(SystemExpHeap);
@@ -35,7 +36,8 @@ void InitializeAllocator(uptr addr, size_t size){
     s_pSystemAllocator = new (&s_SystemAllocatorBuffer) SystemExpHeap::Allocator(*s_pSystemHeap);
 }
 
-void InitializeAllocator(size_t size){
+void InitializeAllocator(size_t size)
+{
     nnosMemoryBlockAllocate(&s_HeapMemoryBlock, size);
     InitializeAllocator(nnosMemoryBlockGetAddress(&s_HeapMemoryBlock), size);
 }
@@ -44,29 +46,36 @@ void InitializeAllocator(size_t size){
 }
 
 extern "C" {
-__weak void* malloc(std::size_t size){
+__weak void* malloc(std::size_t size)
+{
     return s_pSystemHeap->Allocate(size,4,0,nn::fnd::ExpHeapBase::ALLOCATION_MODE_FIRST_FIT,false);
 }
 
-void free(void* ptr){
-    if (ptr){
+void free(void* ptr)
+{
+    if (ptr)
+    {
         s_pSystemHeap->Free(ptr);
     }
 }
 }
 
-void* operator new(unsigned int size) {
+void* operator new(unsigned int size) 
+{
     return std::malloc(size);
 }
 
-void* operator new[](size_t size, std::nothrow_t const&){
+void* operator new[](size_t size, std::nothrow_t const&)
+{
     return operator new(size);
 }
 
-__weak void operator delete (void* p) throw(){
+__weak void operator delete (void* p) throw()
+{
     std::free(p);
 }
 
-__weak void operator delete[] (void* p) throw(){
+__weak void operator delete[] (void* p) throw()
+{
     operator delete(p);
 }

@@ -12,11 +12,13 @@
 namespace nn {
 namespace os {
 
-size_t GetAppMemorySize(){
+size_t GetAppMemorySize()
+{
     return (GetReadOnlySharedInfo().kParamValues[0]);
 }
 
-size_t GetUsingMemorySize(){
+size_t GetUsingMemorySize()
+{
     Handle h;
     s64 v[1];
     LimitableResource names[1] = { LIMITABLE_RESOURCE_MAX_COMMIT };

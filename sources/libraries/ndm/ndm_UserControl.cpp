@@ -20,11 +20,13 @@ namespace ndm{
 using namespace CTR;
 using namespace CTR::detail;
 
-Result Initialize(){
+Result Initialize()
+{
     nn::os::CriticalSection::ScopedLock locker(s_Cs);
     Result result;
 
-    if (s_InitializedCount == 0){
+    if (s_InitializedCount == 0)
+    {
         nn::srv::Initialize();
         result = nn::srv::GetServiceHandle(&CTR::detail::Interface::s_Session, PORT_NAME_USER);
         NN_UTIL_RETURN_IF_FAILED(result);
@@ -33,26 +35,32 @@ Result Initialize(){
     return ResultSuccess();
 }
 
-Result SuspendDaemons(bit32 mask){
+Result SuspendDaemons(bit32 mask)
+{
     return Interface::SuspendDaemons(mask);
 }
 
-Result ResumeDaemons(bit32 mask){
+Result ResumeDaemons(bit32 mask)
+{
     return Interface::ResumeDaemons(mask);
 }
 
-Result Resume(DaemonName name){
-    if (name < 0 || name >= NUM_OF_DAEMONS){
+Result Resume(DaemonName name)
+{
+    if (name < 0 || name >= NUM_OF_DAEMONS)
+    {
         return ResultInvalidEnumValue();
     }
     return ResumeDaemons(1 << name);
 }
 
-Result SuspendScheduler(bool bAsync){
+Result SuspendScheduler(bool bAsync)
+{
     return Interface::SuspendScheduler(bAsync);
 }
 
-Result ResumeScheduler(void){
+Result ResumeScheduler()
+{
     return Interface::ResumeScheduler();
 }
 

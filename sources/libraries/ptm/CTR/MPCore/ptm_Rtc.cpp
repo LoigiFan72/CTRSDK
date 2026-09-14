@@ -13,9 +13,11 @@ namespace ptm{
 namespace CTR{
 namespace detail{
 
-void GetSwcInfo(nn::os::Tick *pNowTicks, s64 *pBaseMilliSeconds, nn::os::Tick *pBaseTicks, s64 *pTicksPerSecond, s64 *pDiffMilliSeconds){
+void GetSwcInfo(nn::os::Tick *pNowTicks, s64 *pBaseMilliSeconds, nn::os::Tick *pBaseTicks, s64 *pTicksPerSecond, s64 *pDiffMilliSeconds)
+{
     int currentNum;
-    do {
+    do 
+    {
         *pNowTicks = nn::os::Tick::GetSystemCurrent();
 
         currentNum = nn::os::GetWritableSharedInfo().rtcValidNumber;
@@ -31,7 +33,8 @@ void GetSwcInfo(nn::os::Tick *pNowTicks, s64 *pBaseMilliSeconds, nn::os::Tick *p
     } while(currentNum != nn::os::GetWritableSharedInfo().rtcValidNumber);
 }
 
-s64 GetSwcMilliSeconds(){
+s64 GetSwcMilliSeconds()
+{
     const s64 EPOC = (nn::fnd::DateTime(2000,1,1) - nn::fnd::DateTime::MIN_DATETIME).GetMilliSeconds();
     const s64 OVERLAP = (nn::fnd::DateTime(2100,1,1) - nn::fnd::DateTime(2000,1,1)).GetMilliSeconds();
     nn::os::Tick nowTicks, baseTicks;

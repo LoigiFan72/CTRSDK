@@ -23,27 +23,27 @@ namespace internal{
 
 class MasterManagerImpl{
 public:
-    bool mInitialized;
-    SizedEnum1<ClippingMode> mClippingMode;
-    SizedEnum1<OutputMode> mOutputMode;
-    SizedEnum1<SyncMode> mSyncMode;
-    f32 mMasterVolume;
-    f32 mSystemMasterVolume;
-    f32 mAuxVolume[2];
-    AuxCallback mAuxCallback[2];
-    uptr mAuxUserData[2];
-    bool mAuxFrontBypass[2];
-    bool mIsHeadsetConnected;
-    SizedEnum1<SurroundSpeakerPosition> mSpeakerPosition;
-    u16 mSurroundDepth;
-    u16 mRearRatio;
-    s32 mDroppedFrameCount;
-    bool mFxEnabled[2];
-    u16 mOutputBufferCount;
-    CriticalSection mCriticalSection;
+    bool m_Initialized;
+    SizedEnum1<ClippingMode> m_ClippingMode;
+    SizedEnum1<OutputMode> m_OutputMode;
+    SizedEnum1<SyncMode> m_SyncMode;
+    f32 m_MasterVolume;
+    f32 m_SystemMasterVolume;
+    f32 m_AuxVolume[2];
+    AuxCallback m_AuxCallback[2];
+    uptr m_AuxUserData[2];
+    bool m_AuxFrontBypass[2];
+    bool m_IsHeadsetConnected;
+    SizedEnum1<SurroundSpeakerPosition> m_SpeakerPosition;
+    u16 m_SurroundDepth;
+    u16 m_RearRatio;
+    s32 m_DroppedFrameCount;
+    bool m_FxEnabled[2];
+    u16 m_OutputBufferCount;
+    CriticalSection m_CriticalSection;
 public:
 
-    MasterManagerImpl() : mInitialized(0){ }
+    MasterManagerImpl() : m_Initialized(0){ }
     ~MasterManagerImpl(){ }
     void AuxUserCallback(AuxBusId busId, uptr data);
     void ClearAuxCallback(AuxBusId busId){ return this->RegisterAuxCallback(busId, 0, 0); }
@@ -53,7 +53,7 @@ public:
     void Initialize();
     void InitializeParam();
     void RegisterAuxCallback(AuxBusId busId, AuxCallback callback, uptr userData);
-    bool SetAuxFrontBypass(AuxBusId busId, bool flag){ this->mAuxFrontBypass[busId] = flag; return Dspsnd::GetInstance().SetAuxFrontBypass(busId, flag); }
+    bool SetAuxFrontBypass(AuxBusId busId, bool flag){ this->m_AuxFrontBypass[busId] = flag; return Dspsnd::GetInstance().SetAuxFrontBypass(busId, flag); }
     void SetAuxReturnVolume(AuxBusId busId, f32 fVolume);
     bool SetClippingMode(ClippingMode mode);
     void SetIsHeadphoneConnected(bool flag){ internal::sDspsnd.SetIsHeadsetConnected(flag); }
@@ -69,30 +69,32 @@ public:
     static MasterManagerImpl& GetInstance(){ return internal::s_MasterManagerImpl; }
 };
 
-class MasterManager{
+class MasterManager
+{
 public:
-    struct FxSet{
-        FxDelay* mpFxDelay;
-        FxReverb* mpFxReverb;
+    struct FxSet
+    {
+        FxDelay* m_pFxDelay;
+        FxReverb* m_pFxReverb;
     };
 
-    bool mInitialized;
+    bool m_Initialized;
     s8 buf;
-    ClippingMode mClippingMode;
-    OutputMode mOutputMode;
-    f32 mMasterVolume;
-    f32 mSystemMasterVolume;
-    f32 mAuxVolume[2];
-    AuxCallback mAuxCallback[2];
-    uptr mAuxUserData[2];
-    bool mAuxFrontBypass[2];
-    bool mIsHeadsetConnected;
-    SurroundSpeakerPosition mSpeakerPosition;
-    f32 mSurroundDepth;
-    f32 mRearRadio;
-    s32 mDroppedFrameCount;
-    FxSet mFxSet[2];
-    CriticalSection mFxCriticalSection;
+    ClippingMode m_ClippingMode;
+    OutputMode m_OutputMode;
+    f32 m_MasterVolume;
+    f32 m_SystemMasterVolume;
+    f32 m_AuxVolume[2];
+    AuxCallback m_AuxCallback[2];
+    uptr m_AuxUserData[2];
+    bool m_AuxFrontBypass[2];
+    bool m_IsHeadsetConnected;
+    SurroundSpeakerPosition m_SpeakerPosition;
+    f32 m_SurroundDepth;
+    f32 m_RearRadio;
+    s32 m_DroppedFrameCount;
+    FxSet m_FxSet[2];
+    CriticalSection m_FxCriticalSection;
 
     MasterManager(){ }
     ~MasterManager(){ }

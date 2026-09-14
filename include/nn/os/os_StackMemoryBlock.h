@@ -9,11 +9,28 @@ namespace detail{
     void Switch(nnosMemoryBlockBase* pTo, nnosMemoryBlockBase* pFrom);
 }
 
-class StackMemoryBlock : public nn::os::MemoryBlockBase{
+class StackMemoryBlock : public MemoryBlockBase
+{
 public:
-    uptr m_MemoryAddress;
+    StackMemoryBlock():
+        MemoryBlockBase()
+    {
+    }
+    
+    StackMemoryBlock(size_t size): 
+        MemoryBlockBase()
+    {
+        Initialize(size)
+    }
 
-    uptr GetStackBottom() const { return GetAddress() + GetSize(); }
+    void Initialize(size_t size);
+
+    uptr GetStackBottom() const
+    {
+        return GetAddress() + GetSize();
+    }
+private:
+    uptr m_MemoryAddress;
 };
 
 }

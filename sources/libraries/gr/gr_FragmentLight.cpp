@@ -32,13 +32,15 @@ FragmentLight::Source::Source():
     distAttnScale(0),
     spotDirectionXY(0),
     spotDirectionZ(0)
-{}
+{
+}
 
-
-bit32* FragmentLight::MakeDisableCommand( bit32* command, bool isAddDummyCommand ){
+bit32* FragmentLight::MakeDisableCommand(bit32* command, bool isAddDummyCommand)
+{
     const u32 lightNum = 0;
 
-    if (isAddDummyCommand){
+    if (isAddDummyCommand)
+    {
         *command++ = 0x0;
         *command++ = PICA_CMD_HEADER_BURST_BE(PICA_REG_TEXTURE_FUNC, 0x3, 0x0);
 
@@ -75,8 +77,10 @@ FragmentLight::FragmentLight():
     isEnableClampHighLights(true),
     isEnableLutD0(false),
     isEnableLutD1(false),
-    isEnableLutRefl(true){
-    for (int i = 0; i < LIGHT_SOURCE_MAX; ++i){
+    isEnableLutRefl(true)
+{
+    for (int i = 0; i < LIGHT_SOURCE_MAX; ++i)
+    {
         isEnable[i]  = false;
         isEnableSpot[i] = false;
         isEnableDistAttn[i] = false;

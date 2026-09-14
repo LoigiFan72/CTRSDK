@@ -3,7 +3,8 @@
 namespace nn{
 namespace os{
 
-class AutoStackManager{
+class AutoStackManager
+{
 public:
     virtual ~AutoStackManager() {}
     virtual void* Construct(size_t stackSize) = 0;

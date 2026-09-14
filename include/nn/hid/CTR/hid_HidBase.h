@@ -10,7 +10,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-class HidBase : public os::EventBase{
+class HidBase : public os::EventBase
+{
 protected:
     HidBase(): 
         os::EventBase() 
@@ -23,11 +24,13 @@ public:
     void SetResource(uptr);
 };
 
-inline uptr HidBase::GetResource(){
+inline uptr HidBase::GetResource()
+{
     return mResourcePtr;
 }
 
-inline void HidBase::SetResource(uptr ptr){
+inline void HidBase::SetResource(uptr ptr)
+{
     this->mResourcePtr = ptr;
 }
 

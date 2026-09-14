@@ -5,10 +5,9 @@
 namespace nn{
 namespace gr{
 namespace CTR{
-
-class Scissor{
+class Scissor
+{
 public:
-
     Scissor():
         isEnable(true),
         x(0),
@@ -21,7 +20,8 @@ public:
 
     bit32* MakeCommand(bit32* command) const;
 
-    static bit32* MakeDisableCommand(bit32* command,const s32 colorBufferWidth,const s32 colorBufferHeight){
+    static bit32* MakeDisableCommand(bit32* command,const s32 colorBufferWidth,const s32 colorBufferHeight)
+    {
         s32 temp_width  = colorBufferWidth  - 1;
         s32 temp_height = colorBufferHeight - 1;
 
@@ -34,11 +34,13 @@ public:
     }
                
 
-    void Set(s32 x_, s32 y_, u32 width_, u32 height_){
+    void Set(s32 x_, s32 y_, u32 width_, u32 height_)
+    {
         x = x_; y = y_; width = width_; height = height_;
     }
 
-    void SetBufferSize(s32 bufferWidth_, s32 bufferHeight_){
+    void SetBufferSize(s32 bufferWidth_, s32 bufferHeight_)
+    {
         bufferWidth = bufferWidth_; bufferHeight = bufferHeight_;
     }
 

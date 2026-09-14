@@ -8,31 +8,44 @@ namespace os {
 
 class CriticalSection;
 
-class LockPolicy {
+class LockPolicy 
+{
 public:
-
-    class NoLock {
+    class NoLock 
+    {
     public:
-        class LockObject {
+        class LockObject 
+        {
         public:
-            void Initialize() {}
+            void Initialize()
+            {
+            }
             Result TryInitialize() { return Result(); }
-            void Finalize() {}
+            void Finalize() 
+            {
+            }
         };
 
-        class ScopedLock {
+        class ScopedLock 
+        {
         public:
-            ScopedLock(const LockObject&) {}
-            ~ScopedLock() {}
+            ScopedLock(const LockObject&)
+            {
+            }
+            ~ScopedLock()
+            {
+            }
         };
     };
 
     template <class Locker>
-    class Object {
+    class Object
+    {
     public:
         class ScopedLock;
 
-        class LockObject {
+        class LockObject 
+        {
         private:
             friend class ScopedLock;
             mutable Locker mutex;
@@ -42,27 +55,40 @@ public:
             void Finalize() { mutex.Finalize(); }
         };
 
-        class ScopedLock : private Locker::ScopedLock {
+        class ScopedLock : private Locker::ScopedLock 
+        {
         public:
-            ScopedLock(const LockObject& param_1) : Locker::ScopedLock(param_1.mutex) {}
+            ScopedLock(const LockObject& param_1): 
+                Locker::ScopedLock(param_1.mutex) 
+            {
+            }
         };
     };
 
     template <class Locker>
-    struct Global {
+    struct Global
+    {
     protected:
         static Locker g_Mutex;
     public:
-        class LockObject {
+        class LockObject 
+        {
         public:
-            void Initialize() {}
+            void Initialize()
+            {
+            }
             Result TryInitialize() { return Result(); }
-            void Finalize() {}
+            void Finalize()
+            {
+            }
         };
 
-        class ScopedLock : private Locker::ScopedLock {
+        class ScopedLock : private Locker::ScopedLock
+        {
         public:
-            ScopedLock(const LockObject&) : Locker::ScopedLock(gMutex) {}
+            ScopedLock(const LockObject&) : Locker::ScopedLock(g_Mutex) 
+            {
+            }
         };
     };
 };
