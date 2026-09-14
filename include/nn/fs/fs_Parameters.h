@@ -16,47 +16,55 @@ namespace detail { struct ArchiveHandleTag {}; }
     static const size_t MAX_SUB_PATH_LENGTH = 253;
     static const size_t MAX_FILE_PATH_LENGTH = MAX_ARCHIVE_NAME_LENGTH + 1 + MAX_SUB_PATH_LENGTH;
     
-    struct Attributes{
+    struct Attributes
+    {
         bool isDirectory;
         bool isHidden;
         bool isArchive;
         bool isReadOnly;
     };
 
-    enum StorageAttribute{
+    enum StorageAttribute
+    {
         NORMAL = 0,
         FIXED,
         NEW,
     };
 
-    enum MediaType{
+    enum MediaType
+    {
         MEDIA_TYPE_NAND = 0,
         MEDIA_TYPE_SDMC,
         MEDIA_TYPE_CTRCARD
     };
 
-    struct ShortName{
+    struct ShortName
+    {
         char body[10];
         char ext[4];
         bool valid;
         bit8 pad;
     };
 
-    struct DirectoryEntry{
+    struct DirectoryEntry
+    {
         wchar_t entryName[MAX_FILE_PATH_LENGTH + 1];
         ShortName shortName;
         nn::fs::Attributes attributes;
         s64 entrySize;
     };
 
-    enum OpenMode{
+    enum OpenMode
+    {
         OPEN_MODE_READ    = (1u << 0),
         OPEN_MODE_WRITE   = (1u << 1),
         OPEN_MODE_CREATE  = (1u << 2)
     };
 
-    struct ProgramDataPath{
-        enum Tag{
+    struct ProgramDataPath
+    {
+        enum Tag
+        {
             TAG_ROMFS_DEFAULT,
             TAG_EXEFS,
             TAG_SYSTEM_MENU_DATA,
@@ -69,35 +77,42 @@ namespace detail { struct ArchiveHandleTag {}; }
         util::Int64<bit64> id;
     };
 
-    struct TitleDataSpecifier{
+    struct TitleDataSpecifier
+    {
         TitleId id;
         nn::util::SizedEnum1<MediaType> media;
         s8 rev1[3];
         s32 rev2;
         
-        static TitleDataSpecifier Make(MediaType media, TitleId id){
+        static TitleDataSpecifier Make(MediaType media, TitleId id)
+        {
             TitleDataSpecifier ret;
             ret.id = id;
             ret.media = media;
             return ret;
         }
 
-        void CopyTo(TitleDataSpecifier* p) const{
+        void CopyTo(TitleDataSpecifier* p) const
+        {
             p->id =    this->id;
             p->media = this->media;
         }
     };
 
-    struct ExtSaveDataSpecifier{
+    struct ExtSaveDataSpecifier
+    {
         nn::util::SizedEnum1<MediaType> mediaType;
         nn::util::SizedEnum1<StorageAttribute> storageAttribute;
         bit8 reserved[2];
         nn::util::Int64<ExtSaveDataId> extSaveDataId;
-        static ExtSaveDataSpecifier Make(MediaType mediaType, ExtSaveDataId extSaveDataId){
+
+        static ExtSaveDataSpecifier Make(MediaType mediaType, ExtSaveDataId extSaveDataId)
+        {
             return Make(mediaType, NORMAL, extSaveDataId);
         }
         
-        static ExtSaveDataSpecifier Make(MediaType mediaType, StorageAttribute storageAttribute, ExtSaveDataId extSaveDataId){
+        static ExtSaveDataSpecifier Make(MediaType mediaType, StorageAttribute storageAttribute, ExtSaveDataId extSaveDataId)
+        {
             ExtSaveDataSpecifier ret = {};
             ret.mediaType = mediaType;
             ret.storageAttribute = storageAttribute;
@@ -108,47 +123,56 @@ namespace detail { struct ArchiveHandleTag {}; }
 
     typedef ExtSaveDataSpecifier ExtSaveDataArchivePath;
 
-    struct TitleDataSpecificer{
-        TitleId mId;
-        MediaType mMedia;
+    struct TitleDataSpecificer
+    {
+        TitleId id;
+        MediaType media;
         s8 unkpad_1[3];
         int unkflag1;
     };
 
-    struct DataContentArchivePath{
+    struct DataContentArchivePath
+    {
         TitleId titleId;
         nn::util::SizedEnum4<MediaType> mediaType;
         ContentIdx contentIdx;
     };
 
-    struct WriteOption{
+    struct WriteOption
+    {
         bool flush;
         bool updateTimeStampOld;
         bool updateTimeStamp;
 
-        struct{
+        struct
+        {
             bit8 destroySignature:1;
             bit8 reserved3:7;
         } system;
         bit8 reserved3;
 
         WriteOption(bool flush, bool updateTimeStamp):
-        flush(flush), updateTimeStampOld(false), updateTimeStamp(updateTimeStamp)
+            flush(flush), 
+            updateTimeStampOld(false), 
+            updateTimeStamp(updateTimeStamp)
         {
         }
     };
 
-    struct Transaction{
+    struct Transaction
+    {
         bit32 dummy;
     };
 
-    enum PositionBase{
+    enum PositionBase
+    {
         BASE_BEGIN = 0,
         BASE_CURRENT,
         BASE_END,
     };
 
-    enum SystemMediaType{
+    enum SystemMediaType
+    {
         CTR_NAND = 0,
         TWL_NAND,
         SDMC,

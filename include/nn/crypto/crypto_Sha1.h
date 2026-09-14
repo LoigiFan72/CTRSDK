@@ -7,7 +7,8 @@ namespace nn{
 namespace crypto{
 
 
-class Sha1Context : public ShaBlock512BitContext{
+class Sha1Context : public ShaBlock512BitContext
+{
 public:
     static const size_t HASH_SIZE  = (160/8); // 64 bits
     

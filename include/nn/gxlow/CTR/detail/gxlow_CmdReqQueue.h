@@ -7,7 +7,8 @@ namespace nn{
 namespace gxlow{
 namespace CTR{
 namespace detail{
-struct CfReq {
+struct CfReq 
+{
     bit32 addr0;
     bit32 size0;
     bit32 addr1;
@@ -17,7 +18,8 @@ struct CfReq {
     bit32 rsv6;
 };
 
-struct PpfReq {
+struct PpfReq 
+{
     bit32 srcAddr;
     bit32 dstAddr;
     bit32 srcSize;
@@ -27,7 +29,8 @@ struct PpfReq {
     bit32 rsv6;
 };
 
-struct P3dReq {
+struct P3dReq 
+{
     bit32 addr;
     bit32 size;
     bit32 control;
@@ -37,7 +40,8 @@ struct P3dReq {
     bit32 cacheFlush;
 };
 
-struct PpfTcReq {
+struct PpfTcReq 
+{
     bit32 srcAddr;
     bit32 dstAddr;
     bit32 dmaSize;
@@ -47,7 +51,8 @@ struct PpfTcReq {
     bit32 rsv6;
 };
 
-struct DmaReq {
+struct DmaReq 
+{
     bit32 srcAddr;
     bit32 dstAddr;
     bit32 size;
@@ -57,7 +62,8 @@ struct DmaReq {
     bit32 cacheFlush;
 };
 
-struct FillReq {
+struct FillReq 
+{
     bit32 start0;
     bit32 data0;
     bit32 end0;
@@ -68,7 +74,8 @@ struct FillReq {
     bit16 ctrl1;
 };
 
-enum CmdReqId{
+enum CmdReqId
+{
     REQ_ID_DMA,
     REQ_ID_3D_CMD,
     REQ_ID_MEM_FILL,
@@ -78,13 +85,16 @@ enum CmdReqId{
 };
 
 
-struct CmdReq {
+struct CmdReq 
+{
     util::SizedEnum1<CmdReqId> id;
     bool callbackEnabled;
     bool stopEnabled;
     bool sync;
-    union CmdReqParam {
-        union{
+    union CmdReqParam
+    {
+        union
+        {
             bit32 d[7];
         } data;
         DmaReq dma;
@@ -96,52 +106,63 @@ struct CmdReq {
     } param;
 };
 
-class CmdReqQueueBase{
+class CmdReqQueueBase
+{
 protected:
     static const s32 QUEUE_LENGTH  = 15;
     
-    struct QueueControl {
+    struct QueueControl 
+    {
         u8 head;
         u8 usedCount;
         bit8 status;
         bit8 control;
     };
 
-    union QueueControlPacker{
+    union QueueControlPacker
+    {
         QueueControl qc;
         bit32 packed32;
     };
 
-    struct QueueBody {
+    struct QueueBody 
+    {
         QueueControl control;
         Result lastResult;
         bit32 pad[6];
         CmdReq data[15];
     };
 
-    QueueBody* mpBody;
+    QueueBody* m_pBody;
 
     CmdReqQueueBase(): 
-        mpBody(0) 
-    {}
-    ~CmdReqQueueBase() {}
+        m_pBody(0) 
+    {
+    }
+
+    ~CmdReqQueueBase() 
+    {
+    }
 public:
     void Initialize(void* pQueueBody);
     void Finalize();
 };
 
-inline void CmdReqQueueBase::Initialize(void* pQueueBody){
+inline void CmdReqQueueBase::Initialize(void* pQueueBody)
+{
     NN_TASSERT_(pQueueBody != 0);
-    mpBody = reinterpret_cast<QueueBody*>(pQueueBody);
+    m_pBody = reinterpret_cast<QueueBody*>(pQueueBody);
 }
 
-inline void CmdReqQueueBase::Finalize(){
-    mpBody = NULL;
+inline void CmdReqQueueBase::Finalize()
+{
+    m_pBody = NULL;
 }
 
 }
 
-class CmdReqQueueTx : public detail::CmdReqQueueBase{
+class CmdReqQueueTx : public detail::CmdReqQueueBase
+{
 public:
     void Initialize(void* pQueueBody);
     void Finalize();

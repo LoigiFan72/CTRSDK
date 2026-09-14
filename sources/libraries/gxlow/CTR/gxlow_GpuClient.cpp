@@ -10,7 +10,8 @@ namespace nn {
 namespace gxlow {
 namespace CTR {
 
-Result Gpu::WriteHWRegs(u32 regOffset, const u8 pSrc[], size_t size){
+Result Gpu::WriteHWRegs(u32 regOffset, const u8 pSrc[], size_t size)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x1, 2, 2, 0);
     ipcMsg.SetRaw(1, regOffset);
@@ -19,15 +20,17 @@ Result Gpu::WriteHWRegs(u32 regOffset, const u8 pSrc[], size_t size){
     ipcMsg.SetPointer(4, pSrc);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::WriteHWRegsWithMask(u32 regOffset, const u8 pSrc[], const u8 pMask[], size_t size){
+Result Gpu::WriteHWRegsWithMask(u32 regOffset, const u8 pSrc[], const u8 pMask[], size_t size)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x2, 2, 4, 0);
     ipcMsg.SetRaw(1, regOffset);
@@ -38,15 +41,17 @@ Result Gpu::WriteHWRegsWithMask(u32 regOffset, const u8 pSrc[], const u8 pMask[]
     ipcMsg.SetPointer(6, pMask);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::ReadHWRegs(u32 regOffset, u8 pDst[], size_t size){
+Result Gpu::ReadHWRegs(u32 regOffset, u8 pDst[], size_t size)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x4, 2, 0, 0);
     ipcMsg.SetRaw(1, regOffset);
@@ -61,18 +66,20 @@ Result Gpu::ReadHWRegs(u32 regOffset, u8 pDst[], size_t size){
     ipcRcv.SetPointerHeaderForReceive(0, sizeof(*pDst) * size);
     ipcRcv.SetPointer(1, pDst);
 
-    Result ipcResult = SendSyncRequest(this->mSession);
+    Result ipcResult = SendSyncRequest(this->m_Session);
 
     std::memcpy(ipcRcvBuf, rcvBufRefuge, sizeof(rcvBufRefuge));
 
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::FlushDataCache(Handle clientProcess, uptr addr, size_t size){
+Result Gpu::FlushDataCache(Handle clientProcess, uptr addr, size_t size)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x8, 2, 2, 0);
     ipcMsg.SetRaw(1, addr);
@@ -81,42 +88,48 @@ Result Gpu::FlushDataCache(Handle clientProcess, uptr addr, size_t size){
     ipcMsg.SetHandle(4, clientProcess);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::SetLcdForceBlack(bool enable){
+Result Gpu::SetLcdForceBlack(bool enable)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xB, 1, 0, 0);
     ipcMsg.SetRaw(1, enable);
 
 
-    nn::Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    nn::Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::TriggerCmdReqQueue(){
+Result Gpu::TriggerCmdReqQueue()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xC, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::RegisterInterruptRelayQueue(Handle eventRx, bit32 attribute, Handle* pWorkMem, s32* pIndex){
+Result Gpu::RegisterInterruptRelayQueue(Handle eventRx, bit32 attribute, Handle* pWorkMem, s32* pIndex)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x13, 1, 2, 0);
     ipcMsg.SetRaw(1, attribute);
@@ -124,8 +137,9 @@ Result Gpu::RegisterInterruptRelayQueue(Handle eventRx, bit32 attribute, Handle*
     ipcMsg.SetHandle(3, eventRx);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -135,20 +149,23 @@ Result Gpu::RegisterInterruptRelayQueue(Handle eventRx, bit32 attribute, Handle*
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::UnregisterInterruptRelayQueue(){
+Result Gpu::UnregisterInterruptRelayQueue()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x14, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::AcquireRight(Handle clientProcess, bool forced){
+Result Gpu::AcquireRight(Handle clientProcess, bool forced)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x16, 1, 2, 0);
     ipcMsg.SetRaw(1, forced);
@@ -156,34 +173,39 @@ Result Gpu::AcquireRight(Handle clientProcess, bool forced){
     ipcMsg.SetHandle(3, clientProcess);
 
 
-    nn::Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    nn::Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::ReleaseRight(){
+Result Gpu::ReleaseRight()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x17, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::ImportDisplayCaptureInfo(DisplayCaptureInfo* info){
+Result Gpu::ImportDisplayCaptureInfo(DisplayCaptureInfo* info)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x18, 0, 0, 0);
 
 
-    nn::Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    nn::Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -192,26 +214,30 @@ Result Gpu::ImportDisplayCaptureInfo(DisplayCaptureInfo* info){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::SaveVramSysArea(){
+Result Gpu::SaveVramSysArea()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x19, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Gpu::RestoreVramSysArea(){
+Result Gpu::RestoreVramSysArea()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x1A, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

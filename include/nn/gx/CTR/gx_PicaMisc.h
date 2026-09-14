@@ -2,16 +2,18 @@
 
 #include <nn/gx/CTR/gx_PicaCommon.h>
 
-#define PICA_CMD_DATA_RENDER_BUFFER_COLOR_ADDR( addr ) ( (addr) >> 3 )
+#define PICA_CMD_DATA_RENDER_BUFFER_COLOR_ADDR(addr) ( (addr) >> 3 )
 
-#define PICA_CMD_DATA_RENDER_BUFFER_DEPTH_ADDR( addr ) ( (addr) >> 3 )
+#define PICA_CMD_DATA_RENDER_BUFFER_DEPTH_ADDR(addr) ( (addr) >> 3 )
 
-enum PicaDataColorPixelSize{
+enum PicaDataColorPixelSize
+{
     PICA_DATA_COLOR_PIXEL_SIZE16 = 0x0,
     PICA_DATA_COLOR_PIXEL_SIZE32 = 0x2
 };
 
-enum PicaDataColor{
+enum PicaDataColor
+{
     PICA_DATA_COLOR_RGBA8_OES = 0x0,
     PICA_DATA_COLOR_GAS_DMP   = 0x0,
     PICA_DATA_COLOR_RGB5_A1   = 0x2,
@@ -19,13 +21,15 @@ enum PicaDataColor{
     PICA_DATA_COLOR_RGBA4     = 0x4
 };
 
-enum PicaDataDepth{
+enum PicaDataDepth
+{
     PICA_DATA_DEPTH_COMPONENT16     = 0x0,
     PICA_DATA_DEPTH_COMPONENT24_OES = 0x2,
     PICA_DATA_DEPTH24_STENCIL8_EXT  = 0x3
 };
 
-enum PicaDataStencilOp{
+enum PicaDataStencilOp
+{
     PICA_DATA_STENCIL_OP_KEEP      = 0x0,
     PICA_DATA_STENCIL_OP_ZERO      = 0x1,
     PICA_DATA_STENCIL_OP_REPLACE   = 0x2,
@@ -36,7 +40,8 @@ enum PicaDataStencilOp{
     PICA_DATA_STENCIL_OP_DECR_WRAP = 0x7
 };
 
-enum PicaDataStencilTest{
+enum PicaDataStencilTest
+{
     PICA_DATA_STENCIL_TEST_NEVER    = 0x0,
     PICA_DATA_STENCIL_TEST_ALWAYS   = 0x1,
     PICA_DATA_STENCIL_TEST_EQUAL    = 0x2,
@@ -60,7 +65,8 @@ enum PicaDataStencilTest{
 #define PICA_CMD_DATA_GAS_LIGHT_Z(lightZ1, lightZ2, lightZ3) \
     ( (lightZ1) | (lightZ2) << 8 | (lightZ3) << 16 )
 
-enum PicaDataGasColorLutInput{
+enum PicaDataGasColorLutInput
+{
     PICA_DATA_GAS_DENSITY_DMP      = 0x0,
     PICA_DATA_GAS_LIGHT_FACTOR_DMP = 0x1
 };
@@ -100,13 +106,15 @@ enum PicaDataDepthTest2{
 #define PICA_CMD_DATA_GAS_DELTAZ_DEPTH(deltaZ, depthTest2Func) \
     ( (deltaZ) | (depthTest2Func) << 24 )
 
-enum PicaDataFogMode{
+enum PicaDataFogMode
+{
     PICA_DATA_FOG_FALSE  = 0x0,
     PICA_DATA_FOG        = 0x5,
     PICA_DATA_GAS        = 0x7
 };
 
-enum PicaDataGasShadingDensitySrc{
+enum PicaDataGasShadingDensitySrc
+{
     PICA_DATA_GAS_PLAIN_DENSITY_DMP = 0x0,
     PICA_DATA_GAS_DEPTH_DENSITY_DMP = 0x1
 };
@@ -136,13 +144,15 @@ enum PicaDataGasShadingDensitySrc{
 
 #define PICA_CMD_DATA_FOG_LUT_DATA(data) (data)
 
-enum PicaDataFragOpMode{
+enum PicaDataFragOpMode
+{
     PICA_DATA_FRAGOP_MODE_DMP         = 0x0,
     PICA_DATA_FRAGOP_MODE_GAS_ACC_DMP = 0x1,
     PICA_DATA_FRAGOP_MODE_SHADOW_DMP  = 0x3
 };
 
-enum PicaDataColorLogicOp{
+enum PicaDataColorLogicOp
+{
     PICA_DATA_ENABLE_COLOR_LOGIC_OP = 0x0,
     PICA_DATA_ENABLE_BLEND          = 0x1
 };
@@ -165,7 +175,8 @@ enum PicaDataColorLogicOp{
 
 #define PICA_CMD_DATA_FRAGOP_CLIP_DATA(data) (data)
 
-enum PicaDataAlphaTest{
+enum PicaDataAlphaTest
+{
     PICA_DATA_ALPHA_TEST_NEVER    = 0x0,
     PICA_DATA_ALPHA_TEST_ALWAYS   = 0x1,
     PICA_DATA_ALPHA_TEST_EQUAL    = 0x2,
@@ -199,7 +210,8 @@ enum PicaDataAlphaTest{
 
 #define PICA_CMD_DATA_VIEWPORT_XY(x, y)  ( (x) | (y) << 16 )
 
-enum PicaDataDepthTest{
+enum PicaDataDepthTest
+{
     PICA_DATA_DEPTH_TEST_NEVER    = 0x0,
     PICA_DATA_DEPTH_TEST_ALWAYS   = 0x1,
     PICA_DATA_DEPTH_TEST_EQUAL    = 0x2,
@@ -222,7 +234,8 @@ enum PicaDataDepthTest{
       ((alpha) ? 0x800 : 0)       | \
       ((depthMask) ? 0x1000 : 0) )
 
-enum PicaDataBlendEquation{
+enum PicaDataBlendEquation
+{
     PICA_DATA_BLEND_EQUATION_ADD                = 0,
     PICA_DATA_BLEND_EQUATION_SUBTRACT           = 1,
     PICA_DATA_BLEND_EQUATION_REVERSE_SUBTRACT   = 2,
@@ -230,7 +243,8 @@ enum PicaDataBlendEquation{
     PICA_DATA_BLEND_EQUATION_MAX                = 4
 };
 
-enum PicaDataBlendFunc{
+enum PicaDataBlendFunc
+{
     PICA_DATA_BLEND_FUNC_ZERO                     =  0,
     PICA_DATA_BLEND_FUNC_ONE                      =  1,
     PICA_DATA_BLEND_FUNC_SRC_COLOR                =  2,
@@ -272,7 +286,8 @@ enum PicaDataBlendFunc{
 #define PICA_CMD_SET_BLEND_NOTHING() \
     PICA_CMD_SET_BLEND_FUNC( PICA_DATA_BLEND_EQUATION_ADD, PICA_DATA_BLEND_FUNC_ONE, PICA_DATA_BLEND_FUNC_ZERO )
 
-enum PicaDataLogicOp{
+enum PicaDataLogicOp
+{
     PICA_DATA_LOGIC_CLEAR                   = 0x0,
     PICA_DATA_LOGIC_AND                     = 0x1,
     PICA_DATA_LOGIC_AND_REVERSE             = 0x2,
@@ -313,7 +328,8 @@ enum PicaDataLogicOp{
     PICA_CMD_DATA_EARLY_DEPTH_TEST_DISABLE(), PICA_CMD_HEADER_SINGLE_BE( PICA_REG_EARLY_DEPTH_TEST1, 0x1), \
     PICA_CMD_DATA_EARLY_DEPTH_TEST_DISABLE(), PICA_CMD_HEADER_SINGLE( PICA_REG_EARLY_DEPTH_TEST2 )
 
-enum PicaDataEarlyDepth{
+enum PicaDataEarlyDepth
+{
     PICA_DATA_EARLY_DEPTH_GEQUAL  = 0x0,
     PICA_DATA_EARLY_DEPTH_GREATER = 0x1,
     PICA_DATA_EARLY_DEPTH_LEQUAL  = 0x2,

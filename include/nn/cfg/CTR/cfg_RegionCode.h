@@ -3,7 +3,8 @@
 namespace nn {
 namespace cfg {
 namespace CTR {
-        enum CfgRegionCode{
+        enum CfgRegionCode
+        {
                 CFG_REGION_JAPAN = 0,
                 CFG_REGION_AMERICA = 1,
                 CFG_REGION_EUROPE = 2,

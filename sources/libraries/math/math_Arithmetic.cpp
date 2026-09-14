@@ -8,11 +8,14 @@
 namespace nn{
 namespace math{
 namespace{
-    struct ExpTbl{
+    struct ExpTbl
+    {
         f32 exp_val;
         f32 exp_delta;
     };
-    struct ExpTbl s_ExpTbl[32+1] ={
+
+    struct ExpTbl s_ExpTbl[32+1] =
+    {
         { 0.500000000f, 0.022136891f },
         { 0.522136891f, 0.023116975f },     // Exp(-0.649825482)    = Exp(ln2 * (-15)/16)
         { 0.545253866f, 0.024140451f },     // Exp(-0.606503783)
@@ -49,11 +52,14 @@ namespace{
     };
 
     //---- Logarithmic function table
-    struct LogTbl{
+
+    struct LogTbl
+    {
         f32 log_val;
         f32 log_delta;
     };
-    struct LogTbl sLogTbl[256+1] ={
+    struct LogTbl s_LogTbl[256+1] =
+    {
         { 0.000000000f, 0.003898640f },     // Log(1.00000000)
         { 0.003898640f, 0.003883500f },     // Log(1.00390625)
         { 0.007782140f, 0.003868477f },     // Log(1.00781250)
@@ -314,7 +320,8 @@ namespace{
     };
 }
 
-u32 CntBit1(u32 x){
+u32 CntBit1(u32 x)
+{
     x = x - ((x >> 1) & 0x55555555);
     x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
     x = (x + (x >> 4)) & 0x0f0f0f0f;
@@ -323,17 +330,20 @@ u32 CntBit1(u32 x){
     return x & 0x0000003f;
 }
 
-u32 CntBit1(const u32* first, const u32* last){
+u32 CntBit1(const u32* first, const u32* last)
+{
     const u32 n = u32(last - first);
 
     u32 i, j, lim;
     unsigned int s = 0;
     unsigned int ss, x;
 
-    for (i = 0; i < n; i += 31){
+    for (i = 0; i < n; i += 31)
+    {
         lim = (n < i + 31) ? n : (i + 31);
         ss = 0;
-        for (j = i; j < lim; ++j){
+        for (j = i; j < lim; ++j)
+        {
             x = *(first + j);
             x -= ((x >> 1) & 0x55555555);
             x = (x & 0x33333333) + ((x >> 2) & 0x33333333);

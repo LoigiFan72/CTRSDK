@@ -12,7 +12,8 @@
 namespace nn{
 namespace fs{
 
-class Directory : private nn::util::ADLFireWall::NonCopyable<Directory>, private detail::DirectoryBase{
+class Directory : private nn::util::ADLFireWall::NonCopyable<Directory>, private detail::DirectoryBase
+{
 public:
     Directory() {}
     explicit Directory(const wchar_t* pathName) : DirectoryBase(pathName) {}

@@ -18,13 +18,16 @@ inline MTX22* MTX22Copy(MTX22* pOut, const MTX22* p);
 inline MTX22* MTX22Zero(MTX22* pOut);
 inline MTX22* MTX23ToMTX22(MTX22* pOut, const MTX23* pM);
 
-struct MTX22_{
-    struct BaseData{
+struct MTX22_
+{
+    struct BaseData
+    {
         f32 _00, _01;
         f32 _10, _11;
     };
 
-    union{
+    union
+    {
         BaseData f;
         f32 m[2][2];
         f32 a[4];
@@ -32,14 +35,19 @@ struct MTX22_{
     };
 };
 
-struct MTX22 : public MTX22_{
+struct MTX22 : public MTX22_
+{
 public:
     typedef MTX22 self_type;
     typedef f32   value_type;
-    MTX22() {}
+    MTX22()
+    {
+    }
+
     explicit MTX22(const f32* p){ MTX22Copy(this, reinterpret_cast<const MTX22*>(p)); }
     explicit MTX22(const MTX23& rhs){ MTX23ToMTX22(this, &rhs); }
-    MTX22(f32 x00, f32 x01, f32 x10, f32 x11){
+    MTX22(f32 x00, f32 x01, f32 x10, f32 x11)
+    {
         f._00 = x00; f._01 = x01;
         f._10 = x10; f._11 = x11;
     }
@@ -49,7 +57,8 @@ public:
     
     bool IsIdentity() const { return MTX22IsIdentity(this); }
 
-    static const MTX22& Identity(){
+    static const MTX22& Identity()
+    {
         static const MTX22 identity(1.0f, 0.0f,0.0f, 1.0f);
         
         return identity;
@@ -66,23 +75,27 @@ inline MTX22* MTX23ToMTX22(MTX22* pOut, const MTX23& m) { return MTX23ToMTX22(pO
 namespace nn{
 namespace math{
 
-inline bool MTX22IsIdentity(const MTX22* p){
+inline bool MTX22IsIdentity(const MTX22* p)
+{
     return p->f._00 == 1.f && p->f._01 == 0.f &&
            p->f._10 == 0.f && p->f._11 == 1.f;
 }
 
-inline MTX22* MTX22Copy(MTX22* pOut, const MTX22* p){
+inline MTX22* MTX22Copy(MTX22* pOut, const MTX22* p)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(p);
     
-    if (pOut != p){
+    if (pOut != p)
+    {
         *pOut = *p;
     }
     
     return pOut;
 }
 
-inline MTX22* MTX22Zero(MTX22* pOut){
+inline MTX22* MTX22Zero(MTX22* pOut)
+{
     NN_NULL_ASSERT_(pOut);
     
     pOut->f._00 = pOut->f._01 = 
@@ -90,7 +103,8 @@ inline MTX22* MTX22Zero(MTX22* pOut){
     return pOut;
 }
 
-inline MTX22* MTX22Identity(MTX22* pOut){
+inline MTX22* MTX22Identity(MTX22* pOut)
+{
     NN_NULL_ASSERT_(pOut);
     
     MTX22Copy(pOut, MTX22::Identity());

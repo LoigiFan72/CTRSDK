@@ -12,7 +12,8 @@ namespace nn{
 namespace cec{
 namespace CTR{
 
-typedef enum CecBoxDataType{
+typedef enum CecBoxDataType
+{
     BOXDATA_TYPE_START =  100,
     BOXDATA_TYPE_ICON,
     BOXDATA_TYPE_NAME_1 = 110,

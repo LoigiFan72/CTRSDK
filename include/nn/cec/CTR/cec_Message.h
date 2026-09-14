@@ -12,7 +12,8 @@ struct CecMessageHeader;
 #define CEC_EXHEADER_NUM_MAX    (16)
 #define CEC_EXHEADER_SIZE_MAX   (8*1024)
 
-struct CecMessageExHeader{
+struct CecMessageExHeader
+{
     u32  exHeaderType;
     u32  exHeaderLen;
     u8*  exHeaderData;
@@ -21,7 +22,8 @@ struct CecMessageExHeader{
 #define LOAD_FLAG_POINTER   1
 #define LOAD_FLAG_MALLOC    0
 
-class Message{
+class Message
+{
 private:
     struct CecMessageHeader m_cec_mh;
     struct CecMessageExHeader m_cec_mhex[CEC_EXHEADER_NUM_MAX] __attribute__((aligned(4)));

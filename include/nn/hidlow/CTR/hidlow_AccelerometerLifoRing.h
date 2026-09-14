@@ -9,13 +9,15 @@ namespace CTR{
 
 const s32 ACCELEROMETER_LIFORING_BUFFER_NUM = 8;
 
-struct IAccelerometerStatus{
+struct IAccelerometerStatus
+{
     fnd::InterlockedVariable<s16> x;
     fnd::InterlockedVariable<s16> y;
     fnd::InterlockedVariable<s16> z;
 };
 
-class AccelerometerLifoRing : public hidlow::LifoRing{
+class AccelerometerLifoRing : public hidlow::LifoRing
+{
 public:
     IAccelerometerStatus mRaw;
     short rev;

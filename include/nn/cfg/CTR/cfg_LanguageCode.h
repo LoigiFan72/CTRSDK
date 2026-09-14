@@ -3,7 +3,8 @@
 namespace nn {
 namespace cfg {
 namespace CTR {
-        enum CfgLanguageCode{
+        enum CfgLanguageCode
+        {
                 CFG_LANGUAGE_JAPANESE     = 0,
                 CFG_LANGUAGE_ENGLISH      = 1,
                 CFG_LANGUAGE_FRENCH       = 2,

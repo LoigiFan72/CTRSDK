@@ -8,7 +8,8 @@ namespace nn{
 namespace ssl{
 namespace detail{
     
-class LibManager{
+class LibManager
+{
 protected:
     os::CriticalSection m_CriticalSection;
     s32 m_ReferenceCount;

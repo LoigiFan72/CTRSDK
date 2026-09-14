@@ -17,52 +17,70 @@ namespace{
 }
 struct Handle {
 public:
-    Handle ()
-        : mHandle (0)
-    {}
-    Handle (nnHandle handle)
-        : mHandle (handle.value)
-    {}
+    Handle (): 
+        m_Handle (0)
+    {
+    }
+
+    Handle (nnHandle handle): 
+        m_Handle (handle.value)
+    {
+    }
+
     Handle(const nn::WithoutInitialize&)
-    {}
-    Handle (bit32 value)
-        : mHandle (value)
-    {}
-
-    bool IsValid() const {
-        return mHandle != 0;
+    {
     }
 
-    bool operator==(int other) const {
-        return mHandle == (u32)other;
+    Handle (bit32 value): 
+        m_Handle (value)
+    {
     }
-    bool operator!=(int other) const {
-        return mHandle != (u32)other;
+
+    bool IsValid() const 
+    {
+        return m_Handle != 0;
     }
-    Handle& operator=(int other) {
-        mHandle = (u32)other;
-        return *this;
+
+    bool operator==(int other) const 
+    {
+        return m_Handle == (u32)other;
     }
-    Handle& operator=(u32 other) {
-        mHandle = other;
-        return *this;
+    bool operator!=(int other) const 
+    {
+        return m_Handle != (u32)other;
     }
-    Handle& operator=(nn::Handle* other) {
-        mHandle = (u32)other;
+
+    Handle& operator=(int other) 
+    {
+        m_Handle = (u32)other;
         return *this;
     }
 
-    bool operator== (const Handle& rhs) const { return this->mHandle == rhs.mHandle; }
-    bool operator!= (const Handle& rhs) const { return this->mHandle != rhs.mHandle; }
-    operator nnHandle () const{
-        nnHandle result = {mHandle};
+    Handle& operator=(u32 other) 
+    {
+        m_Handle = other;
+        return *this;
+    }
+
+    Handle& operator=(nn::Handle* other) 
+    {
+        m_Handle = (u32)other;
+        return *this;
+    }
+
+    bool operator== (const Handle& rhs) const { return this->m_Handle == rhs.m_Handle; }
+    bool operator!= (const Handle& rhs) const { return this->m_Handle != rhs.m_Handle; }
+    operator nnHandle () const
+    {
+        nnHandle result = {m_Handle};
         return result;
     }
 
-    bit32 mHandle;
+    bit32 m_Handle;
 
-    bit32 GetPrintableBits(){
-        return this->mHandle;
+    bit32 GetPrintableBits()
+    {
+        return this->m_Handle;
     }
 };
 }

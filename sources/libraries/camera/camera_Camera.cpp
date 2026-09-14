@@ -13,27 +13,31 @@ namespace detail{
 
 Handle Camera::s_Session;
 
-Result Camera::Activate(CameraSelect camera){
+Result Camera::Activate(CameraSelect camera)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x13, 1, 0, 0);
     ipcMsg.SetRaw(1, camera);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Camera::GetActivatedCamera(CameraSelect* pSelect){
+Result Camera::GetActivatedCamera(CameraSelect* pSelect)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x3B, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -42,13 +46,15 @@ Result Camera::GetActivatedCamera(CameraSelect* pSelect){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Camera::GetSleepCamera(CameraSelect* pSelect){
+Result Camera::GetSleepCamera(CameraSelect* pSelect)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x3C, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -57,14 +63,16 @@ Result Camera::GetSleepCamera(CameraSelect* pSelect){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Camera::SetSleepCamera(CameraSelect select){
+Result Camera::SetSleepCamera(CameraSelect select)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x3D, 1, 0, 0);
     ipcMsg.SetRaw(1, select);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

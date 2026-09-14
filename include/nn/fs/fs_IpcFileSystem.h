@@ -9,12 +9,13 @@ namespace fs{
 namespace ipc{
     class FileSystem{
     public:
-        nn::Handle mSession;
+        nn::Handle m_Session;
 
         FileSystem(){ }
         FileSystem(Handle session): 
-            mSession(session) 
-        {}
+            m_Session(session) 
+        {
+        }
         Result SetPriority(int priority);
         Result GetPriority(int* pOut);
 
@@ -46,8 +47,8 @@ namespace ipc{
     };
 }
 
-extern Handle gFileServerHandle;
+extern Handle g_FileServerHandle;
 
-inline ipc::FileSystem GetFileServer() { return ipc::FileSystem(fs::gFileServerHandle); }
+inline ipc::FileSystem GetFileServer() { return ipc::FileSystem(fs::g_FileServerHandle); }
 }
 }

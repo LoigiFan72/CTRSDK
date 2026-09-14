@@ -17,9 +17,11 @@ namespace applet{
 namespace CTR{
 namespace detail{
 
-size_t GetByteSizePerPixel(const DisplayBufferMode mode){
+size_t GetByteSizePerPixel(const DisplayBufferMode mode)
+{
     int mul = 0;
-    switch (mode) {
+    switch (mode) 
+    {
         case FORMAT_R8G8B8A8:
             mul=4;
             break;
@@ -37,7 +39,8 @@ size_t GetByteSizePerPixel(const DisplayBufferMode mode){
     return mul;
 }
 
-void GetDisplayInfo(AppletDisplayInfo* pInfo){
+void GetDisplayInfo(AppletDisplayInfo* pInfo)
+{
     if(!pInfo)
         return;
     gxlow::CTR::DisplayCaptureInfo infoTmp;
@@ -53,7 +56,8 @@ void GetDisplayInfo(AppletDisplayInfo* pInfo){
     pInfo->d[1].stride = infoTmp.surface[1].stride;
 }
 
-void CalcCaptureBufferInfo(CaptureBufferInfo *cInfo){
+void CalcCaptureBufferInfo(CaptureBufferInfo *cInfo)
+{
     int x = 256;
     size_t bufferSize = 0;
     size_t pixelSize;
@@ -70,7 +74,8 @@ void CalcCaptureBufferInfo(CaptureBufferInfo *cInfo){
         bufferSize += x * NN_GX_DISPLAY0_HEIGHT * ((pixelSize > 3) ? 3 : pixelSize);
     }
 
-    if (cInfo->is3DCapture){
+    if (cInfo->is3DCapture)
+    {
         pixelSize = GetByteSizePerPixel(cInfo->d[0].mode);
         cInfo->d[0].offsetB = bufferSize;
         bufferSize += x * NN_GX_DISPLAY0_HEIGHT * ((pixelSize > 3) ? 3 : pixelSize);

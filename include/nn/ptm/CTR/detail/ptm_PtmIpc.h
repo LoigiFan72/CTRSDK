@@ -8,7 +8,8 @@ namespace ptm{
 namespace CTR{
 namespace detail{
 
-class PtmIpc{
+class PtmIpc
+{
 public:
     static nn::Handle s_Session;
 

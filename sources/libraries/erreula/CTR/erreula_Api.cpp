@@ -8,8 +8,10 @@ namespace nn{
 namespace erreula{
 namespace CTR{
 namespace{
-    bool CheckAppletRetry(Result result){
-        if(!result.IsSuccess() || (result == ResultAlreadyExist())){
+    bool CheckAppletRetry(Result result)
+    {
+        if(!result.IsSuccess() || (result == ResultAlreadyExist()))
+        {
             NN_UTIL_PANIC_IF_FAILED(result);
             return true;
         }
@@ -17,7 +19,8 @@ namespace{
     }
 }
 
-void InitializeConfig(Config* pConfig){
+void InitializeConfig(Config* pConfig)
+{
     NN_POINTER_ASSERT(pConfig);
     pConfig->errorType = ERROR_TYPE_ERROR_CODE;
     pConfig->errorCode = ERROR_TYPE_ERROR_CODE;
@@ -33,7 +36,8 @@ void InitializeConfig(Config* pConfig){
     memset(pConfig->pad1,0,sizeof(pConfig->pad1));
 }
 
-void StartErrEulaApplet(applet::CTR::AppletWakeupState* pWakeupState, Parameter* pParameter){
+void StartErrEulaApplet(applet::CTR::AppletWakeupState* pWakeupState, Parameter* pParameter)
+{
     s32 readLen = 0;
     applet::CTR::AppletId id = 0;
 

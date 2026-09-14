@@ -44,10 +44,10 @@ public:
     ;
 #endif
 
-    StickClampMode GetStickClampMode(s16* pMin, s16* pMax) const
+    StickClampMode GetStickClampMode() const
     {
 #ifdef NN_VERSION > 2
-        return this->m_StickClamper.GetStickClampMode(pMin,pMax);
+        return this->m_StickClamper.GetStickClampMode();
 #else
         return m_StickClampMode;
 #endif
@@ -65,7 +65,7 @@ public:
     void NormalizeStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y);
     void SetNormalizeStickScaleSettings(f32 scale, s16 threshold);
 #if NN_VERSION_MAJOR <= 2
-    void ClampCore(short* pOutX, short* pOutY,  s32 x, s32 y);
+    void ClampCore(short* pOutX, short* pOutY, s32 x, s32 y);
     void ClampValueOfClamp();
 #endif
 

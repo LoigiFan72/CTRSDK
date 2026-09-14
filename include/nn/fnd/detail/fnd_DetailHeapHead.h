@@ -6,19 +6,22 @@ namespace nn{
 namespace fnd{ 
 namespace detail{
 
-    struct NNSFndLink{
+    struct NNSFndLink
+    {
         void* prevObject;
         void* nextObject;
     };
 
-    struct NNSFndList{
+    struct NNSFndList
+    {
         void* headObject;
         void* tailObject;
         u16 numObjects;
         u16 offset;
     };
 
-    struct NNSiFndExpHeapMBlockHead {
+    struct NNSiFndExpHeapMBlockHead 
+    {
         u16 signature;
         u16 attribute;
         u32 blockSize;
@@ -26,12 +29,14 @@ namespace detail{
         NNSiFndExpHeapMBlockHead* pMBHeadNext;
     };
 
-    struct NNSiFndExpMBlockList{
+    struct NNSiFndExpMBlockList
+    {
         NNSiFndExpHeapMBlockHead* head;
         NNSiFndExpHeapMBlockHead* tail;
     };
 
-    struct NNSiFndExpHeapHead{
+    struct NNSiFndExpHeapHead
+    {
         NNSiFndExpMBlockList mbFreeList;
         NNSiFndExpMBlockList mbUsedList;
         u16 groupID;
@@ -40,8 +45,10 @@ namespace detail{
         u8 padding[3];
     };
 
-    struct ExpHeapImpl{
+    struct ExpHeapImpl
+    {
         ExpHeapImpl() {}
+        
         u32 signature;
         NNSFndLink link;
         NNSFndList childList;

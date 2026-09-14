@@ -16,130 +16,153 @@ namespace{
 const f32 MSEC_PER_FRAME = NN_SND_USECS_PER_FRAME / 1000.f;
 const int FX_SAMPLE_RATE = NN_SND_HW_I2S_CLOCK_32KHZ;   // 32728 Hz
 
-inline f32 RoundUpToMsecPerFrame( u32 msec ){
-    return ( msec > MSEC_PER_FRAME ) ? msec : MSEC_PER_FRAME;
+inline f32 RoundUpToMsecPerFrame(u32 msec)
+{
+    return (msec > MSEC_PER_FRAME) ? msec : MSEC_PER_FRAME;
 }
 
-inline u32 ConvertMsecToSamples( f32 msec ){
-    return static_cast<u32>( msec / MSEC_PER_FRAME ) * NN_SND_SAMPLES_PER_FRAME;
+inline u32 ConvertMsecToSamples(f32 msec)
+{
+    return static_cast<u32>(msec / MSEC_PER_FRAME) * NN_SND_SAMPLES_PER_FRAME;
 }
 
 }
 
-FxReverb::FilterSize FxReverb::sDefaultFilterSize;
+FxReverb::FilterSize FxReverb::s_DefaultFilterSize;
 
 FxReverb::FxReverb(): 
-    mpBuffer(NULL),
-    mFilterSize(sDefaultFilterSize),
-    mEarlyGain(0),
-    mFusedGain(0),
-    mLpfCoef1(0),
-    mLpfCoef2(0),
-    mIsActive(false){
+    m_pBuffer(NULL),
+    m_FilterSize(s_DefaultFilterSize),
+    m_EarlyGain(0),
+    m_FusedGain(0),
+    m_LpfCoef1(0),
+    m_LpfCoef2(0),
+    m_IsActive(false)
+{
+    m_EarlyLength = NN_SND_SAMPLES_PER_FRAME;
+    m_EarlyPos = 0;
 
-    mEarlyLength = NN_SND_SAMPLES_PER_FRAME;
-    mEarlyPos = 0;
+    m_PreDelayLength = NN_SND_SAMPLES_PER_FRAME;
+    m_PreDelayPos = 0;
 
-    mPreDelayLength = NN_SND_SAMPLES_PER_FRAME;
-    mPreDelayPos = 0;
-
-    for (int i = 0; i < 2; i++){
-        mCombFilterLength[i] = NN_SND_SAMPLES_PER_FRAME;
-        mCombFilterPos[i] = 0;
-        mCombFilterCoef[i] = 0;
+    for (int i = 0; i < 2; i++)
+    {
+        m_CombFilterLength[i] = NN_SND_SAMPLES_PER_FRAME;
+        m_CombFilterPos[i] = 0;
+        m_CombFilterCoef[i] = 0;
     }
 
-    mAllPassFilterLength = NN_SND_SAMPLES_PER_FRAME;
-    mAllPassFilterPos = 0;
-    mAllPassFilterCoef = 0;
+    m_AllPassFilterLength = NN_SND_SAMPLES_PER_FRAME;
+    m_AllPassFilterPos = 0;
+    m_AllPassFilterCoef = 0;
 
-    for (int ch = 0; ch < 4; ch++){
-        mWorkBuffer.mEarlyReflection[ch] = NULL;
-        mWorkBuffer.mPreDelay[ch] = NULL;
+    for (int ch = 0; ch < 4; ch++)
+    {
+        m_WorkBuffer.m_EarlyReflection[ch] = NULL;
+        m_WorkBuffer.m_PreDelay[ch] = NULL;
 
-        for (int i = 0; i < 2; i++){
-            mWorkBuffer.mCombFilter[ch][i] = NULL;
+        for (int i = 0; i < 2; i++)
+        {
+            m_WorkBuffer.m_CombFilter[ch][i] = NULL;
         }
-        mWorkBuffer.mAllPassFilter[ch] = NULL;
-        mWorkBuffer.mLpf[ch] = 0;
-        mLastLpfOut[ch] = 0;
+        m_WorkBuffer.m_AllPassFilter[ch] = NULL;
+        m_WorkBuffer.m_Lpf[ch] = 0;
+        m_LastLpfOut[ch] = 0;
     }
 }
 
-FxReverb::~FxReverb(){
-    if (mIsActive){
+FxReverb::~FxReverb()
+{
+    if (m_IsActive)
+    {
         this->Finalize();
     }
-    if (mpBuffer != NULL){
+    if (m_pBuffer != NULL)
+    {
         this->ReleaseWorkBuffer();
     }
 }
 
-bool FxReverb::Initialize(){
-    mEarlyReflectionTimeAtInitialize = mParam.mEarlyReflectionTime;
-    mPreDelayTimeAtInitialize = mParam.mPreDelayTime;
-    mFilterSizeAtInitialize = mFilterSize;
+bool FxReverb::Initialize()
+{
+    m_EarlyReflectionTimeAtInitialize = m_Param.m_EarlyReflectionTime;
+    m_PreDelayTimeAtInitialize = m_Param.m_PreDelayTime;
+    m_FilterSizeAtInitialize = m_FilterSize;
 
     this->AllocBuffer();
     this->InitializeParam();
-    mIsActive = true;
+    m_IsActive = true;
 
     return true;
 }
 
-void FxReverb::Finalize(){
-    if (!mIsActive){
+void FxReverb::Finalize()
+{
+    if (!m_IsActive){
         return;
     }
-    mIsActive = false;
+    m_IsActive = false;
     FreeBuffer();
 }
 
-bool FxReverb::SetParam(const FxReverb::Param& param){
+bool FxReverb::SetParam(const FxReverb::Param& param)
+{
     {
-        if (param.mColoration < 0.0f || param.mColoration > 1.f){
+        if (param.m_Coloration < 0.0f || param.m_Coloration > 1.f)
+        {
             return false;
         }
 
-        if (param.mDamping < 0.0f || param.mDamping > 1.0){
+        if (param.m_Damping < 0.0f || param.m_Damping > 1.0)
+        {
             return false;
         }
 
-        if (param.mEarlyGain < 0.0f || param.mEarlyGain > 1.f){
+        if (param.m_EarlyGain < 0.0f || param.m_EarlyGain > 1.f)
+        {
             return false;
         }
 
-        if (param.mFusedGain < 0.0f || param.mFusedGain > 1.0f){
+        if (param.m_FusedGain < 0.0f || param.m_FusedGain > 1.0f)
+        {
             return false;
         }
 
-        if (param.mpFilterSize != NULL){
-            if (param.mpFilterSize->mComb0 == 0 || param.mpFilterSize->mComb1 == 0 || param.mpFilterSize->mAllPass == 0 ){
+        if (param.m_pFilterSize != NULL)
+        {
+            if (param.m_pFilterSize->m_Comb0 == 0 || param.m_pFilterSize->m_Comb1 == 0 || param.m_pFilterSize->m_AllPass == 0)
+            {
                 return false;
             }
         }
     }
 
     {
-        if (mIsActive == true){
-
-            if (param.mEarlyReflectionTime > mEarlyReflectionTimeAtInitialize){
+        if (m_IsActive == true)
+        {
+            if (param.m_EarlyReflectionTime > m_EarlyReflectionTimeAtInitialize)
+            {
                 return false;
             }
 
-            if (param.mPreDelayTime > mPreDelayTimeAtInitialize){
+            if (param.m_PreDelayTime > m_PreDelayTimeAtInitialize)
+            {
                 return false;
             }
 
-            if (param.mpFilterSize != NULL){
+            if (param.m_pFilterSize != NULL)
+            {
 
-                if (param.mpFilterSize->mComb0 > mFilterSizeAtInitialize.mComb0){
+                if (param.m_pFilterSize->m_Comb0 > m_FilterSizeAtInitialize.m_Comb0)
+                {
                     return false;
                 }
-                if (param.mpFilterSize->mComb1 > mFilterSizeAtInitialize.mComb1){
+                if (param.m_pFilterSize->m_Comb1 > m_FilterSizeAtInitialize.m_Comb1)
+                {
                     return false;
                 }
-                if (param.mpFilterSize->mAllPass > mFilterSizeAtInitialize.mAllPass){
+                if (param.m_pFilterSize->m_AllPass > m_FilterSizeAtInitialize.m_AllPass)
+                {
                     return false;
                 }
             }
@@ -147,39 +170,45 @@ bool FxReverb::SetParam(const FxReverb::Param& param){
 
     }
 
-    mParam = param; 
+    m_Param = param; 
 
-    if (mParam.mpFilterSize != NULL ){
-        mFilterSize = *mParam.mpFilterSize;
-        mParam.mpFilterSize = &mFilterSize;
+    if (m_Param.m_pFilterSize != NULL)
+    {
+        m_FilterSize = *m_Param.m_pFilterSize;
+        m_Param.m_pFilterSize = &m_FilterSize;
     }
 
-    if (mIsActive == true){
+    if (m_IsActive == true)
+    {
         InitializeParam();
     }
     return true;
 }
 
-bool FxReverb::AssignWorkBuffer(uptr buffer, size_t size){
-    if (buffer == NULL){
+bool FxReverb::AssignWorkBuffer(uptr buffer, size_t size)
+{
+    if (buffer == NULL)
+    {
         return false;
     }
 
-    mpBuffer = buffer;
-    mBufferSize = size;
+    m_pBuffer = buffer;
+    m_BufferSize = size;
     return true;
 }
 
-void FxReverb::ReleaseWorkBuffer(){
-    mpBuffer = NULL;
+void FxReverb::ReleaseWorkBuffer()
+{
+    m_pBuffer = NULL;
 }
 
-size_t FxReverb::GetRequiredMemSize(){
-    const size_t bufSizeForEarlyReflection = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(mParam.mEarlyReflectionTime));
-    const size_t bufSizeForPreDelay = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(mParam.mPreDelayTime));
-    const size_t bufSizeForFilterComp0 = sizeof(s32) * mFilterSize.mComb0;
-    const size_t bufSizeForFilterComp1 = sizeof(s32) * mFilterSize.mComb1;
-    const size_t bufSizeForFilterAllPass = sizeof(s32) * mFilterSize.mAllPass;
+size_t FxReverb::GetRequiredMemSize()
+{
+    const size_t bufSizeForEarlyReflection = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(m_Param.m_EarlyReflectionTime));
+    const size_t bufSizeForPreDelay = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(m_Param.m_PreDelayTime));
+    const size_t bufSizeForFilterComp0 = sizeof(s32) * m_FilterSize.m_Comb0;
+    const size_t bufSizeForFilterComp1 = sizeof(s32) * m_FilterSize.m_Comb1;
+    const size_t bufSizeForFilterAllPass = sizeof(s32) * m_FilterSize.m_AllPass;
 
     size_t result = (bufSizeForEarlyReflection + bufSizeForPreDelay + bufSizeForFilterComp0 + bufSizeForFilterComp1 + bufSizeForFilterAllPass ) * 2;
 
@@ -187,90 +216,99 @@ size_t FxReverb::GetRequiredMemSize(){
     return result;
 }
 
-void FxReverb::AllocBuffer(){
-    const size_t bufSizeForEarlyReflection = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(mParam.mEarlyReflectionTime));
-    const size_t bufSizeForPreDelay = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(mParam.mPreDelayTime));
-    const size_t bufSizeForFilterComp0 = sizeof(s32) * mFilterSize.mComb0;
-    const size_t bufSizeForFilterComp1 = sizeof(s32) * mFilterSize.mComb1;
-    const size_t bufSizeForFilterAllPass = sizeof(s32) * mFilterSize.mAllPass;
+void FxReverb::AllocBuffer()
+{
+    const size_t bufSizeForEarlyReflection = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(m_Param.m_EarlyReflectionTime));
+    const size_t bufSizeForPreDelay = sizeof(s32) * ConvertMsecToSamples(RoundUpToMsecPerFrame(m_Param.m_PreDelayTime));
+    const size_t bufSizeForFilterComp0 = sizeof(s32) * m_FilterSize.m_Comb0;
+    const size_t bufSizeForFilterComp1 = sizeof(s32) * m_FilterSize.m_Comb1;
+    const size_t bufSizeForFilterAllPass = sizeof(s32) * m_FilterSize.m_AllPass;
 
-    uptr ptr = math::RoundUp(mpBuffer, 32);
+    uptr ptr = math::RoundUp(m_pBuffer, 32);
 
-    for (int ch = 0; ch < 2; ch++){
-        mWorkBuffer.mEarlyReflection[ch] = reinterpret_cast<s32*>(ptr);
+    for (int ch = 0; ch < 2; ch++)
+    {
+        m_WorkBuffer.m_EarlyReflection[ch] = reinterpret_cast<s32*>(ptr);
         ptr += bufSizeForEarlyReflection;
 
-        mWorkBuffer.mPreDelay[ch] = reinterpret_cast<s32*>(ptr);
+        m_WorkBuffer.m_PreDelay[ch] = reinterpret_cast<s32*>(ptr);
         ptr += bufSizeForPreDelay;
 
-        mWorkBuffer.mCombFilter[ch][0] = reinterpret_cast<s32*>(ptr);
+        m_WorkBuffer.m_CombFilter[ch][0] = reinterpret_cast<s32*>(ptr);
         ptr += bufSizeForFilterComp0;
 
-        mWorkBuffer.mCombFilter[ch][1] = reinterpret_cast<s32*>(ptr);
+        m_WorkBuffer.m_CombFilter[ch][1] = reinterpret_cast<s32*>(ptr);
         ptr += bufSizeForFilterComp1;
 
-        mWorkBuffer.mAllPassFilter[ch] = reinterpret_cast<s32*>(ptr);
+        m_WorkBuffer.m_AllPassFilter[ch] = reinterpret_cast<s32*>(ptr);
         ptr += bufSizeForFilterAllPass;
     }
 }
 
-void FxReverb::FreeBuffer(){
-    for ( int ch = 0; ch < 2; ch++ ){
-        mWorkBuffer.mEarlyReflection[ch] = NULL;
-        mWorkBuffer.mPreDelay[ch]        = NULL;
-        mWorkBuffer.mCombFilter[ch][0]   = NULL;
-        mWorkBuffer.mCombFilter[ch][1]   = NULL;
-        mWorkBuffer.mAllPassFilter[ch]   = NULL;
+void FxReverb::FreeBuffer()
+{
+    for (int ch = 0; ch < 2; ch++)
+    {
+        m_WorkBuffer.m_EarlyReflection[ch] = NULL;
+        m_WorkBuffer.m_PreDelay[ch]        = NULL;
+        m_WorkBuffer.m_CombFilter[ch][0]   = NULL;
+        m_WorkBuffer.m_CombFilter[ch][1]   = NULL;
+        m_WorkBuffer.m_AllPassFilter[ch]   = NULL;
     }
 }
 
-void FxReverb::InitializeParam(){
-    f32 early_time = RoundUpToMsecPerFrame(mParam.mEarlyReflectionTime);
-    mEarlyLength = ConvertMsecToSamples(early_time);
-    mEarlyPos = 0;
+void FxReverb::InitializeParam()
+{
+    f32 early_time = RoundUpToMsecPerFrame(m_Param.m_EarlyReflectionTime);
+    m_EarlyLength = ConvertMsecToSamples(early_time);
+    m_EarlyPos = 0;
 
-    f32 pre_delay_time = RoundUpToMsecPerFrame(mParam.mPreDelayTime);
-    mPreDelayLength = ConvertMsecToSamples(pre_delay_time);
-    mPreDelayPos = 0;
+    f32 pre_delay_time = RoundUpToMsecPerFrame(m_Param.m_PreDelayTime);
+    m_PreDelayLength = ConvertMsecToSamples(pre_delay_time);
+    m_PreDelayPos = 0;
 
-    f32 fused_time_sec = static_cast<f32>(mParam.mFusedTime) / 1000.f;
+    f32 fused_time_sec = static_cast<f32>(m_Param.m_FusedTime) / 1000.f;
 
-    mCombFilterLength[0] = static_cast<s32>(mFilterSize.mComb0);
-    mCombFilterLength[1] = static_cast<s32>(mFilterSize.mComb1);
+    m_CombFilterLength[0] = static_cast<s32>(m_FilterSize.m_Comb0);
+    m_CombFilterLength[1] = static_cast<s32>(m_FilterSize.m_Comb1);
 
-    for (s32 i = 0; i < 2; i++){
-        mCombFilterPos[i] = 0;
+    for (s32 i = 0; i < 2; i++)
+    {
+        m_CombFilterPos[i] = 0;
 
-        f32 comb_coef = ::std::powf(10.f, (-3.f * static_cast<f32>(mCombFilterLength[i]) / (fused_time_sec * FX_SAMPLE_RATE)));
-        mCombFilterCoef[i] = static_cast<s32>( static_cast<f32>(0x80L) * comb_coef );
+        f32 comb_coef = ::std::powf(10.f, (-3.f * static_cast<f32>(m_CombFilterLength[i]) / (fused_time_sec * FX_SAMPLE_RATE)));
+        m_CombFilterCoef[i] = static_cast<s32>(static_cast<f32>(0x80L) * comb_coef);
     }
 
-    mAllPassFilterLength = static_cast<s32>(mFilterSize.mAllPass);
-    mAllPassFilterPos = 0;
+    m_AllPassFilterLength = static_cast<s32>(m_FilterSize.m_AllPass);
+    m_AllPassFilterPos = 0;
 
-    f32 all_pass_coef = mParam.mColoration;
-    mAllPassFilterCoef = static_cast<s32>(static_cast<f32>(0x80L) * all_pass_coef);
+    f32 all_pass_coef = m_Param.m_Coloration;
+    m_AllPassFilterCoef = static_cast<s32>(static_cast<f32>(0x80L) * all_pass_coef);
 
-    mEarlyGain = static_cast<s32>(static_cast<f32>(0x80L) * mParam.mEarlyGain);
-    mFusedGain = static_cast<s32>(static_cast<f32>(0x80L) * mParam.mFusedGain);
+    m_EarlyGain = static_cast<s32>(static_cast<f32>(0x80L) * m_Param.m_EarlyGain);
+    m_FusedGain = static_cast<s32>(static_cast<f32>(0x80L) * m_Param.m_FusedGain);
 
-    f32 lpf_coef = mParam.mDamping;
+    f32 lpf_coef = m_Param.m_Damping;
     if (lpf_coef > 0.95f) lpf_coef = 0.95f;
 
-    if(mParam.mUseHpfDamping == true){
-        mLpfCoef1 = static_cast<s32>(static_cast<s32>(0x80L) * (lpf_coef - 1.f ));
-        mLpfCoef2 = static_cast<s32>(static_cast<s32>(0x80L) * (-1.f) * lpf_coef);
+    if(m_Param.m_UseHpfDamping == true)
+    {
+        m_LpfCoef1 = static_cast<s32>(static_cast<s32>(0x80L) * (lpf_coef - 1.f ));
+        m_LpfCoef2 = static_cast<s32>(static_cast<s32>(0x80L) * (-1.f) * lpf_coef);
     }
-    else{
-        mLpfCoef1 = static_cast<s32>(static_cast<s32>(0x80L) * (1.f - lpf_coef));
-        mLpfCoef2 = static_cast<s32>(static_cast<s32>(0x80L) * lpf_coef);
+    else
+    {
+        m_LpfCoef1 = static_cast<s32>(static_cast<s32>(0x80L) * (1.f - lpf_coef));
+        m_LpfCoef2 = static_cast<s32>(static_cast<s32>(0x80L) * lpf_coef);
     }
 
-    ::std::memset(reinterpret_cast<void*>(mpBuffer), 0, mBufferSize);
+    ::std::memset(reinterpret_cast<void*>(m_pBuffer), 0, m_BufferSize);
 }
 
-void FxReverb::UpdateBuffer(uptr data){
-    if(!mIsActive) 
+void FxReverb::UpdateBuffer(uptr data)
+{
+    if(!m_IsActive) 
         return;
     NN_NULL_TASSERT_(data);
 
@@ -287,19 +325,21 @@ void FxReverb::UpdateBuffer(uptr data){
     u32 comb_filter_pos1;
     u32 allpass_filter_pos;
 
-    for (int ch = 0; ch < 2; ch++){
-        s32* early_reflection = mWorkBuffer.mEarlyReflection[ch] + mEarlyPos;
-        s32* pre_delay      = mWorkBuffer.mPreDelay[ch] + mPreDelayPos;
+    for (int ch = 0; ch < 2; ch++)
+    {
+        s32* early_reflection = m_WorkBuffer.m_EarlyReflection[ch] + m_EarlyPos;
+        s32* pre_delay      = m_WorkBuffer.m_PreDelay[ch] + m_PreDelayPos;
 
-        s32* pCombFilterLine0 = mWorkBuffer.mCombFilter[ch][0] + mCombFilterPos[0];
-        s32* pCombFilterLine1 = mWorkBuffer.mCombFilter[ch][1] + mCombFilterPos[1];
-        s32* pAllpassLine   = mWorkBuffer.mAllPassFilter[ch] + mAllPassFilterPos;
+        s32* pCombFilterLine0 = m_WorkBuffer.m_CombFilter[ch][0] + m_CombFilterPos[0];
+        s32* pCombFilterLine1 = m_WorkBuffer.m_CombFilter[ch][1] + m_CombFilterPos[1];
+        s32* pAllpassLine   = m_WorkBuffer.m_AllPassFilter[ch] + m_AllPassFilterPos;
 
         s32* pInput = input[ch];
 
-        s32 lastLpfOut = mLastLpfOut[ch];
+        s32 lastLpfOut = m_LastLpfOut[ch];
 
-        for (s32 samp = 0; samp < NN_SND_SAMPLES_PER_FRAME; samp++){
+        for (s32 samp = 0; samp < NN_SND_SAMPLES_PER_FRAME; samp++)
+        {
             s32 indata = *pInput;
             s32 pre_delay_out = *pre_delay;
             *pre_delay++ = indata;
@@ -307,7 +347,7 @@ void FxReverb::UpdateBuffer(uptr data){
             s32 filter_out = 0;
             s32 out_tmp = *pCombFilterLine0;
 
-            s32 comb_fb_0 = ( math::Abs(out_tmp) * this->mCombFilterCoef[0] ) >> 7;
+            s32 comb_fb_0 = ( math::Abs(out_tmp) * this->m_CombFilterCoef[0] ) >> 7;
             if (out_tmp < 0) comb_fb_0 = -comb_fb_0;
 
             *pCombFilterLine0++ = pre_delay_out + comb_fb_0;
@@ -315,14 +355,14 @@ void FxReverb::UpdateBuffer(uptr data){
 
             out_tmp = *pCombFilterLine1;
 
-            s32 comb_fb_1 = ( math::Abs(out_tmp) * mCombFilterCoef[1] ) >> 7;
+            s32 comb_fb_1 = ( math::Abs(out_tmp) * m_CombFilterCoef[1] ) >> 7;
             if (out_tmp < 0) comb_fb_1 = -comb_fb_1;
 
             *pCombFilterLine1++ = pre_delay_out + comb_fb_1;
             filter_out -= out_tmp;
 
             out_tmp = *pAllpassLine;
-            s32 allpass_coef = mAllPassFilterCoef;
+            s32 allpass_coef = m_AllPassFilterCoef;
 
             s32 allpass_in = ( math::Abs(out_tmp) * allpass_coef ) >> 7;
             if (out_tmp < 0) allpass_in = -allpass_in;
@@ -334,46 +374,51 @@ void FxReverb::UpdateBuffer(uptr data){
             if (allpass_in < 0) fo_2 = -fo_2;
             filter_out = out_tmp - fo_2;
 
-            s32 tmp = filter_out * mLpfCoef1 + lastLpfOut * mLpfCoef2;
+            s32 tmp = filter_out * m_LpfCoef1 + lastLpfOut * m_LpfCoef2;
             s32 fused_out = tmp >> 7;
             lastLpfOut = fused_out;
 
-            s32 early_out = *early_reflection * mEarlyGain;
+            s32 early_out = *early_reflection * m_EarlyGain;
 
             *early_reflection++ = indata;
 
-            fused_out *= mFusedGain;
+            fused_out *= m_FusedGain;
             fused_out += early_out;
             fused_out >>= 7;
             *pInput++ = fused_out;
         }
 
-        mLastLpfOut[ch] = lastLpfOut;
+        m_LastLpfOut[ch] = lastLpfOut;
     }
 
-    mEarlyPos += NN_SND_SAMPLES_PER_FRAME;
-    if (mEarlyPos >= mEarlyLength){
-        mEarlyPos = 0;
+    m_EarlyPos += NN_SND_SAMPLES_PER_FRAME;
+    if (m_EarlyPos >= m_EarlyLength)
+    {
+        m_EarlyPos = 0;
     }
 
-    mPreDelayPos += NN_SND_SAMPLES_PER_FRAME;
-    if (mPreDelayPos >= mPreDelayLength){
-        mPreDelayPos = 0;
+    m_PreDelayPos += NN_SND_SAMPLES_PER_FRAME;
+    if (m_PreDelayPos >= m_PreDelayLength)
+    {
+        m_PreDelayPos = 0;
     }
 
-    mCombFilterPos[0] += NN_SND_SAMPLES_PER_FRAME;
-    if (mCombFilterPos[0] >= mCombFilterLength[0]){
-        mCombFilterPos[0] = 0;
+    m_CombFilterPos[0] += NN_SND_SAMPLES_PER_FRAME;
+    if (m_CombFilterPos[0] >= m_CombFilterLength[0])
+    {
+        m_CombFilterPos[0] = 0;
     }
 
-    mCombFilterPos[1] += NN_SND_SAMPLES_PER_FRAME;
-    if (mCombFilterPos[1] >= mCombFilterLength[1]){
-        mCombFilterPos[1] = 0;
+    m_CombFilterPos[1] += NN_SND_SAMPLES_PER_FRAME;
+    if (m_CombFilterPos[1] >= m_CombFilterLength[1])
+    {
+        m_CombFilterPos[1] = 0;
     }
 
-    mAllPassFilterPos += NN_SND_SAMPLES_PER_FRAME;
-    if (mAllPassFilterPos >= mAllPassFilterLength){
-        mAllPassFilterPos = 0;
+    m_AllPassFilterPos += NN_SND_SAMPLES_PER_FRAME;
+    if (m_AllPassFilterPos >= m_AllPassFilterLength)
+    {
+        m_AllPassFilterPos = 0;
     }
 }
 

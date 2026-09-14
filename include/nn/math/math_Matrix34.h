@@ -19,9 +19,11 @@ MTX34* MTX34Copy(MTX34* pOut, const MTX34* p);
 MTX34* MTX34Scale(MTX34* pOut, const VEC3* pS);
 bool   MTX34IsIdentity(const MTX34* p);
 
-class MTX34_{
+class MTX34_
+{
 public:
-    struct BaseData{
+    struct BaseData
+    {
         f32 _00;
         f32 _01;
         f32 _02;
@@ -35,7 +37,9 @@ public:
         f32 _22;
         f32 _23;
     };
-    union{
+
+    union
+    {
         BaseData f;
         float matrix[3][4];
         f32 a[12];
@@ -43,7 +47,8 @@ public:
     };
 };
 
-class MTX34 : public MTX34_{
+class MTX34 : public MTX34_
+{
 public:
     typedef MTX34 self_type;
     typedef f32   value_type;
@@ -56,17 +61,22 @@ public:
     
     /* Constructors */
 
-    MTX34() {}
+    MTX34() 
+    {
+    }
+
     explicit MTX34(const f32* p)   { MTX34Copy(this, (MTX34*)p); }
     MTX34(const MTX34& rhs)        { MTX34Copy(this, &rhs); }
     //explicit MTX34(const MTX33& rhs) { MTX33ToMTX34(this, &rhs); }
-    MTX34(f32 x00, f32 x01, f32 x02, f32 x03,f32 x10, f32 x11, f32 x12, f32 x13,f32 x20, f32 x21, f32 x22, f32 x23){
+    MTX34(f32 x00, f32 x01, f32 x02, f32 x03,f32 x10, f32 x11, f32 x12, f32 x13,f32 x20, f32 x21, f32 x22, f32 x23)
+    {
         f._00 = x00; f._01 = x01; f._02 = x02; f._03 = x03;
         f._10 = x10; f._11 = x11; f._12 = x12; f._13 = x13;
         f._20 = x20; f._21 = x21; f._22 = x22; f._23 = x23;
     }
 
-    VEC3 GetColumn(int index) const{
+    VEC3 GetColumn(int index) const
+    {
         VEC3 column;
         column.x = this->matrix[0][index];
         column.y = this->matrix[1][index];
@@ -76,7 +86,8 @@ public:
 
     self_type& SetupScale(const VEC3& scale) { return *MTX34Scale(this, &scale); }
 
-    void SetColumn(int index, const VEC3& column){
+    void SetColumn(int index, const VEC3& column)
+    {
         matrix[0][index] = column.x;
         matrix[1][index] = column.y;
         matrix[2][index] = column.z;
@@ -93,13 +104,15 @@ public:
 
 inline bool MTX34IsIdentity(const MTX34& m) { return MTX34IsIdentity( &m ); }
 
-inline bool MTX34IsIdentity(const MTX34* p) { 
+inline bool MTX34IsIdentity(const MTX34* p) 
+{ 
     return p->f._00 == 1.f && p->f._01 == 0.f && p->f._02 == 0.f && p->f._03 == 0.f &&
            p->f._10 == 0.f && p->f._11 == 1.f && p->f._12 == 0.f && p->f._13 == 0.f &&
            p->f._20 == 0.f && p->f._21 == 0.f && p->f._22 == 1.f && p->f._23 == 0.f;
 }
 
-inline MTX34* MTX34Identity(MTX34* pOut) {
+inline MTX34* MTX34Identity(MTX34* pOut) 
+{
     NN_NULL_ASSERT_(pOut);
 
     MTX34Copy(pOut, &MTX34::Identity());
@@ -117,7 +130,8 @@ namespace math{
 namespace ARMv6{
 
 VEC3* VEC3TransformAsm(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV);
-inline VEC3* VEC3TransformC(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV){
+inline VEC3* VEC3TransformC(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV)
+{
     VEC3 vTmp;
     VEC3* pDst = (pOut == pV) ? &vTmp : pOut;
     
@@ -161,7 +175,8 @@ MTX34* MTX34MultTranslateC(nn::math::MTX34 *,nn::math::MTX34 const*,nn::math::VE
 MTX34* MTX34MultTranslateAsm(nn::math::MTX34 *,nn::math::MTX34 const*,nn::math::VEC3 const*);
 
 MTX33* MTX34ToMTX33Asm(MTX33* pOut, const MTX34* pM);
-inline  MTX33* MTX34ToMTX33C(MTX33* pOut, const MTX34* pM){
+inline  MTX33* MTX34ToMTX33C(MTX33* pOut, const MTX34* pM)
+{
     pOut->matrix[0][0] = pM->matrix[0][0]; pOut->matrix[0][1] = pM->matrix[0][1]; pOut->matrix[0][2] = pM->matrix[0][2];
     pOut->matrix[1][0] = pM->matrix[1][0]; pOut->matrix[1][1] = pM->matrix[1][1]; pOut->matrix[1][2] = pM->matrix[1][2];
     pOut->matrix[2][0] = pM->matrix[2][0]; pOut->matrix[2][1] = pM->matrix[2][1]; pOut->matrix[2][2] = pM->matrix[2][2];
@@ -170,7 +185,8 @@ inline  MTX33* MTX34ToMTX33C(MTX33* pOut, const MTX34* pM){
 }
 
 MTX34* MTX34TransposeAsm(nn::math::MTX34 *,nn::math::MTX34 const*);
-inline MTX34* MTX34TransposeC(nn::math::MTX34 * pOut,nn::math::MTX34 const* p){
+inline MTX34* MTX34TransposeC(nn::math::MTX34 * pOut,nn::math::MTX34 const* p)
+{
     MTX34 mTmp;
 
     NN_NULL_ASSERT_(p);
@@ -179,10 +195,12 @@ inline MTX34* MTX34TransposeC(nn::math::MTX34 * pOut,nn::math::MTX34 const* p){
     const f32 (*const src)[4] = p->matrix;
     f32 (*m)[4];
 
-    if (p == pOut){
+    if (p == pOut)
+    {
         m = mTmp.matrix;
     }
-    else{
+    else
+    {
         m = pOut->matrix;
     }
 
@@ -190,7 +208,8 @@ inline MTX34* MTX34TransposeC(nn::math::MTX34 * pOut,nn::math::MTX34 const* p){
     m[1][0] = src[0][1];   m[1][1] = src[1][1];      m[1][2] = src[2][1];     m[1][3] = 0.0f;
     m[2][0] = src[0][2];   m[2][1] = src[1][2];      m[2][2] = src[2][2];     m[2][3] = 0.0f;
 
-    if (m == mTmp.matrix){
+    if (m == mTmp.matrix)
+    {
         MTX34Copy(pOut, &mTmp);
     }
     
@@ -198,7 +217,8 @@ inline MTX34* MTX34TransposeC(nn::math::MTX34 * pOut,nn::math::MTX34 const* p){
 }
 
 MTX34* MTX34LookAtC_FAST(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget);
-inline MTX34* MTX34LookAtC(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget){
+inline MTX34* MTX34LookAtC(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(pCamPos);
     NN_NULL_ASSERT_(pCamUp);
@@ -236,7 +256,8 @@ inline MTX34* MTX34LookAtC(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp,
 }
 
 MTX34* MTX34RotXYZFIdxC_FAST(MTX34* pOut, f32 fIdxX, f32 fIdxY, f32 fIdxZ, bool isChangeTrans = true); // math_Matrix34.ipp
-inline MTX34* MTX34RotXYZFIdxC(MTX34* pOut, f32 fIdxX, f32 fIdxY, f32 fIdxZ, bool isChangeTrans = true){
+inline MTX34* MTX34RotXYZFIdxC(MTX34* pOut, f32 fIdxX, f32 fIdxY, f32 fIdxZ, bool isChangeTrans = true)
+{
     f32 sinx, cosx;
     f32 siny, cosy;
     f32 sinz, cosz;
@@ -271,7 +292,8 @@ inline MTX34* MTX34RotXYZFIdxC(MTX34* pOut, f32 fIdxX, f32 fIdxY, f32 fIdxZ, boo
 }
 
 MTX34* MTX34ScaleAsm(MTX34* pOut, const VEC3* pS);
-inline MTX34* MTX34ScaleC(MTX34* pOut, const VEC3* pS){
+inline MTX34* MTX34ScaleC(MTX34* pOut, const VEC3* pS)
+{
     f32 (*const m)[4] = pOut->matrix;
 
     m[0][0] = pS->x;    m[0][1] = 0.0f;  m[0][2] = 0.0f;  m[0][3] = 0.0f;
@@ -281,7 +303,8 @@ inline MTX34* MTX34ScaleC(MTX34* pOut, const VEC3* pS){
     return pOut;
 }
 
-inline MTX34* MTX34ScaleC_FAST(MTX34* pOut, const VEC3* pS){
+inline MTX34* MTX34ScaleC_FAST(MTX34* pOut, const VEC3* pS)
+{
     f32 f0 = 0.0f;
     const unsigned int f32_0 = *(reinterpret_cast<unsigned int*>(&f0));
     unsigned int *m = reinterpret_cast<unsigned int *>(pOut->matrix);
@@ -295,7 +318,8 @@ inline MTX34* MTX34ScaleC_FAST(MTX34* pOut, const VEC3* pS){
 }
 
 MTX34* QUATToMTX34C_FAST(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = true);
-inline MTX34* QUATToMTX34C(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = true){
+inline MTX34* QUATToMTX34C(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = true)
+{
     f32 s, xs, ys, zs;
     f32 wx, wy, wz, xx, xy, xz, yy, yz, zz;
 
@@ -332,7 +356,8 @@ inline MTX34* QUATToMTX34C(MTX34* pOut, const QUAT* pQ, bool isChangeTrans = tru
 
 }
 
-inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV){
+inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* __restrict pV)
+{
     #ifdef NN_BUILD_DEBUG // Unoptimized check.
         return ARMv6::VEC3TransformC(pOut,pM,pV);
     #else
@@ -340,7 +365,8 @@ inline VEC3* VEC3Transform(VEC3* pOut, const MTX34* __restrict pM, const VEC3* _
     #endif
 }
 
-inline MTX34* MTX34Copy(MTX34* pOut, const MTX34* pM){
+inline MTX34* MTX34Copy(MTX34* pOut, const MTX34* pM)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34CopyC(pOut, pM);
     #else
@@ -348,7 +374,8 @@ inline MTX34* MTX34Copy(MTX34* pOut, const MTX34* pM){
     #endif
 }
 
-inline MTX34* MTX34Mult(MTX34* pOut, const MTX34* p1, const MTX34* p2){
+inline MTX34* MTX34Mult(MTX34* pOut, const MTX34* p1, const MTX34* p2)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultC(pOut,p1,p2);
     #else
@@ -358,7 +385,8 @@ inline MTX34* MTX34Mult(MTX34* pOut, const MTX34* p1, const MTX34* p2){
 
 inline MTX34* MTX34Mult(MTX34* pOut, const MTX34 p1, const MTX34 p2){ return MTX34Mult(pOut, &p1, &p2);}
 
-inline u32 MTX34Inverse(MTX34* pOut, const MTX34* p){
+inline u32 MTX34Inverse(MTX34* pOut, const MTX34* p)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34InverseC(pOut,p);
     #else
@@ -366,7 +394,8 @@ inline u32 MTX34Inverse(MTX34* pOut, const MTX34* p){
     #endif
 }
 
-inline u32 MTX34InvTranspose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
+inline u32 MTX34InvTranspose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34InvTransposeC(pOut,pM);
     #else
@@ -376,7 +405,8 @@ inline u32 MTX34InvTranspose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
 
 inline u32 MTX34Inverse(MTX34* pOut, const MTX34& m) { return MTX34Inverse(pOut, &m); }
 
-inline MTX34* MTX34MultScale(MTX34* pOut, const MTX34* pM, const VEC3* pS){
+inline MTX34* MTX34MultScale(MTX34* pOut, const MTX34* pM, const VEC3* pS)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultScaleC(pOut, pM, pS);
     #else
@@ -386,7 +416,8 @@ inline MTX34* MTX34MultScale(MTX34* pOut, const MTX34* pM, const VEC3* pS){
 
 inline MTX34* MTX34MultScale(MTX34* pOut, const MTX34& m, const VEC3& vS) { return MTX34MultScale(pOut, &m, &vS); }
 
-inline MTX34* MTX34MultTranslate(MTX34* pOut, const VEC3* pT, const MTX34* pM){
+inline MTX34* MTX34MultTranslate(MTX34* pOut, const VEC3* pT, const MTX34* pM)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultTranslateC(pOut, pT, pM);
     #else
@@ -394,7 +425,8 @@ inline MTX34* MTX34MultTranslate(MTX34* pOut, const VEC3* pT, const MTX34* pM){
     #endif
 }
 
-inline MTX34* MTX34MultTranslate(MTX34* pOut, const MTX34* pM, const VEC3* pT){
+inline MTX34* MTX34MultTranslate(MTX34* pOut, const MTX34* pM, const VEC3* pT)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34MultTranslateC(pOut, pM, pT);
     #else
@@ -402,7 +434,8 @@ inline MTX34* MTX34MultTranslate(MTX34* pOut, const MTX34* pM, const VEC3* pT){
     #endif
 }
 
-inline MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pM){
+inline MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pM)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34ToMTX33C(pOut, pM);
     #else
@@ -410,7 +443,8 @@ inline MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pM){
     #endif
 }
 
-inline MTX34* MTX34Transpose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
+inline MTX34* MTX34Transpose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34TransposeC(pOut,pM);
     #else
@@ -418,7 +452,8 @@ inline MTX34* MTX34Transpose(nn::math::MTX34* pOut,nn::math::MTX34 const* pM){
     #endif
 }
 
-inline MTX34* MTX34LookAt(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget){
+inline MTX34* MTX34LookAt(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34LookAtC(pOut, pCamPos, pCamUp, pTarget);
     #else
@@ -426,7 +461,8 @@ inline MTX34* MTX34LookAt(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, 
     #endif
 }
 
-inline MTX34* MTX34RotXYZRad(MTX34* pOut, f32 fRadX, f32 fRadY, f32 fRadZ){
+inline MTX34* MTX34RotXYZRad(MTX34* pOut, f32 fRadX, f32 fRadY, f32 fRadZ)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::MTX34RotXYZFIdxC(pOut, fRadX, fRadY, fRadZ);
     #else
@@ -434,7 +470,8 @@ inline MTX34* MTX34RotXYZRad(MTX34* pOut, f32 fRadX, f32 fRadY, f32 fRadZ){
     #endif
 }
 
-inline MTX34* MTX34Scale(MTX34* pOut, const VEC3* pS){
+inline MTX34* MTX34Scale(MTX34* pOut, const VEC3* pS)
+{
     #if defined(NN_BUILD_DEBUG)
         return ARMv6::MTX34ScaleC(pOut,pS);
     #elif defined(NN_BUILD_DEVELOPMENT)
@@ -444,7 +481,8 @@ inline MTX34* MTX34Scale(MTX34* pOut, const VEC3* pS){
     #endif
 }
 
-inline MTX34* QUATToMTX34(MTX34* pOut, const QUAT* pQ){
+inline MTX34* QUATToMTX34(MTX34* pOut, const QUAT* pQ)
+{
     #ifdef NN_BUILD_DEBUG
         return ARMv6::QUATToMTX34C(pOut,pQ);
     #else

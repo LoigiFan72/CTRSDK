@@ -43,11 +43,13 @@ namespace{
     NN_MAKE_MODULE(s_DetectableString, "NINTENDO", "Gyroscope");
 }
 
-static inline void OrthonormalizeDirection(Direction& dir, f32 threshold){
+static inline void OrthonormalizeDirection(Direction& dir, f32 threshold)
+{
     f32 f1, e1;
     Direction vec;
 
-    do{
+    do
+    {
         dir.x = dir.x.Normalize();
         dir.y = dir.y.Normalize();
         dir.z = dir.z.Normalize();
@@ -79,7 +81,8 @@ static inline void OrthonormalizeDirection(Direction& dir, f32 threshold){
     } while (e1 < threshold);
 }
 
-static inline void MakeVectorDirection(Direction& mtx, const nn::math::VEC3& vec1, const nn::math::VEC3& vec2){
+static inline void MakeVectorDirection(Direction& mtx, const nn::math::VEC3& vec1, const nn::math::VEC3& vec2)
+{
     nn::math::VEC3 dX, dY1, dY2;
     f32 f1, f2;
     f32 z2y1, x2z1, y2x1, y2z1, z2x1, x2y1;
@@ -87,7 +90,8 @@ static inline void MakeVectorDirection(Direction& mtx, const nn::math::VEC3& vec
     dX.x = (z2y1 = vec1.y * vec2.z) - (y2z1 = vec1.z * vec2.y);
     dX.y = (x2z1 = vec1.z * vec2.x) - (z2x1 = vec1.x * vec2.z);
     dX.z = (y2x1 = vec1.x * vec2.y) - (x2y1 = vec1.y * vec2.x);
-    if (dX.Length() == 0.0f){
+    if (dX.Length() == 0.0f)
+    {
         mtx = E_DIR;
         return;
     }
@@ -113,7 +117,8 @@ static inline void MakeVectorDirection(Direction& mtx, const nn::math::VEC3& vec
     mtx.z.z = dX.z * dX.z + dY2.z * dY1.z + vec2.z * vec1.z;
 }
 
-static inline void MultDirection(const Direction& m1, const Direction& m2, Direction& m3){
+static inline void MultDirection(const Direction& m1, const Direction& m2, Direction& m3)
+{
 
     m3.x.x = m2.x.x * m1.x.x + m2.x.y * m1.y.x + m2.x.z * m1.z.x;
     m3.x.y = m2.x.x * m1.x.y + m2.x.y * m1.y.y + m2.x.z * m1.z.y;
@@ -128,39 +133,49 @@ static inline void MultDirection(const Direction& m1, const Direction& m2, Direc
     m3.z.z = m2.z.x * m1.x.z + m2.z.y * m1.y.z + m2.z.z * m1.z.z;
 }
 
-static inline s32 F32toi(f32 f){
-    if (f < 0.0f){
+static inline s32 F32toi(f32 f)
+{
+    if (f < 0.0f)
+    {
         return ((s32) (f - 0.5f));
     }
-    else{
+    else
+    {
         return ((s32) (f + 0.5f));
     }
 }
 
-static inline s32 F64toi(f64 f){
-    if (f < 0.0){
+static inline s32 F64toi(f64 f)
+{
+    if (f < 0.0)
+    {
         return ((s32) (f - 0.5));
     }
-    else{
+    else
+    {
         return ((s32) (f + 0.5));
     }
 }
 
-static inline s32 CalibrateLowData(s32 lowValue, f32 zero, f64 scale, f32 mag){
+static inline s32 CalibrateLowData(s32 lowValue, f32 zero, f64 scale, f32 mag)
+{
     return F64toi((static_cast<f64> (lowValue) - zero) * scale * mag);
 }
 
-static void ReadLow(GyroscopeLowStatus* pBufs, s32* pReadLen, s32 bufLen, Gyroscope& gyroscope, s32* pIndexOfRead, s64* pTickOfRead){
+static void ReadLow(GyroscopeLowStatus* pBufs, s32* pReadLen, s32 bufLen, Gyroscope& gyroscope, s32* pIndexOfRead, s64* pTickOfRead)
+{
     reinterpret_cast<nn::hidlow::CTR::GyroscopeLowLifoRing*> (gyroscope.GetResource())->ReadData(pBufs, bufLen, pReadLen, pTickOfRead, pIndexOfRead);
 }
 
-static f32 GetRawToDpsCoefficient(){
+static f32 GetRawToDpsCoefficient()
+{
     f32 coefficient;
     NN_UTIL_PANIC_IF_FAILED(detail::Ipc::GetGyroscopeLowRawToDpsCoefficient(&coefficient));
     return coefficient;
 }
 
-static void GetCalibrateParam(GyroscopeLowCalibrateScaleParam* pParam){
+static void GetCalibrateParam(GyroscopeLowCalibrateScaleParam* pParam)
+{
     GyroscopeLowCalibrateParam lowParam;
 
     NN_UTIL_PANIC_IF_FAILED(detail::Ipc::GetGyroscopeLowCalibrateParam(&lowParam));
@@ -173,43 +188,52 @@ static void GetCalibrateParam(GyroscopeLowCalibrateScaleParam* pParam){
     pParam->z.scale = static_cast<f64> (lowParam.z.rpmPositive - lowParam.z.rpmNegative) / (6 * 156);
 }
 
-GyroscopeReader::GyroscopeReader(AccelerometerReader* pAccelerometerReader,Gyroscope& gyroscope) :   
+GyroscopeReader::GyroscopeReader(AccelerometerReader* pAccelerometerReader,Gyroscope& gyroscope):   
     m_IsFirstRead(true),
     m_DefaultAccelerometerReader(),
     m_Gyroscope(gyroscope),
     m_IndexOfRead(-1),
-    m_TickOfRead(-1){
+    m_TickOfRead(-1)
+{
     NN_REFER_MODULE(s_DetectableString);
     detail::Ipc::EnableGyroscopeLow();
-    if (pAccelerometerReader){
+    if (pAccelerometerReader)
+    {
         m_pAccelerometerReader = pAccelerometerReader;
     }
-    else{
+    else
+    {
         m_pAccelerometerReader = &m_DefaultAccelerometerReader;
     }
 
     this->Reset();
     s32 len = 0;
 
-    if(s_NumOfInstance == 0){
+    if(s_NumOfInstance == 0)
+    {
         s_TickOfStart = nn::os::Tick::GetSystemCurrent() + nn::os::Tick(nn::fnd::TimeSpan::FromMilliSeconds(MARGIN_OF_STARTING_SAMPLING));
     }
-    else{
+    else
+    {
         this->Read(&this->m_CurrentStatus,&len,1);
     }
     s_NumOfInstance++;
 }
 
-GyroscopeReader::~GyroscopeReader(){
+GyroscopeReader::~GyroscopeReader()
+{
     detail::Ipc::DisableGyroscopeLow();
     s_NumOfInstance--;
 }
 
-bool GyroscopeReader::ReadLatest(GyroscopeStatus* pBuf){
-    if(m_GyroscopeLocalBufferSize == 0){
+bool GyroscopeReader::ReadLatest(GyroscopeStatus* pBuf)
+{
+    if(m_GyroscopeLocalBufferSize == 0)
+    {
         this->ReadLocal(m_GyroscopeStatusLocalBuffer,&m_GyroscopeLocalBufferSize,GYROSCOPE_LOCAL_BUFFER_SIZE);
     }
-    else{
+    else
+    {
         s32 currentReadLen = 0;
         GyroscopeStatus currentLocalBuff[GYROSCOPE_LOCAL_BUFFER_SIZE];
         this->ReadLocal(currentLocalBuff,&currentReadLen,GYROSCOPE_LOCAL_BUFFER_SIZE);
@@ -223,32 +247,39 @@ bool GyroscopeReader::ReadLatest(GyroscopeStatus* pBuf){
         m_GyroscopeLocalBufferSize += currentReadLen;
     }
 
-    if(m_TickOfRead == -1){
+    if(m_TickOfRead == -1)
+    {
         return false;
     }
-    else{
+    else
+    {
         *pBuf = m_CurrentStatus;
         return true;
     }
 
 }
 
-void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLen){
+void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLen)
+{
     GyroscopeLowStatus lowStatus[GYROSCOPE_LOCAL_BUFFER_SIZE];
 
     s32 lowReadableSize = GYROSCOPE_LOCAL_BUFFER_SIZE;
 
     s32 lowReadLen = 0;
 
-    if(m_IsFirstRead){
+    if(m_IsFirstRead)
+    {
         s64 pastMilliSecond = (nn::os::Tick::GetSystemCurrent() - s_TickOfStart).ToTimeSpan().GetMilliSeconds();
         s32 pastReadableSize = (pastMilliSecond / SAMPLING_FREQUENCY) + 1;
-        if(pastMilliSecond < 0 || pastReadableSize <= 0){
+        if(pastMilliSecond < 0 || pastReadableSize <= 0)
+        {
             *pReadLen = 0;
             return;
         }
-        else{
-            if(lowReadableSize > pastReadableSize){
+        else
+        {
+            if(lowReadableSize > pastReadableSize)
+            {
                 lowReadableSize = pastReadableSize;
             }
             m_IsFirstRead = false;
@@ -262,9 +293,11 @@ void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLe
         s32 gyroscopeLowData;
         f32 f1;
 
-        if (lowReadLen <= 0){
+        if (lowReadLen <= 0)
+        {
             *pReadLen = 0;
-            if(bufLen > 0){
+            if(bufLen > 0)
+            {
                 pBufs[0] = m_CurrentStatus;
             }
             return;
@@ -274,7 +307,8 @@ void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLe
         m_ZeroDriftEffect = 1.0f;
 
         s32 idx = lowReadLen - 1;
-        do{
+        do
+        {
             const nn::hid::CTR::GyroscopeLowStatus& gyro_status = lowStatus[idx];
 
             m_SpeedOld = m_CurrentStatus.speed;
@@ -289,7 +323,8 @@ void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLe
             gyroscopeLowData = CalibrateLowData(gyro_status.z, m_CalibrationZero.z, m_CalibrationScale[2],m_DpsRollMagnification);
             CalculateGyroscopeAxisStatus(&m_CurrentStatus.speed.z, &nearSamplingNumZ, &m_CountZero.z, gyroscopeLowData, m_SpeedScale.z, m_CountT[2]);
 
-            if(m_EnableRotate && !m_RotateMtx.IsIdentity()){
+            if(m_EnableRotate && !m_RotateMtx.IsIdentity())
+            {
                 VEC3Transform(&m_CurrentStatus.speed,&m_RotateMtx,&m_CurrentStatus.speed);
             }
 
@@ -297,18 +332,23 @@ void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLe
             m_SpeedVector.y = m_CurrentStatus.speed.y - m_SpeedOld.y;
             m_SpeedVector.z = m_CurrentStatus.speed.z - m_SpeedOld.z;
 
-            if (nearSamplingNumX < nearSamplingNumY){
-                if (nearSamplingNumX < nearSamplingNumZ){
+            if (nearSamplingNumX < nearSamplingNumY)
+            {
+                if (nearSamplingNumX < nearSamplingNumZ)
+                {
                     nearSamplingNumZ = nearSamplingNumX;
                 }
             }
-            else{
-                if (nearSamplingNumY < nearSamplingNumZ){
+            else
+            {
+                if (nearSamplingNumY < nearSamplingNumZ)
+                {
                     nearSamplingNumZ = nearSamplingNumY;
                 }
             }
             f1 = static_cast<f32> (nearSamplingNumZ - 1) / static_cast<f32> (m_ZeroDriftCount - 1);
-            if (f1 < m_ZeroDriftEffect){
+            if (f1 < m_ZeroDriftEffect)
+            {
                 m_ZeroDriftEffect = f1;
             }
 
@@ -318,22 +358,26 @@ void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLe
 
             this->CalculateDirection();
 
-            if (idx < bufLen){
+            if (idx < bufLen)
+            {
                 pBufs[idx] = m_CurrentStatus;
             }
 
         } while (idx--);
     }
 
-    if(lowReadLen > bufLen){
+    if(lowReadLen > bufLen)
+    {
         *pReadLen = bufLen;
     }
-    else{
+    else
+    {
         *pReadLen = lowReadLen;
     }
 
     AccelerometerStatus accStatus;
-    if (m_EnableAccRevise && this->m_pAccelerometerReader->ReadLatest(&accStatus)){
+    if (m_EnableAccRevise && this->m_pAccelerometerReader->ReadLatest(&accStatus))
+    {
         AccelerationFloat acceleration;
 
         this->m_pAccelerometerReader->ConvertToAcceleration(&acceleration, 1, &accStatus);
@@ -341,16 +385,19 @@ void GyroscopeReader::ReadLocal(GyroscopeStatus* pBufs, s32* pReadLen, s32 bufLe
 
         m_AccRevEffect = this->ReviseDirection_Acceleration(m_CurrentStatus.direction, acc);
 
-        if(bufLen > 0){
+        if(bufLen > 0)
+        {
             pBufs[0] = m_CurrentStatus;
         }
     }
-    else{
+    else
+    {
         m_AccRevEffect = 0.0f;
     }
 }
 
-void GyroscopeReader::Reset(){
+void GyroscopeReader::Reset()
+{
     m_EnableZeroPlay = false;
     m_EnableZeroDrift = true;
     m_EnableAccRevise = true;
@@ -375,7 +422,8 @@ void GyroscopeReader::Reset(){
     m_DpsPitchMagnification = m_DpsYawMagnification = m_DpsRollMagnification = 1.0f;
 
     s32 i = GYROSCOPE_DRIFT_COUNT_MAX - 1;
-    do{
+    do
+    {
         m_CountT[0][i] = m_CountT[1][i] = m_CountT[2][i] = 0;
     } while (--i >= 0);
     m_CountIdx = 0;
@@ -388,53 +436,65 @@ void GyroscopeReader::Reset(){
     this->InitializeCalibrationData();
 }
 
-void GyroscopeReader::EnableZeroDrift(){
+void GyroscopeReader::EnableZeroDrift()
+{
     m_EnableZeroDrift = true;
 }
 
-void GyroscopeReader::EnableAccRevise(){
+void GyroscopeReader::EnableAccRevise()
+{
     m_EnableAccRevise = true;
 }
 
-void GyroscopeReader::EnableZeroPlay(){
+void GyroscopeReader::EnableZeroPlay()
+{
     m_EnableZeroPlay = true;
 }
 
-void GyroscopeReader::DisableAccRevise(){
+void GyroscopeReader::DisableAccRevise()
+{
     m_EnableAccRevise = false;
 }
 
-void GyroscopeReader::DisableZeroDrift(){
+void GyroscopeReader::DisableZeroDrift()
+{
     m_EnableZeroDrift = false;
 }
 
-void GyroscopeReader::DisableZeroPlay(){
+void GyroscopeReader::DisableZeroPlay()
+{
     m_EnableZeroPlay = false;
 }
 
-void GyroscopeReader::SetAngle(f32 ax, f32 ay, f32 az){
+void GyroscopeReader::SetAngle(f32 ax, f32 ay, f32 az)
+{
     m_CurrentStatus.angle.x = ax;
     m_CurrentStatus.angle.y = ay;
     m_CurrentStatus.angle.z = az;
 }
 
-void GyroscopeReader::SetDirection(const Direction& dir){
+void GyroscopeReader::SetDirection(const Direction& dir)
+{
     m_CurrentStatus.direction = dir;
 }
 
-void GyroscopeReader::SetAxisRotationMatrix(const nn::math::MTX34& mtx){
+void GyroscopeReader::SetAxisRotationMatrix(const nn::math::MTX34& mtx)
+{
     this->m_RotateMtx = mtx;
     this->m_DefaultAccelerometerReader.SetAxisRotationMatrix(mtx);
 }
 
-void GyroscopeReader::SetZeroPlayParam(f32& radius){
+void GyroscopeReader::SetZeroPlayParam(f32& radius)
+{
     m_ZeroPlayRadius = 0.005;
 }
 
-void GyroscopeReader::SetZeroDriftMode(const ZeroDriftMode& mode){
+void GyroscopeReader::SetZeroDriftMode(const ZeroDriftMode& mode)
+{
     NN_TASSERT_(mode == GYROSCOPE_ZERODRIFT_LOOSE || mode == GYROSCOPE_ZERODRIFT_STANDARD || mode == GYROSCOPE_ZERODRIFT_TIGHT);
     m_ZeroDriftMode = mode;
-    switch (mode){
+    switch (mode)
+    {
     case GYROSCOPE_ZERODRIFT_LOOSE:
         SetZeroDriftParam(INIT_ZERO_DRIFT_RADIUS_LOOSE, INIT_ZERO_DRIFT_CT_LOOSE, INIT_ZERO_DRIFT_PW_LOOSE);
         break;
@@ -447,60 +507,74 @@ void GyroscopeReader::SetZeroDriftMode(const ZeroDriftMode& mode){
     }
 }
 
-void GyroscopeReader::SetZeroDriftParam(f32 radius, s32 count, f32 power){
+void GyroscopeReader::SetZeroDriftParam(f32 radius, s32 count, f32 power)
+{
     m_ZeroDriftRadius = radius;
     m_ZeroDriftCount = count;
     m_ZeroDriftPower = power;
 
-    if (m_ZeroDriftCount < 2){
+    if (m_ZeroDriftCount < 2)
+    {
         m_ZeroDriftCount = 2;
     }
-    else if (m_ZeroDriftCount > GYROSCOPE_DRIFT_COUNT_MAX){
+    else if (m_ZeroDriftCount > GYROSCOPE_DRIFT_COUNT_MAX)
+    {
         m_ZeroDriftCount = GYROSCOPE_DRIFT_COUNT_MAX;
     }
 }
 
-void GyroscopeReader::ResetZeroPlayParam(){
+void GyroscopeReader::ResetZeroPlayParam()
+{
     m_ZeroPlayRadius = INIT_ZERO_PLAY_RADIUS;
 }
 
-void GyroscopeReader::ResetZeroDriftMode(){
+void GyroscopeReader::ResetZeroDriftMode()
+{
     this->SetZeroDriftMode(GYROSCOPE_ZERODRIFT_STANDARD);
 }
 
-void GyroscopeReader::ResetAccReviseParam(){
+void GyroscopeReader::ResetAccReviseParam()
+{
     m_AccRevisePower = INIT_ACC_REVISE_PW;
     m_AccReviseRange = INIT_ACC_REVISE_RANGE;
 }
 
-void GyroscopeReader::ResetAxisRotationMatrix(){
+void GyroscopeReader::ResetAxisRotationMatrix()
+{
     this->SetAxisRotationMatrix(nn::math::MTX34::Identity());
     this->m_DefaultAccelerometerReader.ResetAxisRotationMatrix();
 }
 
-f32 GyroscopeReader::ReviseDirection_Acceleration(Direction& reviseDirection, const nn::math::VEC3& acc){
+f32 GyroscopeReader::ReviseDirection_Acceleration(Direction& reviseDirection, const nn::math::VEC3& acc)
+{
     nn::math::VEC3 v1, v2, vec;
     Direction d1, d2;
     f32 f1, level;
 
     f1 = acc.Length();
-    if (f1 == 0.0f){
+    if (f1 == 0.0f)
+    {
         return 0.0f;
-
     }
-    else if (f1 < 1.0f){
-        if (f1 <= (1.0f - m_AccReviseRange)){
+    else if (f1 < 1.0f)
+    {
+        if (f1 <= (1.0f - m_AccReviseRange))
+        {
             return 0.0f;
         }
-        else{
+        else
+        {
             level = (f1 - (1.0f - m_AccReviseRange)) * (1.0f / m_AccReviseRange);
         }
     }
-    else{
-        if (f1 >= (1.0f + m_AccReviseRange)){
+    else
+    {
+        if (f1 >= (1.0f + m_AccReviseRange))
+        {
             return 0.0f;
         }
-        else{
+        else
+        {
             level = (f1 - (1.0f + m_AccReviseRange)) * (-1.0f / m_AccReviseRange);
         }
     }
@@ -521,7 +595,8 @@ f32 GyroscopeReader::ReviseDirection_Acceleration(Direction& reviseDirection, co
     v2.z = (0.0f - v1.z) * level + v1.z;
 
     nn::math::VEC3SafeNormalize(&v2, v2, ZERO_VEC);
-    if (v2 == ZERO_VEC){
+    if (v2 == ZERO_VEC)
+    {
         return 0.0f;
     }
 
@@ -539,7 +614,8 @@ f32 GyroscopeReader::ReviseDirection_Acceleration(Direction& reviseDirection, co
     return f1;
 }
 
-void GyroscopeReader::CalculateDirection(){
+void GyroscopeReader::CalculateDirection()
+{
     f32 f1, v1;
 
     Direction d1 = m_CurrentStatus.direction;
@@ -586,12 +662,14 @@ void GyroscopeReader::CalculateDirection(){
 
     OrthonormalizeDirection(dest, 2.999f);
 }
-void GyroscopeReader::CalculateGyroscopeAxisStatus(f32 *destSpeed, s32 *nearSamplingNum, f32 *zeroOffset, s32 srcSpeed, f32 speedScale, s32* oldValueArray){
+void GyroscopeReader::CalculateGyroscopeAxisStatus(f32 *destSpeed, s32 *nearSamplingNum, f32 *zeroOffset, s32 srcSpeed, f32 speedScale, s32* oldValueArray)
+{
     oldValueArray[m_CountIdx] = srcSpeed;
     *nearSamplingNum = 1;
 
     s32 zeroDriftRange = F32toi(m_ZeroDriftRadius / speedScale);
-    if (zeroDriftRange == 0){
+    if (zeroDriftRange == 0)
+    {
         zeroDriftRange++;
     }
 
@@ -604,7 +682,8 @@ void GyroscopeReader::CalculateGyroscopeAxisStatus(f32 *destSpeed, s32 *nearSamp
         s32 i = (m_CountIdx - 1) & (GYROSCOPE_DRIFT_COUNT_MAX - 1);
         s32 i2 = (m_CountIdx - m_ZeroDriftCount) & (GYROSCOPE_DRIFT_COUNT_MAX - 1);
 
-        do{
+        do
+        {
             if (oldValueArray[i] < n1 || oldValueArray[i] > n2)
                 break;
             sum += oldValueArray[i];
@@ -622,14 +701,17 @@ void GyroscopeReader::CalculateGyroscopeAxisStatus(f32 *destSpeed, s32 *nearSamp
 
         *destSpeed += (static_cast<f32> (sum) / static_cast<f32> (*nearSamplingNum) - *destSpeed) * f1;
 
-        if (m_EnableZeroDrift){
+        if (m_EnableZeroDrift)
+        {
             f1 *= m_ZeroDriftPower;
             *zeroOffset += (*destSpeed - *zeroOffset) * f1;
         }
 
         *destSpeed = (*destSpeed - *zeroOffset) * speedScale;
-        if (m_EnableZeroPlay){
-            if (*destSpeed >= -m_ZeroPlayRadius && *destSpeed <= m_ZeroPlayRadius){
+        if (m_EnableZeroPlay)
+        {
+            if (*destSpeed >= -m_ZeroPlayRadius && *destSpeed <= m_ZeroPlayRadius)
+            {
                 if (*destSpeed < 0.0f)
                     f1 = -(*destSpeed);
                 else
@@ -639,14 +721,16 @@ void GyroscopeReader::CalculateGyroscopeAxisStatus(f32 *destSpeed, s32 *nearSamp
                     m_ZeroPlayEffect = f1;
                 *destSpeed = 0.0f;
             }
-            else{
+            else
+            {
                 m_ZeroPlayEffect = 0.0f;
             }
         }
     }
 }
 
-void GyroscopeReader::InitializeCalibrationData(){
+void GyroscopeReader::InitializeCalibrationData()
+{
     GyroscopeLowCalibrateScaleParam param;
     GetCalibrateParam(&param);
     f64 coef = static_cast<f64> (GetRawToDpsCoefficient());

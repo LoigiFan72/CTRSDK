@@ -34,14 +34,16 @@ namespace nn {
 namespace gx {
 namespace CTR {
 
-enum DisplaySize{
+enum DisplaySize
+{
     DISPLAY0_WIDTH  = NN_GX_DISPLAY0_WIDTH,
     DISPLAY0_HEIGHT = NN_GX_DISPLAY0_HEIGHT,
     DISPLAY1_WIDTH  = NN_GX_DISPLAY1_WIDTH,
     DISPLAY1_HEIGHT = NN_GX_DISPLAY1_HEIGHT
 };
 
-inline void StartLcdDisplay( void ){
+inline void StartLcdDisplay()
+{
     nngxStartLcdDisplay();
 }
 

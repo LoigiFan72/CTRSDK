@@ -12,7 +12,8 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-enum VoiceDropMode {
+enum VoiceDropMode 
+{
     VOICE_DROP_MODE_DEFAULT   = 0,
     VOICE_DROP_MODE_REAL_TIME = 1
 };
@@ -21,11 +22,13 @@ typedef void (*VoiceDropCallbackFunc)(class Voice*, uptr userArg);
 
 class VoiceImpl;
 
-class Voice {
+class Voice 
+{
     friend class VoiceManager;
 
 public:
-    enum State {
+    enum State 
+    {
         STATE_PLAY,
         STATE_STOP,
         STATE_PAUSE

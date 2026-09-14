@@ -9,7 +9,8 @@ namespace os {
 namespace CTR {
 
 
-struct ThreadLocalRegion{
+struct ThreadLocalRegion
+{
     uptr  tls[16];
     uptr  handlerAddress;
     uptr  handlerStackBottomAddress;
@@ -21,7 +22,8 @@ struct ThreadLocalRegion{
     bit32 receiveBuffer[32];
 };
 
-inline ThreadLocalRegion* GetThreadLocalRegion(){
+inline ThreadLocalRegion* GetThreadLocalRegion()
+{
     ThreadLocalRegion* p;
     HW_GET_CP15_THREAD_ID_USER_READ_ONLY(p);
     return p;

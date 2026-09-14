@@ -8,7 +8,8 @@ namespace CTR {
 
 typedef u8  CECMessageId[CEC_SIZEOF_MESSAGEID];
 
-class MessageId{
+class MessageId
+{
 public:
     static const size_t SIZE = CEC_SIZEOF_MESSAGEID;
     static const size_t ENCODED_SIZE = 12;

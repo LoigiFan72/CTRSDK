@@ -9,7 +9,8 @@ namespace nn {
 namespace pl {
 namespace CTR {
 namespace detail{
-    typedef enum _IPCPortType{
+    typedef enum _IPCPortType
+    {
         PORT_PEDOMETER = 0,
         PORT_PEDOMETER_HID,
         PORT_PEDOMETER_SYS,

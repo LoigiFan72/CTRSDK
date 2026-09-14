@@ -10,7 +10,8 @@ namespace CTR{
 
 bit32* Combiner::MakeCommand(bit32* command) const
 {
-    for (int stage_index = 0; stage_index < COMBINER_STAGE_MAX; ++ stage_index){
+    for (int stage_index = 0; stage_index < COMBINER_STAGE_MAX; ++ stage_index)
+    {
         command = stage[stage_index].MakeCommand(command);
     }
                 

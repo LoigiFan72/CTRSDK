@@ -11,7 +11,8 @@ namespace detail{
 
 typedef nn::fslow::LowPath<const char*, const wchar_t*> Path;
 
-class IFile{
+class IFile
+{
 public:
     virtual Result TryRead(s32* pOut, s64 offset, void* buffer, size_t size) = 0; // 0x0
     virtual Result TryWrite(s32* pOut, s64 offset, const void* buffer, size_t size, bool flush=true) = 0; // 0x4
@@ -32,7 +33,8 @@ public:
     virtual ~IFile() {} // 0x30
 };
 
-class IDirectory{
+class IDirectory
+{
 public:
     virtual Result TryRead(s32* pNumEntriesOut, DirectoryEntry pEntries[], s32 numEntries) = 0;
     virtual void Close() = 0;
@@ -43,7 +45,8 @@ public:
     virtual ~IDirectory() {}
 };
 
-class IArchive{
+class IArchive
+{
 public:
     virtual Result OpenFile (IFile**, const Path&, bit32) = 0; // 0x0
     virtual Result OpenDirectory (IDirectory**, const Path&) = 0; // 0x4

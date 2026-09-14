@@ -26,25 +26,31 @@ namespace{
 }
 
 namespace detail{
-    inline ipc::FileSystem GetIpcFileSystem(){
+    inline ipc::FileSystem GetIpcFileSystem()
+    {
         Result res;
-        if(fs::s_FileServerSession.IsValid()){
+        if(fs::s_FileServerSession.IsValid())
+        {
             NN_ERR_THROW_FATAL_ALL(res);
         }
         return ipc::FileSystem(s_FileServerSession);
     }
 }
 
-bool IsInitialized(){
+bool IsInitialized()
+{
     return s_FileServerSession.IsValid();
 }
 
-inline Result SetPriority(s32 pri){
+inline Result SetPriority(s32 pri)
+{
     return detail::GetIpcFileSystem().SetPriority(pri);
 }
 
-void Initialize(){
-    if(!IsInitialized()){
+void Initialize()
+{
+    if(!IsInitialized())
+    {
         Result res = srv::Initialize();
         if(res != nn::srv::ResultAlreadyInitialized())
             NN_ERR_THROW_FATAL_ALL(res);
@@ -58,24 +64,28 @@ void Initialize(){
     }
 }
 
-void RegisterSdmcEjectedEvent(os::LightEvent* p){
+void RegisterSdmcEjectedEvent(os::LightEvent* p)
+{
     s_NotificationSdmcEjectedHandler.Initialize(p);
     NN_ERR_THROW_FATAL_ALL(nn::srv::RegisterNotificationHandler(&s_NotificationSdmcEjectedHandler, 521));
     NN_ERR_THROW_FATAL_ALL(nn::srv::Subscribe(521));
 }
 
-void UnregisterCardEjectedEvent(){
+void UnregisterCardEjectedEvent()
+{
     NN_ERR_THROW_FATAL_ALL(nn::srv::Unsubscribe(521));
     nn::srv::UnregisterNotificationHandler(521);
 }
 
-bool IsSdmcInserted(){
+bool IsSdmcInserted()
+{
     bool bInserted;
     NN_ERR_THROW_FATAL_ALL(nn::fs::detail::GetIpcFileSystem().IsSdmcDetected(&bInserted));
     return bInserted;
 }
 
-bool IsSdmcWritable(){
+bool IsSdmcWritable()
+{
     bool isWritable;
     NN_ERR_THROW_FATAL_ALL(nn::fs::detail::GetIpcFileSystem().IsSdmcWritable(&isWritable));
     return isWritable;

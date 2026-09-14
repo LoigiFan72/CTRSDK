@@ -10,49 +10,62 @@ namespace drivers{
 namespace gxlow{
 namespace CTR{
 
-class InterruptTable{
+class InterruptTable
+{
 public:
-    os::CriticalSection mHandlerLock;
+    os::CriticalSection m_HandlerLock;
     int pad;
-    nngxlowFuncPtr mInterruptHandlerTable[NN_GXLOW_NUM_INTERRUPTS];
+    nngxlowFuncPtr m_InterruptHandlerTable[NN_GXLOW_NUM_INTERRUPTS];
 public:
-    InterruptTable(){ }
-    void LockTable(){
-        this->mHandlerLock.Enter();
-    }
-    void UnlockTable(){
-        this->mHandlerLock.Leave();
+    InterruptTable()
+    { 
     }
 
-    nngxlowFuncPtr RegisterInterruptHandler(nngxlowFuncPtr interruptHandler, nngxlowInterrupt interruptType){
+    void LockTable()
+    {
+        this->m_HandlerLock.Enter();
+    }
+    void UnlockTable()
+    {
+        this->m_HandlerLock.Leave();
+    }
+
+    nngxlowFuncPtr RegisterInterruptHandler(nngxlowFuncPtr interruptHandler, nngxlowInterrupt interruptType)
+    {
         nngxlowFuncPtr gxptr;
         uint type = interruptType;
-        if(type < NN_GXLOW_NUM_INTERRUPTS){
+        if(type < NN_GXLOW_NUM_INTERRUPTS)
+        {
             this->LockTable();
-            gxptr = mInterruptHandlerTable[type];
-            mInterruptHandlerTable[type] = interruptHandler;
+            gxptr = m_InterruptHandlerTable[type];
+            m_InterruptHandlerTable[type] = interruptHandler;
             this->UnlockTable();
         }
-        else{
+        else
+        {
             NN_TASSERTMSG_(!gxptr, "Invalid interrupt type %d.\n", type);
         }
         return gxptr;
     }
 
-    void InitializeTable(){
-        this->mHandlerLock.Initialize();
+    void InitializeTable()
+    {
+        this->m_HandlerLock.Initialize();
         this->LockTable();
-        for(int i = 0; i < NN_GXLOW_NUM_INTERRUPTS; i++){
-            mInterruptHandlerTable[i] = 0;
+        for(int i = 0; i < NN_GXLOW_NUM_INTERRUPTS; i++)
+        {
+            m_InterruptHandlerTable[i] = 0;
         }
     }
 
-    void FinalizeTable(){
-        for(int i = 0; i < NN_GXLOW_NUM_INTERRUPTS; i++){
-            mInterruptHandlerTable[i] = 0;
+    void FinalizeTable()
+    {
+        for(int i = 0; i < NN_GXLOW_NUM_INTERRUPTS; i++)
+        {
+            m_InterruptHandlerTable[i] = 0;
         }
         this->UnlockTable();
-        this->mHandlerLock.Finalize();
+        this->m_HandlerLock.Finalize();
     }
 };
 }

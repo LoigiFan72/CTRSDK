@@ -20,16 +20,19 @@ CfgRegionCode GetRegion();
 CfgLanguageCode GetLanguage();
 bit64 GetTransferableId(bit32 uniqueId);
 
-struct LanguageCfgData{
+struct LanguageCfgData
+{
     u8 code;
 };
 
 extern LanguageCfgData LANGUAGE_CFG_DEFAULT;
 
-struct DebugParamCfgData{
+struct DebugParamCfgData
+{
 
     bool dlpDebug;
-    union debugParam{
+    union debugParam
+    {
         u8 flags1;
         u8 param1;
     } param;

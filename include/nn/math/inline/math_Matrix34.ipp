@@ -8,8 +8,8 @@
 namespace nn {
 namespace math {
 
-inline MTX34* MTX34TextureProjectionFrustum(MTX34* pOut, f32 l, f32 r, f32 b, f32 t, f32 n, f32 scaleS, f32 scaleT, f32 translateS, f32 translateT){
-
+inline MTX34* MTX34TextureProjectionFrustum(MTX34* pOut, f32 l, f32 r, f32 b, f32 t, f32 n, f32 scaleS, f32 scaleT, f32 translateS, f32 translateT)
+{
     f32 reverseWidth = 1.0f / (r - l);
 
     f32 (*const mtx)[4] = pOut->matrix;
@@ -32,7 +32,8 @@ inline MTX34* MTX34TextureProjectionFrustum(MTX34* pOut, f32 l, f32 r, f32 b, f3
     return pOut;
 }
 
-inline MTX34* MTX34TextureProjectionPerspective(MTX34* pOut, f32 fovy, f32 aspect, f32 scaleS, f32 scaleT, f32 translateS, f32 translateT){
+inline MTX34* MTX34TextureProjectionPerspective(MTX34* pOut, f32 fovy, f32 aspect, f32 scaleS, f32 scaleT, f32 translateS, f32 translateT)
+{
     f32 angle = fovy * 0.5f;
     f32 cot = 1.0f / math::TanRad(angle);
 
@@ -58,7 +59,8 @@ inline MTX34* MTX34TextureProjectionPerspective(MTX34* pOut, f32 fovy, f32 aspec
 
 namespace ARMv6{
 
-MTX34* MTX34LookAtC_FAST(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget){
+MTX34* MTX34LookAtC_FAST(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, const VEC3* pTarget)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(pCamPos);
     NN_NULL_ASSERT_(pCamUp);
@@ -66,7 +68,8 @@ MTX34* MTX34LookAtC_FAST(MTX34* pOut, const VEC3* pCamPos, const VEC3* pCamUp, c
 
     f32 (*const m)[4] = pOut->matrix;
 
-    f32 vLookx, vLooky, vLookz;{
+    f32 vLookx, vLooky, vLookz;
+    {
         vLookx = pCamPos->x - pTarget->x;
         vLooky = pCamPos->y - pTarget->y;
         vLookz = pCamPos->z - pTarget->z;

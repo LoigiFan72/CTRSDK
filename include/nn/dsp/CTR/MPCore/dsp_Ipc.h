@@ -5,12 +5,20 @@
 namespace nn {
 namespace dsp {
 namespace CTR {
-class DSP{
+class DSP
+{
 public:
     Handle m_Session;
  
-    DSP(){ }
-    DSP(Handle h){ this->m_Session = h; }
+    DSP()
+    { 
+    }
+    
+    DSP(Handle h):
+        m_Session(h)
+    {
+    }
+
     Result ConvertProcessAddressFromDspDram(uptr _address,uptr *address);
     Result FlushDataCache(Handle clientProcess,uptr addr,size_t size);
     Result GetSemaphoreEventHandle(Handle *handle);

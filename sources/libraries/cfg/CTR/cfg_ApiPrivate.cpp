@@ -14,16 +14,19 @@ namespace nn{
 namespace cfg{
 namespace CTR{
 
-u8 GetFsLatencyEmulationParam(){
+u8 GetFsLatencyEmulationParam()
+{
     nn::Result res;
     DebugParamCfgData debugParam;
-    if (!os::IsRunOnDevelopmentHardWare()){
+    if (!os::IsRunOnDevelopmentHardWare())
+    {
         return 0U;
     }
 
     detail::_IPCPortType portType;
     res = detail::InitializeProperPort(&portType);
-    if (res.IsFailure()) {
+    if (res.IsFailure()) 
+    {
         NN_ERR_THROW_FATAL_ALL(res);
         NN_TLOG_("[cfg] Application is not permitted to use cfg.\n");
     }
@@ -36,17 +39,20 @@ u8 GetFsLatencyEmulationParam(){
     return debugParam.fsLatencyParam;
 }
 
-bool IsDebugMode(){
+bool IsDebugMode()
+{
     Result res;
     DebugParamCfgData debugParam;
 
-    if (!os::IsRunOnDevelopmentHardWare()){
+    if (!os::IsRunOnDevelopmentHardWare())
+    {
         return false;
     }
 
     detail::_IPCPortType portType;
     res = detail::InitializeProperPort(&portType);
-    if (res.IsFailure()) {
+    if (res.IsFailure()) 
+    {
         NN_ERR_THROW_FATAL_ALL(res);
         NN_TLOG_("[cfg] Application is not permitted to use cfg.\n");
     }
@@ -56,10 +62,12 @@ bool IsDebugMode(){
 
     detail::FinalizeProperPort(portType);
     bool isMode;
-    if(debugParam.param.flags1 & 1){
+    if(debugParam.param.flags1 & 1)
+    {
         return true;
     } 
-    else{
+    else
+    {
         return false;
     }
 }

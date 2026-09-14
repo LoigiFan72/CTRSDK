@@ -1,6 +1,7 @@
 #pragma once
 
-enum PicaReg{
+enum PicaReg
+{
     PICA_REG_INTERRUPT                 = 0x010, 
     PICA_REG_CULL_FACE                 = 0x040,
     PICA_REG_VIEWPORT_WIDTH1           = 0x041,

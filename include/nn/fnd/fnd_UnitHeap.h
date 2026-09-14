@@ -14,129 +14,154 @@ class UnitHeapBase : public HeapBase
 {
 public:
     static size_t GetRequiredHeapSize(size_t unit, size_t numUnit, s32 alignment = DEFAULT_ALIGNMENT);
-    UnitHeapBase() : mFreeNode(0) {}
-    UnitHeapBase(size_t unit, uptr addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0) : mFreeNode(0) {
+    UnitHeapBase(): 
+        m_FreeNode(0) 
+    {
+    }
+
+    UnitHeapBase(size_t unit, uptr addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0): 
+        m_FreeNode(0) 
+    {
         Initialize(unit, addr, size, alignment, option);
     }
 
     void Initialize(size_t unit, uptr addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0);
     void Invalidate();
-    void Finalize(){
-        if(this->mFreeNode != 0){
-            NN_TASSERT_(mCount == 0);
-            this->mFreeNode = 0;
+    void Finalize()
+    {
+        if(this->m_FreeNode != 0)
+        {
+            NN_TASSERT_(m_Count == 0);
+            this->m_FreeNode = 0;
         }
     }
-    void* Allocate(){
-        void* ret = reinterpret_cast<void*&>(mFreeNode);
-        if (ret){
-            mFreeNode = mFreeNode->next;
-            ++mCount;
+    void* Allocate()
+    {
+        void* ret = reinterpret_cast<void*&>(m_FreeNode);
+        if (ret)
+        {
+            m_FreeNode = m_FreeNode->next;
+            ++m_Count;
 
-            DebugFillMemory(reinterpret_cast<uptr>(ret), this->mUnit, HEAP_FILL_TYPE_ALLOC);
-            FillMemoryZero(reinterpret_cast<uptr>(ret), this->mUnit);
+            DebugFillMemory(reinterpret_cast<uptr>(ret), this->m_Unit, HEAP_FILL_TYPE_ALLOC);
+            FillMemoryZero(reinterpret_cast<uptr>(ret), this->m_Unit);
         }
 
         return ret;
     }
-    void Free(void* p){
-        p = this->mFreeNode;
-        mFreeNode = reinterpret_cast<Node*>(p);
-        mCount--;
+    void Free(void* p)
+    {
+        p = this->m_FreeNode;
+        m_FreeNode = reinterpret_cast<Node*>(p);
+        m_Count--;
     }
 
     virtual ~UnitHeapBase(){ this->Finalize(); }
     virtual void FreeV(void* p){ this->Free(p); }
-    virtual void* GetStartAddress() const{ return reinterpret_cast<void*>(this->mAddr); }
-    virtual size_t GetTotalSize() const{ return mSize; }
+    virtual void* GetStartAddress() const{ return reinterpret_cast<void*>(this->m_Addr); }
+    virtual size_t GetTotalSize() const{ return m_Size; }
     virtual void Dump() const ;
-    virtual bool HasAddress(const void* addr) const{ return mAddr <= reinterpret_cast<uptr>(addr) && reinterpret_cast<uptr>(addr) < (mAddr + mSize);}
+    virtual bool HasAddress(const void* addr) const{ return m_Addr <= reinterpret_cast<uptr>(addr) && reinterpret_cast<uptr>(addr) < (m_Addr + m_Size);}
 
 protected:
     bool IsFreeNode(uptr addr) const;
 
-    struct Node {
+    struct Node 
+    {
         Node* next;
     };
 
-    size_t mUnit;
-    uptr   mAddr;
-    size_t mSize;
-    Node*  mFreeNode;
-    s32    mAlignment;
-    size_t mCount;
+    size_t m_Unit;
+    uptr   m_Addr;
+    size_t m_Size;
+    Node*  m_FreeNode;
+    s32    m_Alignment;
+    size_t m_Count;
 
 };
 
-    inline void UnitHeapBase::Invalidate() {
-        this->mFreeNode = 0;
+    inline void UnitHeapBase::Invalidate() 
+    {
+        this->m_FreeNode = 0;
     }
 
 template <class LockPolicy>
-class UnitHeapTemplate : public UnitHeapBase, private LockPolicy::LockObject {
+class UnitHeapTemplate : public UnitHeapBase, private LockPolicy::LockObject 
+{
 private:
     typedef UnitHeapBase Base;
     typedef typename LockPolicy::LockObject LockObject;
     typedef typename LockPolicy::ScopedLock ScopedLock;
 
 public:
-    static size_t GetRequiredHeapSize(size_t unit, size_t numUnit, s32 alignment = DEFAULT_ALIGNMENT) {
+    static size_t GetRequiredHeapSize(size_t unit, size_t numUnit, s32 alignment = DEFAULT_ALIGNMENT) 
+    {
         return Base::GetRequiredHeapSize(unit, numUnit, alignment);
     }
 
     UnitHeapTemplate() {}
 
-    UnitHeapTemplate(size_t unit, uptr addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0) {
+    UnitHeapTemplate(size_t unit, uptr addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0) 
+    {
         Initialize(unit, addr, size, alignment, option);
     }
 
     static UnitHeapTemplate* Create(HeapBase* parent, size_t unit, void* addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0, bit32 placement = HEAP_INFOPLACEMENT_HEAD);
 
-    void Initialize(size_t unit, uptr addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0) {
+    void Initialize(size_t unit, uptr addr, size_t size, s32 alignment = DEFAULT_ALIGNMENT, bit32 option = 0) 
+    {
         Base::Initialize(unit, addr, size, alignment, option);
         LockObject::Initialize();
     }
 
-    void Invalidate() {
+    void Invalidate() 
+    {
         Base::Invalidate(); 
     }
 
-    void Finalize() {
+    void Finalize() 
+    {
         LockObject::Finalize();
         Base::Finalize();
     }
 
-    virtual ~UnitHeapTemplate(){
-    }
+    virtual ~UnitHeapTemplate(){ }
 
-    void* Allocate() {
+    void* Allocate() 
+    {
         ScopedLock lk(*this);
         return Base::Allocate();
     }
 
-    void Free(void* p) {
+    void Free(void* p) 
+    {
         ScopedLock lk(*this);
         Base::Free(p);
     }
 
-    virtual void FreeV(void* p){
+    virtual void FreeV(void* p)
+    {
         Free(p); 
     }
 
-    virtual void*  GetStartAddress() const {
+    virtual void*  GetStartAddress() const 
+    {
         return Base::GetStartAddress(); 
     }
 
-    virtual size_t GetTotalSize()    const {
+    virtual size_t GetTotalSize()    const 
+    {
         return Base::GetTotalSize(); 
     }
 
-    virtual void Dump() const {
+    virtual void Dump() const 
+    {
         ScopedLock lk(*this);
         Base::Dump();
     }
 
-    virtual bool HasAddress(const void* addr) const {
+    virtual bool HasAddress(const void* addr) const 
+    {
         return Base::HasAddress(addr); 
     }
 };

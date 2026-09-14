@@ -12,7 +12,8 @@
 #define NN_SND_ADPCM_DOL_BLOCK_SIZE (4)
 #endif
 
-typedef struct {
+typedef struct
+{
     s16 a[8][2];
     u16 gain;
     u16 pred_scale;
@@ -24,7 +25,8 @@ typedef struct {
     u16 pad[1];
 } DspsndAdpcmState;
 
-typedef struct {
+typedef struct 
+{
     u32 num_samples;
     u32 num_adpcm_nibbles;
     u32 sample_rate;
@@ -41,11 +43,13 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-struct AdpcmParam {
+struct AdpcmParam 
+{
     u16 coef[16];
 };
 
-struct AdpcmContext {
+struct AdpcmContext
+ {
     u16 pred_scale;
     s16 yn1;
     s16 yn2;

@@ -12,19 +12,22 @@ namespace nn{
 namespace fnd{
 namespace detail{
 
-static NNSFndList* FindListContainHeap(NNSiFndHeapHead* pHeapHd){
+static NNSFndList* FindListContainHeap(NNSiFndHeapHead* pHeapHd)
+{
     NNSFndList* pList = &sRootList;
 
     NNSiFndHeapHead* pContainHeap = FindContainHeap(&sRootList, pHeapHd);
 
-    if(pContainHeap){
+    if(pContainHeap)
+    {
         pList = &pContainHeap->childList;
     }
 
     return pList;
 }
 
-void NNSi_FndInitHeapHead(ExpHeapImpl* pHeapHd,u32 signature,void* heapStart,void* heapEnd,ushort optFlag){
+void NNSi_FndInitHeapHead(ExpHeapImpl* pHeapHd,u32 signature,void* heapStart,void* heapEnd,ushort optFlag)
+{
     pHeapHd->signature = signature;
 
     pHeapHd->heapStart = heapStart;
@@ -36,7 +39,8 @@ void NNSi_FndInitHeapHead(ExpHeapImpl* pHeapHd,u32 signature,void* heapStart,voi
 
     InitList(&pHeapHd->childList, 4);
 
-    if (!sRootListInitialized){
+    if (!sRootListInitialized)
+    {
         InitList(&sRootList, 4);
         sRootListInitialized = true;
     }

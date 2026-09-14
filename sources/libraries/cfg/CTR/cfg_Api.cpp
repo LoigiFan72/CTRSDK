@@ -15,16 +15,19 @@ namespace nn {
 namespace cfg {
 namespace CTR {
 
-void Initialize(){
+void Initialize()
+{
     Result res = detail::Initialize();
     NN_ERR_THROW_FATAL_ALL(res);
 }
 
-void Finalize(){
+void Finalize()
+{
     detail::Finalize();
 }
 
-void GetBirthday(Birthday* pBirthday){
+void GetBirthday(Birthday* pBirthday)
+{
     nn::Result result;
     Birthday birthdayCfgData = detail::BIRTHDAY_CFG_DEFAULT;
     result = detail::GetConfig(&birthdayCfgData, sizeof(Birthday), 0xa0001);
@@ -33,11 +36,13 @@ void GetBirthday(Birthday* pBirthday){
     pBirthday->day = birthdayCfgData.day;
 }
 
-CfgRegionCode GetRegion(){
+CfgRegionCode GetRegion()
+{
     return detail::GetRegion();
 }
 
-CfgLanguageCode GetLanguage(){
+CfgLanguageCode GetLanguage()
+{
     LanguageCfgData languageCode; Result res;
     languageCode.code = detail::LANGUAGE_CFG_DEFAULT.code;
     res = detail::IpcUser::GetConfig(&languageCode,sizeof(CfgLanguageCode),0xa0002);
@@ -45,7 +50,8 @@ CfgLanguageCode GetLanguage(){
     return (CfgLanguageCode)languageCode.code;
 }
 
-bit64 GetTransferableId(bit32 uniqueId){
+bit64 GetTransferableId(bit32 uniqueId)
+{
     nn::Result result;
     bit64 transferableId;
     result = detail::GetTransferableId(uniqueId, &transferableId);

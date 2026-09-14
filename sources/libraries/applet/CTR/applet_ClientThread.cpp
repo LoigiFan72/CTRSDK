@@ -57,24 +57,29 @@ void FinalizeClientThread()
     }
 }
 
-void SetReceiveCallback(AppletReceiveCallback callback,uptr parameter){
+void SetReceiveCallback(AppletReceiveCallback callback,uptr parameter)
+{
     s_ReceiveCallback = callback;
     s_ReceiveCallbackParam = parameter;
 }
 
-void WaitForControlEvent(){
+void WaitForControlEvent()
+{
     s_ControlEventLight.Wait();
 }
 
-bool TryWaitForControlEvent(){
+bool TryWaitForControlEvent()
+{
     return s_ControlEventLight.TryWait();
 }
 
-void ClearControlEvent(){
+void ClearControlEvent()
+{
     s_ControlEventLight.ClearSignal();
 }
 
-void ThreadFunc(int param){
+void ThreadFunc(int param)
+{
     NN_UNUSED_VAR(param);
 
     Handle handles[3];
@@ -84,16 +89,19 @@ void ThreadFunc(int param){
         handles[i] = s_Event[i].GetHandle();
     }
 
-    while(!s_IsThreadEnd){
+    while(!s_IsThreadEnd)
+    {
         s32 index;
         Result result = nn::svc::WaitSynchronizationN(&index, handles, 3, false, nn::os::WAIT_INFINITE);
         NN_ERR_THROW_FATAL(result);
 
-        if (s_IsThreadEnd){
+        if (s_IsThreadEnd)
+        {
             break;
         }
 
-        if (s_ControlEventLight.TryWait()){
+        if (s_ControlEventLight.TryWait())
+        {
             WaitBySleep(10);
             s_Event[index].Signal();
             continue;
@@ -101,43 +109,54 @@ void ThreadFunc(int param){
 
         s_Event[index].ClearSignal();
 
-        if (index == 2){
+        if (index == 2)
+        {
             SetMessageCommand(COMMAND_WAKEUP_BY_CANCEL);
 
             s_ControlEventLight.Signal();
         }
-        else if (index == 1){
+        else if (index == 1)
+        {
             bool bSignal = true;
-            if (s_ReceiveCallback){
-                bSignal = sReceiveCallback(s_ReceiveCallbackParam);
+            if (s_ReceiveCallback)
+            {
+                bSignal = s_ReceiveCallback(s_ReceiveCallbackParam);
             }
-            if (bSignal){
-                s_ControlLight.Signal();
+            if (bSignal)
+            {
+                s_ControlEventLight.Signal();
             }
         }
-        else if (index == 0){
+        else if (index == 0)
+        {
             AppletNotification notification;
             detail::LockAndConnect();
             result = APPLET::InquireNotification( GetId(), &notification );
             detail::DisconnectAndUnlock();
 
-            if (!result.IsSuccess()){
+            if (!result.IsSuccess())
+            {
                 continue;
             }
 
-            switch(notification){
+            switch(notification)
+            {
             case NOTIFICATION_HOME_BUTTON_1:
-            case NOTIFICATION_HOME_BUTTON_2:{
-                    if (detail::GetAbsoluteHomeButtonState() == HOME_BUTTON_NONE){
+            case NOTIFICATION_HOME_BUTTON_2:
+            {
+                    if (detail::GetAbsoluteHomeButtonState() == HOME_BUTTON_NONE)
+                    {
                         detail::SetAbsoluteHomeButtonState((notification == NOTIFICATION_HOME_BUTTON_1) ? HOME_BUTTON_SINGLE_PRESSED : HOME_BUTTON_DOUBLE_PRESSED);
                     }
 
                     bool bSignal = true;
-                    if (s_ReceiveCallback){
+                    if (s_ReceiveCallback)
+                    {
                         bSignal = s_ReceiveCallback(s_ReceiveCallbackParam);
                     }
 
-                    if (bSignal){
+                    if (bSignal)
+                    {
                         SetMessageCommand((notification == NOTIFICATION_HOME_BUTTON_1) ? COMMAND_HOME_BUTTON_SINGLE : COMMAND_HOME_BUTTON_DOUBLE );
                         s_ControlEventLight.Signal();
                     }
@@ -148,7 +167,8 @@ void ThreadFunc(int param){
             case NOTIFICATION_SLEEP_CANCELED_BY_OPEN:
             case NOTIFICATION_SLEEP_ACCEPTED:
             case NOTIFICATION_AWAKE:{
-                    switch(notification){
+                    switch(notification)
+                    {
                     case NOTIFICATION_SLEEP_QUERY:
                         detail::SetSleepSysState(SLEEP_SYS_STATE_QUERY);
                         break;
@@ -163,29 +183,32 @@ void ThreadFunc(int param){
                         break;
                     }
 
-                    if (s_ReceiveCallback){
+                    if (s_ReceiveCallback)
+                    {
                         (void)s_ReceiveCallback(s_ReceiveCallbackParam);
                     }
                 }
                 break;
-            case NOTIFICATION_SHUTDOWN:{
-                    
+            case NOTIFICATION_SHUTDOWN:
+            {
                 SetShutdownCallbackFlag();
                 detail::SetShutdownState(SHUTDOWN_STATE_RECEIVED);
 
                 SetOrderToCloseState(ORDER_TO_CLOSE_STATE_RECEIVED);
 
-                if (s_ReceiveCallback){
-                        (void)s_ReceiveCallback(s_ReceiveCallbackParam);
-                    }
+                if (s_ReceiveCallback)
+                {
+                    (void)s_ReceiveCallback(s_ReceiveCallbackParam);
                 }
-                break;
+            }
+            break;
 
             case NOTIFICATION_POWER_BUTTON_CLICK:{
                     SetPowerButtonCallbackFlag();
-                    SetPowerButtonState( POWER_BUTTON_STATE_CLICK );
+                    SetPowerButtonState(POWER_BUTTON_STATE_CLICK);
 
-                    if (s_ReceiveCallback){
+                    if (s_ReceiveCallback)
+                    {
                         (void)s_ReceiveCallback(s_ReceiveCallbackParam);
                     }
                 }
@@ -196,7 +219,8 @@ void ThreadFunc(int param){
                 }
                 break;
 
-            case NOTIFICATION_TRY_SLEEP:{
+            case NOTIFICATION_TRY_SLEEP:
+            {
                     LockAndConnect();
                     {
                         NN_TLOG_("applet_API: SleepSystem\n");

@@ -32,15 +32,14 @@ namespace dbg{
 
     Result Break(BreakReason reason);
     
-    inline Result Break(){
-        return Break(BREAK_REASON_PANIC);
-    }
+    inline Result Break(){ return Break(BREAK_REASON_PANIC); }
     void Panic();
 
 namespace detail{
 namespace CTR{
 
-struct DllInfo{
+struct DllInfo
+{
     uptr pathAddress;
     s32  pathLength;
     uptr erAddress;

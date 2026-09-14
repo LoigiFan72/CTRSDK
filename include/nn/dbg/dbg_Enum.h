@@ -1,6 +1,7 @@
 #pragma once
 
-enum nndbgBreakReason{
+enum nndbgBreakReason
+{
     NN_DBG_BREAK_REASON_PANIC = 0,
     NN_DBG_BREAK_REASON_ASSERT = 1,
     NN_DBG_BREAK_REASON_USER = 2,
@@ -10,7 +11,8 @@ enum nndbgBreakReason{
 namespace nn{
 namespace dbg{
 
-enum BreakReason{
+enum BreakReason
+{
     BREAK_REASON_PANIC = 0,
     BREAK_REASON_ASSERT = 1,
     BREAK_REASON_USER = 2,

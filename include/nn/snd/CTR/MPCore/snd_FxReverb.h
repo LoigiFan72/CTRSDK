@@ -13,42 +13,46 @@ public:
     FxReverb();
     virtual ~FxReverb();
     
-    struct FilterSize{
-        u32  mComb0;
-        u32  mComb1;
-        u32  mAllPass;
+    struct FilterSize
+    {
+        u32  m_Comb0;
+        u32  m_Comb1;
+        u32  m_AllPass;
         FilterSize(): 
-            mComb0(19 * NN_SND_SAMPLES_PER_FRAME), 
-            mComb1(23 * NN_SND_SAMPLES_PER_FRAME), 
-            mAllPass(13 * NN_SND_SAMPLES_PER_FRAME)
-        {}
+            m_Comb0(19 * NN_SND_SAMPLES_PER_FRAME), 
+            m_Comb1(23 * NN_SND_SAMPLES_PER_FRAME), 
+            m_AllPass(13 * NN_SND_SAMPLES_PER_FRAME)
+        {
+        }
     };
     
-    struct Param{
-        u32 mEarlyReflectionTime;
-        u32 mFusedTime;
-        u32 mPreDelayTime;
-        f32 mColoration;
-        f32 mDamping;
-        FilterSize* mpFilterSize;
-        f32 mEarlyGain;
-        f32 mFusedGain;
-        bool mUseHpfDamping;
+    struct Param
+    {
+        u32 m_EarlyReflectionTime;
+        u32 m_FusedTime;
+        u32 m_PreDelayTime;
+        f32 m_Coloration;
+        f32 m_Damping;
+        FilterSize* m_pFilterSize;
+        f32 m_EarlyGain;
+        f32 m_FusedGain;
+        bool m_UseHpfDamping;
 
         Param(): 
-            mEarlyReflectionTime(60),
-            mFusedTime(4000),
-            mPreDelayTime(100),
-            mDamping(0.4f),
-            mpFilterSize(&sDefaultFilterSize),
-            mEarlyGain(0.6f),
-            mFusedGain(0.4f),
-            mUseHpfDamping(false)
-        {}
+            m_EarlyReflectionTime(60),
+            m_FusedTime(4000),
+            m_PreDelayTime(100),
+            m_Damping(0.4f),
+            m_pFilterSize(&s_DefaultFilterSize),
+            m_EarlyGain(0.6f),
+            m_FusedGain(0.4f),
+            m_UseHpfDamping(false)
+        {
+        }
     };
 
     bool SetParam(const Param& param);
-    const Param& GetParam() const{ return mParam; }
+    const Param& GetParam() const{ return m_Param; }
     size_t GetRequiredMemSize();
     bool AssignWorkBuffer(uptr buffer, size_t size);
     void ReleaseWorkBuffer();
@@ -56,44 +60,45 @@ public:
     void Finalize();
     void UpdateBuffer(uptr data);
 private:
-    struct WorkBuffer{
-        s32* mEarlyReflection[4];
-        s32* mPreDelay[4];
-        s32* mCombFilter[4][2];
-        s32* mAllPassFilter[4];
-        s32 mLpf[4];
+    struct WorkBuffer
+    {
+        s32* m_EarlyReflection[4];
+        s32* m_PreDelay[4];
+        s32* m_CombFilter[4][2];
+        s32* m_AllPassFilter[4];
+        s32 m_Lpf[4];
     };
 
-    static FilterSize sDefaultFilterSize;
+    static FilterSize s_DefaultFilterSize;
 
     void AllocBuffer();
     void FreeBuffer();
     void InitializeParam();
 
-    Param mParam;
-    uptr mpBuffer;
-    size_t mBufferSize;
-    FilterSize mFilterSize;
-    WorkBuffer mWorkBuffer;
-    s32 mEarlyLength;
-    s32 mEarlyPos;
-    s32 mPreDelayLength;
-    s32 mPreDelayPos;
-    s32 mCombFilterLength[2];
-    s32 mCombFilterPos[2];
-    s32 mCombFilterCoef[2];
-    s32 mAllPassFilterLength;
-    s32 mAllPassFilterPos;
-    s32 mAllPassFilterCoef;
-    s32 mLastLpfOut[4];
-    s32 mEarlyGain;
-    s32 mFusedGain;
-    s32 mLpfCoef1;
-    s32 mLpfCoef2;
-    u32 mEarlyReflectionTimeAtInitialize;
-    u32 mPreDelayTimeAtInitialize;
-    FilterSize mFilterSizeAtInitialize;
-    bool mIsActive;
+    Param m_Param;
+    uptr m_pBuffer;
+    size_t m_BufferSize;
+    FilterSize m_FilterSize;
+    WorkBuffer m_WorkBuffer;
+    s32 m_EarlyLength;
+    s32 m_EarlyPos;
+    s32 m_PreDelayLength;
+    s32 m_PreDelayPos;
+    s32 m_CombFilterLength[2];
+    s32 m_CombFilterPos[2];
+    s32 m_CombFilterCoef[2];
+    s32 m_AllPassFilterLength;
+    s32 m_AllPassFilterPos;
+    s32 m_AllPassFilterCoef;
+    s32 m_LastLpfOut[4];
+    s32 m_EarlyGain;
+    s32 m_FusedGain;
+    s32 m_LpfCoef1;
+    s32 m_LpfCoef2;
+    u32 m_EarlyReflectionTimeAtInitialize;
+    u32 m_PreDelayTimeAtInitialize;
+    FilterSize m_FilterSizeAtInitialize;
+    bool m_IsActive;
 };
 
 }

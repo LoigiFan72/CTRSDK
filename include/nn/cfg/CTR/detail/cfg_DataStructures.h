@@ -8,12 +8,14 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 
-struct BackLightCfgData{
+struct BackLightCfgData
+{
         bit8 ablEnable;
         u8   luminanceLevel;
 };
 
-struct BacklightPwmTableCfgData{
+struct BacklightPwmTableCfgData
+{
         f32  coef[3][3];
         u8   numLevels;
         bit8 control;
@@ -22,7 +24,8 @@ struct BacklightPwmTableCfgData{
         u16  brightnessMinimum;
 };
 
-struct AblDetailCfgData{
+struct AblDetailCfgData
+{
         bit32 ditherPattern;
         u16   xStart;
         u16   yStart;
@@ -40,7 +43,8 @@ struct AblDetailCfgData{
         bit8  reserved[2];
 };
 
-struct UlcdLibAssumptionCfgData{
+struct UlcdLibAssumptionCfgData
+{
         f32 pupillaryDist;
         f32 distEyeAndDisp;
         f32 wideSideLen;
@@ -51,12 +55,14 @@ struct UlcdLibAssumptionCfgData{
         f32 maxDepthRangeFront;
 };
 
-struct UlcdDelayCfgData{
+struct UlcdDelayCfgData
+{
         s8 to2D;
         s8 to3D;
 };
 
-struct CameraQualityCalData{
+struct CameraQualityCalData
+{
         s16 aeBaseTarget;
         s16 kRL;
         s16 kGL;
@@ -70,8 +76,10 @@ struct CameraQualityCalData{
         u16 awbX0Left;
 };
 
-struct CameraPositionCalData{
-        struct Flags{
+struct CameraPositionCalData
+{
+        struct Flags
+        {
                 bool isValidRotationXY;
                 bool reservedFlag[3];
         } flags;
@@ -91,13 +99,15 @@ struct CameraPositionCalData{
         u8  reserved[16];
 };
 
-struct CameraCfgData{
+struct CameraCfgData
+{
         struct CameraPositionCalData position;
         u32                          reserved[16];
         struct CameraQualityCalData  quality;
 } NN_PACK;
 
-struct AnalogStickCfgData{
+struct AnalogStickCfgData
+{
         f32 scale_x;
         f32 scale_y;
         s16 center_x;
@@ -110,7 +120,8 @@ struct AnalogStickCfgData{
         s16 reserve[3];
 };
 
-struct AnalogInterfaceParam{
+struct AnalogInterfaceParam
+{
         u8 interval;
         u8 stabilization;
         u8 precharge;
@@ -121,7 +132,8 @@ struct AnalogInterfaceParam{
         u8 reserve;
 };
 
-struct CodecCfgData{
+struct CodecCfgData
+{
         u8 driverGainHP;
         u8 driverGainSP;
         u8 analogVolumeHP;
@@ -144,79 +156,94 @@ struct CodecCfgData{
         AnalogInterfaceParam AnalogInterfaceParam;
 };
 
-struct SurroundCfgData{
+struct SurroundCfgData
+{
         s16 specialFilter[256];
         s32 iirFilter[5];
 };
 
-struct UserNameCfgData{
+struct UserNameCfgData
+{
         UserName userName;
         u32      ngWordCheckVersion;
 };
 
-typedef struct Birthday BirthdayCfgData; // 307
+typedef struct Birthday BirthdayCfgData;
 
-struct LanguageCfgData{
+struct LanguageCfgData
+{
         u8 languageCode;
 };
 
-struct SimpleAddressIdCfgData{
+struct SimpleAddressIdCfgData
+{
         u32 id;
 };
 
-struct SimpleAddressPositionCfgData{
+struct SimpleAddressPositionCfgData
+{
         u16 latitude;
         u16 longitude;
 };
 
 typedef struct ParentalControlInfo ParentalControlInfoCfgData; // 337
 
-union EulaVersion {
+union EulaVersion 
+{
         u16 version;
-        struct{
+        struct
+        {
             u8 minorVersion;
             u8 majorVersion;
         } detailed;
 };
 
-struct EulaInfoCfgData{
+struct EulaInfoCfgData
+{
         EulaVersion agreeVersion;
         EulaVersion latestVersion;
 };
 
-struct BossSettingCfgData{
+struct BossSettingCfgData
+{
         u8 isAllowedPushApp : 1;
         u8 isAllowedUploadPersonalData : 1;
         u8 rsv : 6;
 };
 
-struct SoundSettingCfgData{
+struct SoundSettingCfgData
+{
         u8 soundOutputMode;
 };
 
 typedef struct EchoCancelParam EchoCancelCfgData; // 385
 
-struct LocalFriendCodeBaseCfgData{
+struct LocalFriendCodeBaseCfgData
+{
         bit64 localFriendCodeSeed : 34;
         bit64 rsv : 14;
         bit64 counter : 16;
 };
 
-struct SystemInfoCfgData{
+struct SystemInfoCfgData
+{
         bit64 debugMonitorProgramId;
         bit32 kernelParam;
         bit32 devParam;
 };
 
-struct PseudoRomIdCfgData{
+struct PseudoRomIdCfgData
+{
         bit64 pseudoRomId;
 };
 
-struct HomeButtonSettingCfgData{
+struct HomeButtonSettingCfgData
+{
         bool isDisabled;
 };
 
-struct TwlParentalControlInfoCfgData{
+struct TwlParentalControlInfoCfgData
+{
         struct
         {
                 u32 isSetParentalControl : 1;
@@ -239,40 +266,48 @@ struct TwlParentalControlInfoCfgData{
         wchar_t secretAnswer[65];
 };
 
-struct TwlEulaInfoCfgData{
+struct TwlEulaInfoCfgData
+{
         bool isAgreeEula;
         u8   agreeEulaVersion;
 };
 
-struct TwlCountryCodeCfgData{
+struct TwlCountryCodeCfgData
+{
         u8 country;
 };
 
-struct TwlMovableUniqueIdCfgData{
+struct TwlMovableUniqueIdCfgData
+{
         u8 movableUniqueId[16];
 };
 
-struct FirstLaunchInfoCfgData{
+struct FirstLaunchInfoCfgData
+{
         u16 mmen;
         u8  internet;
         u8  rsv;
 };
 
-struct MenuInfoCfgData{
+struct MenuInfoCfgData
+{
         bit64 programId;
 };
 
-struct SlideVolume{
+struct SlideVolume
+{
         s16 min;
         s16 max;
 };
 
-struct McuSlideVolumeRangeCfgData{
+struct McuSlideVolumeRangeCfgData
+{
         SlideVolume svr2;
         SlideVolume sound;
 };
 
-struct DebugParamCfgData{
+struct DebugParamCfgData
+{
         struct Param1
         {
                 u8 general : 1;
@@ -280,7 +315,8 @@ struct DebugParamCfgData{
         };
 
         bool dlpDebug;
-        union {
+        union 
+        {
                 u8     flags1;
                 Param1 param1;
         };

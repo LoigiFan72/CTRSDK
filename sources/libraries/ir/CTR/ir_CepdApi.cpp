@@ -45,7 +45,8 @@ const s16 s_Radius = nn::hid::CTR::MIN_OF_STICK_CLAMP_MODE_CIRCLE;
 const s16 s_Degree = 60;
 const s32 s_Tangent = static_cast<s32>(nn::math::TanDeg(s_Degree) * PLUSBUTTON_EMULATION_SCALE);
 
-CepdStatus CepdGetStatus(){
+CepdStatus CepdGetStatus()
+{
     return cepdStatus;
 }
 

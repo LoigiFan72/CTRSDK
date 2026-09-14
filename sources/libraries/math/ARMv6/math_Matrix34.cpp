@@ -7,7 +7,9 @@
 namespace nn{ 
 namespace math{ 
 namespace ARMv6{
-asm MTX34* MTX34CopyAsm(MTX34* , const MTX34*){
+
+asm MTX34* MTX34CopyAsm(MTX34* , const MTX34*)
+{
     CMP         r1,r0 // Are p and pOut the same, or no?
     BXEQ        lr // If so, return.
     VLDMIA      r1!,{s0-s5} // Load all to shorten stall times
@@ -18,7 +20,8 @@ asm MTX34* MTX34CopyAsm(MTX34* , const MTX34*){
     BX          lr
 }
 
-asm MTX34* MTX34MultAsm(MTX34*, const MTX34*, const MTX34*){
+asm MTX34* MTX34MultAsm(MTX34*, const MTX34*, const MTX34*)
+{
     VPUSH       {d8-d10} // Save regs
 
     VLDR.F32    s3,[r1,#4*4*0+4*3]  // Matrix p1[0][3]
@@ -90,7 +93,8 @@ asm MTX34* MTX34MultAsm(MTX34*, const MTX34*, const MTX34*){
     BX          lr // Resturn
 }
 
-asm MTX34* MTX34MultAsm(MTX34*, const MTX34*, f32){
+asm MTX34* MTX34MultAsm(MTX34*, const MTX34*, f32)
+{
     VLDMIA      r1,{s2-s13} // Save Matrix p into [S1-S12] registers
 
     VMUL.F32    s2,s2,s0
@@ -112,7 +116,8 @@ asm MTX34* MTX34MultAsm(MTX34*, const MTX34*, f32){
     BX          lr // Return
 }
 
-asm MTX34* MTX34AddAsm(MTX34*, const MTX34*, const MTX34*){
+asm MTX34* MTX34AddAsm(MTX34*, const MTX34*, const MTX34*)
+{
     VPUSH       {d8-d9} // Save registers
     VLDMIA      r2,{s0-s11} // Save the entire p2 matrix into [S0-S11] regs
     VLDMIA      r1!,{s12-s19} // Save Matrix p1 into [S12-S19] regs
@@ -139,7 +144,8 @@ asm MTX34* MTX34AddAsm(MTX34*, const MTX34*, const MTX34*){
     BX          lr // Return
 }
 
-asm MTX34* MTX34MultScaleAsm(MTX34* , const MTX34* , const VEC3* ){
+asm MTX34* MTX34MultScaleAsm(MTX34* , const MTX34* , const VEC3*)
+{
     VLDMIA      r1,{s0-s11} // Save Matrix p into the [S0-S11] regs
     VLDMIA      r2,{s12-s14} // Save VEC3 into the [S12-S14] regs
 
@@ -159,7 +165,8 @@ asm MTX34* MTX34MultScaleAsm(MTX34* , const MTX34* , const VEC3* ){
     BX          lr // Return
 }
 
-asm u32 MTX34InverseAsm(MTX34*, const MTX34* ){
+asm u32 MTX34InverseAsm(MTX34*, const MTX34*)
+{
     VLDMIA      r1,{s0-s2}
     ADD         r1,#4*4
     VLDMIA      r1,{s3-s5}
@@ -253,7 +260,8 @@ asm u32 MTX34InverseAsm(MTX34*, const MTX34* ){
     BX          lr // Return
 }
 
-asm u32 MTX34InvTransposeAsm(MTX34*, const MTX34* ){
+asm u32 MTX34InvTransposeAsm(MTX34*, const MTX34* )
+{
     VLDMIA      r1,{s0-s2}
     ADD         r1,#4*4
     VLDMIA      r1,{s3-s5}
@@ -337,7 +345,8 @@ asm u32 MTX34InvTransposeAsm(MTX34*, const MTX34* ){
 
 }
 
-asm MTX34* MTX34MultTranslateAsm(MTX34*, const VEC3*, const MTX34*){
+asm MTX34* MTX34MultTranslateAsm(MTX34*, const VEC3*, const MTX34*)
+{
     VLDMIA      r2,{s0-s11} // The entire pM matrix is put in the [S0-S11] registers
     VLDMIA      r1,{s12-s14} // All vectors are put in the [S0-S11] registers
     
@@ -349,7 +358,8 @@ asm MTX34* MTX34MultTranslateAsm(MTX34*, const VEC3*, const MTX34*){
     BX          lr // Return
 }
 
-asm MTX34* MTX34MultTranslateAsm(MTX34*, const MTX34*, const VEC3*){
+asm MTX34* MTX34MultTranslateAsm(MTX34*, const MTX34*, const VEC3*)
+{
     VLDMIA      r1,{s0-s11} // Save the entire pM matrix is put in the [S0-S11] registers
     VLDMIA      r2,{s12-s14} // Save all vectors are put in the [S0-S11] registers
 
@@ -370,7 +380,8 @@ asm MTX34* MTX34MultTranslateAsm(MTX34*, const MTX34*, const VEC3*){
 
 }
 
-asm VEC3* VEC3TransformAsm(VEC3* , const MTX34* , const VEC3* ){
+asm VEC3* VEC3TransformAsm(VEC3* , const MTX34* , const VEC3*)
+{
     VLDMIA      r1,{s0-s11} // Save pM into [S0-S11] regs
     VLDMIA      r2,{s12-s14} // Save all vecs into [S12-S14] regs
 
@@ -392,7 +403,8 @@ asm VEC3* VEC3TransformAsm(VEC3* , const MTX34* , const VEC3* ){
     BX          lr // Return
 }
 
-asm MTX34* MTX34TransposeAsm(MTX34* , const MTX34* ){
+asm MTX34* MTX34TransposeAsm(MTX34* , const MTX34*)
+{
     VLDR.F32    s0,[r1,#0*16+0*4]
     VLDR.F32    s1,[r1,#1*16+0*4]
     VLDR.F32    s2,[r1,#2*16+0*4]

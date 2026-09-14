@@ -7,7 +7,8 @@
 namespace nn{
 namespace fnd{
 
-void FrameHeapBase::Dump() const{
+void FrameHeapBase::Dump() const
+{
 }
 
 }

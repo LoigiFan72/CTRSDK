@@ -10,7 +10,8 @@ namespace CTR{
 
 const s32 DEBUGPAD_LIFORING_BUFFER_NUM = 8;
 
-struct IDebugPadRawStatus{
+struct IDebugPadRawStatus
+{
     fnd::InterlockedVariable<s16> hold;
     fnd::InterlockedVariable<s16> trigger;
     fnd::InterlockedVariable<s16> release;
@@ -20,9 +21,10 @@ struct IDebugPadRawStatus{
     fnd::InterlockedVariable<s8> rightStickY;
 };
 
-class DebugPadLifoRing : public LifoRing{
+class DebugPadLifoRing : public LifoRing
+{
 public:
-    IDebugPadRawStatus mBuffers[DEBUGPAD_LIFORING_BUFFER_NUM];
+    IDebugPadRawStatus m_Buffers[DEBUGPAD_LIFORING_BUFFER_NUM];
 
     void ReadData(DebugPadRawStatus *status,s32 bufferNum,s32 *pReadCount,s64 *pTick,s32 *pIndex);
 };

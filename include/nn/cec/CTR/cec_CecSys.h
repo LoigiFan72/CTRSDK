@@ -9,7 +9,8 @@ namespace cec{
 namespace CTR{
 namespace detail{
 
-class CecSys{
+class CecSys
+{
 public:
     static Handle s_Session;
     CecSys() {}

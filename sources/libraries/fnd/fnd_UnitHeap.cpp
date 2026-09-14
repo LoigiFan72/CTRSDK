@@ -7,31 +7,33 @@
 namespace nn{
 namespace fnd{
 
-void UnitHeapBase::Dump() const {
-
+void UnitHeapBase::Dump() const 
+{
 }
 
-void UnitHeapBase::Initialize(size_t unit, uptr addr, size_t size, s32 alignment, bit32 option){
+void UnitHeapBase::Initialize(size_t unit, uptr addr, size_t size, s32 alignment, bit32 option)
+{
     NN_TASSERT_(this->mFreeNode == 0);
     NN_TASSERT_(alignment >= sizeof(void*));
     NN_TASSERT_(unit >= sizeof(void*));
     NN_TASSERT_(alignment % sizeof(void*) == 0);
     HeapBase::Initialize(option);
-    this->mUnit = RoundUp(unit, alignment);
-    this->mAddr = RoundUp(addr, alignment);
-    this->mSize = RoundDown((addr+size)-mAddr, mUnit);
-    this->mAlignment = alignment;
-    this->mCount = 0;
+    this->m_Unit = RoundUp(unit, alignment);
+    this->m_Addr = RoundUp(addr, alignment);
+    this->m_Size = RoundDown((addr+size)-m_Addr, m_Unit);
+    this->m_Alignment = alignment;
+    this->m_Count = 0;
 
     this->DebugFillMemory(addr, size, HEAP_FILL_TYPE_NOUSE);
     
     Node* freeNode = 0;
-    for (uptr addr2 = mAddr + mSize - mUnit; addr2 >= mAddr; addr2 -= mUnit){
+    for (uptr addr2 = m_Addr + m_Size - m_Unit; addr2 >= m_Addr; addr2 -= m_Unit)
+    {
         reinterpret_cast<Node*>(addr2)->next = freeNode;
         freeNode = reinterpret_cast<Node*>(addr2);
     }
-    NN_TASSERT_(reinterpret_cast<uptr>(freeNode) == mAddr || freeNode == 0);
-    this->mFreeNode = freeNode;
+    NN_TASSERT_(reinterpret_cast<uptr>(freeNode) == m_Addr || freeNode == 0);
+    this->m_FreeNode = freeNode;
 }
 
 

@@ -23,9 +23,11 @@ inline MTX23* MTX22ToMTX23(MTX23* pOut, const MTX22* pM);
 inline MTX23* MTX23Scale(MTX23* pOut, const MTX23* pM, const VEC2* pS);
 inline MTX23* MTX23Translate(MTX23* pOut, const MTX23* pM, const VEC2* pT);
 
-class MTX23_{
+class MTX23_
+{
 public:
-    struct BaseData{
+    struct BaseData
+    {
         f32 _00;
         f32 _01;
         f32 _02;
@@ -33,7 +35,9 @@ public:
         f32 _11;
         f32 _12;
     };
-    union{
+
+    union
+    {
         BaseData f;
         f32 m[2][3];
         f32 a[6];
@@ -41,20 +45,26 @@ public:
     };
 };
 
-class MTX23 : public MTX23_{
+class MTX23 : public MTX23_
+{
 public:
     typedef MTX23 self_type;
     typedef f32   value_type;
 
-    MTX23() {}
+    MTX23() 
+    {
+    }
+
     explicit MTX23(const f32* p) { (void)MTX23Copy(this, reinterpret_cast<const MTX23*>(p)); }
     explicit MTX23(const MTX22& rhs) { MTX22ToMTX23(this, &rhs); }
-    MTX23(f32 x00, f32 x01, f32 x02, f32 x10, f32 x11, f32 x12){
+    MTX23(f32 x00, f32 x01, f32 x02, f32 x10, f32 x11, f32 x12)
+    {
         f._00 = x00; f._01 = x01; f._02 = x02;
         f._10 = x10; f._11 = x11; f._12 = x12;
     }
 
-    static const MTX23& Identity(){
+    static const MTX23& Identity()
+    {
         static const MTX23 identity(1.0f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f);
         
         return identity;
@@ -78,18 +88,21 @@ inline MTX23* MTX23Scale(MTX23* pOut, const MTX23& m, const VEC2& vS) { return M
 namespace nn{
 namespace math{
 
-inline MTX23* MTX23Copy(MTX23* pOut, const MTX23* p){
+inline MTX23* MTX23Copy(MTX23* pOut, const MTX23* p)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(p);
     
-    if (pOut != p){
+    if (pOut != p)
+    {
         *pOut = *p;
     }
     
     return pOut;
 }
 
-inline MTX23* MTX23Zero(MTX23* pOut){
+inline MTX23* MTX23Zero(MTX23* pOut)
+{
     NN_NULL_ASSERT_(pOut);
     
     pOut->f._00 = pOut->f._01 = pOut->f._02 = 
@@ -98,7 +111,8 @@ inline MTX23* MTX23Zero(MTX23* pOut){
     return pOut;
 }
 
-inline MTX23* MTX23Identity(MTX23* pOut){
+inline MTX23* MTX23Identity(MTX23* pOut)
+{
     NN_NULL_ASSERT_(pOut);
     
     MTX23Copy(pOut, MTX23::Identity());
@@ -106,14 +120,16 @@ inline MTX23* MTX23Identity(MTX23* pOut){
     return pOut;
 }
 
-inline bool MTX23IsIdentity(const MTX23* p){
+inline bool MTX23IsIdentity(const MTX23* p)
+{
     NN_NULL_ASSERT_(p);
     
     return p->f._00 == 1.f && p->f._01 == 0.f && p->f._02 == 0.f &&
            p->f._10 == 0.f && p->f._11 == 1.f && p->f._12 == 0.f;
 }
 
-inline MTX23* MTX23Add(MTX23* pOut, const MTX23* p1, const MTX23* p2){
+inline MTX23* MTX23Add(MTX23* pOut, const MTX23* p1, const MTX23* p2)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(p1);
     NN_NULL_ASSERT_(p2);
@@ -129,7 +145,8 @@ inline MTX23* MTX23Add(MTX23* pOut, const MTX23* p1, const MTX23* p2){
     return pOut;
 }
 
-inline MTX23* MTX23Sub(MTX23* pOut, const MTX23* p1, const MTX23* p2){
+inline MTX23* MTX23Sub(MTX23* pOut, const MTX23* p1, const MTX23* p2)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(p1);
     NN_NULL_ASSERT_(p2);
@@ -145,7 +162,8 @@ inline MTX23* MTX23Sub(MTX23* pOut, const MTX23* p1, const MTX23* p2){
     return pOut;
 }
 
-inline MTX23* MTX23Mult(MTX23* pOut, const MTX23* p, f32 f){
+inline MTX23* MTX23Mult(MTX23* pOut, const MTX23* p, f32 f)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(p);
     
@@ -160,7 +178,8 @@ inline MTX23* MTX23Mult(MTX23* pOut, const MTX23* p, f32 f){
     return pOut;
 }
 
-inline MTX23* MTX23Mult(MTX23* pOut, const MTX23* __restrict p1, const MTX23* __restrict p2){
+inline MTX23* MTX23Mult(MTX23* pOut, const MTX23* __restrict p1, const MTX23* __restrict p2)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(p1);
     NN_NULL_ASSERT_(p2);
@@ -168,10 +187,12 @@ inline MTX23* MTX23Mult(MTX23* pOut, const MTX23* __restrict p1, const MTX23* __
     MTX23  tmp;
     MTX23* __restrict pMtx;
     
-    if ((pOut == p1) || (pOut == p2)){
+    if ((pOut == p1) || (pOut == p2))
+    {
         pMtx = &tmp;
     }
-    else{
+    else
+    {
         pMtx = pOut;
     }
     
@@ -183,14 +204,16 @@ inline MTX23* MTX23Mult(MTX23* pOut, const MTX23* __restrict p1, const MTX23* __
     pMtx->f._11 = p1->f._10 * p2->f._01 + p1->f._11 * p2->f._11;
     pMtx->f._12 = p1->f._10 * p2->f._02 + p1->f._11 * p2->f._12 + p1->f._12;
     
-    if(pMtx == &tmp){
+    if(pMtx == &tmp)
+    {
         MTX23Copy(pOut, &tmp);
     }
     
     return pOut;
 }
 
-inline MTX23* MTX23Scale(MTX23* pOut, const MTX23* __restrict pM, const VEC2* __restrict pS){
+inline MTX23* MTX23Scale(MTX23* pOut, const MTX23* __restrict pM, const VEC2* __restrict pS)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(pM);
     NN_NULL_ASSERT_(pS);
@@ -201,14 +224,16 @@ inline MTX23* MTX23Scale(MTX23* pOut, const MTX23* __restrict pM, const VEC2* __
     pOut->f._01 = pM->f._01 * pS->y;
     pOut->f._11 = pM->f._11 * pS->y;
     
-    if (pOut != pM){
+    if (pOut != pM)
+    {
         pOut->f._02 = pM->f._02;
         pOut->f._12 = pM->f._12;
     }
     return pOut;
 }
 
-inline MTX23* MTX23RotFIdx(MTX23* pOut, f32 fIdx){
+inline MTX23* MTX23RotFIdx(MTX23* pOut, f32 fIdx)
+{
     NN_NULL_ASSERT_(pOut);
     
     f32 sin, cos;
@@ -223,7 +248,8 @@ inline MTX23* MTX23RotFIdx(MTX23* pOut, f32 fIdx){
     return pOut;
 }
 
-inline MTX23* MTX22ToMTX23(MTX23* pOut, const MTX22* pM){
+inline MTX23* MTX22ToMTX23(MTX23* pOut, const MTX22* pM)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(pM);
     

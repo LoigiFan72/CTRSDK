@@ -19,73 +19,96 @@
 namespace nn{ 
 namespace fnd{
 
-class FrameHeapBase : public HeapBase {
+class FrameHeapBase : public HeapBase 
+{
 public:
     class State;
 protected:
-    FrameHeapBase() : mAddr(0){}
-    virtual ~FrameHeapBase(){ this->Finalize(); }
-    virtual void FreeV(void* p){}
-    virtual void* GetStartAddress() const{ return reinterpret_cast<void*>(mAddr); }
-    virtual size_t GetTotalSize() const{ return mSize; }
-    virtual void Dump() const;
-    virtual bool HasAddress(const void* addr) const{ 
-        return mAddr <= reinterpret_cast<uptr>(addr) && reinterpret_cast<uptr>(addr) < (mAddr + mSize);
+    FrameHeapBase(): 
+        m_Addr(0)
+    {
     }
 
-    void Finalize() { mAddr = 0; }
+    virtual ~FrameHeapBase(){ this->Finalize(); }
+    virtual void FreeV(void* p){}
+    virtual void* GetStartAddress() const{ return reinterpret_cast<void*>(m_Addr); }
+    virtual size_t GetTotalSize() const{ return m_Size; }
+    virtual void Dump() const;
+    virtual bool HasAddress(const void* addr) const{  return m_Addr <= reinterpret_cast<uptr>(addr) && reinterpret_cast<uptr>(addr) < (m_Addr + m_Size); }
+
+    void Finalize() { m_Addr = 0; }
 
 private:
-    uptr   mAddr;
-    size_t mSize;
-    uptr   mCurrentHead;
-    uptr   mCurrentTail;
+    uptr   m_Addr;
+    size_t m_Size;
+    uptr   m_CurrentHead;
+    uptr   m_CurrentTail;
 };
 
 class FrameHeapBase::State {
 public:
-    explicit State(FrameHeapBase& heap) : mHead(heap.mCurrentHead), mTail(heap.mCurrentTail) {}
-    State() : mHead(0), mTail(0) {}
+    explicit State(FrameHeapBase& heap): 
+        m_Head(heap.m_CurrentHead), 
+        m_Tail(heap.m_CurrentTail) 
+    {
+    }
+
+    State(): 
+        m_Head(0), 
+        m_Tail(0) 
+    {
+    }
 
 private:
-    uptr mHead;
-    uptr mTail;
+    uptr m_Head;
+    uptr m_Tail;
 
-    explicit State(uptr head, uptr tail) : mHead(head), mTail(tail) {}
+    explicit State(uptr head, uptr tail): 
+        m_Head(head), 
+        m_Tail(tail) 
+    {
+    }
 
     friend class FrameHeapBase;
 };
 
 template <class LockPolicy>
-class FrameHeapTemplate : public FrameHeapBase, private LockPolicy::LockObject {
+class FrameHeapTemplate : public FrameHeapBase, private LockPolicy::LockObject 
+{
 private:
     typedef FrameHeapBase Base;
     typedef typename LockPolicy::LockObject LockObject;
     typedef typename LockPolicy::ScopedLock ScopedLock;
 
 public:
-    FrameHeapTemplate() {}
+    FrameHeapTemplate()
+    {
+    }
 
     static FrameHeapTemplate* Create(HeapBase* parent, void* addr, size_t size, bit32 option = 0, bit32 placement = HEAP_INFOPLACEMENT_HEAD);
 
-    virtual ~FrameHeapTemplate() {}
+    virtual ~FrameHeapTemplate(){ }
     virtual void FreeV(void*) { NN_TASSERT_(0); }
-    virtual void* GetStartAddress() const {
+    virtual void* GetStartAddress() const 
+    {
         ScopedLock lk(*this);
         return Base::GetStartAddress();
     }
 
-    virtual size_t GetTotalSize() const {
+    virtual size_t GetTotalSize() const 
+    {
         ScopedLock lk(*this);
         return Base::GetTotalSize();
     }
 
-    virtual bool HasAddress(const void* addr) const {
+    virtual bool HasAddress(const void* addr) const 
+    {
         ScopedLock lk(*this);
         return Base::HasAddress(addr);
     }
 
-    virtual void Dump() const {
+    virtual void Dump() const 
+    {
         Base::Dump();
     }
 };

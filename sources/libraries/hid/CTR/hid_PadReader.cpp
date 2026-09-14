@@ -32,12 +32,11 @@ PadReader::PadReader(Pad& pad):
     m_MaxOfStickClampCircle(LIMIT_OF_STICK_CLAMP_MAX),
     m_MaxOfStickClampCross(LIMIT_OF_STICK_CLAMP_MAX),
     m_MaxOfStickClampMinimum(LIMIT_OF_STICK_CLAMP_MAX),
-    m_StickClampMode(AnalogStickClamper::STICK_CLAMP_MODE_CIRCLE),
+    m_StickClampMode(STICK_CLAMP_MODE_CIRCLE),
     m_IsReadLatestFirst(true),
     m_TickOfRead(-1)
 #endif
 {
-
 }
 
 bool PadReader::ReadLatest(PadStatus* pBuf)
@@ -57,7 +56,8 @@ bool PadReader::ReadLatest(PadStatus* pBuf)
     {
         this->m_StickClamper.ClampCore(&pBuf->stick.x,&pBuf->stick.y,pBuf->stick.x,pBuf->stick.y);
 
-        if(m_IsReadLatestFirst != false){
+        if(m_IsReadLatestFirst != false)
+        {
             m_LatestHold = pBuf->hold;
             m_IsReadLatestFirst = false;
         }
@@ -66,13 +66,15 @@ bool PadReader::ReadLatest(PadStatus* pBuf)
         pBuf->trigger = (pBuf->hold ^ m_LatestHold) & ~m_LatestHold;
         pBuf->release = (pBuf->hold ^ m_LatestHold) & m_LatestHold;
 
-        if((applet::CTR::IsInitialized()) && (!applet::CTR::detail::IsActive())){
+        if((applet::CTR::IsInitialized()) && (!applet::CTR::detail::IsActive()))
+        {
             this->HideKeyInfo(pBuf);
         }
 
         m_LatestHold = pBuf->hold;
 
-        if(s_IsEnableSelect == false){
+        if(s_IsEnableSelect == false)
+        {
             hidlow::GatherStartAndSelect(pBuf);
         }
         return true;
@@ -93,7 +95,8 @@ bool PadReader::ReadLatest(PadStatus* pBuf)
     {
         this->ClampCore(&pBuf->stick.x,&pBuf->stick.y,pBuf->stick.x,pBuf->stick.y);
 
-        if(m_IsReadLatestFirst != false){
+        if(m_IsReadLatestFirst != false)
+        {
             m_LatestHold = pBuf->hold;
             m_IsReadLatestFirst = false;
         }
@@ -102,13 +105,15 @@ bool PadReader::ReadLatest(PadStatus* pBuf)
         pBuf->trigger = (pBuf->hold ^ m_LatestHold) & ~m_LatestHold;
         pBuf->release = (pBuf->hold ^ m_LatestHold) & m_LatestHold;
 
-        if((applet::CTR::IsInitialized()) && (!applet::CTR::detail::IsActive())){
+        if((applet::CTR::IsInitialized()) && (!applet::CTR::detail::IsActive()))
+        {
             this->HideKeyInfo(pBuf);
         }
 
         m_LatestHold = pBuf->hold;
 
-        if(s_IsEnableSelect == false){
+        if(s_IsEnableSelect == false)
+        {
             hidlow::GatherStartAndSelect(pBuf);
         }
         return true;
@@ -117,7 +122,8 @@ bool PadReader::ReadLatest(PadStatus* pBuf)
 #endif
 }
 
-void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
+void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen)
+{
 #if NN_VERSION_MAJOR > 2
     NN_TASSERT_(NULL != pBufs);
 
@@ -127,7 +133,8 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
 
     if(ExtraPad::IsSampling())
     {
-        for(int i = 0; i < *pReadLen; i++){
+        for(int i = 0; i < *pReadLen; i++)
+        {
             this->HideKeyInfo(&pBufs[i]);
         }
 
@@ -135,7 +142,8 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
         return;
     }
 
-    for(int i = 0; i < *pReadLen; i++){
+    for(int i = 0; i < *pReadLen; i++)
+    {
 		pBufs[i].hold    &= ~BUTTON_RESERVED;
 		pBufs[i].trigger &= ~BUTTON_RESERVED;
 		pBufs[i].release &= ~BUTTON_RESERVED;
@@ -161,7 +169,8 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
 
     if(ExtraPad::IsSampling())
     {
-        for(int i = 0; i < *pReadLen; i++){
+        for(int i = 0; i < *pReadLen; i++)
+        {
             this->HideKeyInfo(&pBufs[i]);
         }
 
@@ -169,7 +178,8 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
         return;
     }
 
-    for(int i = 0; i < *pReadLen; i++){
+    for(int i = 0; i < *pReadLen; i++)
+    {
 		pBufs[i].hold    &= ~BUTTON_RESERVED;
 		pBufs[i].trigger &= ~BUTTON_RESERVED;
 		pBufs[i].release &= ~BUTTON_RESERVED;
@@ -189,46 +199,55 @@ void PadReader::Read(PadStatus* pBufs, s32* pReadLen, s32 bufLen){
 #endif
 }
 
-void PadReader::SetStickClamp(short min, short max){
+void PadReader::SetStickClamp(short min, short max)
+{
 #if NN_VERSION_MAJOR > 2
     return this->m_StickClamper.SetStickClamp(min, max);
 #else
     NN_TASSERT_(0 <= min);
     NN_TASSERT_(min < max);
     
-    if (LIMIT_OF_STICK_CLAMP_MAX < max){
+    if (LIMIT_OF_STICK_CLAMP_MAX < max)
+    {
         max = LIMIT_OF_STICK_CLAMP_MAX;
     }
 
-    if (m_StickClampMode == STICK_CLAMP_MODE_CIRCLE){
-        if (min < MIN_OF_STICK_CLAMP_MODE_CIRCLE){
+    if (m_StickClampMode == STICK_CLAMP_MODE_CIRCLE)
+    {
+        if (min < MIN_OF_STICK_CLAMP_MODE_CIRCLE)
+        {
             min = MIN_OF_STICK_CLAMP_MODE_CIRCLE;
         }
         m_MinOfStickClampCircle = min;
         m_MaxOfStickClampCircle = max;
     
     }
-    else if (m_StickClampMode == STICK_CLAMP_MODE_CROSS){
-        if (min < MIN_OF_STICK_CLAMP_MODE_CROSS){
+    else if (m_StickClampMode == STICK_CLAMP_MODE_CROSS)
+    {
+        if (min < MIN_OF_STICK_CLAMP_MODE_CROSS)
+        {
             min = MIN_OF_STICK_CLAMP_MODE_CROSS;
         }
         m_MinOfStickClampCross = min;
         m_MaxOfStickClampCross = max;
     }
-    else{
+    else
+    {
         m_MaxOfStickClampMinimum = max;
     }
 #endif
 }
 
-f32 PadReader::NormalizeStick(short x){
+f32 PadReader::NormalizeStick(short x)
+{
 #if NN_VERSION_MAJOR > 2
     return this->m_StickClamper.NormalizeStick(pos);
 #else
     f32 fx = (f32)x;
     s16 threshold;
 
-    switch (m_StickClampMode){
+    switch (m_StickClampMode)
+    {
     case STICK_CLAMP_MODE_CIRCLE:
         threshold = m_MaxOfStickClampCircle - m_MinOfStickClampCircle;
         break;
@@ -251,11 +270,17 @@ f32 PadReader::NormalizeStick(short x){
 #endif
 }
 
-void PadReader::NormalizeStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y){
+void PadReader::NormalizeStickWithScale(f32* normalized_x, f32* normalized_y, s16 x, s16 y)
+{
+#ifdef NN_VERSION_MAJOR > 2
     //return this->m_StickClamper.NormalizeStickWithScale(normalized_x, normalized_y, x, y);
+#else
+
+#endif
 }
 
-void PadReader::SetNormalizeStickScaleSettings(f32 scale, s16 threshold){
+void PadReader::SetNormalizeStickScaleSettings(f32 scale, s16 threshold)
+{
 #ifdef NN_VERSION_MAJOR > 2
     return this->m_StickClamper.SetNormalizeStickScaleSettings(scale,threshold);
 #else

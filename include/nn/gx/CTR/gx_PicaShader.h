@@ -2,7 +2,8 @@
 
 #include <nn/gx/CTR/gx_PicaCommon.h>
 
-enum PicaDataVertexAttrType{
+enum PicaDataVertexAttrType
+{
     PICA_DATA_SIZE_1_BYTE          = 0x0,
     PICA_DATA_SIZE_1_UNSIGNED_BYTE = 0x1,
     PICA_DATA_SIZE_1_SHORT         = 0x2,
@@ -21,7 +22,8 @@ enum PicaDataVertexAttrType{
     PICA_DATA_SIZE_4_FLOAT         = 0xf
 };
 
-enum PicaDataVSOutAttr{
+enum PicaDataVSOutAttr
+{
     PICA_DATA_VS_OUT_ATTR_X        = 0x00,
     PICA_DATA_VS_OUT_ATTR_Y        = 0x01,
     PICA_DATA_VS_OUT_ATTR_Z        = 0x02,
@@ -47,14 +49,16 @@ enum PicaDataVSOutAttr{
     PICA_DATA_VS_OUT_ATTR_INVALID  = 0x1f
 };
 
-enum PicaDataDrawMode{
+enum PicaDataDrawMode
+{
     PICA_DATA_DRAW_TRIANGLE_STRIP      = 0x1,
     PICA_DATA_DRAW_TRIANGLE_FAN        = 0x2,
     PICA_DATA_DRAW_TRIANGLES           = 0x3,
     PICA_DATA_DRAW_GEOMETRY_PRIMITIVE  = 0x3
 };
 
-enum PicaDataVSFloat{
+enum PicaDataVSFloat
+{
     PICA_DATA_VS_F24 = 0x0,
     PICA_DATA_VS_F32 = 0x1
 };

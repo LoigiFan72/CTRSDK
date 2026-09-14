@@ -1,13 +1,15 @@
 #pragma once
 
 #include <nn/applet/CTR/applet_Paramaters.h>
+#include <nn/ptm/CTR/ptm_Api.h>
 
 namespace nn{
 namespace applet{ 
 namespace CTR { 
 namespace detail { 
 
-class APPLET{
+class APPLET
+{
 public:
     static Result AppletUtility(u32 id,u8 *pInParam,size_t inParamSize,u8 *pOutParam,size_t outParamSize,s32 *pReadLen);
     static Result CancelLibraryApplet(bool isCallerEnd);    
@@ -32,6 +34,9 @@ public:
     static Result SendParameter(AppletId senderId,AppletId receiverId,u32 command,const u8 *pParam,size_t paramSize,Handle pHandle);
     static Result SleepSystem(bit64 awakeReason);
     static Result StartSystemApplet(AppletId id,u8 *pParam,size_t paramSize,Handle handle);
+    static Result Wrap(bit8 pWrappedBuffer[], const bit8 pData[], size_t bufferSize, size_t dataSize, s32 idOffset, size_t idSize);
+    static Result Unwrap(bit8 pData[], const bit8 pWrapped[], size_t dataSize, size_t bufferSize, s32 idOffset, size_t idSize);
+    static Result GetTargetPlatform(nn::ptm::CTR::TargetPlatform* pPlatform);
 
     static nn::Handle s_Session;
 };

@@ -11,6 +11,9 @@
 #include <nn/util/detail/util_Symbol.h>
 #include <rt_locale.h>
 #include <rt_sys.h>
+#if defined(NN_VERSION_MAJOR) && NN_VERSION_MAJOR == 0
+    #include <rt_fp.h> // E3
+#endif
 
 namespace{
 #if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
@@ -31,6 +34,8 @@ extern "C"{
     extern u8 Image$$ZI$$ZI$$Limit[];
     extern u8 Image$$ZI$$ZI$$Base[];
 
+/* E3 2010 Check */
+#if defined(NN_VERSION_MAJOR) && NN_VERSION_MAJOR > 0
 #pragma arm
 asm void __ctr_start(){
     PRESERVE8
@@ -44,13 +49,36 @@ asm void __ctr_start(){
     bl __cpp(nnMain) // Main Application Loop
     b __cpp(nn::svc::ExitProcess) // Exit Process if needed
 }
+#else
+void _fp_init();
+void nninitCheckVersion();
 
-void nninitLocale(){
-#if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
-    NN_REFER_MODULE(s_DebugIndicator);
+#pragma arm
+asm void __ctr_start(){
+    PRESERVE8
+    bl __cpp(nninitRegion) // Region
+    bl __cpp(_fp_init) // fp Initialization
+    bl __cpp(nninitLocale) // Locale
+    bl __cpp(nninitCheckVersion) // Check Version
+    bl __cpp(nninitSystem) // System
+    bl __cpp(nninitStartUp) // Startup
+    blx __cpp(__cpp_initialize__aeabi_) // Initialize CPP ARM
+    bl __cpp(nninitCallStaticInitializers) // Static Initializer Manager
+    bl __cpp(nninitSetup) // Initializes Setup
+    bl __cpp(nnMain) // Main Application Loop
+    b __cpp(nn::svc::ExitProcess) // Exit Process if needed
+}
 #endif
-    NN_REFER_MODULE(s_SdkVersion);
-    NN_REFER_MODULE(s_FirmwareVersion);
+
+void nninitLocale()
+{
+#if defined(NN_VERSION_MAJOR) && NN_VERSION_MAJOR > 0
+    #if defined(NN_BUILD_DEBUG) || defined(NN_BUILD_DEVELOPMENT)
+        NN_REFER_MODULE(s_DebugIndicator);
+    #endif
+        NN_REFER_MODULE(s_SdkVersion);
+        NN_REFER_MODULE(s_FirmwareVersion);
+#endif
 
     bit32* p = __rt_locale();
     *(p + 1) = (bit32)_get_lc_ctype(0, 0) + 1;
@@ -59,7 +87,8 @@ void nninitLocale(){
 
 #pragma arm
 
-asm void nninitRegion(){
+asm void nninitRegion()
+{
     ldr     r0,=__cpp(Image$$ZI$$ZI$$Base)
     ldr     r1,=__cpp(Image$$ZI$$ZI$$Limit)
     mov     r2,#0x0
@@ -69,5 +98,15 @@ loop
     bcc     loop
     bx      lr
 };
+
+#if defined(NN_VERSION_MAJOR) && NN_VERSION_MAJOR == 0
+void nninitCheckVersion()
+{
+    if(nn::os::GetReadOnlySharedInfo().coreVersion != NN_CURRENT_FIRMWARE_NUMBER)
+    {
+        NN_PANIC_("System version check failed!\ncci expected=%d current system=%d", NN_CURRENT_FIRMWARE_NUMBER, nn::os::GetReadOnlySharedInfo().coreVersion);
+    }
+}
+#endif
 
 } // extern "C"

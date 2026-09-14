@@ -23,7 +23,8 @@
 
 #define PICA_CMD_DATA_ZERO() 0x00000000
 
-typedef struct _color8{
+typedef struct _color8
+{
     GLubyte r;
     GLubyte g;
     GLubyte b;

@@ -8,24 +8,27 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-class DspFxReverb : private nn::util::NonCopyable<DspFxReverb> {
+class DspFxReverb : private nn::util::NonCopyable<DspFxReverb> 
+{
 public:
-    struct FilterSize {
-        u32 mComb0;
-        u32 mComb1;
-        u32 mAllPass;
+    struct FilterSize 
+    {
+        u32 m_Comb0;
+        u32 m_Comb1;
+        u32 m_AllPass;
     };
 
-    struct Param {
-        u32         mEarlyReflectionTime;
-        u32         mFusedTime;
-        u32         mPreDelayTime;
-        f32         mColoration;
-        f32         mDamping;
-        FilterSize* mpFilterSize;
-        f32         mEarlyGain;
-        f32         mFusedGain;
-        bool        mUseHpfDamping;
+    struct Param 
+    {
+        u32         m_EarlyReflectionTime;
+        u32         m_FusedTime;
+        u32         m_PreDelayTime;
+        f32         m_Coloration;
+        f32         m_Damping;
+        FilterSize* m_pFilterSize;
+        f32         m_EarlyGain;
+        f32         m_FusedGain;
+        bool        m_UseHpfDamping;
         s8 rev[3];
 
         Param();
@@ -44,7 +47,7 @@ public:
     bool Enable(bool enable = true);
 
     bool Disable(){ return Enable(false); }
-    bool IsEnabled() { return mIsEnabled;  }
+    bool IsEnabled() { return m_IsEnabled;  }
 
     bool IsBufferInUse();
 
@@ -52,15 +55,15 @@ private:
     bool AssignWorkBuffer(uptr buffer, size_t size);
     void ReleaseWorkBuffer();
 
-    static FilterSize sDefaultFilterSize;
+    static FilterSize s_DefaultFilterSize;
 
-    uptr mBuffer;
-    uptr mBufferPhysical;
-    size_t mBufferSize;
-    bool mIsInitialized;
-    util::SizedEnum1<AuxBusId> mAuxBusId;
-    bool mIsEnabled;
-    s8 mProcessCount;
+    uptr m_Buffer;
+    uptr m_BufferPhysical;
+    size_t m_BufferSize;
+    bool m_IsInitialized;
+    util::SizedEnum1<AuxBusId> m_AuxBusId;
+    bool m_IsEnabled;
+    s8 m_ProcessCount;
 };
 
 struct DspFxReverbParams {

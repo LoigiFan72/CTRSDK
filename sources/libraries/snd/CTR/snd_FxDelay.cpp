@@ -11,133 +11,156 @@ namespace snd {
 namespace CTR {
 
 FxDelay::FxDelay(): 
-    mpBuffer(NULL),
-    mBufferSize(0),
-    mCurFrame(0),
-    mFeedbackGain(0x0),
-    mLpfCoef1(0x10000),
-    mLpfCoef2(0x0),
-    mProcessChannelCount(4),
-    mIsActive(false){
+    m_pBuffer(NULL),
+    m_BufferSize(0),
+    m_CurFrame(0),
+    m_FeedbackGain(0x0),
+    m_LpfCoef1(0x10000),
+    m_LpfCoef2(0x0),
+    m_ProcessChannelCount(4),
+    m_IsActive(false)
+{
     this->FreeBuffer();
 
-    for (int ch = 0; ch < mProcessChannelCount; ch++){
-        mWorkBuffer.mLpf[ch] = 0;
+    for (int ch = 0; ch < m_ProcessChannelCount; ch++)
+    {
+        m_WorkBuffer.m_Lpf[ch] = 0;
     }
 }
 
-FxDelay::~FxDelay(){
-    if (mIsActive){
+FxDelay::~FxDelay()
+{
+    if (m_IsActive)
+    {
         this->Finalize();
     }
-    if (mpBuffer != NULL){
+    if (m_pBuffer != NULL)
+    {
         this->ReleaseWorkBuffer();
     }
 }
     
 bool FxDelay::SetParam(const FxDelay::Param& param){
     {
-        if (param.mDamping < 0.0f || param.mDamping > 1.0f){
+        if (param.m_Damping < 0.0f || param.m_Damping > 1.0f)
+        {
             return false;
         }
 
-        if (param.mFeedbackGain < 0.0f || param.mFeedbackGain > 1.0f){
+        if (param.m_FeedbackGain < 0.0f || param.m_FeedbackGain > 1.0f)
+        {
             return false;
         }
     }
 
     {
-        if (mIsActive == true){
-            if (param.mDelayTime > mDelayTimeAtInitialize){
+        if (m_IsActive == true)
+        {
+            if (param.m_DelayTime > m_DelayTimeAtInitialize)
+            {
                 return false;
             }
-            if (mIsEnableSurroundAtInitialize == false && param.mIsEnableSurround == true){
+            if (m_IsEnableSurroundAtInitialize == false && param.m_IsEnableSurround == true)
+            {
                 return false;
             }
         }
 
-        mDelayFrames = (param.mDelayTime * 1000 ) / NN_SND_USECS_PER_FRAME;
-        if (mDelayFrames == 0){
-            mDelayFrames = 1;
+        m_DelayFrames = (param.m_DelayTime * 1000 ) / NN_SND_USECS_PER_FRAME;
+        if (m_DelayFrames == 0)
+        {
+            m_DelayFrames = 1;
         }
 
-        if (param.mIsEnableSurround == false){
-            mProcessChannelCount = 2;
+        if (param.m_IsEnableSurround == false)
+        {
+            m_ProcessChannelCount = 2;
         }
-        else{
-            mProcessChannelCount = 4;
+        else
+        {
+            m_ProcessChannelCount = 4;
         }
 
     }
 
     {
-        mFeedbackGain = static_cast<s32>( static_cast<s32>(0x80L) * param.mFeedbackGain );
+        m_FeedbackGain = static_cast<s32>( static_cast<s32>(0x80L) * param.m_FeedbackGain);
 
-        f32 lpf_coef = param.mDamping;
-        if (lpf_coef > 0.95f){
+        f32 lpf_coef = param.m_Damping;
+        if (lpf_coef > 0.95f)
+        {
             lpf_coef = 0.95f;
         }
         f32 lpf_coef_1 = 1.f - lpf_coef;
         f32 lpf_coef_2 = lpf_coef;
 
-        mLpfCoef1 = static_cast<s32>( static_cast<s32>(0x80L) * lpf_coef_1 );
-        mLpfCoef2 = static_cast<s32>( static_cast<s32>(0x80L) * lpf_coef_2 );
+        m_LpfCoef1 = static_cast<s32>( static_cast<s32>(0x80L) * lpf_coef_1 );
+        m_LpfCoef2 = static_cast<s32>( static_cast<s32>(0x80L) * lpf_coef_2 );
     }
 
-    mParam = param;
+    m_Param = param;
     return true;
 }
 
-size_t FxDelay::GetRequiredMemSize(){
-    size_t result = (sizeof(s32) * NN_SND_SAMPLES_PER_FRAME * mDelayFrames) * mProcessChannelCount;
+size_t FxDelay::GetRequiredMemSize()
+{
+    size_t result = (sizeof(s32) * NN_SND_SAMPLES_PER_FRAME * m_DelayFrames) * m_ProcessChannelCount;
     result += 32;
     return result;
 }
 
-bool FxDelay::AssignWorkBuffer( uptr buffer, size_t size ){
-    if (buffer == NULL){
+bool FxDelay::AssignWorkBuffer(uptr buffer, size_t size)
+{
+    if (buffer == NULL)
+    {
         return false;
     }
 
-    mpBuffer     = buffer;
-    mBufferSize = size;
+    m_pBuffer     = buffer;
+    m_BufferSize = size;
 
     return true;
 }
 
-void FxDelay::ReleaseWorkBuffer(){
-    mpBuffer = NULL;
+void FxDelay::ReleaseWorkBuffer()
+{
+    m_pBuffer = NULL;
 }
 
-bool FxDelay::Initialize(){
-    if (mIsActive){
+bool FxDelay::Initialize()
+{
+    if (m_IsActive)
+    {
         return false;
     }
 
-    mDelayTimeAtInitialize = mParam.mDelayTime;
-    mIsEnableSurroundAtInitialize = mParam.mIsEnableSurround;
+    m_DelayTimeAtInitialize = m_Param.m_DelayTime;
+    m_IsEnableSurroundAtInitialize = m_Param.m_IsEnableSurround;
 
     this->AllocBuffer();
     this->InitializeParam();
 
-    mIsActive = true;
+    m_IsActive = true;
 
     return true;
 }
 
-void FxDelay::Finalize(){
-    if(!mIsActive){
+void FxDelay::Finalize()
+{
+    if(!m_IsActive){
         return;
     }
 
-    mIsActive = false;
-    ::std::memset( reinterpret_cast<void*>(&this->mParam), 0, sizeof(Param) );
+    m_IsActive = false;
+    ::std::memset( reinterpret_cast<void*>(&this->m_Param), 0, sizeof(Param) );
 
     this->FreeBuffer();
 }
 
-void FxDelay::UpdateBuffer(uptr data){
-    if(!mIsActive){
+void FxDelay::UpdateBuffer(uptr data)
+{
+    if(!m_IsActive)
+    {
         return;
     }
 
@@ -151,22 +174,24 @@ void FxDelay::UpdateBuffer(uptr data){
     input[CHANNEL_INDEX_REAR_LEFT]   = auxData->rearLeft;
     input[CHANNEL_INDEX_REAR_RIGHT]  = auxData->rearRight;
 
-    const u32 start_pos = NN_SND_SAMPLES_PER_FRAME * mCurFrame;
+    const u32 start_pos = NN_SND_SAMPLES_PER_FRAME * m_CurFrame;
 
-    for (u32 ch = 0; ch < mProcessChannelCount; ch++){
+    for (u32 ch = 0; ch < m_ProcessChannelCount; ch++)
+    {
         s32* pInput = &input[ch][0];
-        s32* pDelay = &mWorkBuffer.mDelay[ch][0] + start_pos;
-        s32 lpfData = mWorkBuffer.mLpf[ch];
+        s32* pDelay = &m_WorkBuffer.m_Delay[ch][0] + start_pos;
+        s32 lpfData = m_WorkBuffer.m_Lpf[ch];
 
-        for (u32 samp = 0; samp < NN_SND_SAMPLES_PER_FRAME; samp++){
+        for (u32 samp = 0; samp < NN_SND_SAMPLES_PER_FRAME; samp++)
+        {
             s32 delay_out = *pDelay;
 
-            s32 feedback = (math::Abs(delay_out) * mFeedbackGain) >> 7;
+            s32 feedback = (math::Abs(delay_out) * m_FeedbackGain) >> 7;
             if (delay_out < 0) feedback = -feedback;
 
             feedback = *pInput - feedback;
 
-            s32 lpf_out = mLpfCoef1 * feedback + mLpfCoef2 * lpfData;
+            s32 lpf_out = m_LpfCoef1 * feedback + m_LpfCoef2 * lpfData;
             lpf_out >>= 7;
 
 
@@ -177,38 +202,45 @@ void FxDelay::UpdateBuffer(uptr data){
             *pInput++ = delay_out;
         }
 
-        mWorkBuffer.mLpf[ch] = lpfData;
+        m_WorkBuffer.m_Lpf[ch] = lpfData;
     }
 
-    if (++mCurFrame >= mDelayFrames){
-        mCurFrame = 0;
+    if (++m_CurFrame >= m_DelayFrames)
+    {
+        m_CurFrame = 0;
     }
 }
 
-void FxDelay::AllocBuffer(){
-    const size_t ch_buffer_size = sizeof(s32) * NN_SND_SAMPLES_PER_FRAME * mDelayFrames;
+void FxDelay::AllocBuffer()
+{
+    const size_t ch_buffer_size = sizeof(s32) * NN_SND_SAMPLES_PER_FRAME * m_DelayFrames;
 
-    uptr ptr = math::RoundUp(mpBuffer, 32 );
+    uptr ptr = math::RoundUp(m_pBuffer, 32);
 
-    for(int ch = 0; ch < mProcessChannelCount; ch++){
-        mWorkBuffer.mDelay[ch] = reinterpret_cast<s32*>(ptr);
+    for(int ch = 0; ch < m_ProcessChannelCount; ch++)
+    {
+        m_WorkBuffer.m_Delay[ch] = reinterpret_cast<s32*>(ptr);
         ptr += ch_buffer_size;
     }
 }
 
-void FxDelay::FreeBuffer(){
-    for (int ch = 0; ch < mProcessChannelCount; ch++){
-        mWorkBuffer.mDelay[ch] = NULL;
+void FxDelay::FreeBuffer()
+{
+    for (int ch = 0; ch < m_ProcessChannelCount; ch++)
+    {
+        m_WorkBuffer.m_Delay[ch] = NULL;
     }
 }
 
-void FxDelay::InitializeParam(){
-    mCurFrame = 0;
+void FxDelay::InitializeParam()
+{
+    m_CurFrame = 0;
 
-    ::std::memset( reinterpret_cast<void*>(mpBuffer), 0, mBufferSize);
+    ::std::memset(reinterpret_cast<void*>(m_pBuffer), 0, m_BufferSize);
 
-    for (int ch = 0; ch < mProcessChannelCount; ch++){
-        mWorkBuffer.mLpf[ch] = 0;
+    for (int ch = 0; ch < m_ProcessChannelCount; ch++)
+    {
+        m_WorkBuffer.m_Lpf[ch] = 0;
     }
 }
 

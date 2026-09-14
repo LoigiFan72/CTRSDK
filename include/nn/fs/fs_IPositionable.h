@@ -6,7 +6,8 @@
 namespace nn{
 namespace fs{
 
-class IPositionable{
+class IPositionable
+{
 protected:
     virtual ~IPositionable() {}
 public:

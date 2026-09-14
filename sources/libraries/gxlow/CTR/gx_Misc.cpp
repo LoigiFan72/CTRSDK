@@ -12,8 +12,10 @@
 extern "C" {
 #endif
 
-uptr nngxGetVramStartAddr(s32 area){
-    switch(area){
+uptr nngxGetVramStartAddr(s32 area)
+{
+    switch(area)
+    {
     case NN_GX_MEM_VRAMA:
         return (nn::gxlow::CTR::detail::IsAppletMode()) ? NN_GX_VRAMA_SYS_START : NN_GX_VRAMA_USER_START;
     case NN_GX_MEM_VRAMB:

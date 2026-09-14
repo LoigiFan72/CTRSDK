@@ -27,9 +27,11 @@ namespace{
     bool                        isGpuRightGiven = false;
     bool                        isDspSleeping   = false;
 
-    class ExitHandler : public NotificationHandler{
+    class ExitHandler : public NotificationHandler
+    {
     public:
-        virtual void HandleNotification(bit32 message){
+        virtual void HandleNotification(bit32 message)
+        {
             NN_TLOG_("**** Exit handle id=%x \n", GetId());
         }
     };
@@ -43,26 +45,30 @@ namespace CTR{
 
 nn::Handle HANDLE_NONE = 0;
 
-bool IsInitialized(){
+bool IsInitialized()
+{
     return isInitialized;
 }
 
 namespace detail{
 namespace{
 
-inline bool DisableSleepForTransition(){
+inline bool DisableSleepForTransition()
+{
     bool isSleep = CTR::IsEnableSleep();
     if(isSleep) DisableSleep(true);
     return isSleep;
 }
 
-inline bool EnableSleepForTransition(){
+inline bool EnableSleepForTransition()
+{
     bool isSleep = CTR::IsEnableSleep();
     if(!isSleep) EnableSleep(true);
     return isSleep;
 }
 
-inline void RestoreSleepForTransition(bool e){
+inline void RestoreSleepForTransition(bool e)
+{
     if(e)
         EnableSleepForTransition();
     else
@@ -71,7 +77,8 @@ inline void RestoreSleepForTransition(bool e){
 
 bool s_IsVramSaved = false;
 
-inline Result SaveVramSysArea(){
+inline Result SaveVramSysArea()
+{
     s_IsVramSaved = true;
     return gxlow::CTR::SaveVramSysArea();
 }
@@ -80,33 +87,42 @@ inline Result SaveVramSysArea(){
 
 /* Rights */
 
-void AssignGpuRight(bool flag){
+void AssignGpuRight(bool flag)
+{
     Result res;
-    if(flag){
+    if(flag)
+    {
         isGpuRightGiven = true;
         res = gxlow::CTR::AcquireGpuRight();
         NN_ERR_THROW_FATAL(res);
     }
-    else{
-        if (!isGpuRightGiven){
+    else
+    {
+        if (!isGpuRightGiven)
+        {
             return;
         }
         isGpuRightGiven = false;
         res = gxlow::CTR::ReleaseGpuRight();
         if(res == Result(0xd8a02a05))
             return;
-        else if(res == Result(0xd9001bf7)){
+        else if(res == Result(0xd9001bf7))
+        {
             NN_TLOG_("applet_API: Warning: Release GPU right despite no gx init.\n");
         }
-        else{
+        else
+        {
             NN_ERR_THROW_FATAL(res);
         }
     }
 }
 
-void AssignDspRight(bool flag){
-    if(flag){
-        if(isDspSleeping){
+void AssignDspRight(bool flag)
+{
+    if(flag)
+    {
+        if(isDspSleeping)
+        {
             dsp::CTR::WakeUp();
             s_IsDspSleeping = false;
         }

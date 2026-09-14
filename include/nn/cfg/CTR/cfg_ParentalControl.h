@@ -5,7 +5,8 @@
 namespace nn {
 namespace cfg {
 namespace CTR {
-        struct ParentalControlFlags{
+        struct ParentalControlFlags
+        {
                 u32 isSetParentalControl;
                 u32 browser;
                 u32 ulcd;
@@ -19,7 +20,8 @@ namespace CTR {
                 u32 rsv;
         };
 
-        struct ParentalControlInfo{
+        struct ParentalControlInfo
+        {
                 ParentalControlFlags flags;
                 u32  rsv1;
                 u8   ogn;

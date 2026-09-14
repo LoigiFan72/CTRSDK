@@ -3,7 +3,7 @@
 #include <nn/os/os_LightEvent.h>
 #include <nn/os/os_CriticalSection.h>
 #include <nn/srv/srv_Service.h>
-#include <nn/fnd/fnd_Intrusive.h>
+#include <nn/fnd/fnd_LinkedList.h>
 #include <nn/srv/srv_Service.h>
 
 namespace nn {

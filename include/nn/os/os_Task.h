@@ -1,7 +1,7 @@
 #pragma once
 
 #include <nn/types.h>
-#include <nn/fnd/fnd_Intrusive.h>
+#include <nn/fnd/fnd_Queue.h>
 
 namespace nn{
 namespace os{
@@ -20,7 +20,7 @@ class IWaitTaskInvoker : public ITaskInvoker
 public:
 };
 
-class QueueableTask : public ITask, public fnd::IntrusiveQueue::Item
+class QueueableTask : public nn::fnd::IntrusiveQueue<QueueableTask>::Item, public ITask
 {
 public:
 };

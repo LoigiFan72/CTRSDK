@@ -12,23 +12,24 @@ namespace nn{
 namespace fs{ 
 namespace detail{
 
-class DirectoryBaseImpl : private nn::util::ADLFireWall::NonCopyable<DirectoryBaseImpl>{
+class DirectoryBaseImpl : private nn::util::ADLFireWall::NonCopyable<DirectoryBaseImpl>
+{
 protected:
     typedef nn::fs::CTR::MPCore::detail::UserFileSystem UserFileSystem;
 
-    DirectoryBaseImpl(): mP(0) {}
+    DirectoryBaseImpl(): m_P(0) {}
     
-    Result TryInitialize(const wchar_t* path){ return UserFileSystem::TryOpenDirectory(&mP, path); }
+    Result TryInitialize(const wchar_t* path){ return UserFileSystem::TryOpenDirectory(&m_P, path); }
     
-    void Finalize() { UserFileSystem::CloseDirectory(mP); this->mP = 0; }
+    void Finalize() { UserFileSystem::CloseDirectory(m_P); this->m_P = 0; }
     ~DirectoryBaseImpl() { Finalize(); }
     
-    Result TryRead(s32* pOut, DirectoryEntry pEntries[], s32 numEntries) { return UserFileSystem::TryReadDirectory(pOut, mP, pEntries, numEntries); }
+    Result TryRead(s32* pOut, DirectoryEntry pEntries[], s32 numEntries) { return UserFileSystem::TryReadDirectory(pOut, m_P, pEntries, numEntries); }
 
 private:
-    void* mP;
+    void* m_P;
     
-    bool IsInitialized() const { return mP != 0; }
+    bool IsInitialized() const { return m_P != 0; }
 };
 
 }}}

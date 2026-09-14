@@ -13,13 +13,15 @@ namespace detail{
 
 nn::Handle Ipc::s_Session;
 
-Result Ipc::GetIPCHandles(Handle* pSharedMemoryHandle, Handle* pPadEvent, Handle* pTouchPanelEvent, Handle* pAccelerometerEvent, Handle* pGyroscopeLowEvent, Handle* pDebugPadEvent){
+Result Ipc::GetIPCHandles(Handle* pSharedMemoryHandle, Handle* pPadEvent, Handle* pTouchPanelEvent, Handle* pAccelerometerEvent, Handle* pGyroscopeLowEvent, Handle* pDebugPadEvent)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0xA, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -33,65 +35,75 @@ Result Ipc::GetIPCHandles(Handle* pSharedMemoryHandle, Handle* pPadEvent, Handle
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Ipc::EnableAccelerometer(){
+Result Ipc::EnableAccelerometer()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x11, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Ipc::DisableAccelerometer(){
+Result Ipc::DisableAccelerometer()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x12, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Ipc::EnableGyroscopeLow(){
+Result Ipc::EnableGyroscopeLow()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x13, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Ipc::DisableGyroscopeLow(){
+Result Ipc::DisableGyroscopeLow()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x14, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Ipc::GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient){
+Result Ipc::GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x15, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -100,13 +112,15 @@ Result Ipc::GetGyroscopeLowRawToDpsCoefficient(f32* pCoefficient){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Ipc::GetGyroscopeLowCalibrateParam(nn::hid::CTR::GyroscopeLowCalibrateParam* param){
+Result Ipc::GetGyroscopeLowCalibrateParam(nn::hid::CTR::GyroscopeLowCalibrateParam* param)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x16, 0, 0, 0);
 
 
     Result ipcResult = SendSyncRequest(s_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

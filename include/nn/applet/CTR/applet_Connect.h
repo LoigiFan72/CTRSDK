@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nn/applet/CTR/applet_Paramaters.h>
+#include <nn/applet/CTR/applet_Ipc.h>
 #include <nn/os/os_Mutex.h>
 
 namespace nn{
@@ -20,6 +21,14 @@ namespace{
     Result Disconnect();
     void DisconnectAndUnlock();
 
+    inline Result GetTargetPlatform(ptm::CTR::TargetPlatform* pPlatform)
+    {
+        Result result;
+        LockAndConnect();
+        result = APPLET::GetTargetPlatform(pPlatform);
+        DisconnectAndUnlock();
+        return result;
+    }
 }
 }
 }

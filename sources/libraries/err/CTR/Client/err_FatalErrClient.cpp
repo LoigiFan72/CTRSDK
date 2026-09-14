@@ -10,7 +10,8 @@ namespace nn{
 namespace err{
 namespace CTR{
 
-Result FatalErr::Throw(FatalErrInfo& info){
+Result FatalErr::Throw(FatalErrInfo& info)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(1, 32, 0, 0);
     ipcMsg.SetRaw(1, info);

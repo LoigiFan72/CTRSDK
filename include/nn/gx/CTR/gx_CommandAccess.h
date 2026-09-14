@@ -20,11 +20,13 @@ extern "C" {
 namespace nn {
 namespace gx {
 namespace CTR {
-    inline uptr GetPhysicalAddr(uptr virtualAddr) {
+    inline uptr GetPhysicalAddr(uptr virtualAddr) 
+    {
         return nngxGetPhysicalAddr(virtualAddr);
     }
 
-    inline void UpdateBuffer(const void* pBuffer, size_t size) {
+    inline void UpdateBuffer(const void* pBuffer, size_t size) 
+    {
         nngxUpdateBuffer(pBuffer, size);
     }
 }

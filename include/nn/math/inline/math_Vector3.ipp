@@ -10,7 +10,8 @@ namespace math{
 inline VEC3* VEC3SafeNormalize(VEC3* pOut, const VEC3* p, const VEC3& alt);
 inline VEC3* VEC3SafeNormalize(VEC3* pOut, const VEC3& v, const VEC3& alt) { return VEC3SafeNormalize(pOut, &v, alt); }
 
-inline VEC3* VEC3SafeNormalize(VEC3* pOut, const VEC3* p, const VEC3& alt){
+inline VEC3* VEC3SafeNormalize(VEC3* pOut, const VEC3* p, const VEC3& alt)
+{
     NN_NULL_ASSERT_(pOut);
     NN_NULL_ASSERT_(p);
 
@@ -22,7 +23,8 @@ inline VEC3* VEC3SafeNormalize(VEC3* pOut, const VEC3* p, const VEC3& alt){
 
     mag = (x * x) + (y * y) + (z * z);
 
-    if (mag == 0){
+    if (mag == 0)
+    {
         *pOut = alt;
 
         return pOut;

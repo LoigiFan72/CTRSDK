@@ -79,7 +79,8 @@
       ((fresnelSelector) ? 0 : 1) << 19 |                     \
       ((lutEnabledRefl) ? 0 : 7)  << 20 )
 
-enum PicaDataFragLightSampler{
+enum PicaDataFragLightSampler
+{
     PICA_DATA_SAMPLER_D0 = 0x0,
     PICA_DATA_SAMPLER_D1 = 0x1,
     PICA_DATA_SAMPLER_FR = 0x3,
@@ -126,7 +127,8 @@ enum PicaDataFragLightSampler{
       ((RR) ? 0 : 1) << 25 )
 
 
-enum PicaDataFragLightEnvLutInput{
+enum PicaDataFragLightEnvLutInput
+{
     PICA_DATA_FRAG_LIGHT_ENV_NH_DMP = 0x0,
     PICA_DATA_FRAG_LIGHT_ENV_VH_DMP = 0x1,
     PICA_DATA_FRAG_LIGHT_ENV_NV_DMP = 0x2,
@@ -140,7 +142,8 @@ enum PicaDataFragLightEnvLutInput{
       (FR) << 12 | (RB) << 16 | (RG) << 20 | (RR) << 24 )
     
 
-enum PicaDataFragLightEnvLutScale{
+enum PicaDataFragLightEnvLutScale
+{
     PICA_DATA_FRAG_LIGHT_ENV_LUTSCALE_1_0  = 0x0,
     PICA_DATA_FRAG_LIGHT_ENV_LUTSCALE_2_0  = 0x1,
     PICA_DATA_FRAG_LIGHT_ENV_LUTSCALE_4_0  = 0x2,
@@ -156,14 +159,16 @@ enum PicaDataFragLightEnvLutScale{
 #define PICA_CMD_DATA_FRAG_LIGHT_ENV_SHADOW_ATTN(shadowPrimary, shadowSecondary, shadowAlpha) \
     ( ( (shadowPrimary) | (shadowSecondary) | (shadowAlpha) ) ? 1 : 0 )
 
-enum PicaDataFragLightEnvTexture{
+enum PicaDataFragLightEnvTexture
+{
     PICA_DATA_FRAG_LIGHT_ENV_TEXTURE0 = 0x0,
     PICA_DATA_FRAG_LIGHT_ENV_TEXTURE1 = 0x1,
     PICA_DATA_FRAG_LIGHT_ENV_TEXTURE2 = 0x2,
     PICA_DATA_FRAG_LIGHT_ENV_TEXTURE3 = 0x3
 };
 
-enum PicaDataFragLightEnvLayerConfig{
+enum PicaDataFragLightEnvLayerConfig
+{
     PICA_DATA_FRAG_LIGHT_ENV_LAYER_CONFIG0 = 0x0,
     PICA_DATA_FRAG_LIGHT_ENV_LAYER_CONFIG1 = 0x1,
     PICA_DATA_FRAG_LIGHT_ENV_LAYER_CONFIG2 = 0x2,
@@ -174,14 +179,16 @@ enum PicaDataFragLightEnvLayerConfig{
     PICA_DATA_FRAG_LIGHT_ENV_LAYER_CONFIG7 = 0x8
 };
 
-enum PicaDataFragLightEnvFresnel{
+enum PicaDataFragLightEnvFresnel
+{
     PICA_DATA_FRAG_LIGHT_ENV_NO_FRESNEL            = 0x0,
     PICA_DATA_FRAG_LIGHT_ENV_PRI_ALPHA_FRESNEL     = 0x1,
     PICA_DATA_FRAG_LIGHT_ENV_SEC_ALPHA_FRESNEL     = 0x2,
     PICA_DATA_FRAG_LIGHT_ENV_PRI_SEC_ALPHA_FRESNEL = 0x3
 };
 
-enum PicaDataFragLightEnvBump{
+enum PicaDataFragLightEnvBump
+{
     PICA_DATA_FRAG_LIGHT_ENV_BUMP_NOT_USED_DMP = 0x0,
     PICA_DATA_FRAG_LIGHT_ENV_BUMP_AS_BUMP_DMP  = 0x1,
     PICA_DATA_FRAG_LIGHT_ENV_BUMP_AS_TANG_DMP  = 0x2

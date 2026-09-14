@@ -31,24 +31,28 @@ namespace{
     s32 s_NumSpecultiveReqs = 3;
     bool s_IsSrvReady   = false;
 
-    inline void InitializeSrv(){
+    inline void InitializeSrv()
+    {
         if (!s_IsSrvReady){
             nn::Result result = nn::srv::Initialize();
-            if (result.GetDescription() != nn::Result::DESCRIPTION_ALREADY_INITIALIZED){
+            if (result.GetDescription() != nn::Result::DESCRIPTION_ALREADY_INITIALIZED)
+            {
                 NN_GXLOW_RESULT_ASSERT(result, "nn::srv::Initialize");
             }
             s_IsSrvReady = true;
         }
     }
 
-    inline void InitializeGpuSession(){
+    inline void InitializeGpuSession()
+    {
         nn::Result result = nn::srv::GetServiceHandle(&s_GpuSession, GPU_IPC_PORT_NAME);
         NN_GXLOW_RESULT_ASSERT(result, "Can't connect to the GraphicsServer");
         
         s_GpuIpc = Gpu(s_GpuSession);
     }
     
-    inline void FinalizeGpuSession(){
+    inline void FinalizeGpuSession()
+    {
         nn::Result result;
         result = nn::svc::CloseHandle(s_GpuSession);
         NN_GXLOW_RESULT_ASSERT(result, "CloseHandle");
@@ -57,10 +61,12 @@ namespace{
     }
 }
 
-void Initialize(void){
+void Initialize()
+{
     Lock();
 
-    if (s_Initialized){
+    if (s_Initialized)
+    {
         Unlock();
         return;
     }
@@ -80,10 +86,12 @@ void Initialize(void){
     return;
 }
 
-void Finalize(void){
+void Finalize()
+{
     Lock();
 
-    if (!s_Initialized){
+    if (!s_Initialized)
+    {
         Unlock();
         return;
     }
@@ -98,54 +106,68 @@ void Finalize(void){
     return;
 }
 
-bool IsFirstInitialization(void){
+bool IsFirstInitialization()
+{
     return s_pInterruptReceiver->IsFirstConnection();
 }
 
-void Lock(){
+void Lock()
+{
     s_GeneralLock.Enter();
 }
 
-void Unlock(){
+void Unlock()
+{
     s_GeneralLock.Leave();
 }
 
-void YieldThread(){
+void YieldThread()
+{
     s_pInterruptReceiver->WaitAnyHandlerDone();
 }
 
-nngxlowFuncPtr RegisterInterruptHandler(nngxlowFuncPtr interruptHandler,nngxlowInterrupt interruptType){
+nngxlowFuncPtr RegisterInterruptHandler(nngxlowFuncPtr interruptHandler,nngxlowInterrupt interruptType)
+{
     return s_pInterruptReceiver->RegisterInterruptHandler(interruptHandler,interruptType);
 }
 
-void SetAppletMode(){
+void SetAppletMode()
+{
     s_IsAppletMode = true;
 }
 
-void SetFatalErrorMode(){
+void SetFatalErrorMode()
+{
     s_IsFatalErrMode = true;
     s_IsAppletMode = true;
 }
 
-s32 GetNumSpeculativeRequests(){
+s32 GetNumSpeculativeRequests()
+{
     return s_NumSpecultiveReqs;
 }
 
-void SetNumSpeculativeRequests(s32 num){
+void SetNumSpeculativeRequests(s32 num)
+{
     s_NumSpecultiveReqs = num;
 }
 
-void StartLcdDisplay(){
-    if (s_Initialized){
+void StartLcdDisplay()
+{
+    if (s_Initialized)
+    {
        s_GpuIpc.SetLcdForceBlack(false);
     }
 }
 
-void StopLcdDisplay(){
-    if (s_Initialized){
+void StopLcdDisplay()
+{
+    if (s_Initialized)
+    {
        s_GpuIpc.SetLcdForceBlack(true);
     }
-    else{
+    else
+    {
         Lock();
         InitializeGpuSession();
         s_GpuIpc.SetLcdForceBlack(true);
@@ -154,26 +176,31 @@ void StopLcdDisplay(){
     }
 }
 
-bool IsInitialized(){
+bool IsInitialized()
+{
     return s_Initialized;
 }
 
 namespace detail{
 
-Gpu* GetGpuIpc(){
+Gpu* GetGpuIpc()
+{
     NN_TASSERT_(sGpuSession != INVALID_HANDLE_VALUE);
     return &s_GpuIpc;
 }
 
-InterruptReceiver* GetInterruptReceiver(){
+InterruptReceiver* GetInterruptReceiver()
+{
     return s_pInterruptReceiver;
 }
 
-bool IsAppletMode(){
+bool IsAppletMode()
+{
     return s_IsAppletMode;
 }
 
-bool IsFatalErrMode(){
+bool IsFatalErrMode()
+{
     return s_IsFatalErrMode;
 }
 

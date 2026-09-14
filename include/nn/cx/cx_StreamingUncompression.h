@@ -5,7 +5,8 @@
 namespace nn{
 namespace cx{
 
-struct UncompContextLZ{
+struct UncompContextLZ
+{
     u8 *destp;
     s32 destCount;
     s32 forceDestCount;

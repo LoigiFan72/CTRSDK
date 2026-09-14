@@ -6,7 +6,8 @@ namespace nn{
 namespace hidlow{
 namespace CTR{
 
-struct IAnalogStickStatus{
+struct IAnalogStickStatus
+{
     fnd::InterlockedVariable<s16> x;
     fnd::InterlockedVariable<s16> y;
 };

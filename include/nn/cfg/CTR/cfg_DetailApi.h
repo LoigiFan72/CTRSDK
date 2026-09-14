@@ -11,7 +11,8 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 
-typedef enum _IPCPortType{
+typedef enum _IPCPortType
+{
         PORT_CFG_USER,
         PORT_CFG_SYS,
         PORT_CFG_INIT,

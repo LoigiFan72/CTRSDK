@@ -9,7 +9,8 @@ namespace nn{
 namespace hid{
 namespace CTR{
 
-bool ExtraPad::IsSampling(){
+bool ExtraPad::IsSampling()
+{
     return nn::ir::CTR::CepdGetStatus() == nn::ir::CTR::CEPD_STATUS_SAMPLING;
 }
 

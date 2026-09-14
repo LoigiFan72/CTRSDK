@@ -10,7 +10,8 @@ namespace nn{
 namespace dev{
 namespace CTR{
 
-Result Dev::ReadHostIO(bit8 pData[], size_t size, s32 numSectors, SectorSize sectorSize, const bit8 pCommnand[]){
+Result Dev::ReadHostIO(bit8 pData[], size_t size, s32 numSectors, SectorSize sectorSize, const bit8 pCommnand[])
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(1, 7, 2, 0);
     ipcMsg.SetRaw(1, size);
@@ -21,14 +22,16 @@ Result Dev::ReadHostIO(bit8 pData[], size_t size, s32 numSectors, SectorSize sec
 
 
     Result ipcResult = SendSyncRequest(this->m_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Dev::WriteHostIO(const bit8 pData[], size_t size, s32 numSectors, SectorSize sectorSize, const bit8 pCommnand[]){
+Result Dev::WriteHostIO(const bit8 pData[], size_t size, s32 numSectors, SectorSize sectorSize, const bit8 pCommnand[])
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(2, 7, 2, 0);
     ipcMsg.SetRaw(1, size);
@@ -39,14 +42,16 @@ Result Dev::WriteHostIO(const bit8 pData[], size_t size, s32 numSectors, SectorS
 
 
     Result ipcResult = SendSyncRequest(this->m_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Dev::ReadHostIO2(bit8 pData[], size_t size, s32 sectorOffset, s32 numSectors, SectorSize sectorSize){
+Result Dev::ReadHostIO2(bit8 pData[], size_t size, s32 sectorOffset, s32 numSectors, SectorSize sectorSize)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(3, 4, 2, 0);
     ipcMsg.SetRaw(1, size);
@@ -57,14 +62,16 @@ Result Dev::ReadHostIO2(bit8 pData[], size_t size, s32 sectorOffset, s32 numSect
 
 
     Result ipcResult = SendSyncRequest(this->m_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result Dev::WriteHostIO2( const bit8 pData[], size_t size, s32 sectorOffset, s32 numSectors, SectorSize sectorSize ){
+Result Dev::WriteHostIO2(const bit8 pData[], size_t size, s32 sectorOffset, s32 numSectors, SectorSize sectorSize)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(4, 4, 2, 0);
     ipcMsg.SetRaw(1, size);
@@ -75,7 +82,8 @@ Result Dev::WriteHostIO2( const bit8 pData[], size_t size, s32 sectorOffset, s32
 
 
     Result ipcResult = SendSyncRequest(this->m_Session);
-    if(ipcResult.IsFailure()){
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

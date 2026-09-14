@@ -11,7 +11,8 @@ namespace internal{
 
 /* gSinCosTbl */
 
-const SinCosSample g_SinCosTbl[256 + 1] ={
+const SinCosSample g_SinCosTbl[256 + 1] =
+{
     0.0f, 1.0f, 0.0245412285229123f, -0.00030118130379575f,
     0.0245412285229123f, 0.999698818696204f, 0.0245264458045057f, -0.000903362491031845f,
     0.049067674327418f, 0.998795456205172f, 0.0244968892722494f, -0.0015049995264822f,
@@ -273,13 +274,15 @@ const SinCosSample g_SinCosTbl[256 + 1] ={
 
 }
 namespace{
-    typedef struct AtanValue{
+    typedef struct AtanValue
+    {
         f32 atan_val;
         f32 atan_delta;
     }ATanValue;
 
-/* sArcTabTbl */    
-    AtanValue sArcTanTbl[32+1] = {
+/* ArcTabTbl */    
+    AtanValue sArcTanTbl[32+1] = 
+    {
         { 0.000000000f, 1.272825321f},
         { 1.272825321f, 1.270345790f},
         { 2.543171111f, 1.265415586f},
@@ -315,7 +318,8 @@ namespace{
         { 32.000000000f, 0.626776175f},
     };
 
-f32 AtanFIdx_(f32 x){
+f32 AtanFIdx_(f32 x)
+{
     u16 idx;
     f32 val;
     f32 r;
@@ -333,7 +337,8 @@ f32 AtanFIdx_(f32 x){
 
 /* Functions */
 
-void SinCosIdx(f32* pSin, f32* pCos, u16 idx){
+void SinCosIdx(f32* pSin, f32* pCos, u16 idx)
+{
     u16 i = idx >> 8;
     u16 d = idx & 0xff;
     f32 fd = U16ToF32(d) * (1.f / 256.f);
@@ -344,14 +349,16 @@ void SinCosIdx(f32* pSin, f32* pCos, u16 idx){
     *pCos = cVal;
 }
 
-f32 SinFIdx(f32 fidx){
+f32 SinFIdx(f32 fidx)
+{
     f32 abs_fidx;
     f32 val;
     u16 idx;
     f32 r;
 
     abs_fidx = FAbs(fidx);
-    while(abs_fidx >= 65536.0f){
+    while(abs_fidx >= 65536.0f)
+    {
         abs_fidx -= 65536.0f;
     }
 
@@ -364,12 +371,14 @@ f32 SinFIdx(f32 fidx){
     return (fidx < 0.0f) ? -val: val;
 }
 
-f32 CosFIdx(f32 fidx){
+f32 CosFIdx(f32 fidx)
+{
     u16 idx;
     f32 r;
 
     fidx = FAbs(fidx);
-    while(fidx >= 65536.0f){
+    while(fidx >= 65536.0f)
+    {
         fidx -= 65536.0f;
     }
 
@@ -380,7 +389,8 @@ f32 CosFIdx(f32 fidx){
     return internal::g_SinCosTbl[idx].cos_val + r * internal::g_SinCosTbl[idx].cos_delta;
 }
 
-void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx){
+void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx)
+{
     NN_FLOAT_TASSERT_(fidx);
 
     u16 idx;
@@ -389,7 +399,8 @@ void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx){
     f32 sVal, cVal;
 
     abs_fidx = FAbs(fidx);
-    while(abs_fidx >= 65536.0f){
+    while(abs_fidx >= 65536.0f)
+    {
         abs_fidx -= 65536.0f;
     }
 
@@ -404,20 +415,27 @@ void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx){
     *pCos = cVal;
 }
 
-f32 AtanFIdx(f32 x){
-    if(x >= 0.f){
-        if(x > 1.f){
+f32 AtanFIdx(f32 x)
+{
+    if(x >= 0.f)
+    {
+        if(x > 1.f)
+        {
             return 64.f - AtanFIdx_(1.f/x);
         }
-        else{
+        else
+        {
             return AtanFIdx_(x);
         }
     }
-    else{
-        if(x < -1.f){
+    else
+    {
+        if(x < -1.f)
+        {
             return -64.f + AtanFIdx_(-1.f/x);
         }
-        else{
+        else
+        {
             return - AtanFIdx_(-x);
         }
     }
@@ -429,26 +447,32 @@ f32 AtanFIdx(f32 x){
 // BAD!
 // So fix it to make it look better.
 
-u16 Atan2Idx(f32 y, f32 x){
+u16 Atan2Idx(f32 y, f32 x)
+{
     f32 a;
     f32 b;
     f32 c;
     bool minus;
 
-    if(x == 0.f && y == 0.f){
+    if(x == 0.f && y == 0.f)
+    {
         return 0;
     }
 
-    if(x >= 0.f){
-        if(y >= 0.f){
-            if(x >= y){
+    if(x >= 0.f)
+    {
+        if(y >= 0.f)
+        {
+            if(x >= y)
+            {
                 // 1
                 a = x;
                 b = y;
                 c = 0.f;
                 minus = false;
             }
-            else{
+            else
+            {
                 // 2
                 a = y;
                 b = x;
@@ -456,15 +480,18 @@ u16 Atan2Idx(f32 y, f32 x){
                 minus = true;
             }
         }
-        else{
-            if(x >= -y){
+        else
+        {
+            if(x >= -y)
+            {
                 // -1
                 a = x;
                 b = -y;
                 c = 256.f;
                 minus = true;
             }
-            else{
+            else
+            {
                 // -2
                 a = -y;
                 b = x;
@@ -473,29 +500,36 @@ u16 Atan2Idx(f32 y, f32 x){
             }
         }
     }
-    else{
-        if(y >= 0.f){
-            if(-x >= y){
+    else
+    {
+        if(y >= 0.f)
+        {
+            if(-x >= y)
+            {
                 a = -x;
                 b = y;
                 c = 128.f;
                 minus = true;
             }
-            else{
+            else
+            {
                 a = y;
                 b = -x;
                 c = 64.f;
                 minus = false;
             }
         }
-        else{
-            if(-x >= -y){
+        else
+        {
+            if(-x >= -y)
+            {
                 a = -x;
                 b = -y;
                 c = 128.f;
                 minus = false;
             }
-            else{
+            else
+            {
                 a = -y;
                 b = -x;
                 c = 192.f;
@@ -507,39 +541,48 @@ u16 Atan2Idx(f32 y, f32 x){
     return F32ToU16((minus ? c - AtanFIdx_(b/a) : c + AtanFIdx_(b/a)) * 256.f);
 }
 
-f32 Atan2FIdx(f32 y, f32 x){
+f32 Atan2FIdx(f32 y, f32 x)
+{
     f32 a;
     f32 b;
     f32 c;
     bool minus;
 
-    if(x == 0.f && y == 0.f){
+    if(x == 0.f && y == 0.f)
+    {
         return 0.f;
     }
 
-    if(x >= 0.f){
-        if(y >= 0.f){
-            if(x >= y){
+    if(x >= 0.f)
+    {
+        if(y >= 0.f)
+        {
+            if(x >= y)
+            {
                 a = x;
                 b = y;
                 c = 0.f;
                 minus = false;
             }
-            else{
+            else
+            {
                 a = y;
                 b = x;
                 c = 64.f;
                 minus = true;
             }
         }
-        else{
-            if(x >= -y){
+        else
+        {
+            if(x >= -y)
+            {
                 a = x;
                 b = -y;
                 c = 0.f;
                 minus = true;
             }
-            else{
+            else
+            {
                 a = -y;
                 b = x;
                 c = - 64.f;
@@ -547,29 +590,36 @@ f32 Atan2FIdx(f32 y, f32 x){
             }
         }
     }
-    else{
-        if(y >= 0.f){
-            if(-x >= y){
+    else
+    {
+        if(y >= 0.f)
+        {
+            if(-x >= y)
+            {
                 a = -x;
                 b = y;
                 c = 128.f;
                 minus = true;
             }
-            else{
+            else
+            {
                 a = y;
                 b = -x;
                 c = 64.f;
                 minus = false;
             }
         }
-        else{
-            if(-x >= -y){
+        else
+        {
+            if(-x >= -y)
+            {
                 a = -x;
                 b = -y;
                 c = - 128.f;
                 minus = false;
             }
-            else{
+            else
+            {
                 a = -y;
                 b = -x;
                 c = - 64.f;

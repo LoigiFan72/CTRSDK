@@ -6,7 +6,8 @@ namespace nn{
 namespace hidlow{
 namespace CTR{
 
-struct DebugPadRawStatus{
+struct DebugPadRawStatus
+{
     bit16 hold;
     bit16 trigger;
     bit16 release;

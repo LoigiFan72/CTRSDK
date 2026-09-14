@@ -16,137 +16,156 @@ namespace nn {
 namespace snd {
 namespace CTR {
 
-DspFxReverb::FilterSize DspFxReverb::s_DefaultFilterSize ={
+DspFxReverb::FilterSize DspFxReverb::s_DefaultFilterSize =
+{
     19 * NN_SND_SAMPLES_PER_FRAME,
     23 * NN_SND_SAMPLES_PER_FRAME,
     13 * NN_SND_SAMPLES_PER_FRAME
 };
 
 DspFxReverb::Param::Param(): 
-    mEarlyReflectionTime(60),
-    mFusedTime(4000),
-    mPreDelayTime(100),
-    mColoration(0.5f),
-    mDamping(0.4f),
-    mpFilterSize(&s_DefaultFilterSize ),
-    mEarlyGain(0.6f),
-    mFusedGain(0.4f),
-    mUseHpfDamping(false)
-{}
+    m_EarlyReflectionTime(60),
+    m_FusedTime(4000),
+    m_PreDelayTime(100),
+    m_Coloration(0.5f),
+    m_Damping(0.4f),
+    m_pFilterSize(&s_DefaultFilterSize ),
+    m_EarlyGain(0.6f),
+    m_FusedGain(0.4f),
+    m_UseHpfDamping(false)
+{
+}
 
 DspFxReverb::DspFxReverb(): 
-    mBuffer(NULL), 
-    mBufferPhysical(NULL), 
-    mBufferSize(0),
-    mIsInitialized(false), 
-    mAuxBusId(AUX_BUS_NULL), 
-    mIsEnabled(false),
-    mProcessCount(0)
-{}
+    m_Buffer(NULL), 
+    m_BufferPhysical(NULL), 
+    m_BufferSize(0),
+    m_IsInitialized(false), 
+    m_AuxBusId(AUX_BUS_NULL), 
+    m_IsEnabled(false),
+    m_ProcessCount(0)
+{
+}
 
-DspFxReverb::~DspFxReverb(){}
+DspFxReverb::~DspFxReverb()
+{
+}
 
-bool DspFxReverb::Initialize(uptr buffer, size_t size) {
-    if (mIsInitialized || buffer == NULL || size == 0)
+bool DspFxReverb::Initialize(uptr buffer, size_t size) 
+{
+    if (m_IsInitialized || buffer == NULL || size == 0)
         return false;
 
     bool ret = this->AssignWorkBuffer(buffer, size);
 
     if (ret)
-        mIsInitialized = true;
+        m_IsInitialized = true;
     return ret;
 }
 
-void DspFxReverb::Finalize(){
-    if(mIsInitialized){
+void DspFxReverb::Finalize()
+{
+    if(m_IsInitialized)
+    {
         this->Detach();
         this->ReleaseWorkBuffer();
-        mIsInitialized = false;
+        m_IsInitialized = false;
     }
 }
 
-bool DspFxReverb::Attach(AuxBusId id) {
-    NN_TASSERTMSG_(mIsInitialized == true, "DspFxReverb is not initialized\n");
-    NN_TASSERTMSG_(mAuxBusId == AUX_BUS_NULL, "DspFxReverb is already attached\n");
+bool DspFxReverb::Attach(AuxBusId id) 
+{
+    NN_TASSERTMSG_(m_IsInitialized == true, "DspFxReverb is not initialized\n");
+    NN_TASSERTMSG_(m_AuxBusId == AUX_BUS_NULL, "DspFxReverb is already attached\n");
     NN_TASSERT_(id == AUX_BUS_A || id == AUX_BUS_B);
 
-    if (!mIsInitialized || mAuxBusId != AUX_BUS_NULL || (id != AUX_BUS_A && id != AUX_BUS_B))
+    if (!m_IsInitialized || m_AuxBusId != AUX_BUS_NULL || (id != AUX_BUS_A && id != AUX_BUS_B))
         return false;
 
     if (!DspFxManager::GetInstance().Attach(DspFxManager::DSP_EFFECT_TYPE_REVERB, id))
         return false;
 
-    mAuxBusId = id;
+    m_AuxBusId = id;
 
     return true;
 }
 
-void DspFxReverb::Detach() {
-    if((!mIsInitialized) && ((mAuxBusId != AUX_BUS_A)  && (mAuxBusId != AUX_BUS_B))){
+void DspFxReverb::Detach() 
+{
+    if((!m_IsInitialized) && ((m_AuxBusId != AUX_BUS_A)  && (m_AuxBusId != AUX_BUS_B)))
+    {
         return;
     }
     this->Disable();
-    DspFxManager::GetInstance().Detach(DspFxManager::DSP_EFFECT_TYPE_REVERB, this->mAuxBusId);
-    mAuxBusId = AUX_BUS_NULL;
+    DspFxManager::GetInstance().Detach(DspFxManager::DSP_EFFECT_TYPE_REVERB, this->m_AuxBusId);
+    m_AuxBusId = AUX_BUS_NULL;
 }
 
-bool DspFxReverb::Enable(bool enable) {
-    NN_TASSERTMSG_((mAuxBusId == AUX_BUS_A || mAuxBusId == AUX_BUS_B) &&mBuffer != NULL && mBufferSize > 0,"DspFxReverb is not initialized\n");
+bool DspFxReverb::Enable(bool enable) 
+{
+    NN_TASSERTMSG_((m_AuxBusId == AUX_BUS_A || m_AuxBusId == AUX_BUS_B) &&mBuffer != NULL && mBufferSize > 0,"DspFxReverb is not initialized\n");
 
-    if ((mAuxBusId != AUX_BUS_A) && (mAuxBusId != AUX_BUS_B))
+    if ((m_AuxBusId != AUX_BUS_A) && (m_AuxBusId != AUX_BUS_B))
         return false;
-    if (mBuffer == NULL || mBufferSize == 0)
+    if (m_Buffer == NULL || m_BufferSize == 0)
         return false;
 
     DspFxReverbParams params;
     params.enable = enable;
     params.ctrl = 1;
 
-    bool ret = DspFxManager::GetInstance().SetDspReverbEffect(this->mAuxBusId, &params);
+    bool ret = DspFxManager::GetInstance().SetDspReverbEffect(this->m_AuxBusId, &params);
 
     if (ret || enable == false)
-        mIsEnabled = enable;
-    if (mIsEnabled == false)
-        mProcessCount = Dspsnd::GetInstance().mProcessCount;
+        m_IsEnabled = enable;
+    if (m_IsEnabled == false)
+        m_ProcessCount = Dspsnd::GetInstance().m_ProcessCount;
     return ret;
 }
 
-bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) {
-    NN_TASSERTMSG_((mAuxBusId == AUX_BUS_A || mAuxBusId == AUX_BUS_B) && mBuffer != NULL && mBufferSize > 0, "DspFxReverb is not initialized\n");
-    if ((mAuxBusId != AUX_BUS_A) && (mAuxBusId != AUX_BUS_B)){
+bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) 
+{
+    NN_TASSERTMSG_((m_AuxBusId == AUX_BUS_A || m_AuxBusId == AUX_BUS_B) && m_Buffer != NULL && m_BufferSize > 0, "DspFxReverb is not initialized\n");
+    if ((m_AuxBusId != AUX_BUS_A) && (m_AuxBusId != AUX_BUS_B))
+    {
         return false;
     }
 
-    if (mBuffer == NULL || mBufferSize == 0){
+    if (m_Buffer == NULL || m_BufferSize == 0)
+    {
         return false;
     }
 
-    NN_TASSERT_(_param.mColoration >= 0.0f && _param.mColoration <= 1.0f);
-    if (_param.mColoration < 0.0f || _param.mColoration > 1.0f){
+    NN_TASSERT_(_param.m_Coloration >= 0.0f && _param.m_Coloration <= 1.0f);
+    if (_param.m_Coloration < 0.0f || _param.m_Coloration > 1.0f)
+    {
         return false;
     }
 
-    NN_TASSERT_(_param.mDamping >= 0.0f && _param.mDamping <= 1.0f);
-    if (_param.mDamping < 0.0f || _param.mDamping > 1.0f){
+    NN_TASSERT_(_param.m_Damping >= 0.0f && _param.m_Damping <= 1.0f);
+    if (_param.m_Damping < 0.0f || _param.m_Damping > 1.0f)
+    {
         return false;
     }
 
-    NN_TASSERT_(_param.mEarlyGain >= 0.0f && _param.mEarlyGain <= 1.0f);
-    if (_param.mEarlyGain < 0.0f || _param.mEarlyGain > 1.0f){
+    NN_TASSERT_(_param.m_EarlyGain >= 0.0f && _param.m_EarlyGain <= 1.0f);
+    if (_param.m_EarlyGain < 0.0f || _param.m_EarlyGain > 1.0f)
+    {
         return false;
     }
 
-    NN_TASSERT_(_param.mFusedGain >= 0.0f && _param.mFusedGain <= 1.0f);
-    if (_param.mFusedGain < 0.0f || _param.mFusedGain > 1.0f){
+    NN_TASSERT_(_param.mFusedGain >= 0.0f && _param.m_FusedGain <= 1.0f);
+    if (_param.m_FusedGain < 0.0f || _param.m_FusedGain > 1.0f)
+    {
         return false;
     }
 
     DspFxReverbParams params;
 
-    s32 earlyDelayFrames = (_param.mEarlyReflectionTime * 1000) / NN_SND_USECS_PER_FRAME;
+    s32 earlyDelayFrames = (_param.m_EarlyReflectionTime * 1000) / NN_SND_USECS_PER_FRAME;
     earlyDelayFrames = math::Max(earlyDelayFrames, 1);
 
-    s32 preDelayFrames = (_param.mPreDelayTime * 1000) / NN_SND_USECS_PER_FRAME;
+    s32 preDelayFrames = (_param.m_PreDelayTime * 1000) / NN_SND_USECS_PER_FRAME;
     preDelayFrames = math::Max(preDelayFrames, 1);
 
     s32 channels = 2;
@@ -155,35 +174,38 @@ bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) {
     params.preDelayFrames = preDelayFrames;
     params.channels = channels;
 
-    f32 fused_time_sec = static_cast<f32>(_param.mFusedTime) / 1000.f;
+    f32 fused_time_sec = static_cast<f32>(_param.m_FusedTime) / 1000.f;
     NN_TASSERT_(fused_time_sec != 0.f);
 
-    FilterSize* pFilterSize = (_param.mpFilterSize ? _param.mpFilterSize : &s_DefaultFilterSize);
-    params.combFrames[0] = static_cast<s32>(pFilterSize->mComb0 / NN_SND_SAMPLES_PER_FRAME);
-    params.combFrames[1] = static_cast<s32>(pFilterSize->mComb1 / NN_SND_SAMPLES_PER_FRAME);
+    FilterSize* pFilterSize = (_param.m_pFilterSize ? _param.m_pFilterSize : &s_DefaultFilterSize);
+    params.combFrames[0] = static_cast<s32>(pFilterSize->m_Comb0 / NN_SND_SAMPLES_PER_FRAME);
+    params.combFrames[1] = static_cast<s32>(pFilterSize->m_Comb1 / NN_SND_SAMPLES_PER_FRAME);
 
     for(s32 i = 0; i < 2; i++){
         f32 comb_coef = std::powf(10.0f, (-3.0f * static_cast<f32>(params.combFrames[i] * NN_SND_SAMPLES_PER_FRAME) / (fused_time_sec * NN_SND_HW_I2S_CLOCK_32KHZ_F32)));
         params.aCombCoefs[i] = static_cast<s32>( static_cast<f32>(0x80L) * comb_coef );
     }
 
-    params.earlyGain = 0x80L * _param.mEarlyGain;
-    params.fusedGain = 0x80L * _param.mFusedGain;
+    params.earlyGain = 0x80L * _param.m_EarlyGain;
+    params.fusedGain = 0x80L * _param.m_FusedGain;
 
-    params.allPassCoef = 0x80L * _param.mColoration;
-    params.allPassFrames = pFilterSize->mAllPass / NN_SND_SAMPLES_PER_FRAME;
+    params.allPassCoef = 0x80L * _param.m_Coloration;
+    params.allPassFrames = pFilterSize->m_AllPass / NN_SND_SAMPLES_PER_FRAME;
 
-    f32 lpf_coef = _param.mDamping;
-    if (lpf_coef > 0.95f){
+    f32 lpf_coef = _param.m_Damping;
+    if (lpf_coef > 0.95f)
+    {
         lpf_coef = 0.95f;
     }
 
     f32 lpf_coef_0, lpf_coef_1;
-    if( _param.mUseHpfDamping == true ){
+    if(_param.m_UseHpfDamping == true)
+    {
         lpf_coef_0 = lpf_coef - 1.f;
         lpf_coef_1 = -lpf_coef;
     }
-    else{
+    else
+    {
         lpf_coef_0 = 1.f - lpf_coef;
         lpf_coef_1 = lpf_coef;
     }
@@ -193,95 +215,109 @@ bool DspFxReverb::SetParam(const DspFxReverb::Param& _param) {
 
     params.ctrl = 4;
 
-    uptr buffer = mBuffer;
+    uptr buffer = m_Buffer;
     size_t size = 0;
     bool ret = true;
-    if (ret){
+    if (ret)
+    {
         const size_t thisSize = channels * NN_SND_SAMPLES_PER_FRAME * earlyDelayFrames * sizeof(s32);
         params.earlyDelayBufferAddress = NN_DSP_32BIT_TO_DSP(os::ConvertAddressForDevice(buffer + size, thisSize));
         size += thisSize;
-        ret = (size <= mBufferSize);
+        ret = (size <= m_BufferSize);
     }
-    if (ret){
+    if (ret)
+    {
         const size_t thisSize = channels * NN_SND_SAMPLES_PER_FRAME * preDelayFrames * sizeof(s32);
         params.preDelayBufferAddress = NN_DSP_32BIT_TO_DSP(os::ConvertAddressForDevice(buffer + size, thisSize));
         size += thisSize;
-        ret = (size <= mBufferSize);
+        ret = (size <= m_BufferSize);
     }
-    if (ret){
-        for (s32 i = 0; i < 2; i++){
+    if (ret)
+    {
+        for (s32 i = 0; i < 2; i++)
+        {
             const size_t thisSize = channels * NN_SND_SAMPLES_PER_FRAME * params.combFrames[i] * sizeof(s32);
             params.combBufferAddress[i] = NN_DSP_32BIT_TO_DSP(os::ConvertAddressForDevice(buffer + size, thisSize));
             size += thisSize;
-            ret = (size <= mBufferSize);
+            ret = (size <= m_BufferSize);
         }
     }
-    if (ret){
+    if (ret)
+    {
         const size_t thisSize = channels * NN_SND_SAMPLES_PER_FRAME * params.allPassFrames * sizeof(s32);
         params.allPassBufferAddress = NN_DSP_32BIT_TO_DSP(os::ConvertAddressForDevice(buffer + size, thisSize));
         size += thisSize;
-        ret = (size <= mBufferSize);
+        ret = (size <= m_BufferSize);
     }
     NN_TASSERTMSG_(ret, "Invalid parameter (requires larger memory than allocated)\n");
 
     params.ctrl |= 2;
 
-    ::std::memset(reinterpret_cast<void*>(mBuffer), 0, mBufferSize);
-    nn::dsp::CTR::FlushDataCache(mBuffer, mBufferSize);
+    ::std::memset(reinterpret_cast<void*>(m_Buffer), 0, m_BufferSize);
+    nn::dsp::CTR::FlushDataCache(m_Buffer, m_BufferSize);
 
-    return DspFxManager::GetInstance().SetDspReverbEffect(mAuxBusId, &params);
+    return DspFxManager::GetInstance().SetDspReverbEffect(m_AuxBusId, &params);
 }
 
-size_t DspFxReverb::GetRequiredMemorySize(const DspFxReverb::Param& _param) {
-    s32 earlyDelayFrames = (_param.mEarlyReflectionTime * 1000) / NN_SND_USECS_PER_FRAME;
+size_t DspFxReverb::GetRequiredMemorySize(const DspFxReverb::Param& _param) 
+{
+    s32 earlyDelayFrames = (_param.m_EarlyReflectionTime * 1000) / NN_SND_USECS_PER_FRAME;
     earlyDelayFrames = math::Max(earlyDelayFrames, 1);
 
-    s32 preDelayFrames = (_param.mPreDelayTime * 1000) / NN_SND_USECS_PER_FRAME;
+    s32 preDelayFrames = (_param.m_PreDelayTime * 1000) / NN_SND_USECS_PER_FRAME;
     preDelayFrames = math::Max(preDelayFrames, 1);
 
-    FilterSize* pFilterSize = (_param.mpFilterSize ? _param.mpFilterSize : &s_DefaultFilterSize);
+    FilterSize* pFilterSize = (_param.m_pFilterSize ? _param.m_pFilterSize : &s_DefaultFilterSize);
     s32 delayLength  = (earlyDelayFrames + preDelayFrames) * NN_SND_SAMPLES_PER_FRAME;
-    s32 filterLength = pFilterSize->mComb0 + pFilterSize->mComb1 + pFilterSize->mAllPass;
+    s32 filterLength = pFilterSize->m_Comb0 + pFilterSize->m_Comb1 + pFilterSize->m_AllPass;
 
     s32 channels = 2;
 
     return (sizeof(s32) * channels * (delayLength + filterLength));
 }
 
-bool DspFxReverb::AssignWorkBuffer(uptr buffer, size_t size) {
-    NN_TASSERTMSG_(mBuffer == NULL, "DspFxReverb is already initialized\n");
-    if (mBuffer){
+bool DspFxReverb::AssignWorkBuffer(uptr buffer, size_t size) 
+{
+    NN_TASSERTMSG_(m_Buffer == NULL, "DspFxReverb is already initialized\n");
+    if (m_Buffer)
+    {
         return false;
     }
 
     uptr deviceAddress = os::ConvertAddressForDevice(buffer, size);
-    if(deviceAddress == NULL){
+    if(deviceAddress == NULL)
+    {
         NN_TASSERTMSG_(false, "Reverb buffer must be in device memory area\n");
         return false;
     }
 
-    mBuffer = buffer;
-    mBufferPhysical = deviceAddress;
-    mBufferSize = size;
+    m_Buffer = buffer;
+    m_BufferPhysical = deviceAddress;
+    m_BufferSize = size;
 
     return true;
 }
 
-void DspFxReverb::ReleaseWorkBuffer(){ 
-    mBuffer = 0; 
-    mBufferPhysical = 0; 
-    mBufferSize = 0; 
+void DspFxReverb::ReleaseWorkBuffer()
+{ 
+    m_Buffer = 0; 
+    m_BufferPhysical = 0; 
+    m_BufferSize = 0; 
 }
 
-bool DspFxReverb::IsBufferInUse() {
-    if (mIsEnabled){
+bool DspFxReverb::IsBufferInUse()
+{
+    if (m_IsEnabled)
+    {
         return true;
     }
-    if (!Dspsnd::GetInstance().m_IsInitialized){
+    if (!Dspsnd::GetInstance().m_IsInitialized)
+    {
         return false;
     }
-    s8 diff = Dspsnd::GetInstance().m_ProcessCount - mProcessCount;
-    if (diff > 2){
+    s8 diff = Dspsnd::GetInstance().m_ProcessCount - m_ProcessCount;
+    if (diff > 2)
+    {
         return false;
     }
     return true;

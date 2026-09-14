@@ -13,27 +13,31 @@ namespace nn{
 namespace fs{
 namespace ipc{
 
-Result FileSystem::SetPriority(int priority){
+Result FileSystem::SetPriority(int priority)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x862, 1, 0, 0);
     ipcMsg.SetRaw(1, priority);
 
 
-    nn::Result ipcResult = SendSyncRequest(mSession);
-    if(ipcResult.IsFailure()){
+    nn::Result ipcResult = SendSyncRequest(m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<nn::Result>(1);
 }
 
-Result FileSystem::GetPriority(int* pOut){
+Result FileSystem::GetPriority(int* pOut)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x863, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -42,7 +46,8 @@ Result FileSystem::GetPriority(int* pOut){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::OpenFile(Handle* pOut, fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength, bit32 mode, fs::Attributes attributes){
+Result FileSystem::OpenFile(Handle* pOut, fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength, bit32 mode, fs::Attributes attributes)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x802, 7, 2, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -55,8 +60,9 @@ Result FileSystem::OpenFile(Handle* pOut, fs::Transaction transaction, bit64 arc
     ipcMsg.SetPointer(9, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -65,7 +71,8 @@ Result FileSystem::OpenFile(Handle* pOut, fs::Transaction transaction, bit64 arc
     return ipcMsg.GetRaw<Result>(1);
 }
 
-nn::Result FileSystem::OpenFileDirectly(nn::Handle* pOut, nn::fs::Transaction transaction, bit32 archiveType, bit32 archivePathType, const bit8 newPath[], size_t newPathLength, bit32 pathType, const bit8 path[], size_t pathLength, bit32 mode, fs::Attributes attributes){
+nn::Result FileSystem::OpenFileDirectly(nn::Handle* pOut, nn::fs::Transaction transaction, bit32 archiveType, bit32 archivePathType, const bit8 newPath[], size_t newPathLength, bit32 pathType, const bit8 path[], size_t pathLength, bit32 mode, fs::Attributes attributes)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x803, 8, 4, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -82,8 +89,9 @@ nn::Result FileSystem::OpenFileDirectly(nn::Handle* pOut, nn::fs::Transaction tr
     ipcMsg.SetPointer(12, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -92,7 +100,8 @@ nn::Result FileSystem::OpenFileDirectly(nn::Handle* pOut, nn::fs::Transaction tr
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::DeleteFile(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength){
+Result FileSystem::DeleteFile(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x804, 5, 2, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -103,15 +112,17 @@ Result FileSystem::DeleteFile(fs::Transaction transaction, bit64 archiveHandle, 
     ipcMsg.SetPointer(7, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::RenameFile(fs::Transaction transaction, bit64 currentArchiveHandle, bit32 currentPathType, const bit8 currentPath[], size_t currentPathLength, bit64 newArchiveHandle, bit32 newPathType, const bit8 newPath[], size_t newPathLength){
+Result FileSystem::RenameFile(fs::Transaction transaction, bit64 currentArchiveHandle, bit32 currentPathType, const bit8 currentPath[], size_t currentPathLength, bit64 newArchiveHandle, bit32 newPathType, const bit8 newPath[], size_t newPathLength)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x805, 9, 4, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -127,15 +138,17 @@ Result FileSystem::RenameFile(fs::Transaction transaction, bit64 currentArchiveH
     ipcMsg.SetPointer(13, newPath);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::DeleteDirectory(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength){
+Result FileSystem::DeleteDirectory(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x806, 5, 2, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -146,15 +159,17 @@ Result FileSystem::DeleteDirectory(fs::Transaction transaction, bit64 archiveHan
     ipcMsg.SetPointer(7, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::DeleteDirectoryRecursively(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength){
+Result FileSystem::DeleteDirectoryRecursively(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x807, 5, 2, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -165,15 +180,17 @@ Result FileSystem::DeleteDirectoryRecursively(fs::Transaction transaction, bit64
     ipcMsg.SetPointer(7, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::CreateFile(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength, fs::Attributes attributes, s64 size){
+Result FileSystem::CreateFile(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength, fs::Attributes attributes, s64 size)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x808, 8, 2, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -186,15 +203,17 @@ Result FileSystem::CreateFile(fs::Transaction transaction, bit64 archiveHandle, 
     ipcMsg.SetPointer(10, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::CreateDirectory(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength, fs::Attributes attributes){
+Result FileSystem::CreateDirectory(fs::Transaction transaction, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength, fs::Attributes attributes)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x809, 6, 2, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -206,15 +225,17 @@ Result FileSystem::CreateDirectory(fs::Transaction transaction, bit64 archiveHan
     ipcMsg.SetPointer(8, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::RenameDirectory(fs::Transaction transaction, bit64 currentArchiveHandle, bit32 currentPathType, const bit8 currentPath[], size_t currentPathLength, bit64 newArchiveHandle, bit32 newPathType, const bit8 newPath[], size_t newPathLength){
+Result FileSystem::RenameDirectory(fs::Transaction transaction, bit64 currentArchiveHandle, bit32 currentPathType, const bit8 currentPath[], size_t currentPathLength, bit64 newArchiveHandle, bit32 newPathType, const bit8 newPath[], size_t newPathLength)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80A, 9, 4, 0);
     ipcMsg.SetRaw(1, transaction);
@@ -230,15 +251,17 @@ Result FileSystem::RenameDirectory(fs::Transaction transaction, bit64 currentArc
     ipcMsg.SetPointer(13, newPath);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::OpenDirectory(Handle* pOut, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength){
+Result FileSystem::OpenDirectory(Handle* pOut, bit64 archiveHandle, bit32 pathType, const bit8 path[], size_t pathLength)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80B, 4, 2, 0);
     ipcMsg.SetRaw(1, archiveHandle);
@@ -248,8 +271,9 @@ Result FileSystem::OpenDirectory(Handle* pOut, bit64 archiveHandle, bit32 pathTy
     ipcMsg.SetPointer(6, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -258,7 +282,8 @@ Result FileSystem::OpenDirectory(Handle* pOut, bit64 archiveHandle, bit32 pathTy
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::OpenArchive(bit64* archiveHandle, bit32 archiveType, bit32 pathType, const bit8* path, size_t pathLength){
+Result FileSystem::OpenArchive(bit64* archiveHandle, bit32 archiveType, bit32 pathType, const bit8* path, size_t pathLength)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80C, 3, 2, 0);
     ipcMsg.SetRaw(1, archiveType);
@@ -268,8 +293,9 @@ Result FileSystem::OpenArchive(bit64* archiveHandle, bit32 archiveType, bit32 pa
     ipcMsg.SetPointer(5, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -278,7 +304,8 @@ Result FileSystem::OpenArchive(bit64* archiveHandle, bit32 archiveType, bit32 pa
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::ControlArchive(bit64 archiveHandle, bit32 tag, const void* inBuffer, size_t inSize, void* outBuffer, size_t outSize ){
+Result FileSystem::ControlArchive(bit64 archiveHandle, bit32 tag, const void* inBuffer, size_t inSize, void* outBuffer, size_t outSize)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80D, 5, 4, 0);
     ipcMsg.SetRaw(1, archiveHandle);
@@ -289,35 +316,40 @@ Result FileSystem::ControlArchive(bit64 archiveHandle, bit32 tag, const void* in
     ipcMsg.SetReceive(8, outBuffer, outSize);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::CloseArchive(bit64 archiveHandle){
+Result FileSystem::CloseArchive(bit64 archiveHandle)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80E, 2, 0, 0);
     ipcMsg.SetRaw(1, archiveHandle);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::IsSdmcDetected( bool* pOut ){
+Result FileSystem::IsSdmcDetected(bool* pOut)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x817, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -326,13 +358,15 @@ Result FileSystem::IsSdmcDetected( bool* pOut ){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::IsSdmcWritable( bool* pOut ){
+Result FileSystem::IsSdmcWritable(bool* pOut)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x818, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -341,29 +375,33 @@ Result FileSystem::IsSdmcWritable( bool* pOut ){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::SetArchivePriority(bit64 archiveHandle, s32 priority){
+Result FileSystem::SetArchivePriority(bit64 archiveHandle, s32 priority)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x85A, 3, 0, 0);
     ipcMsg.SetRaw(1, archiveHandle);
     ipcMsg.SetRaw(3, priority);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::GetArchivePriority(s32* pOut, bit64 archiveHandle){
+Result FileSystem::GetArchivePriority(s32* pOut, bit64 archiveHandle)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x85B, 2, 0, 0);
     ipcMsg.SetRaw(1, archiveHandle);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -372,7 +410,8 @@ Result FileSystem::GetArchivePriority(s32* pOut, bit64 archiveHandle){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::FormatSaveData(bit32 archiveType, bit32 pathType, const bit8 path[], size_t pathLength, u32 sizeBlock, u32 countDirectoryEntry, u32 countFileEntry, u32 countDirectoryEntryBucket, u32 countFileEntryBucket, bool isDuplicateAll){
+Result FileSystem::FormatSaveData(bit32 archiveType, bit32 pathType, const bit8 path[], size_t pathLength, u32 sizeBlock, u32 countDirectoryEntry, u32 countFileEntry, u32 countDirectoryEntryBucket, u32 countFileEntryBucket, bool isDuplicateAll)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x84C, 9, 2, 0);
     ipcMsg.SetRaw(1, archiveType);
@@ -388,37 +427,42 @@ Result FileSystem::FormatSaveData(bit32 archiveType, bit32 pathType, const bit8 
     ipcMsg.SetPointer(11, path);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::InitializeWithSdkVersion(bit32 sdkVersion){
+Result FileSystem::InitializeWithSdkVersion(bit32 sdkVersion)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x861, 1, 2, 0);
     ipcMsg.SetRaw(1, sdkVersion);
     ipcMsg.SetProcessIdHeader(2);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result FileSystem::GetFreeBytes(s64* freeBytes, bit64 archiveHandle){
+Result FileSystem::GetFreeBytes(s64* freeBytes, bit64 archiveHandle)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x812, 2, 0, 0);
     ipcMsg.SetRaw(1, archiveHandle);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure() ){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

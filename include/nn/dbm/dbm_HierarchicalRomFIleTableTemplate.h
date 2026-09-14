@@ -1,13 +1,14 @@
 #pragma once
 
 #include <nn/dbm/dbm_KeyValueRomStorageTemplate.h>
-#include <nn/fnd/fnd_Intrusive.h>
+#include <nn/fnd/fnd_LinkedList.h>
 
 namespace nn{
 namespace dbm{
 
 template <typename DirectoryBucketStorage_,typename DirectoryEntryStorage_,typename FileBucketStorage_,typename FileEntryStorage_>
-class HierarchicalRomFileTableTemplate{
+class HierarchicalRomFileTableTemplate
+{
 private:
     typedef DirectoryBucketStorage_ DirectoryBucketStorage;
     typedef DirectoryEntryStorage_ DirectoryEntryStorage;
@@ -16,12 +17,14 @@ private:
 public:
     typedef u32 StoragePosition;
 
-    struct FindPosition{
+    struct FindPosition
+    {
         StoragePosition nextPositionDirectory;
         StoragePosition nextPositionFile;
     };
 
-    struct DirectoryEntry{
+    struct DirectoryEntry
+    {
         StoragePosition posNext;
         StoragePosition posDirectory;
         StoragePosition posFile;
@@ -29,7 +32,8 @@ public:
 
     typedef detail::RomFileInfo FileInfo;
 
-    struct FileEntry{
+    struct FileEntry
+    {
         StoragePosition  posNext;
         FileInfo info;
     };
@@ -37,7 +41,8 @@ private:
     static const u32 MAX_KEY_LENGTH = RomPathTool::MAX_PATH_LENGTH;
 
     template <class BucketStorage_,class EntryStorage_,class Key_,class Key2_,class Value_>
-    class EntryMapTable  : public KeyValueRomStorageTemplate<BucketStorage_,EntryStorage_,Key_,Value_,MAX_KEY_LENGTH>{
+    class EntryMapTable  : public KeyValueRomStorageTemplate<BucketStorage_,EntryStorage_,Key_,Value_,MAX_KEY_LENGTH>
+    {
     public:
         typedef Key_ Key;
         typedef Key2_ Key2;
@@ -46,24 +51,30 @@ private:
         typedef KeyValueRomStorageTemplate <BucketStorage_,EntryStorage_,Key_,Value_,MAX_KEY_LENGTH>BaseClass;
     
     public:
-        inline Result Get(Position* pOutPosition, Value* pValue, const Key2& key) const{
+        inline Result Get(Position* pOutPosition, Value* pValue, const Key2& key) const
+        {
             return BaseClass::GetInternal(pOutPosition,pValue,key.key,key.Hash(),key.name.path,key.name.length * sizeof(RomPathChar));
         }
 
-        inline Result GetByPosition(Key* pKey, Value* pValue, void* pExtraKey, size_t* pExtraSize, Position pos) const{
+        inline Result GetByPosition(Key* pKey, Value* pValue, void* pExtraKey, size_t* pExtraSize, Position pos) const
+        {
             return BaseClass::GetByPosition(pKey, pValue, pExtraKey, pExtraSize, pos);
         }
     };
 
-    struct RomEntryKey{
+    struct RomEntryKey
+    {
         StoragePosition parentDir;
 
-        inline bool IsEqual(const RomEntryKey& rKey, const void* pExtraKey1, size_t extraSize1, const void* pExtraKey2, size_t extraSize2) const {
-            if (this->parentDir != rKey.parentDir){
+        inline bool IsEqual(const RomEntryKey& rKey, const void* pExtraKey1, size_t extraSize1, const void* pExtraKey2, size_t extraSize2) const 
+        {
+            if (this->parentDir != rKey.parentDir)
+            {
                 return false;
             }
 
-            if (extraSize1 != extraSize2){
+            if (extraSize1 != extraSize2)
+            {
                 return false;
             }
 
@@ -71,16 +82,19 @@ private:
         }
     };
 
-    struct EntryKey{
+    struct EntryKey
+    {
         RomEntryKey key;
         RomPathTool::RomEntryName name;
 
-        inline u32 Hash() const{
+        inline u32 Hash() const
+        {
             u32 v = 123456789;
             v ^= key.parentDir;
             const RomPathChar* pName = name.path;
             const RomPathChar* pNameEnd = pName + name.length;
-            while (pName < pNameEnd){
+            while (pName < pNameEnd)
+            {
                 v = ((v >> 5)|(v << (32-5))) ^ (*pName);
                 pName ++;
             }
@@ -94,11 +108,13 @@ private:
     DirectoryEntryMapTable mTableDirectory;
     FileEntryMapTable mTableFile;
 public:
-    static inline RomFileId PositionToFileId(StoragePosition pos){
+    static inline RomFileId PositionToFileId(StoragePosition pos)
+    {
         return static_cast<RomFileId>(pos);
     }
 
-    static inline StoragePosition FileIdToPosition(RomFileId fileId){
+    static inline StoragePosition FileIdToPosition(RomFileId fileId)
+    {
         return static_cast<StoragePosition>(fileId);
     }
 

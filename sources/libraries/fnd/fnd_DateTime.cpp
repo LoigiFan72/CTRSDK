@@ -35,16 +35,20 @@ const DateTime DateTime::MIN_DATETIME = *(nn::fnd::DateTime*)0;
 
 s32 DateTime::IsLeapYear(s32 year)
 {
-    if (year % 400 == 0){
+    if (year % 400 == 0)
+    {
         return 1;
     }
-    else if (year % 100 == 0){
+    else if (year % 100 == 0)
+    {
         return 0;
     }
-    else if (year % 4 == 0){
+    else if (year % 4 == 0)
+    {
         return 1;
     } 
-    else{
+    else
+    {
         return 0;
     }
 }
@@ -54,15 +58,19 @@ s32 DateTime::DateToDays(s32 year, s32 month, s32 day)
     day -= 1;
     year -= 2000;
 
-    if (month <= 2){
+    if (month <= 2)
+    {
         month += (12 - 3);
         year -= 1;
-    } else{
+    } 
+    else
+    {
         month -= 3;
     }
     int offset = 1;
 
-    if (year < 0){
+    if (year < 0)
+    {
         offset = IsLeapYear(year);
     }
 

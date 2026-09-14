@@ -10,10 +10,10 @@ namespace detail{
 class FileBase : public FileBaseImpl{
 protected:
     typedef util::Int64<s64> S64;
-    S64 mPosition;
-    mutable S64 mSize;
+    S64 m_Position;
+    mutable S64 m_Size;
 public:
-    FileBase() : mPosition(0), mSize(0) {}
+    FileBase() : m_Position(0), m_Size(0) {}
     FileBase(const char* pathName, bit32 mode){ Initialize(pathName, mode); }
     FileBase(const wchar_t* pathName, bit32 mode){ Initialize(pathName, mode); }
     Result TryRead(int*, void*, size_t);
@@ -40,75 +40,90 @@ public:
     void Initialize(const char* pathName, bit32 mode);
 };
 
-inline s32 FileBase::Read(void* buffer, size_t size){
+inline s32 FileBase::Read(void* buffer, size_t size)
+{
     s32 ret;
     NN_ERR_THROW_FATAL_ALL(TryRead(&ret, buffer, size));
     return ret;
 }
 
-inline s32 FileBase::Write(const void* buffer, size_t size, bool flush){
+inline s32 FileBase::Write(const void* buffer, size_t size, bool flush)
+{
     s32 ret;
     NN_ERR_THROW_FATAL_ALL(TryWrite(&ret, buffer, size, flush));
     return ret;
 }
 
-inline void FileBase::Seek(s64 position, PositionBase base){
+inline void FileBase::Seek(s64 position, PositionBase base)
+{
     NN_ERR_THROW_FATAL_ALL(this->TrySeek(position, base));
 }
 
-inline s64 FileBase::GetPosition() const{
+inline s64 FileBase::GetPosition() const
+{
     s64 ret;
     NN_ERR_THROW_FATAL_ALL(TryGetPosition(&ret));
     return ret;
 }
 
-inline void FileBase::SetPosition(s64 position){
+inline void FileBase::SetPosition(s64 position)
+{
     NN_ERR_THROW_FATAL_ALL(TrySetPosition(position));
 }
 
-inline s64 FileBase::GetSize() const{
+inline s64 FileBase::GetSize() const
+{
     s64 ret;
     NN_ERR_THROW_FATAL_ALL(TryGetSize(&ret));
     return ret;
 }
 
-inline void FileBase::SetSize(s64 size){
+inline void FileBase::SetSize(s64 size)
+{
     NN_ERR_THROW_FATAL_ALL(TrySetSize(size));
 }
 
-inline void FileBase::Flush(){
+inline void FileBase::Flush()
+{
     NN_ERR_THROW_FATAL_ALL(TryFlush());
 }
 
-inline Result FileBase::TryGetPosition(s64* pOut) const{
-    *pOut = mPosition;
+inline Result FileBase::TryGetPosition(s64* pOut) const
+{
+    *pOut = m_Position;
     return ResultSuccess();
 }
 
-inline Result FileBase::TryInitialize(const wchar_t* pathName, bit32 mode){
-    this->mPosition = this->mSize = 0;
+inline Result FileBase::TryInitialize(const wchar_t* pathName, bit32 mode)
+{
+    this->m_Position = this->m_Size = 0;
     return TryOpenImpl(pathName, mode);
 }
 
-inline Result FileBase::TryInitialize(const char* pathName, bit32 mode){
+inline Result FileBase::TryInitialize(const char* pathName, bit32 mode)
+{
     static const size_t BUF_SIZE = MAX_FILE_PATH_LENGTH + 1;
     wchar_t buffer[BUF_SIZE];
     ConvertMbsToWcs(buffer, MAX_FILE_PATH_LENGTH, pathName);
     return TryInitialize(buffer, mode);
 }
 
-inline void FileBase::Initialize(const wchar_t* pathName, bit32 mode){
+inline void FileBase::Initialize(const wchar_t* pathName, bit32 mode)
+{
     Result result = TryInitialize(pathName, mode);
-        if (result.IsFailure()){
+    if (result.IsFailure())
+    {
         NN_SLOG_("file open failed: ");
         NN_SLOG_("%lls\n", pathName);
         NN_ERR_THROW_FATAL_ALL(result);
     }
 }
 
-inline void FileBase::Initialize(const char* pathName, bit32 mode){
+inline void FileBase::Initialize(const char* pathName, bit32 mode)
+{
     Result result = TryInitialize(pathName, mode);
-        if (result.IsFailure()){
+    if (result.IsFailure())
+    {
         NN_SLOG_("file open failed: ");
         NN_SLOG_("%s\n", pathName);
         NN_ERR_THROW_FATAL_ALL(result);

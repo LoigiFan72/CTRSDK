@@ -13,7 +13,8 @@ struct CecAllocFunc
     void  (*freeFunc)(void*);
 };
 
-class CecControl{
+class CecControl
+{
 public:
     explicit  CecControl(size_t bufSize);
     CecControl();

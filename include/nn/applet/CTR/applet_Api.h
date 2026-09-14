@@ -1,8 +1,8 @@
 #pragma once
 
-#include <nn/applet/CTR/applet_Paramaters.h>
 #include <nn/applet/CTR/applet_Result.h>
-#include <nn/fnd/fnd_TimeSpan.h>
+#include <nn/applet/CTR/applet_Paramaters.h>
+#include <nn/fnd/fnd_DateTime.h>
 #include <nn/fs.h>
 #include <nn/os/os_TransferMemoryBlock.h>
 #include <nn/os/os_Thread.h>
@@ -93,13 +93,15 @@ namespace detail{
     Result Wrap(void* pWrappedBuffer, const void* pData, size_t dataSize, s32 idOffset, size_t idSize);
     Result Unwrap(void* pData, const void* pWrapped, size_t wrappedSize, s32 idOffset, size_t idSize);
 
-    struct LockTransitionParam{
+    struct LockTransitionParam
+    {
         u32 action;
         bool isForced;
         s8 rev[3];
     };
 
-    inline void WaitBySleep(int msecs){
+    inline void WaitBySleep(int msecs)
+    {
         fnd::TimeSpan span = fnd::TimeSpan::FromMilliSeconds(msecs);
         os::Thread::Sleep(span);
     }

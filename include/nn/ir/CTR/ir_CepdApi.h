@@ -6,7 +6,8 @@ namespace nn{
 namespace ir{
 namespace CTR{
 
-enum CepdStatus{
+enum CepdStatus
+{
     CEPD_STATUS_NOT_INITIALIZED = 0,
     CEPD_STATUS_NOT_CONNECTED = 1,
     CEPD_STATUS_TRY_TO_CONNECT = 2,

@@ -16,23 +16,28 @@ namespace {
     AppletWakeupState s_InitialWakeupState;
 }
 
-u8* GetInitialParamBuffer(){
+u8* GetInitialParamBuffer()
+{
     return s_InitializeParamBuffer;
 }
 
-void SetInitialParamSenderId(AppletId id){
+void SetInitialParamSenderId(AppletId id)
+{
     s_InitialSenderId = id;
 }
 
-void SetInitialParamSenderSize(s32 size){
+void SetInitialParamSenderSize(s32 size)
+{
     s_InitialParamBufferSize = size;
 }
 
-void SetInitialParamValid(){
+void SetInitialParamValid()
+{
     s_IsInitialParamValid = true;
 }
 
-void SetInitialWakeupState(WakeupState state){
+void SetInitialWakeupState(WakeupState state)
+{
     s_InitialWakeupState = state;
 }
 

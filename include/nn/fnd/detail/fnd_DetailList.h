@@ -6,10 +6,10 @@ namespace nn{
 namespace fnd{
 namespace detail{
 
-    void RemoveListObject(NNSFndList* list, void* object); // 100%
-    void AppendListObject(NNSFndList* list, void* object); // 100%
-    void* GetNextListObject(NNSFndList* list, void* object); // 100%
-    void InitList(NNSFndList* link, ushort offset); // 100%
+    void RemoveListObject(NNSFndList* list, void* object);
+    void AppendListObject(NNSFndList* list, void* object);
+    void* GetNextListObject(NNSFndList* list, void* object);
+    void InitList(NNSFndList* link, ushort offset);
 
 }
 }

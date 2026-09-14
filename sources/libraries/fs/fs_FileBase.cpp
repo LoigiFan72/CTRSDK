@@ -12,10 +12,12 @@ namespace detail{
 
 Result FileBase::TryRead(s32* pOut, void* buffer, size_t size) {
     u32 n = 0;
-    if (size != 0) {
-        while (true) {
+    if (size != 0) 
+    {
+        while (true) 
+        {
             s32 bytesRead;
-            NN_UTIL_RETURN_IF_FAILED(FileBaseImpl::TryRead(&bytesRead, this->mPosition, buffer, size));
+            NN_UTIL_RETURN_IF_FAILED(FileBaseImpl::TryRead(&bytesRead, this->m_Position, buffer, size));
 
             n += bytesRead;
             mPosition += bytesRead;
@@ -33,13 +35,15 @@ Result FileBase::TryRead(s32* pOut, void* buffer, size_t size) {
 
 Result FileBase::TryWrite(int* pOut, const void* pBuffer, size_t size, bool flush=true){
     u32 n = 0;
-    if (size != 0) {
-        while (true) {
+    if (size != 0) 
+    {
+        while (true) 
+        {
             s32 bytesRead;
-            NN_UTIL_RETURN_IF_FAILED(FileBaseImpl::TryWrite(&bytesRead, this->mPosition, pBuffer, size, flush));
+            NN_UTIL_RETURN_IF_FAILED(FileBaseImpl::TryWrite(&bytesRead, this->m_Position, pBuffer, size, flush));
 
             n += bytesRead;
-            mPosition += bytesRead;
+            m_Position += bytesRead;
 
             if (bytesRead == size || bytesRead == 0)
                 break;
@@ -52,11 +56,14 @@ Result FileBase::TryWrite(int* pOut, const void* pBuffer, size_t size, bool flus
     return ResultSuccess();
 }
 
-Result FileBase::TrySeek(s64 position, PositionBase base){
-    switch (base){
+Result FileBase::TrySeek(s64 position, PositionBase base)
+{
+    switch (base)
+    {
         case BASE_BEGIN: break;
-        case BASE_CURRENT: position += mPosition; break;
-        case BASE_END:{
+        case BASE_CURRENT: position += m_Position; break;
+        case BASE_END:
+        {
             s64 size;
             NN_UTIL_RETURN_IF_FAILED(TryGetSize(&size));
             position += size;
@@ -67,15 +74,20 @@ Result FileBase::TrySeek(s64 position, PositionBase base){
     return this->TrySetPosition(position);
 }
 
-Result FileBase::TrySetPosition(s64 position){
-    if (position < 0){
+Result FileBase::TrySetPosition(s64 position)
+{
+    if (position < 0)
+    {
         return ResultInvalidPosition();
     }
-    if (position >= mSize){
+
+    if (position >= m_Size)
+    {
         s64 size;
         NN_UTIL_RETURN_IF_FAILED(TryGetSize(&size));
-        NN_TASSERT_(size == this->mSize);
-        if (position > size){
+        NN_TASSERT_(size == m_Size);
+        if (position > size)
+        {
             return ResultInvalidPosition();
         }
     }
@@ -83,32 +95,39 @@ Result FileBase::TrySetPosition(s64 position){
     return ResultSuccess();
 }
 
-Result FileBase::TryGetSize(s64* pOut) const{
+Result FileBase::TryGetSize(s64* pOut) const
+{
     nn::util::Int64<s64>* pointer;
     s64 ret;
     Result res = this->FileBaseImpl::TryGetSize(&ret);
-    if(res.IsSuccess()){
-        this->mSize = ret;
+    if(res.IsSuccess())
+    {
+        this->m_Size = ret;
         *pOut = ret;
     }
-    else{
-        this->mSize = 0LL;
+    else
+    {
+        this->m_Size = 0LL;
     }
     return res;
 }
 
-Result FileBase::TrySetSize(s64 size){
+Result FileBase::TrySetSize(s64 size)
+{
     Result res = FileBaseImpl::TrySetSize(size);
-    if (res.IsSuccess()){
-        this->mSize = size;
-        if (mSize < mPosition){
-            this->mPosition = mSize;
+    if (res.IsSuccess())
+    {
+        this->m_Size = size;
+        if (m_Size < m_Position)
+        {
+            this->m_Position = m_Size;
         }
     }
     return res;
 }
 
-Result FileBase::TryFlush(){
+Result FileBase::TryFlush()
+{
     return this->FileBaseImpl::TryFlush();
 }
 

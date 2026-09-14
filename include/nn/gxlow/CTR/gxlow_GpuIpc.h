@@ -8,13 +8,16 @@ namespace nn{
 namespace gxlow{
 namespace CTR{
 
-class Gpu{
+class Gpu
+{
 public:
-    Handle mSession;
+    Handle m_Session;
 public:
     Gpu(Handle session):
-        mSession(session)
-    {}
+        m_Session(session)
+    {
+    }
+
     Result AcquireRight(Handle eventHandle, bool forced);
     Result FlushDataCache(Handle clientProcess, uptr addr, size_t size);
     Result ImportDisplayCaptureInfo(DisplayCaptureInfo* info);

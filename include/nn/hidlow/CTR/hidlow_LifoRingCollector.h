@@ -8,17 +8,17 @@ namespace CTR{
 
 class LifoRingCollector{
 private:
-    PadLifoRing mPadLifoRing;
-    TouchPanelLifoRing mTouchPanelLifoRing;
-    AccelerometerLifoRing mAccelerometerLifoRing;
-    GyroscopeLowLifoRing mGyroscopeLowLifoRing;
-    DebugPadLifoRing mDebugPadLifoRing;
+    PadLifoRing m_PadLifoRing;
+    TouchPanelLifoRing m_TouchPanelLifoRing;
+    AccelerometerLifoRing m_AccelerometerLifoRing;
+    GyroscopeLowLifoRing m_GyroscopeLowLifoRing;
+    DebugPadLifoRing m_DebugPadLifoRing;
 public:
-    PadLifoRing* GetPadLifoRingAddress(){ return &this->mPadLifoRing; }
-    TouchPanelLifoRing* GetTouchPanelLifoRingAddress(){ return &this->mTouchPanelLifoRing; }
-    AccelerometerLifoRing* GetAccelerometerLifoRingAddress(){ return &this->mAccelerometerLifoRing; }
-    GyroscopeLowLifoRing* GetGyroscopeLowLifoRingAddress(){ return &this->mGyroscopeLowLifoRing; }
-    DebugPadLifoRing* GetDebugPadLifoRingAddress(){ return &this->mDebugPadLifoRing; }
+    PadLifoRing* GetPadLifoRingAddress(){ return &this->m_PadLifoRing; }
+    TouchPanelLifoRing* GetTouchPanelLifoRingAddress(){ return &this->m_TouchPanelLifoRing; }
+    AccelerometerLifoRing* GetAccelerometerLifoRingAddress(){ return &this->m_AccelerometerLifoRing; }
+    GyroscopeLowLifoRing* GetGyroscopeLowLifoRingAddress(){ return &this->m_GyroscopeLowLifoRing; }
+    DebugPadLifoRing* GetDebugPadLifoRingAddress(){ return &this->m_DebugPadLifoRing; }
 };
 }
 }

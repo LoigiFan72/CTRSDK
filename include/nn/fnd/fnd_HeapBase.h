@@ -1,8 +1,7 @@
 #pragma once
 
-#include "nn/types.h"
-#include "nn/util/util_NonCopyable.h"
-#include "nn/fnd/fnd_Intrusive.h"
+#include <nn/util/util_NonCopyable.h>
+#include <nn/fnd/fnd_LinkedList.h>
 
 // Some macros for it, needed
 #define NN_FND_HEAP_DEFAULT_ALIGNMENT   4
@@ -15,24 +14,28 @@
 namespace nn{ 
 namespace fnd{
 
-enum HeapFillType {
+enum HeapFillType 
+{
     HEAP_FILL_TYPE_NOUSE,
     HEAP_FILL_TYPE_ALLOC,
     HEAP_FILL_TYPE_FREE,
     HEAP_FILL_TYPE_MAX
 };
 
-enum HeapInfoPlacement {
+enum HeapInfoPlacement 
+{
     HEAP_INFOPLACEMENT_HEAD,
     HEAP_INFOPLACEMENT_TAIL
 };
 
-enum HeapAdjustMode {
+enum HeapAdjustMode 
+{
     HEAP_ADJUST_TAIL = 1,
     HEAP_ADJUST_HEAD = -1
 };
 
-class HeapBase : public IntrusiveLinkedList<HeapBase>::Item {
+class HeapBase : public IntrusiveLinkedList<HeapBase>::Item 
+{
 public:
     HeapBase() {}
     static const s32 DEFAULT_ALIGNMENT = 4;
@@ -51,27 +54,33 @@ public:
     void Destroy(HeapBase* child);
 
 protected:
-    void Initialize(bit32 option){ mOption = option; }
+    void Initialize(bit32 option){ m_Option = option; }
 
     void SetParent(HeapBase* parent);
 
-    void FillMemoryZero(uptr addr, size_t size){
-        if(mOption & NN_FND_HEAP_OPTION_ZERO_CLEAR){
+    void FillMemoryZero(uptr addr, size_t size)
+    {
+        if(m_Option & NN_FND_HEAP_OPTION_ZERO_CLEAR)
+        {
             this->FillMemory32(addr, addr + size, 0);
         }
     }
 
-    static uptr RoundDown(uptr addr, s32 alignment){
+    static uptr RoundDown(uptr addr, s32 alignment)
+    {
         return (addr / alignment) * alignment;
     }
 
-    static uptr RoundUp(uptr addr, s32 alignment){
+    static uptr RoundUp(uptr addr, s32 alignment)
+    {
         return RoundDown(addr + alignment - 1, alignment);
     }
 
-#ifdef NN_DEBUG
-    void DebugFillMemory(uptr addr, size_t size, HeapFillType type){
-        if(this->mOption & NN_FND_HEAP_OPTION_DEBUG_FILL){
+#ifdef NN_BUILD_DEBUG
+    void DebugFillMemory(uptr addr, size_t size, HeapFillType type)
+    {
+        if(this->m_Option & NN_FND_HEAP_OPTION_DEBUG_FILL)
+        {
             this->FillMemory32(addr, addr + size, GetFillValue(type));
         }
     }
@@ -80,9 +89,9 @@ protected:
 #endif
 
 private:
-    HeapBase* mParent;
-    IntrusiveLinkedList<HeapBase> mChildren;
-    bit32 mOption;
+    HeapBase* m_Parent;
+    IntrusiveLinkedList<HeapBase> m_Children;
+    bit32 m_Option;
 
     static void FillMemory(uptr addr, uptr end, bit8 value);
     static void FillMemory32(uptr addr, uptr end, bit32 value);
@@ -90,7 +99,8 @@ private:
 
 typedef u32 NNSiUIntPtr;
 
-inline NNSiUIntPtr NNSiGetUIntPtr(const void* ptr){
+inline NNSiUIntPtr NNSiGetUIntPtr(const void* ptr)
+{
     return (NNSiUIntPtr)ptr;
 }
 

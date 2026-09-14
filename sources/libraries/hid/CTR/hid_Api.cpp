@@ -34,7 +34,8 @@ Result HidDevices::Initialize(const char* portName)
     Handle accelerometerEventHandle;
     Handle gyroscopeEventHandle;
     Handle debugPadEventHandle;
-    if(isInitialized){
+    if(isInitialized)
+    {
         return MakeResultAlreadyInitialized();
     }
 
@@ -68,9 +69,11 @@ Result HidDevices::Initialize(const char* portName)
     return ResultSuccess();
 }
 
-void HidDevices::Finalize(){
+void HidDevices::Finalize()
+{
     Result res;
-    if(isInitialized){
+    if(isInitialized)
+    {
         res = svc::CloseHandle(this->pad.DetachHandle());
         NN_UTIL_PANIC_IF_FAILED(res);
 
@@ -98,39 +101,46 @@ void HidDevices::Finalize(){
     }
 }
 
-void Finalize(){
+void Finalize()
+{
     s_Devices.Finalize();
 }
 
-Result Initialize(){
+Result Initialize()
+{
     return s_Devices.Initialize(PORT_NAME_USER);
 }
 
-Pad& GetPad(){
+Pad& GetPad()
+{
     NN_TASSERT_(isInitialized);
 
     return s_Devices.pad;
 }
 
-DebugPad& GetDebugPad(){
+DebugPad& GetDebugPad()
+{
     NN_TASSERT_(isInitialized);
 
     return s_Devices.debugPad;
 }
 
-TouchPanel& GetTouchPanel(){
+TouchPanel& GetTouchPanel()
+{
     NN_TASSERT_(isInitialized);
 
     return s_Devices.touchPanel;
 }
 
-Accelerometer& GetAccelerometer(){
+Accelerometer& GetAccelerometer()
+{
     NN_TASSERT_(isInitialized);
     
     return s_Devices.accelerometer;
 }
 
-Gyroscope& GetGyroscope(){
+Gyroscope& GetGyroscope()
+{
     NN_TASSERT_(isInitialized);
 
     return s_Devices.gyroscope;

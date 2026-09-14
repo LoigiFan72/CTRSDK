@@ -18,11 +18,13 @@ namespace analysis{
 bool s_AnalysisLog = false;
 nn::os::CriticalSection s_AnalysisLogLock = nn::os::CriticalSection(nn::WithInitialize());
 
-bool IsAnalysisLogEnabled(){
+bool IsAnalysisLogEnabled()
+{
     return s_AnalysisLog;
 } 
 
-void FsAnalysisLog(nn::Result result, nn::os::Tick tickStart, const char* fmt, ...){
+void FsAnalysisLog(nn::Result result, nn::os::Tick tickStart, const char* fmt, ...)
+{
     NN_TASSERT_(nn::fs::analysis::IsAnalysisLogEnabled());
 
     nn::os::CriticalSection::ScopedLock lock(s_AnalysisLogLock);
@@ -45,7 +47,9 @@ void FsAnalysisLog(nn::Result result, nn::os::Tick tickStart, const char* fmt, .
 
 #else
 
-void FsAnalysisLog(nn::Result, nn::os::Tick, const char*, ...) {}
+void FsAnalysisLog(nn::Result, nn::os::Tick, const char*, ...) 
+{
+}
 
 #endif
 }

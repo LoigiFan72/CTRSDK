@@ -6,7 +6,8 @@
 namespace nn{
 namespace snd{
 namespace CTR{
-    struct DspsndAudioInfo{
+    struct DspsndAudioInfo
+    {
         u8 nChannels;
         u8 format;
         u8 isFrontBypass;
@@ -14,7 +15,8 @@ namespace CTR{
         u8 is3dSoundPreprocessed;
     };
 
-    struct DspsndChannelPlayVars{
+    struct DspsndChannelPlayVars
+    {
         u8 playState;
         u8 isBufJumped;
         short syncCount;
@@ -23,11 +25,13 @@ namespace CTR{
         ushort lastBufferId;
     };
 
-    struct DspsndChannelStatus{
+    struct DspsndChannelStatus
+    {
         DspsndChannelPlayVars play_vars_rps;
     };
 
-    struct DspsndDmaTransInfo{
+    struct DspsndDmaTransInfo
+    {
         u32 srcIniAddress;
         u32 srcIniPlayLen;
         DspsndAudioInfo audioInfo;
@@ -38,7 +42,8 @@ namespace CTR{
         ushort bufferId;
     };
 
-    struct DspsndDspCycles0{
+    struct DspsndDspCycles0
+    {
         s32 frame;
         s32 btdmp;
         s32 whole;
@@ -46,7 +51,8 @@ namespace CTR{
         s32 sound;
     };
 
-    struct DspsndDspCycles1{
+    struct DspsndDspCycles1
+    {
         s32 voice[24];
         s32 timer[24];
         s32 align[24];
@@ -58,12 +64,14 @@ namespace CTR{
         s32 aux;
     };
  
-    struct DspsndDspCycles{
+    struct DspsndDspCycles
+    {
         DspsndDspCycles0 ch0;
         DspsndDspCycles1 ch1;
     };
 
-    struct DspsndMasterPlayParam{
+    struct DspsndMasterPlayParam
+    {
         BusVolume volMaster;
         BusVolume volAux[2];
         u16 outputBufferCount;
@@ -84,23 +92,27 @@ namespace CTR{
         u16 padding;
     };
 
-    struct DspsndMasterDirect{
+    struct DspsndMasterDirect
+    {
         u32 ctrl;
         DspsndMasterPlayParam param;
         u32 ctrl2;
     };
 
-    struct DspsndMasterStatus{
+    struct DspsndMasterStatus
+    {
         ushort control;
         ushort droppedFrameCount;
         ushort rev[14];
     };
 
-    struct DspsndChannelOption{
+    struct DspsndChannelOption
+    {
         AdpcmParam adpcm_param;
     };
     
-    struct DspsndNextBuffer{
+    struct DspsndNextBuffer
+    {
         u32 bufAddress;
         s32 bufLength;
         AdpcmContext adpcmContext;
@@ -110,7 +122,8 @@ namespace CTR{
         u16 padding;
     };
 
-    struct DspsndChannelPlayParam{
+    struct DspsndChannelPlayParam
+    {
         f32 vol[3][4];
         f32 timer;
         u8 rimSelect;
@@ -123,14 +136,16 @@ namespace CTR{
         u32 srcRepStartSmpl;
     };
 
-    struct DspsndChannelDirect{
+    struct DspsndChannelDirect
+    {
         u32 ctrl;
         DspsndChannelPlayParam play_param;
         DspsndChannelPlayVars play_vars;
         DspsndDmaTransInfo src_inf;
     };
 
-    struct SndCommand{
+    struct SndCommand
+    {
         ushort command;
         ushort hole;
     };

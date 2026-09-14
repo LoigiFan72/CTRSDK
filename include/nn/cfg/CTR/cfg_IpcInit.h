@@ -7,7 +7,8 @@ namespace cfg{
 namespace CTR{
 namespace detail{
 
-class IpcInit{
+class IpcInit
+{
 public:
     static nn::Handle s_Session;
 };

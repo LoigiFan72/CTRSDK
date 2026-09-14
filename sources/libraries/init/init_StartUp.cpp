@@ -6,7 +6,9 @@
 #include <nn/os/os_Initialize.h>
 #include <nn/os/CTR/os_ErrorHandler.h>
 #include <nn/ndm/ndm_Setup.h>
-#include <nn/applet/CTR/applet_API.h>
+#if defined(NN_VERSION_MAJOR) && NN_VERSION_MAJOR > 0
+    #include <nn/applet/CTR/applet_API.h>
+#endif
 
 #define NN_SYSTEM_DEFAULT_HEAP_SIZE     0x00800000
 
@@ -34,6 +36,27 @@ void nninitCallStaticInitializers()
     {
         (*f)();
     }
+}
+
+namespace nn {
+namespace applet {
+namespace CTR {
+namespace detail {
+
+typedef unsigned int AppletId;
+
+#if defined(NN_VERSION_MAJOR) && NN_VERSION_MAJOR == 0
+
+    Result Initialize(AppletId id)
+    {
+        return ResultSuccess();
+    }
+#endif
+
+    extern Result Initialize(AppletId id);
+}
+}
+}
 }
 
 void nninitSetup()

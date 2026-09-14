@@ -9,12 +9,13 @@ namespace ipc{
 
 class Directory{
 public:
-    nn::Handle mSession;
+    nn::Handle m_Session;
 
     Directory(){ }
     Directory(Handle session): 
-        mSession(session) 
-    {}
+        m_Session(session) 
+    {
+    }
     Result Read(s32* pNumEntriesOut, fs::DirectoryEntry pEntries[], s32 numEntries); 
     Result Close();
     Result SetPriority(s32 priority);

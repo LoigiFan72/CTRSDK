@@ -14,12 +14,16 @@ namespace nn {
 namespace gxlow {
 namespace CTR {
 namespace detail{
-    inline Result EnqueueCmdReq(const CmdReq* pReq){ 
-        return GetInterruptReceiver()->GetCmdReqQueue()->TryEnqueue(pReq); 
-    }
+
+inline Result EnqueueCmdReq(const CmdReq* pReq)
+{ 
+    return GetInterruptReceiver()->GetCmdReqQueue().TryEnqueue(pReq); 
+}
+
 }
 namespace{
-    static const bit32 DefaultCmdReqPacket[] ={
+    static const bit32 DefaultCmdReqPacket[] =
+    {
         0x01000100, 0x00000000, 0x00000000, 0x00000000,
         0x00000000, 0x00000000, 0x00000000, 0x00000000
     };
@@ -29,12 +33,14 @@ namespace{
 
 }
 
-void SetSyncMode(bool mode){
+void SetSyncMode(bool mode)
+{
     s_SyncMode = mode;
 }
 
 
-void WriteHWRegs(u32 regOffset, const void* pSrc, size_t size){
+void WriteHWRegs(u32 regOffset, const void* pSrc, size_t size)
+{
     NN_TASSERT_(pSrc != NULL);
     NN_TASSERT_(regOffset % 4 == 0);
     NN_TASSERT_(size % 4 == 0);
@@ -49,7 +55,8 @@ void WriteHWRegs(u32 regOffset, const void* pSrc, size_t size){
     return;
 }
 
-void WriteHWRegsWithMask(u32 regOffset, const void* pSrc,const void* pMask, size_t size){
+void WriteHWRegsWithMask(u32 regOffset, const void* pSrc,const void* pMask, size_t size)
+{
     NN_TASSERT_(pSrc != NULL);
     NN_TASSERT_(pMask != NULL);
     NN_TASSERT_(regOffset % 4 == 0);
@@ -64,7 +71,8 @@ void WriteHWRegsWithMask(u32 regOffset, const void* pSrc,const void* pMask, size
     return;
 }
 
-void ReadHWRegs(u32 regOffset, void* pDst, size_t size){
+void ReadHWRegs(u32 regOffset, void* pDst, size_t size)
+{
     NN_TASSERT_(pDst != NULL);
     NN_TASSERT_(regOffset % 4 == 0);
     NN_TASSERT_(size % 4 == 0);
@@ -78,7 +86,8 @@ void ReadHWRegs(u32 regOffset, void* pDst, size_t size){
     return;
 }
 
-void SetBufferSwap(s32 channel,s32 nextBank,void* pBuf,void* pBufB,u32 size,bit32 mode,bit32 swap){
+void SetBufferSwap(s32 channel,s32 nextBank,void* pBuf,void* pBufB,u32 size,bit32 mode,bit32 swap)
+{
     NN_TASSERT_(channel == 0 || channel == 1);
     NN_TASSERT_(nextBank == 0 || nextBank == 1);
 
@@ -99,14 +108,15 @@ void SetBufferSwap(s32 channel,s32 nextBank,void* pBuf,void* pBufB,u32 size,bit3
         info.swap = swap;
         info.attribute = 0;
         
-        result = detail::GetInterruptReceiver()->GetSwapInfoPad()->Push(&info, channel);
+        result = detail::GetInterruptReceiver()->GetSwapInfoPad().Push(&info, channel);
     }
 
     NN_GXLOW_RESULT_ASSERT(result, "[gxlow::SetSwapSettings]");
     return;
 }
 
-void SetTextureCopy(void* pSrc,void* pDst,u32 dmaSize,u16 srcIntv,u16 srcIntiv,u16 dstIntv,u16 dstIntiv,bit32 mode){
+void SetTextureCopy(void* pSrc,void* pDst,u32 dmaSize,u16 srcIntv,u16 srcIntiv,u16 dstIntv,u16 dstIntiv,bit32 mode)
+{
     nn::Result result;
 
     NN_GX_ASSERT_DEVICE_MEMORY_OR_VRAM(reinterpret_cast<uptr>(pDst));
@@ -131,7 +141,8 @@ void SetTextureCopy(void* pSrc,void* pDst,u32 dmaSize,u16 srcIntv,u16 srcIntiv,u
     return;
 }
 
-void SetCommandlist(void* pCmdBuf,size_t size,bool flushCache,bool autoGasAcc){
+void SetCommandlist(void* pCmdBuf,size_t size,bool flushCache,bool autoGasAcc)
+{
     NN_TASSERT_(reinterpret_cast<uptr>(pCmdBuf) % 8 == 0);
     NN_TASSERT_(size % 8 == 0);
 
@@ -140,7 +151,8 @@ void SetCommandlist(void* pCmdBuf,size_t size,bool flushCache,bool autoGasAcc){
     {
         detail::CmdReq  req;
         
-        if (flushCache){
+        if (flushCache)
+        {
             req = *DefaultCmdReq;
             req.id                   = detail::REQ_ID_CACHE_FLUSH;
             req.sync                 = false;
@@ -150,7 +162,8 @@ void SetCommandlist(void* pCmdBuf,size_t size,bool flushCache,bool autoGasAcc){
             result = EnqueueCmdReq(&req);
         }
         
-        if (result.IsSuccess()){
+        if (result.IsSuccess())
+        {
             req = *DefaultCmdReq;
             req.id                   = detail::REQ_ID_3D_CMD;
             req.sync                 = s_SyncMode;
@@ -165,7 +178,8 @@ void SetCommandlist(void* pCmdBuf,size_t size,bool flushCache,bool autoGasAcc){
     return;
 }
 
-void SetDisplayTransfer(void* pSrc,u16 srcWidth,u16 srcHeight,void* pDst,u16 dstWidth,u16 dstHeight,bit32 mode){
+void SetDisplayTransfer(void* pSrc,u16 srcWidth,u16 srcHeight,void* pDst,u16 dstWidth,u16 dstHeight,bit32 mode)
+{
     nn::Result result;
 
     NN_GX_ASSERT_DEVICE_MEMORY_OR_VRAM(reinterpret_cast<uptr>(pSrc));
@@ -190,13 +204,16 @@ void SetDisplayTransfer(void* pSrc,u16 srcWidth,u16 srcHeight,void* pDst,u16 dst
     return;
 }
 
-void SetMemoryFill(void* startAddr0,void* endAddr0,bit32 data0,bit32 ctrl0,void* startAddr1,void* endAddr1,bit32 data1,bit32 ctrl1){
+void SetMemoryFill(void* startAddr0,void* endAddr0,bit32 data0,bit32 ctrl0,void* startAddr1,void* endAddr1,bit32 data1,bit32 ctrl1)
+{
     nn::Result result;
 
-    if (startAddr0){
+    if (startAddr0)
+    {
         NN_GX_ASSERT_VRAM(reinterpret_cast<uptr>(startAddr0));
     }
-    if (startAddr1){
+    if (startAddr1)
+    {
         NN_GX_ASSERT_VRAM(reinterpret_cast<uptr>(startAddr1));
     }
 
@@ -222,8 +239,10 @@ void SetMemoryFill(void* startAddr0,void* endAddr0,bit32 data0,bit32 ctrl0,void*
     return;
 }
 
-void RequestDma(void* pDst, const void* pSrc, size_t size, bool flushCache, bool check){
-    if (check){
+void RequestDma(void* pDst, const void* pSrc, size_t size, bool flushCache, bool check)
+{
+    if (check)
+    {
         if (!detail::IsVram(reinterpret_cast<uptr>(pDst)))
             return;
     }

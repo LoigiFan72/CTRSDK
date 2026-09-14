@@ -40,7 +40,8 @@ namespace CTR {
     void SetCommandCallback(s32 callback, uptr arg);
 
 
-class SysSleepAcceptedCallbackInfo{
+class SysSleepAcceptedCallbackInfo
+{
 public:
     SysSleepAcceptedCallbackInfo(AppletSysSleepAcceptedCallback callback, uptr parameter, int priority=DEFAULT_PRIORITY):
     m_pPrev(NULL), m_pNext(NULL),m_Callback(callback),m_Parameter(parameter),m_Priority(priority)
@@ -49,7 +50,9 @@ public:
     ~SysSleepAcceptedCallbackInfo()
     {
     }
-    enum {
+
+    enum 
+    {
         MIN_PRIORITY = 0,
         MAX_PRIORITY = 0xFFFF,
         DEFAULT_PRIORITY = 0x8000
@@ -64,7 +67,8 @@ public:
     void Register();
     void Unregister();
     static void CallCallbacks();
-    void Call(){
+    void Call()
+    {
         if(m_Callback)
             m_Callback(m_Parameter);
     }

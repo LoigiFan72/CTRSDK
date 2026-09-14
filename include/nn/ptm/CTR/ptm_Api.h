@@ -13,6 +13,13 @@ namespace{
     const char *const PORT_NAME_PTM_PLAY   = "ptm:play";
     const char *const PORT_NAME_GETSYSTIME = "ptm:gets";
 }
+
+enum TargetPlatform
+{
+    TARGET_PLATFORM_CTR,
+    TARGET_PLATFORM_SNAKE
+};
+
 Result Initialize();
 Result Finalize();
 

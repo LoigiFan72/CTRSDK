@@ -6,7 +6,8 @@ namespace nn {
 namespace applet {
 namespace CTR {
 
-enum ResultDescription{
+enum ResultDescription
+{
     DESCRIPTION_APPLET_NO_AREA_TO_REGISTER          = 1,     
     DESCRIPTION_APPLET_PARAMETER_BUFFER_NOT_EMPTY   = 2,     
     DESCRIPTION_APPLET_CALLER_NOT_FOUND             = 3,     

@@ -8,13 +8,16 @@
 namespace nn{
 namespace fnd{
 
-HeapBase::~HeapBase(){
+HeapBase::~HeapBase()
+{
 }
 
-void HeapBase::FillMemory32(uptr begin, uptr end, bit32 v){
+void HeapBase::FillMemory32(uptr begin, uptr end, bit32 v)
+{
     bit32*& p = reinterpret_cast<bit32*&>(begin);
     bit32*& q = reinterpret_cast<bit32*&>(end);
-    while (p != q){
+    while (p != q)
+    {
         *p++ = v;
     }
 }

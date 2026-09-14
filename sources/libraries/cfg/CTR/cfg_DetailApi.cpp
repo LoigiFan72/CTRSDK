@@ -20,25 +20,31 @@ namespace{
     bool s_IsInitialized;
 }
 
-Result InitializeBase(Handle* pSession, const char* name){
+Result InitializeBase(Handle* pSession, const char* name)
+{
     Result res = srv::Initialize();
     NN_UTIL_PANIC_IF_FAILED(res);
-    if(pSession->IsValid()){
+    if(pSession->IsValid())
+    {
         return (Result)0xd8a103f9;
     }
     else{
         res = srv::GetServiceHandle(pSession, name);
-        if(res.IsSuccess() == 0){
+        if(res.IsSuccess() == 0)
+        {
             return ResultCancelRequested();
         }
     }
     return res;
 }
 
-Result Initialize(){
-    if(!s_InitializeCount){
+Result Initialize()
+{
+    if(!s_InitializeCount)
+    {
         Result res = InitializeBase(&IpcUser::s_Session,PORT_NAME_USER);
-        if(res.IsSuccess()){
+        if(res.IsSuccess())
+        {
             s_IsInitialized = true;
         }
 
@@ -51,21 +57,25 @@ Result Initialize(){
     return ResultSuccess();
 }
 
-Result InitializeProperPort(IPCPortType* pPortType){
+Result InitializeProperPort(IPCPortType* pPortType)
+{
     Result result = Initialize();
-    if (result.IsSuccess()){
+    if (result.IsSuccess())
+    {
         *pPortType = PORT_CFG_USER;
-         return ResultSuccess();
+        return ResultSuccess();
     }
 
     result = InitializeSys();
-    if (result.IsSuccess()){
+    if (result.IsSuccess())
+    {
         *pPortType = PORT_CFG_SYS;
         return ResultSuccess();
     }
 
     result = InitializeInit();
-    if (result.IsSuccess()){
+    if (result.IsSuccess())
+    {
         *pPortType = PORT_CFG_INIT;
         return ResultSuccess();
     }
@@ -73,34 +83,43 @@ Result InitializeProperPort(IPCPortType* pPortType){
     return Result(static_cast<bit32>(0xD90103EA));
 }
 
-Result FinalizeBase(Handle* pSession){
+Result FinalizeBase(Handle* pSession)
+{
     Result res;
-    if(pSession->IsValid()){
+    if(pSession->IsValid())
+    {
         res = svc::CloseHandle(*pSession);
         NN_UTIL_PANIC_IF_FAILED(res);
         *pSession = INVALID_HANDLE_VALUE;
     } 
-    else{
+    else
+    {
         res = (Result)0xd8a103f7;
     }
     return res;
 }
 
-void Finalize(){
-    if(s_InitializeCount > 0){
+void Finalize()
+{
+    if(s_InitializeCount > 0)
+    {
         --s_InitializeCount;
     }
 
-    if(s_InitializeCount == 0){
-        if(s_IsInitialized){
+    if(s_InitializeCount == 0)
+    {
+        if(s_IsInitialized)
+        {
             s_IsInitialized = false;
             detail::FinalizeBase(&detail::IpcUser::s_Session);
         }
     }
 }
 
-void FinalizeProperPort(IPCPortType portType){
-    switch(portType){
+void FinalizeProperPort(IPCPortType portType)
+{
+    switch(portType)
+    {
     case PORT_CFG_USER:
         Finalize();
         break;
@@ -119,8 +138,10 @@ void FinalizeProperPort(IPCPortType portType){
     }
 }
 
-CfgRegionCode GetRegion(){
-    if(!detail::IpcUser::s_Session.IsValid()){
+CfgRegionCode GetRegion()
+{
+    if(!detail::IpcUser::s_Session.IsValid())
+    {
         NN_TLOG_("[WARN] nn::cfg is not initialized.\n");
     }
     nn::cfg::CTR::CfgRegionCode region = CFG_REGION_JAPAN;
@@ -132,15 +153,18 @@ CfgRegionCode GetRegion(){
     return region;
 }
 
-Result GetConfig(void* pData, size_t size, bit32 key){
+Result GetConfig(void* pData, size_t size, bit32 key)
+{
     Result res;
     NN_TLOG_("[WARN] nn::cfg is not initialized.\n");
     res = IpcUser::GetConfig(pData,size,key);
     return res;
 }
 
-Result GetTransferableId(bit32 uniqueId, bit64* transferableId){
-    if(!detail::IpcUser::s_Session.IsValid()){
+Result GetTransferableId(bit32 uniqueId, bit64* transferableId)
+{
+    if(!detail::IpcUser::s_Session.IsValid())
+    {
         NN_TLOG_("[WARN] nn::cfg is not initialized.\n");
     }
     return IpcUser::GetTransferableId(uniqueId, transferableId);

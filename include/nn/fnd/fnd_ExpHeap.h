@@ -19,14 +19,17 @@
 namespace nn{
 namespace fnd{
 
-class ExpHeapBase : public HeapBase {
+class ExpHeapBase : public HeapBase 
+{
 public:
-    enum AllocationMode {
+    enum AllocationMode 
+    {
         ALLOCATION_MODE_FIRST_FIT = NN_FND_EXPHEAP_ALLOCATION_MODE_FIRST_FIT,
         ALLOCATION_MODE_BEST_FIT  = NN_FND_EXPHEAP_ALLOCATION_MODE_BEST_FIT
     };
 
-    enum AllocationDirection {
+    enum AllocationDirection 
+    {
         ALLOCATION_DIRECTION_FRONT = NN_FND_EXPHEAP_ALLOCATION_DIRECTION_FRONT,
         ALLOCATION_DIRECTION_REAR  = NN_FND_EXPHEAP_ALLOCATION_DIRECTION_REAR
     };
@@ -38,22 +41,28 @@ public:
     AllocationDirection GetDirectionOf(const void* pBlock) const;
 
 public:
-    ExpHeapBase() : mAllocCount(0) {}
+    ExpHeapBase(): 
+        m_AllocCount(0) 
+    {
+    }
 
     template <class MemoryBlock>
-    explicit ExpHeapBase(const MemoryBlock& block, bit32 option) {
+    explicit ExpHeapBase(const MemoryBlock& block, bit32 option) 
+    {
         Initialize(block.GetAddress(), block.GetSize(), option);
     }
 
-    ExpHeapBase(uptr addr, size_t size, bit32 option); // 100%
-    void Initialize(uptr addr, size_t size, bit32 option); // 100%
+    ExpHeapBase(uptr addr, size_t size, bit32 option);
+    void Initialize(uptr addr, size_t size, bit32 option);
     void Invalidate(); // 100%
-    void Finalize(){
+    void Finalize()
+    {
         void* ptr;
         NN_TASSERT_(this->mAllocCount);
-        if (this->mExpHeapImpl.signature != 0) {
-            nn::fnd::detail::RemoveListObject((detail::NNSFndList*)&this->mExpHeapImpl, ptr);
-            this->mExpHeapImpl.signature = 0;
+        if (this->m_ExpHeapImpl.signature != 0) 
+        {
+            nn::fnd::detail::RemoveListObject((detail::NNSFndList*)&this->m_ExpHeapImpl, ptr);
+            this->m_ExpHeapImpl.signature = 0;
         }
     }
 
@@ -72,8 +81,8 @@ public:
     bool CheckHeap(bit32 option = OPTION_ERROR_PRINT) const;
     bool CheckBlock(const void* p, bit32 option = OPTION_ERROR_PRINT) const;
 
-    detail::ExpHeapImpl mExpHeapImpl;
-    size_t mAllocCount;
+    detail::ExpHeapImpl m_ExpHeapImpl;
+    size_t m_AllocCount;
 };
 
 template <class LockPolicy>
@@ -84,91 +93,109 @@ private:
     typedef typename LockPolicy::ScopedLock ScopedLock;
 
 public:
-    ExpHeapTemplate() {}
+    ExpHeapTemplate()
+    {
+    }
 
-    ExpHeapTemplate(uptr addr, size_t size, bit32 option = 0) {
+    ExpHeapTemplate(uptr addr, size_t size, bit32 option = 0) 
+    {
         Initialize(addr, size, option);
     }
 
     static ExpHeapTemplate* Create(HeapBase* parent, void* addr, size_t size, bit32 option = 0, bit32 placement = HEAP_INFOPLACEMENT_HEAD);
 
-    void Initialize(uptr addr, size_t size, bit32 option = 0) {
+    void Initialize(uptr addr, size_t size, bit32 option = 0) 
+    {
         Base::Initialize(addr, size, option);
         LockObject::Initialize();
     }
 
-    void Invalidate() { 
+    void Invalidate() 
+    { 
         this->Base::Invalidate(); 
     }
 
-    void Finalize() {
+    void Finalize() 
+    {
         LockObject::Finalize();
         Base::Finalize();
     }
 
-    virtual ~ExpHeapTemplate(){
-    }
+    virtual ~ExpHeapTemplate(){ }
 
-    void Free(void* p) {
+    void Free(void* p) 
+    {
         ScopedLock lk(*this);
         Base::Free(p);
     }
 
-    virtual void FreeV(void* p) {
+    virtual void FreeV(void* p) 
+    {
         Free(p); 
     }
 
-    virtual void* GetStartAddress() const{
+    virtual void* GetStartAddress() const
+    {
         ScopedLock lk(*this);
         return Base::GetStartAddress();
     }
 
-    virtual size_t GetTotalSize() const{
+    virtual size_t GetTotalSize() const
+    {
         ScopedLock lk(*this);
         return Base::GetTotalSize();
     }
 
-    virtual void Dump() const{
+    virtual void Dump() const
+    {
         ScopedLock lk(*this);
         Base::Dump();
     }
 
-    virtual bool HasAddress(const void* addr) const{
+    virtual bool HasAddress(const void* addr) const
+    {
         ScopedLock lk(*this);
         return Base::HasAddress(addr);
     }
 
-    size_t ResizeBlock(void* p, size_t newSize) {
+    size_t ResizeBlock(void* p, size_t newSize) 
+    {
         ScopedLock lk(*this);
         return Base::ResizeBlock(p, newSize);
     }
 
-    void* Allocate(size_t byteSize, s32 alignment, bit8 groupId, AllocationMode mode, bool reuse) {
+    void* Allocate(size_t byteSize, s32 alignment, bit8 groupId, AllocationMode mode, bool reuse) 
+    {
         ScopedLock lk(*this);
         return Base::Allocate(byteSize, alignment, groupId, mode, reuse);
     }
 
-    void VisitAllBlocks(BlockVisitor visitor, uptr param){
+    void VisitAllBlocks(BlockVisitor visitor, uptr param)
+    {
         ScopedLock lk(*this);
         return Base::VisitAllBlocks(visitor, param);
     }
 
-    size_t GetTotalFreeSize() const{
+    size_t GetTotalFreeSize() const
+    {
         ScopedLock lk(*this);
         return Base::GetTotalFreeSize();
     }
 
-    size_t GetAllocatableSize(s32 alignment) const{
+    size_t GetAllocatableSize(s32 alignment) const
+    {
         ScopedLock lk(*this);
         return Base::GetAllocatableSize(alignment);
     }
 
-    bool CheckHeap(bit32 option = OPTION_ERROR_PRINT) const {
+    bool CheckHeap(bit32 option = OPTION_ERROR_PRINT) const 
+    {
         ScopedLock lk(*this);
         return Base::CheckHeap(option);
     }
 
-    bool CheckBlock(const void* p, bit32 option = OPTION_ERROR_PRINT) const {
+    bool CheckBlock(const void* p, bit32 option = OPTION_ERROR_PRINT) const 
+    {
         ScopedLock lk(*this);
         return Base::CheckBlock(p, option);
     }
@@ -177,61 +204,76 @@ public:
 };
 
 template <class LockPolicy>
-class ExpHeapTemplate<LockPolicy>::Allocator : public IAllocator {
+class ExpHeapTemplate<LockPolicy>::Allocator : public IAllocator 
+{
 public:
     Allocator(ExpHeapTemplate<LockPolicy>& heap, bit8 groupId = 0, AllocationMode mode = ExpHeapBase::ALLOCATION_MODE_FIRST_FIT, bool reuse = false) : mHeap(0) {
         Initialize(heap, groupId, mode, reuse);
     }
 
-    Allocator() : mHeap(0) {}
-
-    void Initialize(ExpHeapTemplate<LockPolicy>& heap, bit8 groupId = 0, AllocationMode mode = ExpHeapBase::ALLOCATION_MODE_FIRST_FIT, bool reuse = false) {
-        NN_TASSERT_(!this->mHeap);
-        this->mHeap = &heap;
-        this->mGroupId = groupId;
-        this->mAllocationMode = mode;
-        this->mReuse = reuse;
+    Allocator(): 
+        m_Heap(0) 
+    {
     }
 
-    ExpHeapTemplate<LockPolicy>*GetHeap(){
-        return this->mHeap; 
-    }
-    const ExpHeapTemplate<LockPolicy>* GetHeap() const {
-        return this->mHeap; 
-    }
-
-    virtual void* Allocate(size_t size, s32 alignment) {
-        return this->mHeap->Allocate(size, alignment, mGroupId, (AllocationMode)mAllocationMode, mReuse);
+    void Initialize(ExpHeapTemplate<LockPolicy>& heap, bit8 groupId = 0, AllocationMode mode = ExpHeapBase::ALLOCATION_MODE_FIRST_FIT, bool reuse = false) 
+    {
+        NN_TASSERT_(!this->m_Heap);
+        this->m_Heap = &heap;
+        this->m_GroupId = groupId;
+        this->m_AllocationMode = mode;
+        this->m_Reuse = reuse;
     }
 
-    virtual void Free(void* p){
-        this->mHeap->Free(p); 
+    ExpHeapTemplate<LockPolicy>*GetHeap()
+    {
+        return this->m_Heap; 
+    }
+    const ExpHeapTemplate<LockPolicy>* GetHeap() const 
+    {
+        return this->m_Heap; 
     }
 
-    bit8 GetGroupId() const{
-        return this->mGroupId; 
+    virtual void* Allocate(size_t size, s32 alignment) 
+    {
+        return this->m_Heap->Allocate(size, alignment, m_GroupId, (AllocationMode)m_AllocationMode, m_Reuse);
     }
-    void SetGroupId(bit8 groupId){
-        this->mGroupId = groupId; 
+
+    virtual void Free(void* p)
+    {
+        this->m_Heap->Free(p); 
     }
-    AllocationMode GetAllocationMode() const{
-        return (AllocationMode)this->mAllocationMode; 
+
+    bit8 GetGroupId() const
+    {
+        return this->m_GroupId; 
     }
-    void SetAllocationMode(AllocationMode mode){
-        (AllocationMode)this->mAllocationMode = mode; 
+    void SetGroupId(bit8 groupId)
+    {
+        this->m_GroupId = groupId; 
     }
-    bool GetUseMarginOfAlignment() const{
-        return this->mReuse; 
+    AllocationMode GetAllocationMode() const
+    {
+        return (AllocationMode)this->m_AllocationMode; 
     }
-    void SetUseMarginOfAlignment(bool reuse) {
-        this->mReuse = reuse; 
+    void SetAllocationMode(AllocationMode mode)
+    {
+        (AllocationMode)this->m_AllocationMode = mode; 
+    }
+    bool GetUseMarginOfAlignment() const
+    {
+        return this->m_Reuse; 
+    }
+    void SetUseMarginOfAlignment(bool reuse) 
+    {
+        this->m_Reuse = reuse; 
     }
 
 private:
-    ExpHeapTemplate<LockPolicy>* mHeap;
-    bit8 mGroupId;
-    s8 mAllocationMode;
-    bool mReuse;
+    ExpHeapTemplate<LockPolicy>* m_Heap;
+    bit8 m_GroupId;
+    s8 m_AllocationMode;
+    bool m_Reuse;
     s8 PADDING1;
 };
 

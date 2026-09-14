@@ -9,7 +9,8 @@ namespace cfg {
 namespace CTR {
 namespace detail {
 
-class IpcUser{
+class IpcUser
+{
 public:
     static nn::Handle s_Session;
 

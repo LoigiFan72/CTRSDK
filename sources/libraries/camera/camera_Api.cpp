@@ -16,42 +16,51 @@ namespace{
 
 }
 
-bool IsInitialized(){
+bool IsInitialized()
+{
     return isInitialized;
 }
 
-Result ArriveApplication(){
-    if(!isInitialized){
+Result ArriveApplication()
+{
+    if(!isInitialized)
+    {
         return ResultSuccess();
     }
 
     Result result = detail::Camera::Activate(leaveApplicationCamera);
-    if (result == ResultIsSleeping()){
+    if (result == ResultIsSleeping())
+    {
         result = detail::Camera::SetSleepCamera(leaveApplicationCamera);
     }
     return result;
 }
 
-Result LeaveApplication(){
-    if (!isInitialized){
+Result LeaveApplication()
+{
+    if (!isInitialized)
+    {
         return ResultSuccess();
     }
 
     CameraSelect activatedCamera, sleepCamera;
     Result result = Camera::GetActivatedCamera(&activatedCamera);
-    if (result.IsFailure()){
+    if (result.IsFailure())
+    {
         return result;
     }
 
     result = Camera::GetSleepCamera(&sleepCamera);
-    if (result.IsFailure()){
+    if (result.IsFailure())
+    {
         return result;
     }
 
     leaveApplicationCamera = (CameraSelect)(activatedCamera|sleepCamera);
 
     result = Camera::SetSleepCamera(SELECT_NONE);
-    if (result.IsSuccess()){
+    if (result.IsSuccess())
+    {
         result = Camera::Activate(SELECT_NONE);
     }
 

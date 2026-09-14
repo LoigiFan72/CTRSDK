@@ -46,11 +46,14 @@ inline void MI_CpuFill32(void* dest, u32 data, u32 size){
     }
 }
 
-inline void FillAllocMemory(NNSiFndHeapHead* pHeapHd,void* address,u32 size){
-    if (GetOptForHeap(pHeapHd) & 1){
+inline void FillAllocMemory(NNSiFndHeapHead* pHeapHd,void* address,u32 size)
+{
+    if (GetOptForHeap(pHeapHd) & 1)
+    {
         MI_CpuFill32(address, 0, size);
     }
-    else{
+    else
+    {
         #ifdef NN_DEBUG
             if (GetOptForHeap(pHeapHd) & 2){
                 MI_CpuFill32(address, GetFillValForHeap(0), size);

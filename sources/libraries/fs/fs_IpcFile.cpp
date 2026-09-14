@@ -10,14 +10,16 @@ namespace nn{
 namespace fs{
 namespace ipc{
 
-Result File::OpenSubFile(Handle* pOut, s64 offset, s64 length){
+Result File::OpenSubFile(Handle* pOut, s64 offset, s64 length)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x801, 4, 0, 0);
     ipcMsg.SetRaw(1, offset);
     ipcMsg.SetRaw(3, length);
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -26,7 +28,8 @@ Result File::OpenSubFile(Handle* pOut, s64 offset, s64 length){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result File::Read(s32* pRead, s64 offset, void* pBuffer, size_t size){
+Result File::Read(s32* pRead, s64 offset, void* pBuffer, size_t size)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x802, 3, 2, 0);
     ipcMsg.SetRaw(1, offset);
@@ -34,8 +37,9 @@ Result File::Read(s32* pRead, s64 offset, void* pBuffer, size_t size){
     ipcMsg.SetReceive(4, pBuffer, size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -44,7 +48,8 @@ Result File::Read(s32* pRead, s64 offset, void* pBuffer, size_t size){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result File::Write(s32* pWritten, s64 offset, const void* pBuffer, size_t size, fs::WriteOption option){
+Result File::Write(s32* pWritten, s64 offset, const void* pBuffer, size_t size, fs::WriteOption option)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x803, 4, 2, 0);
     ipcMsg.SetRaw(1, offset);
@@ -53,8 +58,9 @@ Result File::Write(s32* pWritten, s64 offset, const void* pBuffer, size_t size, 
     ipcMsg.SetSend(5, pBuffer, size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -63,13 +69,15 @@ Result File::Write(s32* pWritten, s64 offset, const void* pBuffer, size_t size, 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result File::GetSize( s64* pOut ){
+Result File::GetSize(s64* pOut)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x804, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -77,54 +85,62 @@ Result File::GetSize( s64* pOut ){
 
     return ipcMsg.GetRaw<nn::Result>(1);
 }
-Result File::SetSize(s64 size){
+Result File::SetSize(s64 size)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x805, 2, 0, 0);
     ipcMsg.SetRaw(1, size);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result File::Close(){
+Result File::Close()
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x808, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result File::SetPriority(s32 priority){
+Result File::SetPriority(s32 priority)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80A, 1, 0, 0);
     ipcMsg.SetRaw(1, priority);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result File::GetPriority( s32* pOut ){
+Result File::GetPriority(s32* pOut)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80B, 0, 0, 0);
 
 
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 
@@ -133,13 +149,15 @@ Result File::GetPriority( s32* pOut ){
     return ipcMsg.GetRaw<Result>(1);
 }
 
-Result File::OpenLinkFile(Handle* pOut){
+Result File::OpenLinkFile(Handle* pOut)
+{
     MessageBuffer ipcMsg(GetMessageBuffer());
     ipcMsg.SetHeader(0x80C, 0, 0, 0);
 
     
-    Result ipcResult = SendSyncRequest(this->mSession);
-    if(ipcResult.IsFailure()){
+    Result ipcResult = SendSyncRequest(this->m_Session);
+    if(ipcResult.IsFailure())
+    {
         return ipcResult;
     }
 

@@ -99,9 +99,11 @@ private:
     static void NoParameterFunc(void (*)());
 
 public:
-    class ProtectedAccessor{
+    class ProtectedAccessor
+    {
     private:
-        inline void InitializeAsMainThread(void* p){
+        inline void InitializeAsMainThread(void* p)
+        {
             new(p) Thread(Thread::InitializeAsCurrentTag());
         }
     };
@@ -143,46 +145,54 @@ public:
 
 /* Thread::FunctionInfo */
 
-struct Thread::FunctionInfo{
+struct Thread::FunctionInfo
+{
     void (*destroy)(void* p);
     void (*invoke)(ThreadFunc f, const void* p);
     void (*f)(uptr);
     void* p;
     void* pAutoStackBuffer;
 
-    void Invoke(){
+    void Invoke()
+    {
         invoke(f, p);
     };
-    void Destroy(){
+    void Destroy()
+    {
         destroy(p);
     }
 };
 
 /* Thread::TypeInfo */
 
-struct Thread::TypeInfo{
+struct Thread::TypeInfo
+{
 private:
-
     template <typename T, typename U>
-    static void Copy(const void* src, void* dst){
+    static void Copy(const void* src, void* dst)
+    {
         new (dst) T(*reinterpret_cast<const U*>(src));
     }
     template <typename T>
-    static void Copy(const void* src, void* dst){
+    static void Copy(const void* src, void* dst)
+    {
         new (dst) T(*reinterpret_cast<const T*>(src));
     }
 
     template <typename T>
-    static void Destroy(void* p){
+    static void Destroy(void* p)
+    {
         reinterpret_cast<T*>(p)->~T();
     }
 
     template <typename T>
-    static void Invoke(ThreadFunc f, const void* p){
+    static void Invoke(ThreadFunc f, const void* p)
+    {
         (*reinterpret_cast<void (*)(T)>(f))(*reinterpret_cast<const T*>(p));
     }
     template <typename T>
-    static void Invoke2(ThreadFunc f, const void* p){
+    static void Invoke2(ThreadFunc f, const void* p)
+    {
         (*reinterpret_cast<void (*)(const T*)>(f))(reinterpret_cast<const T*>(p));
     }
 

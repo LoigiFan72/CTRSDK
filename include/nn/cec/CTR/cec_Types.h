@@ -20,7 +20,8 @@ namespace CTR {
     #define MESSAGE_MAGIC       (0x6060)
     #define MESSAGE_VERSION     (0x00000000)
 
-    struct CecMessageHeader{
+    struct CecMessageHeader
+    {
         u16 magic16;
         s16 __PADDING__;
 

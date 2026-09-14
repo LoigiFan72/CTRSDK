@@ -31,7 +31,8 @@ struct InterlockedVariable8{
 };*/
 
 template <typename T>
-class InterlockedVariable{
+class InterlockedVariable
+{
 private:
     template <typename U, typename = void>
     struct StorageSelecter {};

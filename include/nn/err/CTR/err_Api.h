@@ -12,7 +12,8 @@ namespace{
     const char PORT_NAME_ERR_F[] = "err:f";
 }
 
-    struct FatalErrInfo{
+    struct FatalErrInfo
+    {
         bit8 type;
         u8 revisionHi;
         ushort revisionLo;
@@ -21,20 +22,23 @@ namespace{
         bit32 processId;
         bit64 titleId;
         bit64 appTitleId;
-        union Data{
-
-            union Exception{
+        union Data
+        {
+            union Exception
+            {
                 u8 info[24];
                 nn::os::ARM::ExceptionContext context;
             } exception;
 
-            union Failure{
+            union Failure
+            {
                 char message[96];
             } failure;
         } data;
     };
 
-    class FatalErr{
+    class FatalErr
+    {
     public:
         Handle m_Session;
         
@@ -51,17 +55,22 @@ namespace{
     void ThrowFatalErr(Result res);
     void ThrowFatalErrAll(Result res);
 #endif
-namespace detail{
+namespace detail
+{
     template <bool(*IsTarget)(Result), void(*TargetFunc)(Result, uptr)>
-    inline void CallIf(Result r, uptr pc){
-        if (IsTarget(r)){
+    inline void CallIf(Result r, uptr pc)
+    {
+        if (IsTarget(r))
+        {
             TargetFunc(r, pc);
         }
     }
 
     template <bool(*IsTarget)(Result), void(*TargetFunc)(Result, const char*, int, uptr)>
-    inline void CallIf(Result r, const char* fileName, int lineno, uptr pc){
-        if (IsTarget(r)){
+    inline void CallIf(Result r, const char* fileName, int lineno, uptr pc)
+    {
+        if (IsTarget(r))
+        {
             TargetFunc(r, fileName, lineno, pc);
         }
     }

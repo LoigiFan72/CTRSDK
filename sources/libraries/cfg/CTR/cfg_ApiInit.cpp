@@ -36,14 +36,18 @@ Result InitializeInit(){
     return ResultSuccess();
 }
 
-void FinalizeInit(){
-    if(s_InitializeInitCount > 0){
+void FinalizeInit()
+{
+    if(s_InitializeInitCount > 0)
+    {
         s_InitializeInitCount--;
     }
 
-    if(s_InitializeInitCount == 0){
+    if(s_InitializeInitCount == 0)
+    {
         nn::Result result = detail::FinalizeBase(&detail::IpcInit::s_Session);
-        if(result.IsSuccess()){
+        if(result.IsSuccess())
+        {
             IpcUser::s_Session = INVALID_HANDLE_VALUE;
             IpcSys::s_Session  = INVALID_HANDLE_VALUE;
         }

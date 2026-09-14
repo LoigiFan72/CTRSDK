@@ -4,12 +4,12 @@
 
 namespace nn{
 namespace dbg{
-#ifdef NN_VERSION_MAJOR > 2
+/* Version > 2 */
 namespace detail{
     void PrintResult(Result result);
     void TPrintResult(Result result);
 }
-#endif
+
     void PrintResult(Result result);
     void TPrintResult(Result result);
 }

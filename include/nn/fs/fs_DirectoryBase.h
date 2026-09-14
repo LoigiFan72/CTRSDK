@@ -13,9 +13,9 @@ namespace nn{
 namespace fs{ 
 namespace detail{
 
-class DirectoryBase : public DirectoryBaseImpl{
+class DirectoryBase : public DirectoryBaseImpl
+{
 protected:
-    
     DirectoryBase() {}
     explicit DirectoryBase(const wchar_t* pathName){ Initialize(pathName); }
     explicit DirectoryBase(const char* pathName){ Initialize(pathName); }

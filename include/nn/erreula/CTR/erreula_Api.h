@@ -7,12 +7,14 @@ namespace nn{
 namespace erreula{
 namespace CTR{
 
-enum{
+enum
+{
     ERROR_LANGUAGE_FLAG = 0x100,
     ERROR_WORD_WRAP_FLAG = 0x200
 };
 
-enum ErrorType{
+enum ErrorType
+{
     ERROR_TYPE_ERROR_CODE = 0,
     ERROR_TYPE_ERROR_TEXT,
     ERROR_TYPE_EULA,
@@ -30,14 +32,16 @@ enum ErrorType{
     ERROR_TYPE_MAX_BIT = (1u << 31)
 };
 
-enum{
+enum
+{
     UPPER_SCREEN_NORMAL = 0,
     UPPER_SCREEN_STEREO,
 
     UPPER_SCREEN_MAX
 };
 
-enum{
+enum
+{
     USE_LANGUAGE_DEFAULT = 0,
     USE_LANGUAGE_JAPANESE,
     USE_LANGUAGE_ENGLISH,
@@ -55,7 +59,8 @@ enum{
     USE_LANGUAGE_MAX
 };
 
-enum ReturnCode{
+enum ReturnCode
+{
     RETURN_CODE_UNKNOWN = -1,
     RETURN_CODE_NONE = 0,
     RETURN_CODE_SUCCESS,
@@ -70,7 +75,8 @@ enum ReturnCode{
 
 const u16 ERROR_TEXT_LENGTH_MAX = 1900;
 
-struct Config{
+struct Config
+{
     ErrorType   errorType;
     s32         errorCode;
     s16         upperScreenFlag;
@@ -85,7 +91,8 @@ struct Config{
     u8          pad1[10];
 };
 
-struct Parameter{
+struct Parameter
+{
     Config  config;
 };
 

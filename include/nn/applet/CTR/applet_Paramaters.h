@@ -6,13 +6,15 @@
 namespace nn{
 namespace applet{
 namespace CTR{
-    enum AppJumpType{
+    enum AppJumpType
+    {
         JUMP_OTHER = 0,
         JUMP_CALLER = 1,
         JUMP_SELF = 2,
     };
 
-    enum AppletPos{
+    enum AppletPos
+    {
         POS_NONE = -1,
         POS_APP = 0,
         POS_APPLIB = 1,
@@ -22,7 +24,8 @@ namespace CTR{
         POS_MAX = 5,
     };
 
-    enum AwakeTrigger{
+    enum AwakeTrigger
+    {
         WAKEUP_TRIGGER_SHELL_OPEN  = (static_cast<bit64>(0x001u<<6) << 32),
         WAKEUP_TRIGGER_SHELL_CLOSE = (static_cast<bit64>(0x001u<<5) << 32),
         WAKEUP_TRIGGER_TP          = (1u <<  30),
@@ -34,7 +37,8 @@ namespace CTR{
         WAKEUP_TRIGGER_ALL         = WAKEUP_TRIGGER_SHELL_OPEN | WAKEUP_TRIGGER_SHELL_CLOSE | WAKEUP_TRIGGER_HOME_CLICK | WAKEUP_TRIGGER_TP | WAKEUP_TRIGGER_KEY
     };
 
-    enum Attribute{
+    enum Attribute
+    {
         TYPE_APP = (0x0<<0),
         TYPE_APPLIB = (0x1<<0),
         TYPE_SYS = (0x2<<0),
@@ -43,7 +47,8 @@ namespace CTR{
         TYPE_MASK = (0x7<<0),
     };
 
-    enum LockTransition{
+    enum LockTransition
+    {
         LOCK_TRANSITION_NONE = 0,
         LOCK_TRANSITION_HOME_BUTTON = (1<<0),
         LOCK_TRANSITION_POWER_BUTTON = (1<<1),
@@ -59,7 +64,8 @@ namespace CTR{
         LOCK_TRANSITION_REBOOT = (1<<8)
     };
 
-    enum AppletPreperationState{
+    enum AppletPreperationState
+    {
         NO_PREP = 0,
         PREP_TO_LAUNCH_APP = 1,
         PREP_TO_CLOSE_APP = 2,
@@ -83,7 +89,8 @@ namespace CTR{
         PREP_TO_JUMP_TO_APP = 20,
     };
 
-    enum AppletType{
+    enum AppletType
+    {
         HOME_BUTTON = 0,
         POWER_BUTTON = 1,
         MII_SELECT = 2,
@@ -92,17 +99,20 @@ namespace CTR{
         APPLET_TYPE_MAX = 5,
     };
 
-    enum SleepCheckOnEnableSleep{
+    enum SleepCheckOnEnableSleep
+    {
         SLEEP_IF_SHELL_CLOSED = true,
         NO_SHELL_CHECK = false
     };
 
-    enum ReplyRejectOnDisableSleep{
+    enum ReplyRejectOnDisableSleep
+    {
         REPLY_REJECT_IF_LATER = true,
         NO_REPLY_REJECT = false
     };
 
-    enum Command{
+    enum Command
+    {
         COMMAND_NONE = 0,
         COMMAND_WAKEUP = 1,
         COMMAND_REQUEST = 2,
@@ -129,12 +139,14 @@ namespace CTR{
         COMMAND_FINALIZE                = 0x10000
     };
 
-    enum DataManagementScene{
+    enum DataManagementScene
+    {
         DATA_TOP = 0,
         DATA_STREETPASS = 1,
     };
 
-    enum DisplayBufferMode{
+    enum DisplayBufferMode
+    {
         FORMAT_R8G8B8A8 = 0,
         FORMAT_R8G8B8 = 1,
         FORMAT_R5G6B5 = 2,
@@ -143,23 +155,27 @@ namespace CTR{
         FORMAT_UNIMPORTABLE = 0xFFFFFFFFF
     };
 
-    enum HomeButtonState{
+    enum HomeButtonState
+    {
         HOME_BUTTON_NONE = 0,
         HOME_BUTTON_SINGLE_PRESSED = 1,
         HOME_BUTTON_DOUBLE_PRESSED = 2,
     };
 
-    enum PowerButtonState {
+    enum PowerButtonState 
+    {
         POWER_BUTTON_STATE_NONE=0,
         POWER_BUTTON_STATE_CLICK=1
     };
 
-    enum OrderToCloseState {
+    enum OrderToCloseState 
+    {
         ORDER_TO_CLOSE_STATE_NONE=0,
         ORDER_TO_CLOSE_STATE_RECEIVED=1
     };
 
-    enum Notification {
+    enum Notification 
+    {
         NOTIFICATION_NONE=0,
         NOTIFICATION_HOME_BUTTON_1=1,
         NOTIFICATION_HOME_BUTTON_2=2,
@@ -174,7 +190,8 @@ namespace CTR{
         NOTIFICATION_ORDER_TO_CLOSE=11
     };
 
-    enum WakeupState {
+    enum WakeupState 
+    {
         WAKEUP_BY_TIMEOUT=-1,
         WAKEUP_SKIP=0,
         WAKEUP_TO_START=1,
@@ -189,18 +206,21 @@ namespace CTR{
         WAKEUP_STATE_MAX=63
     };
 
-    enum WakeupStateEx{
+    enum WakeupStateEx
+    {
         WAKEUP_BY_TERMINATION_APPLICATION   = WAKEUP_STATE_MAX + 1,
         WAKEUP_BY_TERMINATION_SYSTEM_APPLET = WAKEUP_STATE_MAX + 2
     };
 
-    enum QueryReply {
+    enum QueryReply 
+    {
         REPLY_REJECT=0,
         REPLY_ACCEPT=1,
         REPLY_LATER=2
     };
 
-    enum SleepNotificationState {
+    enum SleepNotificationState 
+    {
         NOTIFY_NONE=0,
         NOTIFY_SLEEP_QUERY=1,
         NOTIFY_SLEEP_ACCEPT=2,
@@ -209,7 +229,8 @@ namespace CTR{
         NOTIFY_AWAKE=5
     };
 
-    enum SleepSysState {
+    enum SleepSysState 
+    {
         SLEEP_SYS_STATE_NONE=0,
         SLEEP_SYS_STATE_QUERY=1,
         SLEEP_SYS_STATE_ACCEPTED=2,
@@ -217,17 +238,20 @@ namespace CTR{
         SLEEP_SYS_STATE_CANCELED=4
     };
 
-    enum ShutdownState {
+    enum ShutdownState 
+    {
         SHUTDOWN_STATE_NONE=0,
         SHUTDOWN_STATE_RECEIVED=1
     };
 
-    enum MiscState{
+    enum MiscState
+    {
         MISC_STATE_POWER_BUTTON         = (1 << 0),
         MISC_STATE_SHUTDOWN_PROCESSING  = (1 << 1)
     };
 
-    enum TransitionType {
+    enum TransitionType 
+    {
         TRANSITION_NONE = 0,
         TRANSITION_START_APP = 1,
         TRANSITION_PRELOAD_APPLIB = 2,
@@ -253,22 +277,26 @@ namespace CTR{
 
 
 
-    struct AppletDisplayInfoParams{
+    struct AppletDisplayInfoParams
+    {
         uptr addr;
         uptr addrB;
         DisplayBufferMode mode;
         u32 stride;
     };
 
-    struct AppletDisplayInfo{
+    struct AppletDisplayInfo
+    {
         AppletDisplayInfoParams d[2];
     };
 
-    struct CaptureBufferInfo{
+    struct CaptureBufferInfo
+    {
         size_t size;
         bool is3DCapture;
         u8 rev[3];
-        union{
+        union
+        {
             uptr offset;
             uptr offsetB;
             DisplayBufferMode mode;

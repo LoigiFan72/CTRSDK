@@ -21,15 +21,19 @@ namespace{
     int  s_InitializeSysCount;
 }
 
-Result InitializeSys(){
+Result InitializeSys()
+{
     Result res;
-    if(s_InitializeSysCount == 0){
+    if(s_InitializeSysCount == 0)
+    {
         Result res = InitializeBase(&IpcSys::s_Session,CTR::PORT_NAME_SYSTEM);
-        if(res.IsSuccess()){
+        if(res.IsSuccess())
+        {
             s_IsInitializedSys = true;
             IpcUser::s_Session = IpcSys::s_Session;
         } 
-        else if(res == ResultCancelRequested()){
+        else if(res == ResultCancelRequested())
+        {
             return res;
         }
     }
@@ -37,16 +41,21 @@ Result InitializeSys(){
     return ResultSuccess();
 }
 
-void FinalizeSys(){
-    if(s_InitializeSysCount > 0){
+void FinalizeSys()
+{
+    if(s_InitializeSysCount > 0)
+    {
         --s_InitializeSysCount;
     }
 
-    if(s_InitializeSysCount == 0){
-        if(s_IsInitializedSys){
+    if(s_InitializeSysCount == 0)
+    {
+        if(s_IsInitializedSys)
+        {
             s_IsInitializedSys = false;
             nn::Result result = detail::FinalizeBase(&detail::IpcSys::s_Session);
-            if(result.IsSuccess()){
+            if(result.IsSuccess())
+            {
                 IpcUser::s_Session = INVALID_HANDLE_VALUE;
             }
         }

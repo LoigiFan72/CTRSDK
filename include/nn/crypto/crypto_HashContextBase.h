@@ -4,7 +4,8 @@
 
 namespace nn{
 namespace crypto{
-class HashContextBase{
+class HashContextBase
+{
 public:
     virtual void Initialize() {}
     virtual void Finalize() {}
@@ -18,11 +19,13 @@ protected:
     virtual void ProcessBlock() {}
 };
 
-inline uint Convert32HToBE(uint he){
+inline uint Convert32HToBE(uint he)
+{
     return he << 0x18 | (he >> 8 & 0xff) << 0x10 | (he >> 0x10 & 0xff) << 8 | he >> 0x18;
 }
 
-inline static u32 RotateLeft32(int shift, u32 value){
+inline static u32 RotateLeft32(int shift, u32 value)
+{
     return (u32)((value << shift) | (value >> (u32)(32 - shift)));
 }
 

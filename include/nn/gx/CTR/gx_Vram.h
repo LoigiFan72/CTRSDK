@@ -38,15 +38,18 @@ enum VramArea{
     MEM_VRAMB = NN_GX_MEM_VRAMB
 };
 
-inline uptr GetVramStartAddr(VramArea area){
+inline uptr GetVramStartAddr(VramArea area)
+{
     return nngxGetVramStartAddr(area);
 }
 
-inline uptr GetVramEndAddr(VramArea area){
+inline uptr GetVramEndAddr(VramArea area)
+{
     return nngxGetVramEndAddr(area);
 }
 
-inline size_t GetVramSize(VramArea area){
+inline size_t GetVramSize(VramArea area)
+{
     return nngxGetVramSize(area);
 }
 

@@ -10,12 +10,15 @@ namespace detail{
 
 static detail::FileSystemBase* s_pGlobalFileSystemBase;
 
-void RegisterGlobalFileSystemBase(detail::FileSystemBase& base){
+void RegisterGlobalFileSystemBase(detail::FileSystemBase& base)
+{
     s_pGlobalFileSystemBase = &base;
 }
 
-FileSystemBase& GetGlobalFileSystemBase(){
-    if(!s_pGlobalFileSystemBase){
+FileSystemBase& GetGlobalFileSystemBase()
+{
+    if(!s_pGlobalFileSystemBase)
+    {
         NN_UTIL_PANIC_IF_FAILED(ResultLibraryNotInitialized());
     }
 

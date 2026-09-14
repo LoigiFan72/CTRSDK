@@ -25,7 +25,8 @@ namespace detail{
 
 void LatencyEmulation(bool isRead);
 
-class UserFileSystem{
+class UserFileSystem
+{
 public:
     /* Creating */
 

@@ -6,8 +6,8 @@
 
 namespace nn{
 namespace math{
-
-    enum PivotDirection{
+    enum PivotDirection
+    {
         PIVOT_NONE,
         PIVOT_UPSIDE_TO_TOP,
         PIVOT_UPSIDE_TO_RIGHT,
@@ -22,9 +22,11 @@ inline MTX44* MTX44Copy(MTX44* pOut, const MTX44& m) { return MTX44Copy(pOut, &m
 MTX44* MTX44Mult(MTX44* pOut, const MTX44* __restrict p1, const MTX44* __restrict p2);
 inline MTX44* MTX44Mult(MTX44* pOut, const MTX44& m1, const MTX44& m2) { return MTX44Mult(pOut, &m1, &m2); }
 
-class MTX44_{
+class MTX44_
+{
 public:
-    struct BaseData{
+    struct BaseData
+    {
         f32 _00;
         f32 _01;
         f32 _02;
@@ -42,7 +44,8 @@ public:
         f32 _32;
         f32 _33;
     };
-    union{
+    union
+    {
         BaseData f;
         f32 matrix[4][4];
         f32 a[16];
@@ -50,18 +53,24 @@ public:
     };
 };
 
-class MTX44 : public MTX44_{
+class MTX44 : public MTX44_
+{
 public:
     typedef MTX44 self_type;
 
-    MTX44() {}
+    MTX44() 
+    {
+    }
+
     explicit MTX44(const f32* p) { (void)MTX44Copy(this, (MTX44*)p); }
-    explicit MTX44(const MTX34& rhs){
+    explicit MTX44(const MTX34& rhs)
+    {
         (void)MTX34Copy((MTX34*)this, (MTX34*)&rhs);
         f._30 = f._31 = f._32 = 0.f; f._33 = 1.f;
     }
     MTX44(const MTX44& rhs) { (void)MTX44Copy(this, &rhs); }
-    MTX44(f32 x00, f32 x01, f32 x02, f32 x03,f32 x10, f32 x11, f32 x12, f32 x13,f32 x20, f32 x21, f32 x22, f32 x23,f32 x30, f32 x31, f32 x32, f32 x33){
+    MTX44(f32 x00, f32 x01, f32 x02, f32 x03,f32 x10, f32 x11, f32 x12, f32 x13,f32 x20, f32 x21, f32 x22, f32 x23,f32 x30, f32 x31, f32 x32, f32 x33)
+    {
         f._00 = x00; f._01 = x01; f._02 = x02; f._03 = x03;
         f._10 = x10; f._11 = x11; f._12 = x12; f._13 = x13;
         f._20 = x20; f._21 = x21; f._22 = x22; f._23 = x23;
@@ -74,13 +83,15 @@ public:
 
     static const int ROW_COUNT = 4; //
     static const int COLUMN_COUNT = 4; //
-    static const MTX44& Identity(){
+    static const MTX44& Identity()
+    {
         static const MTX44 identity(1.0f, 0.0f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f, 0.0f,0.0f, 0.0f, 1.0f, 0.0f,0.0f, 0.0f, 0.0f, 1.0f);
         return identity;
     }
 };
 
-inline MTX44* MTX44Identity(MTX44* pOut){
+inline MTX44* MTX44Identity(MTX44* pOut)
+{
     MTX44Copy(pOut, MTX44::Identity());
 
     return pOut;
@@ -317,7 +328,8 @@ MTX44* MTX44CopyC(MTX44* pOut, const MTX44* p);
 
 }
 
-inline u32 MTX44Inverse(MTX44* pOut, const MTX44* p){
+inline u32 MTX44Inverse(MTX44* pOut, const MTX44* p)
+{
     #ifdef NN_BUILD_DEBUG
         ARMv6::MTX44InverseC(pOut,p);
     #else
@@ -325,7 +337,8 @@ inline u32 MTX44Inverse(MTX44* pOut, const MTX44* p){
     #endif
 }
 
-inline MTX44* MTX44Mult(MTX44* pOut, const MTX44* __restrict p1, const MTX44* __restrict p2){
+inline MTX44* MTX44Mult(MTX44* pOut, const MTX44* __restrict p1, const MTX44* __restrict p2)
+{
     #ifdef NN_BUILD_DEBUG
         ARMv6:MTX44MultC(pOut, p1, p2);
     #else
@@ -333,7 +346,8 @@ inline MTX44* MTX44Mult(MTX44* pOut, const MTX44* __restrict p1, const MTX44* __
     #endif
 }
 
-inline MTX44* MTX44Copy(MTX44* pOut, const MTX44* p){
+inline MTX44* MTX44Copy(MTX44* pOut, const MTX44* p)
+{
     #ifdef NN_BUILD_DEBUG
         ARMv6::MTX44CopyC(pOut,p);
     #else
@@ -341,7 +355,8 @@ inline MTX44* MTX44Copy(MTX44* pOut, const MTX44* p){
     #endif
 }
 
-inline MTX44* MTX44FrustumPivot(MTX44* pOut, f32 l, f32 r, f32 b, f32 t, f32 n, f32 f, PivotDirection pivot = PIVOT_NONE){
+inline MTX44* MTX44FrustumPivot(MTX44* pOut, f32 l, f32 r, f32 b, f32 t, f32 n, f32 f, PivotDirection pivot = PIVOT_NONE)
+{
     #ifdef NN_BUILD_DEBUG
 
     #else
@@ -350,7 +365,8 @@ inline MTX44* MTX44FrustumPivot(MTX44* pOut, f32 l, f32 r, f32 b, f32 t, f32 n, 
     #endif
 }
 
-inline MTX44* MTX44PerspectivePivotRad(MTX44* pOut, f32 fovy, f32 aspect, f32 n, f32 f, PivotDirection pivot = PIVOT_NONE){
+inline MTX44* MTX44PerspectivePivotRad(MTX44* pOut, f32 fovy, f32 aspect, f32 n, f32 f, PivotDirection pivot = PIVOT_NONE)
+{
     #ifdef NN_BUILD_DEBUG
 
     #else

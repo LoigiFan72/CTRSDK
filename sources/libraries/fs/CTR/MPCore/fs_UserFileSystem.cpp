@@ -14,6 +14,7 @@
 #include <nn/err.h>
 #include <nn/fnd.h>
 #include <nn/os.h>
+#include <nn/version.h>
 #include <nn/util/util_Result.h>
 #include <nn/cfg/CTR/cfg_DebugParam.h>
 
@@ -36,9 +37,12 @@ Handle& GetFileServerHandle(){ return fs::g_FileServerHandle; }
 namespace{
     fnd::UnitHeapBase s_ArchiveHeap = *(fnd::UnitHeapBase*)0;
 
-    const wchar_t* GetArchivePath(const wchar_t* path){
-        while (true){
-            if (*path++ == L':'){
+    const wchar_t* GetArchivePath(const wchar_t* path)
+    {
+        while (true)
+        {
+            if (*path++ == L':')
+            {
                 return path;
             }
         }
@@ -49,12 +53,15 @@ namespace{
 /* =File Archives= */
 /* =============== */
 
-class FileServerArchive : public IArchive, private nn::os::HandleObject{
+class FileServerArchive : public IArchive, private nn::os::HandleObject
+{
 private:
     typedef nn::fs::ipc::FileSystem IpcObject;
 
-    IpcObject GetIpcObject() const{
-        if (!IsInitialized()){
+    IpcObject GetIpcObject() const
+    {
+        if (!IsInitialized())
+        {
             NN_ERR_THROW_FATAL_ALL(fs::ResultNotInitialized());
         }
         return IpcObject(GetHandle());
@@ -62,12 +69,15 @@ private:
 
     bool IsInitialized() const { return IsValid(); }
 
-    class File : public IFile, public os::HandleObject{
+    class File : public IFile, public os::HandleObject
+    {
     private:
         typedef nn::fs::ipc::File IpcObject;
 
-        IpcObject GetIpcObject() const{
-            if (!IsInitialized()){
+        IpcObject GetIpcObject() const
+        {
+            if (!IsInitialized())
+            {
                 NN_ERR_THROW_FATAL_ALL(ResultNotInitialized());
             }
             return IpcObject(GetHandle());
@@ -93,13 +103,16 @@ private:
         virtual ~File(){}
     };
 
-    class Directory : public IDirectory, private nn::os::HandleObject{
+    class Directory : public IDirectory, private nn::os::HandleObject
+    {
     private:
 
         typedef nn::fs::ipc::Directory IpcObject;
 
-        IpcObject GetIpcObject() const{
-            if (!IsInitialized()){
+        IpcObject GetIpcObject() const
+        {
+            if (!IsInitialized())
+            {
                 NN_ERR_THROW_FATAL_ALL(ResultNotInitialized());
             }
             return IpcObject(GetHandle());
@@ -127,25 +140,32 @@ private:
     static nn::fnd::ThreadSafeUnitHeap s_FileHeap;
     static nn::fnd::ThreadSafeUnitHeap s_DirectoryHeap;
 
-    ArchiveHandle mArchiveHandle;
+    ArchiveHandle m_ArchiveHandle;
 public:
-    const ArchiveHandle& GetArchiveHandle() const { return mArchiveHandle; }
+    const ArchiveHandle& GetArchiveHandle() const { return m_ArchiveHandle; }
 
-    FileServerArchive() {}
+    FileServerArchive()
+    {
+    }
+
     FileServerArchive(Handle handle, ArchiveHandle archiveHandle): 
-        mArchiveHandle(archiveHandle){
+        m_ArchiveHandle(archiveHandle)
+    {
         this->SetHandle(handle);
     }
-    void Initialize(Handle handle, ArchiveHandle archiveHandle){
+    void Initialize(Handle handle, ArchiveHandle archiveHandle)
+    {
         this->SetHandle(handle);
-        mArchiveHandle = archiveHandle;
+        m_ArchiveHandle = archiveHandle;
     }
 
     static IFile* OpenDirect(Handle handle);
 
-    static Result Create(IArchive** pOut, Handle handle, ArchiveHandle archiveHandle){
+    static Result Create(IArchive** pOut, Handle handle, ArchiveHandle archiveHandle)
+    {
         *pOut = new (s_ArchiveHeap.Allocate()) FileServerArchive(handle, archiveHandle);
-        if (!*pOut){
+        if (!*pOut)
+        {
             return nn::fs::ResultOutOfMemory();
         }
         return ResultSuccess();
@@ -153,86 +173,107 @@ public:
 
     virtual Result OpenFile(IFile** pOut, const Path& path, bit32 mode);
     virtual Result OpenDirectory(IDirectory** pOut, const Path& path);
-    virtual Result DeleteFile(const Path& path){
-        if (path.GetDataSize() > 512){
+    virtual Result DeleteFile(const Path& path)
+    {
+        if (path.GetDataSize() > 512)
+        {
             return fs::ResultPathTooLong();
         }
 
-        return GetIpcObject().DeleteFile(fs::Transaction(),this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize());
+        return GetIpcObject().DeleteFile(fs::Transaction(),this->m_ArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize());
     }
-    virtual Result RenameFile(const Path& currentPath, const Path& newPath){
-        if (currentPath.GetDataSize() > 512 || newPath.GetDataSize() > 512){
+    virtual Result RenameFile(const Path& currentPath, const Path& newPath)
+    {
+        if (currentPath.GetDataSize() > 512 || newPath.GetDataSize() > 512)
+        {
             return ResultPathTooLong();
         }
 
-        return GetIpcObject().RenameFile(fs::Transaction(),this->mArchiveHandle, currentPath.GetPathType(), reinterpret_cast<const bit8*>(currentPath.GetDataBuffer()), currentPath.GetDataSize(),this->mArchiveHandle, newPath.GetPathType(), reinterpret_cast<const bit8*>(newPath.GetDataBuffer()), newPath.GetDataSize());
+        return GetIpcObject().RenameFile(fs::Transaction(),this->m_ArchiveHandle, currentPath.GetPathType(), reinterpret_cast<const bit8*>(currentPath.GetDataBuffer()), currentPath.GetDataSize(),this->mArchiveHandle, newPath.GetPathType(), reinterpret_cast<const bit8*>(newPath.GetDataBuffer()), newPath.GetDataSize());
     }
 
-    virtual Result DeleteDirectory(const Path& path){
-        if (path.GetDataSize() > 512){
+    virtual Result DeleteDirectory(const Path& path)
+    {
+        if (path.GetDataSize() > 512)
+        {
             return ResultPathTooLong();
         }
 
-        return GetIpcObject().DeleteDirectory(fs::Transaction(),this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize());
+        return GetIpcObject().DeleteDirectory(fs::Transaction(),this->m_ArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize());
     }
 
-    virtual Result DeleteDirectoryRecursively(const Path& path){
-        if (path.GetDataSize() > 512){
+    virtual Result DeleteDirectoryRecursively(const Path& path)
+    {
+        if (path.GetDataSize() > 512)
+        {
             return ResultPathTooLong();
         }
 
-        return GetIpcObject().DeleteDirectoryRecursively(fs::Transaction(),this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize());
+        return GetIpcObject().DeleteDirectoryRecursively(fs::Transaction(),this->m_ArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize());
     }
 
-    virtual Result CreateFile(const Path& path, s64 size){
-        if (path.GetDataSize() > 512){
+    virtual Result CreateFile(const Path& path, s64 size)
+    {
+        if (path.GetDataSize() > 512)
+        {
             return ResultPathTooLong();
         }
 
-        return GetIpcObject().CreateFile(fs::Transaction(),this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize(),nn::fs::Attributes(), size);
+        return GetIpcObject().CreateFile(fs::Transaction(),this->m_ArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize(),nn::fs::Attributes(), size);
     }
 
-    virtual Result CreateDirectory(const Path& path){
-        if (path.GetDataSize() > 512){
+    virtual Result CreateDirectory(const Path& path)
+    {
+        if (path.GetDataSize() > 512)
+        {
             return ResultPathTooLong();
         }
 
-        return GetIpcObject().CreateDirectory(fs::Transaction(),this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize(),fs::Attributes());
+        return GetIpcObject().CreateDirectory(fs::Transaction(),this->m_ArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize(),fs::Attributes());
     }
 
-    virtual Result RenameDirectory(const Path& currentPath, const Path& newPath){
-        if (currentPath.GetDataSize() > 512 || newPath.GetDataSize() > 512){
+    virtual Result RenameDirectory(const Path& currentPath, const Path& newPath)
+    {
+        if (currentPath.GetDataSize() > 512 || newPath.GetDataSize() > 512)
+        {
             return ResultPathTooLong();
         }
 
-        return GetIpcObject().RenameDirectory(fs::Transaction(),this->mArchiveHandle, currentPath.GetPathType(), reinterpret_cast<const bit8*>(currentPath.GetDataBuffer()), currentPath.GetDataSize(),this->mArchiveHandle, newPath.GetPathType(), reinterpret_cast<const bit8*>(newPath.GetDataBuffer()), newPath.GetDataSize());
+        return GetIpcObject().RenameDirectory(fs::Transaction(),this->m_ArchiveHandle, currentPath.GetPathType(), reinterpret_cast<const bit8*>(currentPath.GetDataBuffer()), currentPath.GetDataSize(),this->mArchiveHandle, newPath.GetPathType(), reinterpret_cast<const bit8*>(newPath.GetDataBuffer()), newPath.GetDataSize());
     }
 
-    virtual Result SetArchivePriority(s32 priority){
-        return GetIpcObject().SetArchivePriority(this->mArchiveHandle, priority);
+    virtual Result SetArchivePriority(s32 priority)
+    {
+        return GetIpcObject().SetArchivePriority(this->m_ArchiveHandle, priority);
     }
 
-    virtual Result GetArchivePriority(s32* pOut){
-        return GetIpcObject().GetArchivePriority(pOut, this->mArchiveHandle);
+    virtual Result GetArchivePriority(s32* pOut)
+    {
+        return GetIpcObject().GetArchivePriority(pOut, this->m_ArchiveHandle);
     }
 
-    virtual Result GetFreeBytes(s64* pOut){
-        return GetIpcObject().GetFreeBytes(pOut, this->mArchiveHandle);
+    virtual Result GetFreeBytes(s64* pOut)
+    {
+        return GetIpcObject().GetFreeBytes(pOut, this->m_ArchiveHandle);
     }
 
-    void Finalize(){
-        if (mArchiveHandle){
-            GetIpcObject().CloseArchive(this->mArchiveHandle);
-            mArchiveHandle = 0;
+    void Finalize()
+    {
+        if (m_ArchiveHandle)
+        {
+            GetIpcObject().CloseArchive(this->m_ArchiveHandle);
+            m_ArchiveHandle = 0;
         }
         this->ClearHandle();
     }
 
-    virtual ~FileServerArchive(){
+    virtual ~FileServerArchive()
+    {
         this->Finalize();
     }
 
-    virtual void DeleteObject(){
+    virtual void DeleteObject()
+    {
         this->~FileServerArchive();
         s_ArchiveHeap.Free(this);
     }
@@ -249,61 +290,73 @@ IFile* FileServerArchive::OpenDirect(Handle handle){
     return new (s_FileHeap.Allocate()) File(handle);
 }
 
-void FileServerArchive::File::Close(){
-    if (this->IsInitialized()){
+void FileServerArchive::File::Close()
+{
+    if (this->IsInitialized())
+    {
         GetIpcObject().Close();
     }
     this->~File();
     s_FileHeap.Free(this);
 }
 
-void FileServerArchive::Directory::Close(){
-    if (IsInitialized()){
+void FileServerArchive::Directory::Close()
+{
+    if (IsInitialized())
+    {
         GetIpcObject().Close();
     }
     this->~Directory();
     s_DirectoryHeap.Free(this);
 }
 
-Result FileServerArchive::OpenFile(IFile** pOut, const Path& path, bit32 mode){
-    if (path.GetDataSize() > 512){
+Result FileServerArchive::OpenFile(IFile** pOut, const Path& path, bit32 mode)
+{
+    if (path.GetDataSize() > 512)
+    {
         return ResultPathTooLong();
     }
 
     Handle handle;
-    NN_UTIL_RETURN_IF_FAILED(GetIpcObject().OpenFile(&handle, nn::fs::Transaction(),this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize(),mode, fs::Attributes()));
+    NN_UTIL_RETURN_IF_FAILED(GetIpcObject().OpenFile(&handle, nn::fs::Transaction(),this->m_ArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize(),mode, fs::Attributes()));
     *pOut = new (s_FileHeap.Allocate()) File(handle);
-    if (!(*pOut)){
+    if (!(*pOut))
+    {
         nn::svc::CloseHandle(handle);
         return fs::ResultOutOfMemory();
     }
     return ResultSuccess();
 }
 
-Result FileServerArchive::OpenDirectory(IDirectory** pOut, const Path& path){
+Result FileServerArchive::OpenDirectory(IDirectory** pOut, const Path& path)
+{
     if (path.GetDataSize() > 512){
         return fs::ResultPathTooLong();
     }
 
     Handle handle;
-    NN_UTIL_RETURN_IF_FAILED(GetIpcObject().OpenDirectory(&handle,this->mArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize()));
+    NN_UTIL_RETURN_IF_FAILED(GetIpcObject().OpenDirectory(&handle,this->m_ArchiveHandle, path.GetPathType(), reinterpret_cast<const bit8*>(path.GetDataBuffer()), path.GetDataSize()));
     *pOut = new (s_DirectoryHeap.Allocate()) Directory(handle);
-    if (!(*pOut)){
+    if (!(*pOut))
+    {
         nn::svc::CloseHandle(handle);
         return nn::fs::ResultOutOfMemory();
     }
     return ResultSuccess();
 }
 
-class ContentRomFsArchive : public RomFsArchive{
+class ContentRomFsArchive : public RomFsArchive
+{
 private:
     static void* AllocateBuffer();
     static nn::fnd::ThreadSafeUnitHeap* s_ArchiveHeap;
 
 private:
-    virtual Result OpenDirect(IFile** pOut, Handle handle){
+    virtual Result OpenDirect(IFile** pOut, Handle handle)
+    {
         IFile* p = FileServerArchive::OpenDirect(handle);
-        if (!p){
+        if (!p)
+        {
             nn::svc::CloseHandle(handle);
             return nn::fs::ResultOutOfMemory();
         }
@@ -313,8 +366,10 @@ private:
         return ResultSuccess();
     }
 public:
-    Result Initialize(size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache, const nn::fs::CTR::ProgramDataPath& contentPath){
-        Handle handle;{
+    Result Initialize(size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache, const nn::fs::CTR::ProgramDataPath& contentPath)
+    {
+        Handle handle;
+        {
             Path path;
             Path filePath = Path::Make(&contentPath);
             NN_UTIL_RETURN_IF_FAILED(GetFileServer().OpenFileDirectly(&handle,fs::Transaction(),3,
@@ -330,13 +385,16 @@ public:
         return ResultSuccess();
     }
 
-    static Result Create(ContentRomFsArchive** pOut, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache, const nn::fs::CTR::ProgramDataPath& contentPath){
+    static Result Create(ContentRomFsArchive** pOut, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache, const nn::fs::CTR::ProgramDataPath& contentPath)
+    {
         ContentRomFsArchive* p = new (AllocateBuffer()) ContentRomFsArchive();
-        if (!p){
+        if (!p)
+        {
             return nn::fs::ResultOutOfMemory();
         }
         Result result = p->Initialize(maxFile, maxDirectory, workingMemory, workingMemorySize, useCache, contentPath);
-        if (result.IsFailure()){
+        if (result.IsFailure())
+        {
             p->DeleteObject();
             return result;
         }
@@ -344,8 +402,10 @@ public:
         return ResultSuccess();
     }
 
-    Result Initialize(const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
-        Handle handle;{
+    Result Initialize(const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache)
+    {
+        Handle handle;
+        {
             TitleDataSpecifier titleSpec = TitleDataSpecifier::Make(contentArchivePath.mediaType, contentArchivePath.titleId);
             Path path = Path::Make(&titleSpec);
             TitleDataPath titleData = TitleDataPath::MakeContentDataPath(contentArchivePath.contentIdx, ContentPath::MakeRomfsPath());
@@ -356,13 +416,16 @@ public:
         }
     }
 
-    static Result Create(ContentRomFsArchive** pOut, const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+    static Result Create(ContentRomFsArchive** pOut, const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache)
+    {
         ContentRomFsArchive* p = new (AllocateBuffer()) ContentRomFsArchive();
-        if (!p){
+        if (!p)
+        {
             return nn::fs::ResultOutOfMemory();
         }
         Result result = p->Initialize(contentArchivePath, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache);
-        if (result.IsFailure()){
+        if (result.IsFailure())
+        {
             p->DeleteObject();
             return result;
         }
@@ -370,7 +433,8 @@ public:
         return ResultSuccess();
     }
 
-    virtual void DeleteObject(){
+    virtual void DeleteObject()
+    {
         this->~ContentRomFsArchive();
         s_ArchiveHeap->Free(this);
     }
@@ -380,7 +444,8 @@ public:
 
 nn::fnd::ThreadSafeUnitHeap* ContentRomFsArchive::s_ArchiveHeap = 0;
 
-void* ContentRomFsArchive::AllocateBuffer(){
+void* ContentRomFsArchive::AllocateBuffer()
+{
     nn::os::CriticalSection::ScopedLock lk(g_MountLock);
 
     static nn::util::aligned_storage<sizeof(ContentRomFsArchive) * 16, 8>::type s_ContentRomFsArchiveBuffer;
@@ -395,12 +460,14 @@ static s64 s_ConstantWait = 0;
 
 typedef void (*File)(void*);
 
-inline void InitializeGlobal(Handle h){
+inline void InitializeGlobal(Handle h)
+{
     GetFileServer().mSession = h;
-    GetFileServer().InitializeWithSdkVersion(0x40205c8);
+    GetFileServer().InitializeWithSdkVersion(NN_CURRENT_VERSION_NUMBER);
 }
 
-Result OpenSpecialArchiveRaw(IArchive** pOut, bit32 archiveKind){
+Result OpenSpecialArchiveRaw(IArchive** pOut, bit32 archiveKind)
+{
     Path path;
     bit64 lowHandle;
     NN_UTIL_RETURN_IF_FAILED_0(GetFileServer().OpenArchive(&lowHandle, archiveKind, path.GetPathType(), path.GetDataBuffer(), path.GetDataSize()));
@@ -408,44 +475,53 @@ Result OpenSpecialArchiveRaw(IArchive** pOut, bit32 archiveKind){
     return ResultSuccess();
 }
 
-Result OpenRom(IArchive** pOut, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+Result OpenRom(IArchive** pOut, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache)
+{
     ContentRomFsArchive* p = 0;
     NN_UTIL_RETURN_IF_FAILED(ContentRomFsArchive::Create(&p, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache, nn::fs::CTR::ProgramDataPath::MakeRomFsDefaultPath()));
     *pOut = p;
     return ResultSuccess();
 }
 
-Result UserFileSystem::Initialize(nn::Handle handle){
+Result UserFileSystem::Initialize(nn::Handle handle)
+{
     InitializeGlobal(handle);
     return ResultSuccess();
 }
 
-Result UserFileSystem::TryCreateFile(const wchar_t *pathName, s64 size){
+Result UserFileSystem::TryCreateFile(const wchar_t *pathName, s64 size)
+{
     IArchive* archive = FindArchive(pathName);
-    if (!archive){
+    if (!archive)
+    {
         return ResultArchiveNotFound();
     }
     NN_FS_ANALYSIS_LOG_RETURN(archive->CreateFile(Path(GetArchivePath(pathName)), size), "API=CreateFile,Path=%ls,Size=%lld", pathName, size);
 }
 
-Result UserFileSystem::TryCreateDirectory(const wchar_t *pathName){
+Result UserFileSystem::TryCreateDirectory(const wchar_t *pathName)
+{
     IArchive* archive = FindArchive(pathName);
-    if (!archive){
+    if (!archive)
+    {
         return ResultArchiveNotFound();
     }
     NN_FS_ANALYSIS_LOG_RETURN(archive->CreateDirectory(Path(GetArchivePath(pathName))),"API=CreateDirectory,Path=%ls", pathName);
 }
 
-Result UserFileSystem::TryOpenFile(void** pOut,const wchar_t* pathName,bit32 mode){
+Result UserFileSystem::TryOpenFile(void** pOut,const wchar_t* pathName,bit32 mode)
+{
     IArchive* archive = FindArchive(pathName);
-    if (!archive){
+    if (!archive)
+    {
         return ResultArchiveNotFound();
     }
 
     NN_FS_ANALYSIS_LOG_INIT_TICK();
     IFile* p;
     nn::Result res = archive->OpenFile(&p, GetArchivePath(pathName), mode);
-    if (res.IsSuccess()){
+    if (res.IsSuccess())
+    {
         *pOut = p;
     }
 
@@ -453,20 +529,26 @@ Result UserFileSystem::TryOpenFile(void** pOut,const wchar_t* pathName,bit32 mod
         (mode & OPEN_MODE_READ) ? 'R' : '_',(mode & OPEN_MODE_WRITE) ? 'W' : '_',(mode & OPEN_MODE_CREATE) ? 'C' : '_',p);
 }
 
-void UserFileSystem::CloseFile(void* p){
-    if (p){
+void UserFileSystem::CloseFile(void* p)
+{
+    if (p)
+    {
         NN_FS_ANALYSIS_LOG_NORETURN(static_cast<IFile*>(p)->Close(),"API=CloseFile,Handle=%08X",p);
     }
 }
 
-void UserFileSystem::CloseDirectory(void *p){
-    if (p){
+void UserFileSystem::CloseDirectory(void *p)
+{
+    if (p)
+    {
         NN_FS_ANALYSIS_LOG_NORETURN(static_cast<IDirectory*>(p)->Close(),"API=CloseDirectory,Handle=%08X",p);
     }
 }
 
-Result UserFileSystem::TryReadFile(s32* pOut, void* p, s64 offset, void* buffer, size_t size){
-    if ((p == NULL) || (buffer == NULL)){
+Result UserFileSystem::TryReadFile(s32* pOut, void* p, s64 offset, void* buffer, size_t size)
+{
+    if ((p == NULL) || (buffer == NULL))
+    {
         return ResultInvalidArgument();
     }
 
@@ -474,16 +556,20 @@ Result UserFileSystem::TryReadFile(s32* pOut, void* p, s64 offset, void* buffer,
     NN_FS_ANALYSIS_LOG_RETURN(static_cast<IFile*>(p)->TryRead(pOut, offset, buffer, size),"API=ReadFile,Handle=%08X,Offset=%lld,Dst=0x%08X,Size=%u",p,offset,buffer,size);
 }
 
-Result UserFileSystem::TryReadDirectory(s32 *pOut, void *p, nn::fs::DirectoryEntry pEntries[], s32 numEntries){
-    if ((pOut == NULL) || (p == NULL)){
+Result UserFileSystem::TryReadDirectory(s32 *pOut, void *p, nn::fs::DirectoryEntry pEntries[], s32 numEntries)
+{
+    if ((pOut == NULL) || (p == NULL))
+    {
         return nn::fs::ResultInvalidArgument();
     }
     LatencyEmulation(true);
     NN_FS_ANALYSIS_LOG_RETURN(static_cast<IDirectory*>(p)->TryRead(pOut, pEntries, numEntries),"API=ReadDirectory,Handle=%08X",p);
 }
 
-Result UserFileSystem::TryWriteFile(s32* pOut, void* p, s64 offset, const void* buffer, size_t size, bool flush){
-    if ((pOut == NULL) || (p == NULL) || (buffer == NULL)){
+Result UserFileSystem::TryWriteFile(s32* pOut, void* p, s64 offset, const void* buffer, size_t size, bool flush)
+{
+    if ((pOut == NULL) || (p == NULL) || (buffer == NULL))
+    {
         return ResultInvalidArgument();
     }
 
@@ -493,16 +579,20 @@ Result UserFileSystem::TryWriteFile(s32* pOut, void* p, s64 offset, const void* 
     );
 }
 
-Result UserFileSystem::TryGetFileSize(s64* pOut, void* p){
-    if ((pOut == NULL) || (p == NULL)){
+Result UserFileSystem::TryGetFileSize(s64* pOut, void* p)
+{
+    if ((pOut == NULL) || (p == NULL))
+    {
         return ResultInvalidArgument();
     }
 
     NN_FS_ANALYSIS_LOG_RETURN(static_cast<const IFile*>(p)->TryGetSize(pOut),"API=GetFileSize,Handle=%08X", p);
 }
 
-Result UserFileSystem::TrySetFileSize(void* p, s64 size){
-    if (p == NULL){
+Result UserFileSystem::TrySetFileSize(void* p, s64 size)
+{
+    if (p == NULL)
+    {
         return ResultInvalidArgument();
     }
 
@@ -511,27 +601,34 @@ Result UserFileSystem::TrySetFileSize(void* p, s64 size){
     );
 }
 
-Result UserFileSystem::TryFlush(void* p){
-    if (p == NULL){
+Result UserFileSystem::TryFlush(void* p)
+{
+    if (p == NULL)
+    {
         return ResultInvalidArgument();
     }
 
     NN_FS_ANALYSIS_LOG_RETURN(static_cast<IFile*>(p)->TryFlush(),"API=Flush,Handle=%08X", p);
 }
 
-void LatencyEmulation( bool isRead){
+void LatencyEmulation(bool isRead)
+{
     u16 latencyTime = 0;
     u16 latencyParameter = (isRead)? (100) : (380);
-    if(latencyParameter && s_IsLatencyEmulationEnable){
-        if(detail::s_IsEmulateEndurance){
+    if(latencyParameter && s_IsLatencyEmulationEnable)
+    {
+        if(detail::s_IsEmulateEndurance)
+        {
             s64 sysTick = nn::svc::GetSystemTick();
-            if(sysTick & 0x10){
+            if(sysTick & 0x10)
+            {
                 latencyTime = latencyParameter / (static_cast<u16>(sysTick & 0xF) + 1);
             }
         }
 
         latencyTime += static_cast<u16>(s_ConstantWait);
-        if(latencyTime > 0){
+        if(latencyTime > 0)
+        {
             nn::os::Thread::Sleep(nn::fnd::TimeSpan::FromMilliSeconds(latencyTime));
         }
     }
@@ -541,19 +638,23 @@ void LatencyEmulation( bool isRead){
 } // MPCore
 } // detail
 
-void InitializeLatencyEmulation(){
+void InitializeLatencyEmulation()
+{
     CTR::MPCore::detail::s_ConstantWait = cfg::CTR::GetFsLatencyEmulationParam() * 10;
 
-    if(cfg::CTR::IsDebugMode()){
+    if(cfg::CTR::IsDebugMode())
+    {
         CTR::MPCore::detail::s_IsLatencyEmulationEnable = true;
     }
 
-    if((CTR::MPCore::detail::s_IsLatencyEmulationEnable) || (CTR::MPCore::detail::s_ConstantWait != 0)){
+    if((CTR::MPCore::detail::s_IsLatencyEmulationEnable) || (CTR::MPCore::detail::s_ConstantWait != 0))
+    {
         CTR::MPCore::detail::s_IsEmulateEndurance = true;
     }
 }
 
-void ForceDisableLatencyEmulation(){
+void ForceDisableLatencyEmulation()
+{
     CTR::MPCore::detail::s_IsLatencyEmulationEnable = false;
 }
 
@@ -563,7 +664,8 @@ namespace{
     IArchive* g_SaveDataArchive = 0;
 }
 
-Result MountSaveData(const char* archive) {
+Result MountSaveData(const char* archive)
+{
     IArchive* p;
     Result result;
 
@@ -574,19 +676,23 @@ Result MountSaveData(const char* archive) {
     NN_FS_ANALYSIS_LOG_INIT_TICK();
 
     result = CTR::MPCore::detail::OpenSpecialArchiveRaw(&p, 4);
-    if (result.IsSuccess()){
+    if (result.IsSuccess())
+    {
         result = CTR::MPCore::detail::RegisterArchive(archive,p,false,false);
-        if(result.IsFailure()){
+        if(result.IsFailure())
+        {
             p->DeleteObject();
         } 
-        else{
+        else
+        {
             g_SaveDataArchive = p;
         }
     }
     return result;
 }
 
-Result FormatSaveData(size_t maxFiles, size_t maxDirectories, bool isDuplicateAll, size_t sizeBlock){
+Result FormatSaveData(size_t maxFiles, size_t maxDirectories, bool isDuplicateAll, size_t sizeBlock)
+{
     u32 countBucketDirectory = nn::fslow::QueryOptimalBucketCount(maxDirectories);
     u32 countBucketFile = nn::fslow::QueryOptimalBucketCount(maxFiles);
     Path dummyPath;
@@ -595,13 +701,16 @@ Result FormatSaveData(size_t maxFiles, size_t maxDirectories, bool isDuplicateAl
         "API=FormatSaveData,MaxFile=%u,MaxDir=%u,Dup=%d", maxFiles, maxDirectories, isDuplicateAll);
 }
 
-Result FormatSaveData(size_t maxFiles, size_t maxDirectories, bool isDuplicated){
+Result FormatSaveData(size_t maxFiles, size_t maxDirectories, bool isDuplicated)
+{
     return FormatSaveData(maxFiles, maxDirectories, isDuplicated, 512);
 }
 
-Result CommitSaveData(const char* path){
+Result CommitSaveData(const char* path)
+{
     FileServerArchive* archive = reinterpret_cast<FileServerArchive *>(FindArchive(path));
-    if (!archive){
+    if (!archive)
+    {
         return ResultArchiveNotFound();
     }
 
@@ -612,31 +721,38 @@ Result CommitSaveData(const char* path){
     NN_FS_ANALYSIS_LOG_RETURN(GetFileServer().ControlArchive(archiveHandle, 0, &dummy1, 1, &dummy2, 1),"API=CommitSaveData,Path=%s", path);
 }
 
-Result MountRom(const char *archiveName,size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+Result MountRom(const char *archiveName,size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache)
+{
     NN_FS_ANALYSIS_LOG_INIT_TICK();
     IArchive* p;
     NN_ERR_THROW_FATAL_ALL(OpenRom(&p, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache));
     Result r = RegisterArchive(archiveName, p, false, false);
-    if(r.IsFailure()){
+    if(r.IsFailure())
+    {
         p->DeleteObject();
         NN_ERR_THROW_FATAL_ALL(r);
     }
     NN_FS_ANALYSIS_LOG_RETURN_WITHOUT_TICK(ResultSuccess(),"API=MountRom,Path=%s,MaxFile=%u,MaxDir=%u,UseCache=%d", archiveName, maxFile, maxDirectory, useCache);
 }
 
-Result MountRom(size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+Result MountRom(size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache)
+{
     MountRom("rom:", maxFile, maxDirectory, workingMemory, workingMemorySize, useCache);
 }
 
-Result Unmount(const char* archiveName){
+Result Unmount(const char* archiveName)
+{
     NN_FS_ANALYSIS_LOG_INIT_TICK();
     Result res;
     bool isAlias;
-    if (IArchive* p = UnregisterArchive(&isAlias, MakeArchiveName(archiveName))){
-        if (!isAlias){
+    if (IArchive* p = UnregisterArchive(&isAlias, MakeArchiveName(archiveName)))
+    {
+        if (!isAlias)
+        {
             p->DeleteObject();
 
-            if (p == g_SaveDataArchive){
+            if (p == g_SaveDataArchive)
+            {
                 g_SaveDataArchive = 0;
             }
         }
@@ -650,12 +766,14 @@ Result Unmount(const char* archiveName){
     NN_FS_ANALYSIS_LOG_RETURN_WITHOUT_TICK(res,"API=Unmount,Path=%s", archiveName);
 }
 
-s32 GetRomRequiredMemorySize(size_t maxFile, size_t maxDirectory, bool useCache){
+s32 GetRomRequiredMemorySize(size_t maxFile, size_t maxDirectory, bool useCache)
+{
     ProgramDataPath path;
     GetRomRequiredMemorySizeImpl(maxFile, maxDirectory, useCache, &path);
 }
 
-s32 GetRomRequiredMemorySizeImpl(size_t maxFile, size_t maxDirectory, bool useCache, ProgramDataPath* contentPath){
+s32 GetRomRequiredMemorySizeImpl(size_t maxFile, size_t maxDirectory, bool useCache, ProgramDataPath* contentPath)
+{
     Handle handle;
     {
         Path path;
@@ -665,13 +783,15 @@ s32 GetRomRequiredMemorySizeImpl(size_t maxFile, size_t maxDirectory, bool useCa
     }
 
     IFile* pFile = FileServerArchive::OpenDirect(handle);
-    if (!pFile){
+    if (!pFile)
+    {
         nn::svc::CloseHandle(handle);
         NN_ERR_THROW_FATAL_ALL(fs::ResultUnknownError());
     }
 
     s32 ret = RomFsArchive::GetRequiredWorkingMemorySize(pFile, maxFile, maxDirectory, useCache);
-    if(ret <= 0){
+    if(ret <= 0)
+    {
         nn::svc::CloseHandle(handle);
         NN_ERR_THROW_FATAL_ALL(fs::ResultUnknownError());
     }
@@ -681,21 +801,24 @@ s32 GetRomRequiredMemorySizeImpl(size_t maxFile, size_t maxDirectory, bool useCa
     return ret;
 }
 
-Result MountSpecialArchive(const char* archiveName, bit32 archiveKind){
+Result MountSpecialArchive(const char* archiveName, bit32 archiveKind)
+{
     IArchive* p;
     NN_UTIL_RETURN_IF_FAILED(OpenSpecialArchiveRaw(&p, archiveKind));
     NN_UTIL_RETURN_IF_FAILED_1(RegisterArchive(archiveName, p, false, false),p->DeleteObject());
     return ResultSuccess();
 }
 
-Result OpenDataContent(IArchive** pOut, const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+Result OpenDataContent(IArchive** pOut, const nn::fs::DataContentArchivePath& contentArchivePath, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache)
+{
     ContentRomFsArchive* p = 0;
     NN_UTIL_RETURN_IF_FAILED(ContentRomFsArchive::Create(&p, contentArchivePath, maxFile, maxDirectory, workingMemory, workingMemorySize, useCache));
     *pOut = p;
     return ResultSuccess();
 }
 
-Result MountContent(const char* archiveName, MediaType mediaType, TitleId titleId, ContentIdx contentIndex, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache){
+Result MountContent(const char* archiveName, MediaType mediaType, TitleId titleId, ContentIdx contentIndex, size_t maxFile, size_t maxDirectory, void* workingMemory, size_t workingMemorySize, bool useCache)
+{
     nn::fs::DataContentArchivePath path;
     path.mediaType = mediaType;
     path.titleId = titleId;
@@ -706,7 +829,8 @@ Result MountContent(const char* archiveName, MediaType mediaType, TitleId titleI
     return ResultSuccess();
 }
 
-Result OpenSharedExtSaveData(IArchive** pOut, const nn::fs::ExtSaveDataArchivePath& extSaveDataArchivePath){
+Result OpenSharedExtSaveData(IArchive** pOut, const nn::fs::ExtSaveDataArchivePath& extSaveDataArchivePath)
+{
     Path path = Path::Make(&extSaveDataArchivePath);
     bit64 lowHandle;
     NN_UTIL_RETURN_IF_FAILED_0(GetFileServer().OpenArchive(&lowHandle, 0x200000007LL, path.GetPathType(), path.GetDataBuffer(), path.GetDataSize()));
@@ -714,7 +838,8 @@ Result OpenSharedExtSaveData(IArchive** pOut, const nn::fs::ExtSaveDataArchivePa
     return ResultSuccess();
 }
 
-Result MountSharedExtSaveData(const char* archiveName, bit32 id){
+Result MountSharedExtSaveData(const char* archiveName, bit32 id)
+{
     nn::fs::ExtSaveDataArchivePath path = nn::fs::ExtSaveDataArchivePath::Make(nn::fs::MEDIA_TYPE_NAND, static_cast<nn::fs::ExtSaveDataId>(id));
     IArchive* p;
     NN_UTIL_RETURN_IF_FAILED(OpenSharedExtSaveData(&p, path));
@@ -722,7 +847,8 @@ Result MountSharedExtSaveData(const char* archiveName, bit32 id){
     return ResultSuccess();
 }
 
-Result MountSdmc(const char* archiveName){
+Result MountSdmc(const char* archiveName)
+{
     NN_FS_ANALYSIS_LOG_RETURN(MountSpecialArchive(archiveName, 9),"API=MountSdmc,Path=%s", archiveName);
 }
 

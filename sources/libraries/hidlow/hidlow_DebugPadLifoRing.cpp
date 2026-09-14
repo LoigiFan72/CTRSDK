@@ -10,31 +10,39 @@ namespace nn {
 namespace hidlow {
 namespace CTR {
 
-void DebugPadLifoRing::ReadData(nn::hidlow::CTR::DebugPadRawStatus* pBuffers, s32 bufferNum, s32* pReadCount, s64* pTick, s32* pIndex){
+void DebugPadLifoRing::ReadData(nn::hidlow::CTR::DebugPadRawStatus* pBuffers, s32 bufferNum, s32* pReadCount, s64* pTick, s32* pIndex)
+{
     NN_TASSERT_(NULL != pBuffers && NULL != pReadCount && NULL != pTick &&  NULL != pIndex);
     NN_TASSERT_(-1 <= *pIndex && DEBUGPAD_LIFORING_BUFFER_NUM > *pIndex);
     NN_TASSERT_((*pIndex >= 0) == (*pTick >= 0));
 
     *pReadCount = 0;
 
-    if (0 >= bufferNum){
+    if (0 >= bufferNum)
+    {
         return;
     }
 
     const s32 maxRead = nn::math::Min(bufferNum, DEBUGPAD_LIFORING_BUFFER_NUM - 1);
 
-    for(;;){
-        const s32 orgWritePointer = mWritePointer;
+    for(;;)
+    {
+        const s32 orgWritePointer = m_writePointer;
         s32 writePointer = orgWritePointer;
-        const s64 tickWriteZero = mTickWriteZero;
-        const s64 oldTickWriteZero = mOldTickWriteZero;
+        const s64 tickWriteZero = m_tickWriteZero;
+        const s64 oldTickWriteZero = m_oldTickWriteZero;
 
         NN_TASSERT_(-1 <= writePointer && DEBUGPAD_LIFORING_BUFFER_NUM > writePointer);
 
-        if (writePointer > 0){}
-        else if (writePointer == 0){
-            if (tickWriteZero == oldTickWriteZero){
-                if (tickWriteZero < 0){
+        if (writePointer > 0)
+        {
+        }
+        else if (writePointer == 0)
+        {
+            if (tickWriteZero == oldTickWriteZero)
+            {
+                if (tickWriteZero < 0)
+                {
                     return;
                 }
 
@@ -42,7 +50,8 @@ void DebugPadLifoRing::ReadData(nn::hidlow::CTR::DebugPadRawStatus* pBuffers, s3
             }
         }
 
-        else{
+        else
+        {
             return;
         }
 
@@ -50,41 +59,48 @@ void DebugPadLifoRing::ReadData(nn::hidlow::CTR::DebugPadRawStatus* pBuffers, s3
 
         s32 readCount = 0;
 
-        if (tickWriteZero <= *pTick){
+        if (tickWriteZero <= *pTick)
+        {
             readCount = writePointer - *pIndex;
             NN_TASSERT_(0 <= readCount);
         }
-        else if (oldTickWriteZero < 0){
+        else if (oldTickWriteZero < 0)
+        {
             readCount = writePointer + 1;
         }
-        else if (oldTickWriteZero <= *pTick){
+        else if (oldTickWriteZero <= *pTick)
+        {
             readCount = writePointer + DEBUGPAD_LIFORING_BUFFER_NUM - *pIndex;
         }
-        else{
+        else
+        {
             readCount = maxRead;
         }
 
-        if (maxRead < readCount){
+        if (maxRead < readCount)
+        {
             readCount = maxRead;
         }
 
-        for (s32 i = 0; i < readCount; i++){
+        for (s32 i = 0; i < readCount; i++)
+        {
             s32 srcIdx = (DEBUGPAD_LIFORING_BUFFER_NUM + writePointer - i)%DEBUGPAD_LIFORING_BUFFER_NUM;
-            pBuffers[i].hold        = mBuffers[srcIdx].hold;
-            pBuffers[i].trigger     = mBuffers[srcIdx].trigger;
-            pBuffers[i].release     = mBuffers[srcIdx].release;
-            pBuffers[i].leftStickX  = mBuffers[srcIdx].leftStickX;
-            pBuffers[i].leftStickY  = mBuffers[srcIdx].leftStickY;
-            pBuffers[i].rightStickX = mBuffers[srcIdx].rightStickX;
-            pBuffers[i].rightStickY = mBuffers[srcIdx].rightStickY;
+            pBuffers[i].hold        = m_Buffers[srcIdx].hold;
+            pBuffers[i].trigger     = m_Buffers[srcIdx].trigger;
+            pBuffers[i].release     = m_Buffers[srcIdx].release;
+            pBuffers[i].leftStickX  = m_Buffers[srcIdx].leftStickX;
+            pBuffers[i].leftStickY  = m_Buffers[srcIdx].leftStickY;
+            pBuffers[i].rightStickX = m_Buffers[srcIdx].rightStickX;
+            pBuffers[i].rightStickY = m_Buffers[srcIdx].rightStickY;
         }
 
         {
-            const s32 checkWritePointer = mWritePointer;
-            const s64 checkTickWriteZero = mTickWriteZero;
-            const s64 checkOldTickWriteZero = mOldTickWriteZero;
+            const s32 checkWritePointer = m_writePointer;
+            const s64 checkTickWriteZero = m_tickWriteZero;
+            const s64 checkOldTickWriteZero = m_oldTickWriteZero;
 
-            if (false || (checkWritePointer != orgWritePointer) || (checkTickWriteZero != tickWriteZero) || (checkOldTickWriteZero != oldTickWriteZero) || false){
+            if (false || (checkWritePointer != orgWritePointer) || (checkTickWriteZero != tickWriteZero) || (checkOldTickWriteZero != oldTickWriteZero) || false)
+            {
                 continue;
             }
         }
